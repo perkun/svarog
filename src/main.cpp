@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -30,12 +31,12 @@ public:
 	virtual void update();
 	virtual void draw();
 
+	vector<Node*> children;
 private:
 	Transform world_transform, transform;
 	Mesh *mesh;
 
 	Node *parent;
-	vector<Node*> children;
 };
 
 
@@ -102,6 +103,21 @@ void MemmoryLedger<T>::delete_all()
 		delete p;
 }
 
+
+// use function pointer to do whatever with a node
+void depth_first_search(Node *root)
+{
+	for (Node *child: root->children)
+	{
+		cout << child << endl;
+		depth_first_search(child);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////   MAIN   ///////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 int main()
 {
 	cout << "This is Svarog!" << endl;
@@ -116,6 +132,8 @@ int main()
 
 	Transform trans;
 
+	// tree neds sth to store visited/unvisited information
+// 	map<Node*, bool> visited;
 	Node *root = new Node();
 
 	Node *asteroid_0 = new Node(trans, mesh_1);
@@ -138,9 +156,22 @@ int main()
 
 	asteroid_2->add_child(asteroid_2_0);
 	asteroid_2->add_child(asteroid_2_1);
-// 	root->add_child(trans,
 
 
+	cout << "adresy: \n"
+		 << "root: " << root << endl
+		 << "asteroid_0: " << asteroid_0 << endl
+		 << "asteroid_1: " << asteroid_1 << endl
+		 << "asteroid_2: " << asteroid_2 << endl
+		 << "asteroid_1_0: " << asteroid_1_0 << endl
+		 << "asteroid_1_1: " << asteroid_1_1 << endl
+		 << "asteroid_2_0: " << asteroid_2_0 << endl
+		 << "asteroid_2_1: " << asteroid_2_1 << endl
+		 << endl;
+
+	cout << "DFS:" << endl;
+
+	depth_first_search(root);
 
 	delete root;
 	mesh_ledger.delete_all();
