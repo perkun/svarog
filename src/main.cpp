@@ -1,155 +1,56 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
-#include <map>
+
+#include "Svarog.h"
+
 
 using namespace std;
 
 
-class Transform
+void print_id(SceneNode* n)
 {
-public:
-	uint id;
-};
-
-
-class Mesh
-{
-public:
-	uint id;
-};
-
-
-class Node
-{
-public:
-	Node();
-	Node(Transform transform, Mesh *mesh);
-	~Node();
-	void add_child(Node *c);
-
-	virtual void update();
-	virtual void draw();
-
-	vector<Node*> children;
-private:
-	Transform world_transform, transform;
-	Mesh *mesh;
-
-	Node *parent;
-};
-
-
-Node::Node()
-{
-	parent = NULL;
-};
-
-
-Node::Node(Transform transform, Mesh *mesh = NULL)
-{
-	parent = NULL;
-	this->transform = transform;
-	this->mesh = mesh;
-};
-
-
-Node::~Node()
-{
-	for (Node *c: children)
-		delete c;
-}
-
-void Node::add_child(Node *c)
-{
-	c->parent = this;
-	children.push_back(c);
-}
-
-void Node::update()
-{
-	return;
-}
-
-void Node::draw()
-{
-	return;
+	cout << n << endl;
 }
 
 
-template <typename T>
-class MemmoryLedger
-{
-public:
-	void add(T *p);
-	void delete_all();
 
-private:
-	vector<T*> pointer_list;
-};
-
-
-template <typename T>
-void MemmoryLedger<T>::add(T *p)
-{
-	pointer_list.push_back(p);
-}
-
-
-template <typename T>
-void MemmoryLedger<T>::delete_all()
-{
-	for (T *p: pointer_list)
-		delete p;
-}
-
-
-// use function pointer to do whatever with a node
-void depth_first_search(Node *root)
-{
-	for (Node *child: root->children)
-	{
-		cout << child << endl;
-		depth_first_search(child);
-	}
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   MAIN   ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+
 int main()
 {
 	cout << "This is Svarog!" << endl;
 
-	// define ledgersk
-	MemmoryLedger<Mesh> mesh_ledger;
+	Svarog svarog;
 
 
-	Mesh *mesh_1 = new Mesh;  // this needs to be hidden behind interface
-							  // returned pointer as handle for future
-	mesh_ledger.add(mesh_1);
+// 	Mesh *mesh_1 = new Mesh;  // this needs to be hidden behind interface
+// 							  // returned pointer as handle for future
 
+	Mesh *mesh_1 = svarog.create_mesh();
 	Transform trans;
 
 	// tree neds sth to store visited/unvisited information
-// 	map<Node*, bool> visited;
-	Node *root = new Node();
+// 	map<SceneNode*, bool> visited;
 
-	Node *asteroid_0 = new Node(trans, mesh_1);
-	Node *asteroid_1 = new Node(trans, mesh_1);
-	Node *asteroid_2 = new Node(trans, mesh_1);
+	SceneNode *asteroid_0 = new SceneNode(trans, mesh_1);
+	SceneNode *asteroid_1 = new SceneNode(trans, mesh_1);
+	SceneNode *asteroid_2 = new SceneNode(trans, mesh_1);
 
-	Node *asteroid_1_0 = new Node(trans, mesh_1);
-	Node *asteroid_1_1 = new Node(trans, mesh_1);
+	SceneNode *asteroid_1_0 = new SceneNode(trans, mesh_1);
+	SceneNode *asteroid_1_1 = new SceneNode(trans, mesh_1);
 
-	Node *asteroid_2_0 = new Node(trans, mesh_1);
-	Node *asteroid_2_1 = new Node(trans, mesh_1);
+	SceneNode *asteroid_2_0 = new SceneNode(trans, mesh_1);
+	SceneNode *asteroid_2_1 = new SceneNode(trans, mesh_1);
 
 
-	root->add_child(asteroid_0);
-	root->add_child(asteroid_1);
-	root->add_child(asteroid_2);
+	svarog.scene_graph.root->add_child(asteroid_0);
+	svarog.scene_graph.root->add_child(asteroid_1);
+	svarog.scene_graph.root->add_child(asteroid_2);
 
 	asteroid_1->add_child(asteroid_1_0);
 	asteroid_1->add_child(asteroid_1_1);
@@ -159,7 +60,7 @@ int main()
 
 
 	cout << "adresy: \n"
-		 << "root: " << root << endl
+		 << "root: " << svarog.scene_graph.root << endl
 		 << "asteroid_0: " << asteroid_0 << endl
 		 << "asteroid_1: " << asteroid_1 << endl
 		 << "asteroid_2: " << asteroid_2 << endl
@@ -169,12 +70,20 @@ int main()
 		 << "asteroid_2_1: " << asteroid_2_1 << endl
 		 << endl;
 
+
+	svarog.scene_graph.depth_first_search(svarog.scene_graph.root, print_id);
+
+	cout << "detatching noede..." << endl;
+// 	SceneNode* detatched = svarog.scene_graph.root->detatch_child(asteroid_2);
+	asteroid_2->detatch();
+
+
+	cout << "detatched:" << endl;
+	svarog.scene_graph.depth_first_search(asteroid_2, print_id);
+
 	cout << "DFS:" << endl;
+	svarog.scene_graph.depth_first_search(svarog.scene_graph.root, print_id);
 
-	depth_first_search(root);
-
-	delete root;
-	mesh_ledger.delete_all();
 
 	return 0;
 }
