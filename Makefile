@@ -4,9 +4,9 @@ CC = g++
 SRCDIR = src
 BUILDDIR = build
 CFLAGS = -g -c -std=c++11
-LIB = #-lrenderEngine -lglfw -lm -lGL -lGLU -lGLEW -lnetcdf_c++4 -lnetcdf -L/opt/cuda/lib64 -lcudart # -lfreeimage
+LIB = -lglfw -lGLEW -lGL #-lrenderEngine -lm -lGL -lGLU -lGLEW -lnetcdf_c++4 -lnetcdf -L/opt/cuda/lib64 -lcudart # -lfreeimage
 
-OBJECTS = build/main.o build/Svarog.o build/SceneGraph.o build/Mesh.o build/Transform.o build/SceneNode.o
+OBJECTS = build/main.o build/Svarog.o build/SceneGraph.o build/Mesh.o build/Transform.o build/SceneNode.o build/Shader.o
 
 
 # linking
@@ -31,6 +31,8 @@ build/SceneNode.o: src/SceneNode.cpp
 build/SceneGraph.o: src/SceneGraph.cpp
 		$(CC) $(CFLAGS) -o $@ $^
 
+build/Shader.o: src/Shader.cpp
+		$(CC) $(CFLAGS) -o $@ $^
 clean:
 		rm -f build/*.o
 		rm -f $(TARGET)

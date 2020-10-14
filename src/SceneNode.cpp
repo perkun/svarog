@@ -4,6 +4,8 @@
 SceneNode::SceneNode()
 {
 	parent = NULL;
+	mesh = NULL;
+	shader = NULL;
 };
 
 
@@ -59,7 +61,16 @@ void SceneNode::update()
 
 void SceneNode::draw()
 {
-	return;
+	if (mesh != NULL)
+	{
+		shader->bind();
+		mesh->draw();
+	}
 }
 
+
+void SceneNode::bind_shader(Shader *s)
+{
+	shader = s;
+}
 

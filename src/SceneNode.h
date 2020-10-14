@@ -7,6 +7,7 @@
 
 #include "Mesh.h"
 #include "Transform.h"
+#include "Shader.h"
 
 using namespace std;
 
@@ -20,16 +21,18 @@ public:
 	void add_child(SceneNode *c);
 // 	SceneNode* detatch_child(SceneNode*);
 	void detatch();
+	void bind_shader(Shader *s);
 
 	virtual void update();
 	virtual void draw();
 
 	vector<SceneNode*> children;
 private:
+	SceneNode *parent;
+
 	Transform world_transform, transform;
 	Mesh *mesh;
-
-	SceneNode *parent;
+	Shader *shader;
 };
 
 #endif
