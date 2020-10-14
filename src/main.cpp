@@ -34,7 +34,7 @@ int main()
 	Shader basic_shader;
 	basic_shader.set_uniform_4fv("u_color", vec4(1., 0., 1., 1.));
 
-	Mesh *square_mesh = svarog.create_mesh();
+	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
 	Transform trans;
 
 	SceneNode *square = new SceneNode(trans, square_mesh);

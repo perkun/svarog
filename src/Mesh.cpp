@@ -1,7 +1,55 @@
 #include "Mesh.h"
 
-Mesh::Mesh()
+IndexModel::IndexModel(string filename)
 {
+	load_obj(filename);
+}
+
+
+IndexModel::~IndexModel()
+{
+}
+
+void IndexModel::load_obj(string filename)
+{
+	FILE *f = fopen(filename.c_str(), "r");
+	if (f == NULL)
+	{
+		perror("File not found");
+		return;
+	}
+
+	int num_v = 0, num_f = 0, num_vn = 0, num_vt = 0;
+	char line[100];
+
+	// get number of elements to allocate memmory
+	while (fgets(line, 99, f) != NULL)
+	{
+		if (line[0] == 'v')
+		{
+			if (line[1] == ' ')
+				num_v++;
+			else if (line[1] == 'n')
+				num_vn++;
+			else if (line[1] == 't')
+				num_vt++;
+		}
+		else if (line[0] == 'f')
+		{
+			num_f++;
+		}
+	}
+
+	cout << num_v << "\t" << num_vt << "\t" << num_vn << "\t" << num_f << endl;
+
+
+	fclose(f);
+}
+
+
+Mesh::Mesh(string filename)
+{
+	IndexModel indexed_model(filename);
 	create_vao();
 }
 
@@ -39,7 +87,6 @@ void Mesh::create_vao()
 	glVertexAttribPointer(POSITIONS, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // binds to current VAO
 
 	// normals
-
 
 	// textures
 

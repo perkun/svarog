@@ -1,16 +1,38 @@
 #ifndef MESH_H_
 #define MESH_H_
 
-
 #include <stdio.h>
 #include <iostream>
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <string>
+
+using namespace std;
+
+
+class IndexModel
+{
+public:
+	IndexModel(string filename);
+	~IndexModel();
+
+	void load_obj(string filename);
+
+private:
+	float *positions;
+	float *normals;
+	float *texture_coords;
+
+	int *position_ids;
+	int *normal_ids;
+	int *texture_ids;
+};
+
 
 class Mesh
 {
 public:
-	Mesh();
+	Mesh(string filename);
 	~Mesh();
 	uint id;
 	void draw();

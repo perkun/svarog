@@ -27,9 +27,9 @@ Svarog::~Svarog()
 	glfwTerminate();
 }
 
-Mesh* Svarog::create_mesh()
+Mesh* Svarog::create_mesh(string filename)
 {
-	Mesh *m = new Mesh();
+	Mesh *m = new Mesh(filename);
 	mesh_ledger.add(m);
 	return m;
 }
