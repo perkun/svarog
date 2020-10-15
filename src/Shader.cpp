@@ -4,16 +4,25 @@ Shader::Shader()
 {
 	string vs = R"(#version 450 core
 layout(location = 0) in vec4 position;
+layout(location = 2) in vec3 normal;
+
+out vec3 normal_world;
+
 void main() {
+	normal_world = normal;
 	gl_Position = position;
 })";
 //
 	string fs = R"(#version 450 core
 layout(location = 0) out vec4 color;
+in vec3 normal_world;
+
 uniform vec4 u_color;
 
 void main() {
-	color = u_color; //vec4(0., 1., 0., 1.);
+	float d = ( dot(normalize(normal_world), vec3(0, 0, 1))  );
+	d = max(d, 0);
+ 	color = u_color * d;
 })";
 
 

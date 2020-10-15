@@ -15,6 +15,12 @@ Svarog::Svarog(int width, int height, string w_title, bool visible)
 	GLenum err = glewInit();
 	if (err != GLEW_OK)
 		cout << "glew init failed" << endl;
+
+
+// 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace (GL_CCW);
 }
 
 
@@ -34,7 +40,7 @@ Mesh* Svarog::create_mesh(string filename)
 	return m;
 }
 
-void Svarog::create_window(int, int, string title, bool visible)
+void Svarog::create_window(int w, int h, string title, bool visible)
 {
 	if (visible)
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
@@ -44,7 +50,7 @@ void Svarog::create_window(int, int, string title, bool visible)
 	// new window focus
 // 	glfwWindowHint(GLFW_FOCUSED, GLFW_FALSE);
 
-	window = glfwCreateWindow(640, 480, title.c_str(), NULL, NULL);
+	window = glfwCreateWindow(w, h, title.c_str(), NULL, NULL);
 }
 
 void Svarog::destroy_window()

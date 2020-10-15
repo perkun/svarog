@@ -29,12 +29,16 @@ int main()
 {
 	cout << "This is Svarog!" << endl;
 
-	Svarog svarog(800, 600, "RenderEngine window");
+	Svarog svarog(600, 600, "RenderEngine window");
 
 	Shader basic_shader;
 	basic_shader.set_uniform_4fv("u_color", vec4(1., 0., 1., 1.));
 
-	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
+// 	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
+	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj");
+// 	Mesh *square_mesh = svarog.create_mesh("/home/perkun/models/sphere.obj");
+// 	Mesh *square_mesh = svarog.create_mesh("/home/perkun/models/metisSAGE.obj");
+// 	Mesh *square_mesh = svarog.create_mesh("../data/metis.obj");
 	Transform trans;
 
 	SceneNode *square = new SceneNode(trans, square_mesh);
