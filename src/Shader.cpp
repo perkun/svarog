@@ -22,7 +22,8 @@ uniform vec4 u_color;
 void main() {
 	float d = ( dot(normalize(normal_world), vec3(0, 0, 1))  );
 	d = max(d, 0);
- 	color = u_color * d;
+ 	//color = u_color * d;
+ 	color = vec4(normal_world, 1.0);
 })";
 
 

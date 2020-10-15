@@ -7,6 +7,7 @@
 #include <GL/gl.h>
 #include <string>
 #include <glm/glm.hpp>
+#include <vector>
 
 using namespace std;
 using namespace glm;
@@ -20,26 +21,10 @@ public:
 
 	void load_obj(string filename);
 
-// 	int positions_size = 0;
-// 	int normals_size = 0;
-// 	int texture_size = 0;
-//
-// 	int position_ids_size = 0;
-// 	int normal_ids_size = 0;
-// 	int texture_ids_size = 0;
-//
-// 	float *positions = NULL;
-// 	float *normals = NULL;
-// 	float *texture_coords = NULL;
-//
-// 	unsigned int *position_ids = NULL;
-// 	unsigned int *normal_ids = NULL;
-// 	unsigned int *texture_ids = NULL;
-
-	float *vertex_pos = NULL;
-	float *texture_pos = NULL;
-	float *normal_pos = NULL;
-	unsigned int *indices = NULL;
+	vector<vec3> ver;
+	vector<vec3> tex;
+	vector<vec3> nor;
+	vector<uvec3> ver_idxs;
 
 	unsigned int num_vertices;
 	unsigned int num_indices;
