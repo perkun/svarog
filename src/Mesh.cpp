@@ -200,8 +200,8 @@ Mesh::Mesh(string filename)
 
 Mesh::~Mesh()
 {
-//     glDeleteVertexArrays(1, &vertex_array_object);
-//     glDeleteBuffers(NUM_BUFFERS, vertex_array_buffers);
+    glDeleteVertexArrays(1, &vertex_array_object);
+    glDeleteBuffers(NUM_BUFFS, vertex_buffers);
 
 }
 
