@@ -22,6 +22,7 @@ public:
 	void bind();
 	void unbind();
 	void set_uniform_4fv(string name, vec4 data);
+	void set_uniform_mat4f(string name, mat4 data);
 
 private:
 	int get_uniform_location(string name);

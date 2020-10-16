@@ -6,11 +6,16 @@ Shader::Shader()
 layout(location = 0) in vec4 position;
 layout(location = 2) in vec3 normal;
 
+uniform mat4 model_matrix;
+uniform mat4 model_matrix_no_trans;
+
 out vec3 normal_world;
 
 void main() {
-	normal_world = normal;
-	gl_Position = position;
+	normal_world = vec3( model_matrix * vec4(normal, 1) );
+	//normal_world += vec3(position.xyz);
+	normal_world = normalize(normal_world);
+	gl_Position = model_matrix * position;
 })";
 //
 	string fs = R"(#version 450 core
@@ -20,7 +25,7 @@ in vec3 normal_world;
 uniform vec4 u_color;
 
 void main() {
-	float d = ( dot(normalize(normal_world), vec3(0, 0, 1))  );
+	float d = dot( normal_world, vec3(0, 0, 1) );
 	d = max(d, 0);
  	color = u_color * d;
  	//color = vec4(normal_world, 1.0);
@@ -108,5 +113,13 @@ void Shader::set_uniform_4fv(string name, vec4 data)
 {
 	bind();
 	glUniform4fv(get_uniform_location(name), 1, &data[0]);
-	unbind();
+// 	unbind();
+}
+
+
+void Shader::set_uniform_mat4f(string name, mat4 data)
+{
+	bind();
+	glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &data[0][0]);
+// 	unbind();
 }

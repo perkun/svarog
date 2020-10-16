@@ -10,7 +10,7 @@
 #include "MemmoryLedger.h"
 #include "Mesh.h"
 #include "Transform.h"
-#include "SceneGraph.h"
+#include "SceneNode.h"
 
 
 using namespace std;
@@ -24,7 +24,8 @@ public:
 	void hide_window();
 	Mesh* create_mesh(string filename, int mode);
 
-	SceneGraph scene_graph;
+// 	SceneGraph scene_graph;
+	SceneNode *scene_graph_root;
 	GLFWwindow* window;
 
 private:

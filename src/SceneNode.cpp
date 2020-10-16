@@ -6,6 +6,20 @@ SceneNode::SceneNode()
 	parent = NULL;
 	mesh = NULL;
 	shader = NULL;
+
+	transform.model_matrix = mat4(1);
+	world_transform.model_matrix = mat4(1);
+};
+
+
+SceneNode::SceneNode(Mesh *mesh)
+{
+	parent = NULL;
+	this->mesh = mesh;
+	shader = NULL;
+
+	transform.model_matrix = mat4(1);
+	world_transform.model_matrix = mat4(1);
 };
 
 
@@ -56,15 +70,46 @@ void SceneNode::detatch()
 
 void SceneNode::update()
 {
-	return;
+	if (parent == NULL)  // root
+	{
+		transform.update_model_matrix();
+		world_transform.model_matrix = transform.model_matrix;
+	}
+	else
+	{
+		transform.update_model_matrix();
+		world_transform.model_matrix =
+			parent->world_transform.model_matrix * transform.model_matrix;
+	}
 }
 
 void SceneNode::draw()
 {
 	if (mesh != NULL)
 	{
+		shader->set_uniform_mat4f("model_matrix", world_transform.model_matrix);
 		shader->bind();
 		mesh->draw();
+	}
+}
+
+
+void SceneNode::update_depth_first()
+{
+	for (SceneNode *child: this->children)
+	{
+		child->update();
+		child->update_depth_first();
+	}
+}
+
+
+void SceneNode::draw_depth_first()
+{
+	for (SceneNode *child: this->children)
+	{
+		child->draw();
+		child->draw_depth_first();
 	}
 }
 

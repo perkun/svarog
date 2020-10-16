@@ -16,8 +16,10 @@ class SceneNode
 {
 public:
 	SceneNode();
+	SceneNode(Mesh *mesh);
 	SceneNode(Transform transform, Mesh *mesh);
 	~SceneNode();
+
 	void add_child(SceneNode *c);
 // 	SceneNode* detatch_child(SceneNode*);
 	void detatch();
@@ -25,14 +27,17 @@ public:
 
 	virtual void update();
 	virtual void draw();
+	void update_depth_first();
+	void draw_depth_first();
 
 	vector<SceneNode*> children;
-private:
-	SceneNode *parent;
-
 	Transform world_transform, transform;
+
+
 	Mesh *mesh;
 	Shader *shader;
+	SceneNode *parent;
+private:
 };
 
 #endif

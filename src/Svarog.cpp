@@ -21,6 +21,8 @@ Svarog::Svarog(int width, int height, string w_title, bool visible)
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace (GL_CCW);
+
+	scene_graph_root = new SceneNode();
 }
 
 
@@ -29,7 +31,7 @@ Svarog::~Svarog()
 
 	mesh_ledger.delete_all();
 
-	delete scene_graph.root;
+	delete scene_graph_root;
 	glfwTerminate();
 }
 
