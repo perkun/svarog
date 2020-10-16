@@ -22,7 +22,7 @@ public:
 	~Svarog();
 	void show_window();
 	void hide_window();
-	Mesh* create_mesh(string filename);
+	Mesh* create_mesh(string filename, int mode);
 
 	SceneGraph scene_graph;
 	GLFWwindow* window;

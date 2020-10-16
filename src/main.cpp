@@ -32,13 +32,13 @@ int main()
 	Svarog svarog(1200, 1200, "RenderEngine window");
 
 	Shader basic_shader;
-	basic_shader.set_uniform_4fv("u_color", vec4(1., 0., 1., 1.));
+	basic_shader.set_uniform_4fv("u_color", vec4(1., 1., 1., 1.));
 
 // 	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
-// 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj");
+// 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj", IndexModel::PER_FACE);
 // 	Mesh *square_mesh = svarog.create_mesh("/home/perkun/models/sphere.obj");
-	Mesh *square_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj");
-// 	Mesh *square_mesh = svarog.create_mesh("../data/metis.obj");
+	Mesh *square_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj", IndexModel::PER_VERTEX);
+// 	Mesh *square_mesh = svarog.create_mesh("../data/metis.obj", IndexModel::PER_FACE);
 	Transform trans;
 
 	SceneNode *square = new SceneNode(trans, square_mesh);

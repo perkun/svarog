@@ -16,25 +16,51 @@ using namespace glm;
 class IndexModel
 {
 public:
-	IndexModel(string filename);
+	IndexModel(string filename, int mode);
 	~IndexModel();
 
-	void load_obj(string filename);
+	void load_obj(string filename, int mode);
 
 	vector<vec3> ver;
-	vector<vec3> tex;
+	vector<vec2> tex;
 	vector<vec3> nor;
 	vector<uvec3> ver_idxs;
 
-	unsigned int num_vertices;
-	unsigned int num_indices;
+	enum {
+		PER_VERTEX,
+		PER_FACE
+	};
+
+private:
+	void calculate_per_vertex_normals(vector<vec3> &ver,
+									  vector<uvec3> &ver_idxs,
+								 	  vector<vec3> &nor);
+
+	void calculate_per_face_normals(vector<vec3> &ver,
+									vector<uvec3> &ver_idxs,
+								 	vector<vec3> &nor);
+
+	void produce_arrays_per_vertex(vector<vec3> &tmp_ver,
+								   vector<vec2> &tmp_tex,
+								   vector<vec3> &tmp_nor,
+								   vector<uvec3> &ver_idxs,
+								   vector<uvec3> &tex_idxs,
+								   vector<uvec3> &nor_idxs);
+
+	void produce_arrays_per_face(vector<vec3> &tmp_ver,
+								 vector<vec2> &tmp_tex,
+								 vector<vec3> &tmp_nor,
+								 vector<uvec3> &ver_idxs,
+								 vector<uvec3> &tex_idxs,
+								 vector<uvec3> &nor_idxs);
+
 };
 
 
 class Mesh
 {
 public:
-	Mesh(string filename);
+	Mesh(string filename, int mode);
 	~Mesh();
 	uint id;
 	unsigned int num_triangles = 0;
