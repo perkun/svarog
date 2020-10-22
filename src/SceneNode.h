@@ -1,9 +1,11 @@
 #ifndef SCENENODE_H_
 #define SCENENODE_H_
 
-#include <stdio.h>
 #include <iostream>
+#include <stdio.h>
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "Mesh.h"
 #include "Transform.h"
@@ -26,9 +28,9 @@ public:
 	void bind_shader(Shader *s);
 
 	virtual void update();
-	virtual void draw();
+	virtual void draw(mat4, mat4);
 	void update_depth_first();
-	void draw_depth_first();
+	void draw_depth_first(mat4, mat4);
 
 	vector<SceneNode*> children;
 	Transform world_transform, transform;

@@ -11,7 +11,7 @@ Svarog::Svarog(int width, int height, string w_title, bool visible)
 		cout << "glew init failed" << endl;
 
 
-// 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace (GL_CCW);
@@ -87,7 +87,12 @@ void Svarog::on_mouse_button_press_event(MouseButtonPressEvent& event)
 
 void Svarog::on_key_released_event(KeyReleasedEvent &event)
 {
-// 	cout << "on_key_released_event    ";
+	int key_code = event.get_key_code();
+
+	if (key_released_map.find(key_code) != key_released_map.end())
+		key_released_map[key_code](current_node, current_camera);
+
+
 	event.print_type();
 	return;
 }
@@ -104,7 +109,7 @@ void Svarog::on_key_pressed_event(KeyPressedEvent &event)
 		glfwSetWindowShouldClose(window->winptr, GLFW_TRUE);
 
 	if (key_pressed_map.find(key_code) != key_pressed_map.end())
-		key_pressed_map[key_code](current_node);
+		key_pressed_map[key_code](current_node, current_camera);
 
 }
 
@@ -117,5 +122,16 @@ Mesh* Svarog::create_mesh(string filename, int mode)
 	return m;
 }
 
-
-
+// void Svarog::rendering_loop() {
+//
+// 	while (!glfwWindowShouldClose(svarog.window->winptr)) {
+// 		// RENDER STUFF
+// 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+// 		svarog.scene_graph_root->update_depth_first();
+// 		svarog.scene_graph_root->draw_depth_first(camera.get_view(),
+// 				camera.get_perspective());
+// 		glfwSwapBuffers(svarog.window->winptr);
+// 		glfwPollEvents();
+// 	}
+// }

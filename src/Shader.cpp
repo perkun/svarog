@@ -7,14 +7,16 @@ layout(location = 0) in vec4 position;
 layout(location = 2) in vec3 normal;
 
 uniform mat4 model_matrix;
+uniform mat4 view_matrix;
+uniform mat4 perspective_matrix;
 
 out vec3 normal_world;
 
 void main() {
-	normal_world = vec3( model_matrix * vec4(normal, 0.0) );
+	normal_world = vec3(view_matrix * model_matrix * vec4(normal, 0.0) );
 	normal_world = normalize(normal_world);
 
-	gl_Position = model_matrix * position;
+	gl_Position = perspective_matrix * view_matrix * model_matrix * position;
 })";
 //
 	string fs = R"(#version 450 core
@@ -26,7 +28,7 @@ uniform vec4 u_color;
 void main() {
 	float d = dot( normal_world, vec3(0, 0, 1) );
 	d = max(d, 0);
- 	color = u_color * d;
+ 	color = u_color  * d;
  	//color = vec4(normal_world, 1.0);
 })";
 

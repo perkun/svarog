@@ -8,7 +8,8 @@ LIB = -lglfw -lGLEW -lGL #-lrenderEngine -lm -lGL -lGLU -lGLEW -lnetcdf_c++4 -ln
 
 OBJECTS = build/main.o build/Svarog.o build/Mesh.o build/Transform.o \
 		  build/SceneNode.o build/Shader.o build/Window.o \
-		  build/Event.o build/KeyEvent.o build/MouseEvent.o
+		  build/Event.o build/KeyEvent.o build/MouseEvent.o \
+		  build/Camera.o
 
  #build/SceneGraph.o
 
@@ -41,12 +42,16 @@ build/Shader.o: src/Shader.cpp
 build/Window.o: src/Window.cpp
 		$(CC) $(CFLAGS) -o $@ $^
 
+
+build/Camera.o: src/Camera.cpp
+		$(CC) $(CFLAGS) -o $@ $^
+
+
 build/Event.o: src/Event/Event.cpp
 		$(CC) $(CFLAGS) -o $@ $^
 
 build/KeyEvent.o: src/Event/KeyEvent.cpp
 		$(CC) $(CFLAGS) -o $@ $^
-
 
 build/MouseEvent.o: src/Event/MouseEvent.cpp
 		$(CC) $(CFLAGS) -o $@ $^
