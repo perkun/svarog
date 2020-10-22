@@ -5,12 +5,17 @@
 #include <stdio.h>
 #include <string>
 #include <GL/glew.h>
-// #include <GL/gl.h>
-#include <GLFW/glfw3.h>
+#include <map>
+#include <functional>
+
 #include "MemmoryLedger.h"
 #include "Mesh.h"
 #include "Transform.h"
 #include "SceneNode.h"
+#include "Window.h"
+#include "Event/Event.h"
+#include "Event/KeyEvent.h"
+#include "Event/MouseEvent.h"
 
 
 using namespace std;
@@ -20,17 +25,27 @@ class Svarog
 public:
 	Svarog(int, int, string, bool visible = true);
 	~Svarog();
-	void show_window();
-	void hide_window();
-	Mesh* create_mesh(string filename, int mode);
 
-// 	SceneGraph scene_graph;
-	SceneNode *scene_graph_root;
-	GLFWwindow* window;
+	Mesh* create_mesh(string filename, int mode);
+	void close_window(int);
+
+	void on_event(Event&);
+	void on_key_pressed_event(KeyPressedEvent&);
+	void on_key_released_event(KeyReleasedEvent&);
+	void on_mouse_button_press_event(MouseButtonPressEvent&);
+	void on_curosr_moved_event(MouseMovedEvent& event);
+
+	SceneNode *scene_graph_root = NULL;
+	SceneNode *current_node = NULL;
+	// Camera *current_camera;
+
+	map<int, function<void(SceneNode*)> > key_pressed_map;
+
+	Window *window;
+
+	map<int, std::function<void(int)> > key_map;
 
 private:
-	void create_window(int, int, string title, bool visible);
-	void destroy_window();
 
 	MemmoryLedger<Mesh*> mesh_ledger;
 

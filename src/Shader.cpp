@@ -7,14 +7,13 @@ layout(location = 0) in vec4 position;
 layout(location = 2) in vec3 normal;
 
 uniform mat4 model_matrix;
-uniform mat4 model_matrix_no_trans;
 
 out vec3 normal_world;
 
 void main() {
-	normal_world = vec3( model_matrix * vec4(normal, 1) );
-	//normal_world += vec3(position.xyz);
+	normal_world = vec3( model_matrix * vec4(normal, 0.0) );
 	normal_world = normalize(normal_world);
+
 	gl_Position = model_matrix * position;
 })";
 //
