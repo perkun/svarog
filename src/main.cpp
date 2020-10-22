@@ -20,6 +20,7 @@ void print_id(SceneNode *n)
 
 
 
+
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   MAIN   ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +29,7 @@ int main()
 {
     cout << "This is Svarog!" << endl;
 
-    Svarog svarog(1200, 1200, "RenderEngine window");
+    Svarog svarog(1920, 1080, "RenderEngine window");
 
     // Key mappings :)
     svarog.key_pressed_map[GLFW_KEY_W] = [](SceneNode *current_node,
@@ -77,6 +78,20 @@ int main()
 			current_camera->is_moving_right = false;
     };
 
+	svarog.mouse_cursor_action = [](SceneNode *current_node,
+									Camera *current_camera, vec2 cursor_shift) {
+//         if (current_camera != NULL)
+// 		{
+// 			current_camera->pitch(cursor_shift.y);
+// 			current_camera->yaw(cursor_shift.x);
+// 		}
+		if (current_node != NULL)
+		{
+			current_node->transform.alpha += cursor_shift.x / 100.;
+			current_node->transform.beta +=  cursor_shift.y / 200.;
+		}
+	};
+
 
     Shader basic_shader;
     basic_shader.set_uniform_4fv("u_color", vec4(1., 1., 1., 1.));
@@ -86,9 +101,9 @@ int main()
     // IndexModel::PER_FACE); 	Mesh *square_mesh =
     // svarog.create_mesh("/home/perkun/models/sphere.obj");
     Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
-                                         IndexModel::PER_FACE);
+                                         IndexModel::PER_VERTEX);
     Mesh *metis_mesh = svarog.create_mesh("/home/perkun/models/metisSAGE.obj",
-                                          IndexModel::PER_FACE);
+                                          IndexModel::PER_VERTEX);
 
     SceneNode *eros = new SceneNode(eros_mesh);
     eros->bind_shader(&basic_shader);
@@ -109,10 +124,10 @@ int main()
     metis->transform.scale = vec3(0.2, 0.2, 0.2);
     metis->transform.beta = 0;
 
-    svarog.current_node = metis;
+    svarog.current_node = eros;
 
     Camera *camera = new Camera(vec3(0, -10, 0), eros->transform.position,
-                                radians(45.0), 1.0, 0.1, 100.0);
+                                radians(45.0), 1920/1080.0, 0.1, 100.0);
 	camera->speed = 1.;
     svarog.current_camera = camera;
 

@@ -44,9 +44,11 @@ public:
 
 	map<int, function<void(SceneNode*, Camera*)> > key_pressed_map;
 	map<int, function<void(SceneNode*, Camera*)> > key_released_map;
-	function<void(SceneNode*, Camera*)> mouse_action;
+	function<void(SceneNode*, Camera*, vec2 cursor_shift)> mouse_cursor_action;
 
 	Window *window;
+
+	vec2 cursor_pos;
 
 private:
 

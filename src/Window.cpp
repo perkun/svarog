@@ -17,7 +17,7 @@ Window::Window(int w, int h, string title, bool visible)
 	else
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-	winptr = glfwCreateWindow(w, h, title.c_str(), NULL, NULL);
+	winptr = glfwCreateWindow(w, h, title.c_str(), glfwGetPrimaryMonitor(), NULL);
 
 	glfwMakeContextCurrent(winptr);
 
@@ -89,6 +89,8 @@ Window::Window(int w, int h, string title, bool visible)
 			window->event_callback_fn(event);
 		}
 	);
+
+	glfwSetInputMode(winptr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 }
 

@@ -18,27 +18,7 @@ Svarog::Svarog(int width, int height, string w_title, bool visible)
 
 	scene_graph_root = new SceneNode();
 
-
-// 	key_pressed_map[GLFW_KEY_W] = [](SceneNode* current_node)
-// 	{
-// 		if (current_node != NULL)
-// 			current_node->transform.position.y += 0.03;
-// 	};
-// 	key_pressed_map[GLFW_KEY_S] = [](SceneNode* current_node)
-// 	{
-// 		if (current_node != NULL)
-// 			current_node->transform.position.y -= 0.03;
-// 	};
-// 	key_pressed_map[GLFW_KEY_A] = [](SceneNode* current_node)
-// 	{
-// 		if (current_node != NULL)
-// 			current_node->transform.position.x -= 0.03;
-// 	};
-// 	key_pressed_map[GLFW_KEY_D] = [](SceneNode* current_node)
-// 	{
-// 		if (current_node != NULL)
-// 			current_node->transform.position.x += 0.03;
-// 	};
+	cursor_pos = vec2(width/2.0, height/2.0);
 }
 
 
@@ -71,7 +51,13 @@ void Svarog::on_event(Event& event)
 void Svarog::on_curosr_moved_event(MouseMovedEvent& event)
 {
 // 	cout << "on_curosr_moved_event    ";
-	event.print_type();
+// 	event.print_type();
+	vec2 cursor_shift, old_cursor_pos = cursor_pos;
+
+	cursor_pos = event.get_cursor_pos();
+	cursor_shift = cursor_pos - old_cursor_pos;
+
+	mouse_cursor_action(current_node, current_camera, cursor_shift);
 
 }
 
@@ -80,7 +66,7 @@ void Svarog::on_mouse_button_press_event(MouseButtonPressEvent& event)
 {
 	int button_code = event.get_button_code();
 // 	cout << "on_mouse_button_press_event    ";
-	event.print_type();
+// 	event.print_type();
 
 }
 
@@ -93,7 +79,7 @@ void Svarog::on_key_released_event(KeyReleasedEvent &event)
 		key_released_map[key_code](current_node, current_camera);
 
 
-	event.print_type();
+// 	event.print_type();
 	return;
 }
 
@@ -102,7 +88,7 @@ void Svarog::on_key_pressed_event(KeyPressedEvent &event)
 	int key_code = event.get_key_code();
 	int repeat_count = event.get_repeat_count();
 // 	cout << "on_key_pressed_event    ";
-	event.print_type();
+// 	event.print_type();
 
 
 	if (key_code == GLFW_KEY_Q)

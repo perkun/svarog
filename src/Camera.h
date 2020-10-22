@@ -30,6 +30,9 @@ public:
 	void move_left(double);
 	void move_right(double);
 
+	void pitch(float);
+	void yaw(float);
+
 	void move(double);
 
 
@@ -37,15 +40,18 @@ public:
 	vec3 target;
 	vec3 forward;
 
-	double speed = 0.3; // world space units per second
+	double speed = 0.6; // world space units per second
+	double rotation_speed = 0.001;  // radians / sec
 
 	float fov, aspect, z_near, z_far;
 
 private:
 	mat4 perspective;
 	mat4 view;
-	vec3 up;
 
+	vec3 up, right, front;
+
+	void update();
 
 
 
