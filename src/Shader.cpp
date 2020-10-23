@@ -4,6 +4,7 @@ Shader::Shader()
 {
 	string vs = R"(#version 450 core
 layout(location = 0) in vec4 position;
+layout(location = 1) in vec2 tex_coord;
 layout(location = 2) in vec3 normal;
 
 uniform mat4 model_matrix;
@@ -11,24 +12,35 @@ uniform mat4 view_matrix;
 uniform mat4 perspective_matrix;
 
 out vec3 normal_world;
+out vec2 v_tex_coord;
 
 void main() {
 	normal_world = vec3(view_matrix * model_matrix * vec4(normal, 0.0) );
 	normal_world = normalize(normal_world);
+
+	v_tex_coord = tex_coord;
 
 	gl_Position = perspective_matrix * view_matrix * model_matrix * position;
 })";
 //
 	string fs = R"(#version 450 core
 layout(location = 0) out vec4 color;
-in vec3 normal_world;
 
+in vec3 normal_world;
+in vec2 v_tex_coord;
+
+uniform sampler2D u_texture;
 uniform vec4 u_color;
 
 void main() {
 	float d = dot( normal_world, vec3(0, 0, 1) );
 	d = max(d, 0);
- 	color = u_color  * d;
+ 	//color = u_color  * d * texture2D(u_texture, v_tex_coord);
+ 	color = texture2D(u_texture, v_tex_coord);
+	//color = vec4(1.0);
+	//color.x = v_tex_coord.x;
+	//color.y = v_tex_coord.y;
+	//color.z = 0.0;
  	//color = vec4(normal_world, 1.0);
 })";
 
@@ -123,4 +135,10 @@ void Shader::set_uniform_mat4f(string name, mat4 data)
 	bind();
 	glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &data[0][0]);
 // 	unbind();
+}
+
+void Shader::set_uniform_1i(string name, int value)
+{
+	bind();
+	glUniform1i(get_uniform_location(name), value);
 }

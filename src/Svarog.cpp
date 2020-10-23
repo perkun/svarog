@@ -17,10 +17,14 @@ Svarog::Svarog(int width, int height, string w_title, bool fullscreen,
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     scene_graph_root = new SceneNode();
 
     cursor_pos = vec2(width / 2.0, height / 2.0);
 }
+
 
 Svarog::~Svarog()
 {
@@ -29,6 +33,7 @@ Svarog::~Svarog()
 	delete scene_graph_root;
 	delete window;
 }
+
 
 void Svarog::on_event(Event& event)
 {
@@ -70,7 +75,8 @@ void Svarog::on_window_resize_event(WindowResizeEvent &event)
 void Svarog::on_mouse_scrolled_event(MouseScrolledEvent& event)
 {
 // 	cout << event.get_offset().y << endl;
-	mouse_scrolled_action(this, event.get_offset());
+	if (mouse_scrolled_action != NULL)
+		mouse_scrolled_action(this, event.get_offset());
 }
 
 void Svarog::on_curosr_moved_event(MouseMovedEvent& event)
@@ -82,7 +88,8 @@ void Svarog::on_curosr_moved_event(MouseMovedEvent& event)
 	cursor_pos = event.get_cursor_pos();
 	cursor_shift = cursor_pos - old_cursor_pos;
 
-	mouse_cursor_action(this, cursor_shift);
+	if (mouse_cursor_action != NULL)
+		mouse_cursor_action(this, cursor_shift);
 
 }
 

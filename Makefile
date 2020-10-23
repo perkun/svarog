@@ -10,7 +10,9 @@ OBJECTS = build/main.o build/Svarog.o build/Mesh.o build/Transform.o \
 		  build/SceneNode.o build/Shader.o build/Window.o \
 		  build/Event.o build/KeyEvent.o build/MouseEvent.o \
 		  build/WindowEvent.o \
-		  build/Camera.o
+		  build/Camera.o \
+		  build/stb_image.o \
+		  build/Texture.o
 
  #build/SceneGraph.o
 
@@ -58,6 +60,13 @@ build/MouseEvent.o: src/Event/MouseEvent.cpp
 		$(CC) $(CFLAGS) -o $@ $^
 
 build/WindowEvent.o: src/Event/WindowEvent.cpp
+		$(CC) $(CFLAGS) -o $@ $^
+
+build/Texture.o: src/Texture.cpp
+		$(CC) $(CFLAGS) -o $@ $^
+
+
+build/stb_image.o: src/vendor/stb_image/stb_image.cpp
 		$(CC) $(CFLAGS) -o $@ $^
 
 clean:

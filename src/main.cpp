@@ -9,9 +9,11 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "Svarog.h"
+#include "Texture.h"
 
 #define WIN_W 800
 #define WIN_H 600
+#define BG_COLOR 41/256., 46/256., 48/256., 1.0
 
 using namespace std;
 
@@ -21,7 +23,7 @@ void print_id(SceneNode *n)
 }
 
 
-
+void set_keybindings(Svarog &svarog);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,9 +35,113 @@ int main()
     cout << "This is Svarog!" << endl;
 
     Svarog svarog(WIN_W, WIN_H, "Svarog", false);
+	set_keybindings(svarog);
+
+
+    Shader basic_shader;
+    basic_shader.set_uniform_4fv("u_color", vec4(1., 1., 1., 1.));
+
+    // 	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
+    // 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj",
+    // IndexModel::PER_FACE); 	Mesh *square_mesh =
+    // svarog.create_mesh("/home/perkun/models/sphere.obj");
+//     Mesh *eros_mesh = svarog.create_mesh("../data/model.obj",
+    Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
+                                         IndexModel::PER_VERTEX);
+    Mesh *metis_mesh = svarog.create_mesh("/home/perkun/models/metisSAGE.obj",
+                                          IndexModel::PER_VERTEX);
+	Mesh *arrow_mesh = svarog.create_mesh("../data/arrow.obj",
+										  IndexModel::PER_FACE);
+
+	Mesh *plane_mesh = svarog.create_mesh("../data/plane.obj",
+										  IndexModel::PER_FACE);
+
+    SceneNode *eros = new SceneNode(eros_mesh);
+    eros->bind_shader(&basic_shader);
+
+    eros->transform.position = vec3(0, 0, 0);
+    // 	eros->transform.scale = vec3(0.8, 0.8, 0.8);
+    eros->transform.scale = vec3(1.0);
+//     eros->transform.alpha = 1.0;
+    // 	eros->transform.beta = 1.0;
+
+    SceneNode *metis = new SceneNode(metis_mesh);
+    metis->bind_shader(&basic_shader);
+
+    metis->transform.position = vec3(2., 0., 0.0);
+    metis->transform.scale = vec3(0.2, 0.2, 0.2);
+    metis->transform.beta = 0.;
+
+	SceneNode *arrow = new SceneNode(arrow_mesh);
+	arrow->bind_shader(&basic_shader);
+	arrow->transform.position = vec3(0., 0., 0.);
+	arrow->transform.scale = vec3(1., 1., 1.5);
+	arrow->color = vec4(0.7, 0.2, 0.2, 1.0);
+
+
+	SceneNode *plane = new SceneNode(plane_mesh);
+	plane->bind_shader(&basic_shader);
+	plane->transform.position = vec3(0.0, 2., -1.);
+	plane->transform.gamma = 1;
+	plane->transform.scale = vec3(1.f);
+
+	Texture texture("../data/dots.png");
+	texture.bind(0);
+	basic_shader.set_uniform_1i("u_texture", 0);
+
+
+	// ad children
+	svarog.scene_graph_root->add_child(plane);
+//
+    svarog.scene_graph_root->add_child(eros);
+// 	eros->add_child(arrow);
+//     eros->add_child(metis);
+
+
+    svarog.current_node = plane;
+
+    Camera *camera = new Camera(vec3(0., -3., 0.), eros->transform.position,
+                                radians(45.0), WIN_W/(float)WIN_H, 0.1, 100.0);
+	camera->speed = 1.;
+    svarog.current_camera = camera;
+
+
+
+
+    double time = glfwGetTime();
+    double previous_time;
+    double time_delta;
+    while (!glfwWindowShouldClose(svarog.window->winptr))
+    {
+
+		previous_time = time;
+		time = glfwGetTime();
+		time_delta = time - previous_time;
+
+        // RENDER STUFF
+		glClearColor(BG_COLOR);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        svarog.scene_graph_root->update_depth_first();
+        svarog.scene_graph_root->draw_depth_first(camera->get_view(),
+                                                  camera->get_perspective());
+        glfwSwapBuffers(svarog.window->winptr);
+//         glfwPollEvents();
+		glfwWaitEvents();
+
+		svarog.current_camera->move(time_delta);
+    }
+
+	delete camera;
+    return 0;
+}
+
+
+void set_keybindings(Svarog &svarog)
+{
 
     // Key mappings :)
-    svarog.key_pressed_map[GLFW_KEY_W] = [](Svarog *svarog) {
+   svarog.key_pressed_map[GLFW_KEY_W] = [](Svarog *svarog) {
         if (svarog->current_camera != NULL)
 			svarog->current_camera->is_moving_forwards = true;
 
@@ -120,80 +226,4 @@ int main()
 	};
 
 
-    Shader basic_shader;
-    basic_shader.set_uniform_4fv("u_color", vec4(1., 1., 1., 1.));
-
-    // 	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
-    // 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj",
-    // IndexModel::PER_FACE); 	Mesh *square_mesh =
-    // svarog.create_mesh("/home/perkun/models/sphere.obj");
-    Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
-                                         IndexModel::PER_VERTEX);
-    Mesh *metis_mesh = svarog.create_mesh("/home/perkun/models/metisSAGE.obj",
-                                          IndexModel::PER_VERTEX);
-	Mesh *arrow_mesh = svarog.create_mesh("../data/arrow.obj",
-										  IndexModel::PER_FACE);
-
-    SceneNode *eros = new SceneNode(eros_mesh);
-    eros->bind_shader(&basic_shader);
-    svarog.scene_graph_root->add_child(eros);
-
-
-    eros->transform.position = vec3(0, 0, 0);
-    // 	eros->transform.scale = vec3(0.8, 0.8, 0.8);
-    eros->transform.scale = vec3(1.0);
-//     eros->transform.alpha = 1.0;
-    // 	eros->transform.beta = 1.0;
-
-    SceneNode *metis = new SceneNode(metis_mesh);
-    metis->bind_shader(&basic_shader);
-
-    metis->transform.position = vec3(2., 0., 0.0);
-    metis->transform.scale = vec3(0.2, 0.2, 0.2);
-    metis->transform.beta = 0.;
-
-	SceneNode *arrow = new SceneNode(arrow_mesh);
-	arrow->bind_shader(&basic_shader);
-	arrow->transform.position = vec3(0., 0., 0.);
-	arrow->transform.scale = vec3(1., 1., 1.5);
-	arrow->color = vec4(0.7, 0.2, 0.2, 1.0);
-
-	// ad children
-	eros->add_child(arrow);
-    eros->add_child(metis);
-
-
-    svarog.current_node = eros;
-
-    Camera *camera = new Camera(vec3(0., -3., 0.), eros->transform.position,
-                                radians(45.0), WIN_W/(float)WIN_H, 0.1, 100.0);
-	camera->speed = 1.;
-    svarog.current_camera = camera;
-
-    double time = glfwGetTime();
-    double previous_time;
-    double time_delta;
-    while (!glfwWindowShouldClose(svarog.window->winptr))
-    {
-
-		previous_time = time;
-		time = glfwGetTime();
-		time_delta = time - previous_time;
-
-        // RENDER STUFF
-		glClearColor(41/256., 46/256., 48/256., 0.5);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        svarog.scene_graph_root->update_depth_first();
-        svarog.scene_graph_root->draw_depth_first(camera->get_view(),
-                                                  camera->get_perspective());
-        glfwSwapBuffers(svarog.window->winptr);
-//         glfwPollEvents();
-		glfwWaitEvents();
-
-		svarog.current_camera->move(time_delta);
-    }
-
-	delete camera;
-    return 0;
 }

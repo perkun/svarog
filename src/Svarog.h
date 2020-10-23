@@ -51,8 +51,8 @@ public:
 	map<int, function<void(Svarog*)> > mouse_button_pressed_map;
 	map<int, function<void(Svarog*)> > mouse_button_released_map;
 
-	function<void(Svarog*, vec2 cursor_shift)> mouse_cursor_action;
-	function<void(Svarog*, vec2 offset)> mouse_scrolled_action;
+	function<void(Svarog*, vec2 cursor_shift)> mouse_cursor_action = NULL;
+	function<void(Svarog*, vec2 offset)> mouse_scrolled_action = NULL;
 
 	Window *window;
 

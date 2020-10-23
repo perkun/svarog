@@ -102,6 +102,8 @@ void IndexModel::load_obj(string filename, int mode)
 				int num_matched = sscanf(line, "%*s %f %f",
 										 &tmpv2f.x, &tmpv2f.y);
 
+				tmp_tex.push_back(tmpv2f);
+
 				if (num_matched != 2)
 
 				{
@@ -144,6 +146,8 @@ void IndexModel::load_obj(string filename, int mode)
 	}
 
 	fclose(f);
+
+// 	cout << tex_idxs.size() << endl;
 
 	if (mode == PER_VERTEX)
 		produce_arrays_per_vertex(tmp_ver, tmp_tex, tmp_nor,
@@ -295,6 +299,8 @@ Mesh::Mesh(string filename, int mode)
 {
 	IndexModel indexed_model(filename, mode);
 	create_vao(&indexed_model);
+
+// 	cout << "num_texcoords: " << indexed_model.tex.size() << endl;
 }
 
 Mesh::~Mesh()
@@ -319,7 +325,7 @@ void Mesh::create_vao(IndexModel *indexed_model)
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[POSITIONS]);
 	glBufferData(GL_ARRAY_BUFFER, indexed_model->ver.size() * 3 * sizeof(float),
 				 &indexed_model->ver[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(POSITIONS);  // 1st attribute buffer : vertices
+	glEnableVertexAttribArray(POSITIONS);
 	glVertexAttribPointer(POSITIONS, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // binds to current VAO
 
 
@@ -327,15 +333,16 @@ void Mesh::create_vao(IndexModel *indexed_model)
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[TEXTURE_COORDS]);
 	glBufferData(GL_ARRAY_BUFFER, indexed_model->tex.size() * 2 * sizeof(float),
 				 &indexed_model->tex[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(TEXTURE_COORDS);  // 1st attribute buffer : vertices
+	glEnableVertexAttribArray(TEXTURE_COORDS);
 	glVertexAttribPointer(TEXTURE_COORDS, 2, GL_FLOAT, GL_FALSE, 0, (void*)0); // binds to current VAO
+
 //
 //
 	// normal pos
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[NORMALS]);
 	glBufferData(GL_ARRAY_BUFFER, indexed_model->nor.size() * 3 * sizeof(float),
 				 &indexed_model->nor[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(NORMALS);  // 1st attribute buffer : vertices
+	glEnableVertexAttribArray(NORMALS);
 	glVertexAttribPointer(NORMALS, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // binds to current VAO
 
 
