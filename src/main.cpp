@@ -181,7 +181,7 @@ int main()
 		time_delta = time - previous_time;
 
         // RENDER STUFF
-		glClearColor(41/256., 46/256., 48/256., 1.);
+		glClearColor(41/256., 46/256., 48/256., 0.5);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         svarog.scene_graph_root->update_depth_first();
