@@ -10,6 +10,7 @@
 #include "Mesh.h"
 #include "Transform.h"
 #include "Shader.h"
+#include "Texture.h"
 
 using namespace std;
 
@@ -38,9 +39,10 @@ public:
 	vec4 color = vec4(1., 1., 1., 1.);
 
 
-	Mesh *mesh;
-	Shader *shader;
-	SceneNode *parent;
+	Mesh *mesh = NULL;
+	Shader *shader = NULL;
+	Texture *texture = NULL;
+	SceneNode *parent = NULL;
 private:
 };
 

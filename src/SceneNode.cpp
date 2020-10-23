@@ -3,10 +3,6 @@
 
 SceneNode::SceneNode()
 {
-	parent = NULL;
-	mesh = NULL;
-	shader = NULL;
-
 	transform.model_matrix = mat4(1);
 	world_transform.model_matrix = mat4(1);
 };
@@ -14,9 +10,7 @@ SceneNode::SceneNode()
 
 SceneNode::SceneNode(Mesh *mesh)
 {
-	parent = NULL;
 	this->mesh = mesh;
-	shader = NULL;
 
 	transform.model_matrix = mat4(1);
 	world_transform.model_matrix = mat4(1);
@@ -25,7 +19,6 @@ SceneNode::SceneNode(Mesh *mesh)
 
 SceneNode::SceneNode(Transform transform, Mesh *mesh = NULL)
 {
-	parent = NULL;
 	this->transform = transform;
 	this->mesh = mesh;
 };
@@ -87,6 +80,11 @@ void SceneNode::draw(mat4 view_matrix, mat4 perspective_matrix)
 {
 	if (mesh != NULL)
 	{
+		if (texture != NULL)
+		{
+			texture->bind();
+			shader->set_uniform_1i("u_texture", 0);
+		}
     	shader->set_uniform_4fv("u_color", color);
 		shader->set_uniform_mat4f("view_matrix", view_matrix);
 		shader->set_uniform_mat4f("perspective_matrix", perspective_matrix);

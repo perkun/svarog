@@ -45,62 +45,71 @@ int main()
     // 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj",
     // IndexModel::PER_FACE); 	Mesh *square_mesh =
     // svarog.create_mesh("/home/perkun/models/sphere.obj");
-//     Mesh *eros_mesh = svarog.create_mesh("../data/model.obj",
-    Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
+    Mesh *eros_mesh = svarog.create_mesh("../data/ico.obj",
+//     Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
                                          IndexModel::PER_VERTEX);
-    Mesh *metis_mesh = svarog.create_mesh("/home/perkun/models/metisSAGE.obj",
+    Mesh *metis_mesh = svarog.create_mesh("../data/metis.obj",
                                           IndexModel::PER_VERTEX);
-	Mesh *arrow_mesh = svarog.create_mesh("../data/arrow.obj",
-										  IndexModel::PER_FACE);
+// 	Mesh *arrow_mesh = svarog.create_mesh("../data/arrow.obj",
+// 										  IndexModel::PER_FACE);
 
 	Mesh *plane_mesh = svarog.create_mesh("../data/plane.obj",
 										  IndexModel::PER_FACE);
 
     SceneNode *eros = new SceneNode(eros_mesh);
     eros->bind_shader(&basic_shader);
-
-    eros->transform.position = vec3(0, 0, 0);
-    // 	eros->transform.scale = vec3(0.8, 0.8, 0.8);
-    eros->transform.scale = vec3(1.0);
+    eros->transform.position = vec3(0.5, 0., 0.);
+    eros->transform.scale = vec3(0.5);
 //     eros->transform.alpha = 1.0;
     // 	eros->transform.beta = 1.0;
 
+	SceneNode *ico = new SceneNode(eros_mesh);
+	ico->bind_shader(&basic_shader);
+	ico->transform.scale = vec3(0.5);
+	ico->transform.position = vec3(-0.5, 0., 0.0);
+
+
     SceneNode *metis = new SceneNode(metis_mesh);
     metis->bind_shader(&basic_shader);
-
-    metis->transform.position = vec3(2., 0., 0.0);
-    metis->transform.scale = vec3(0.2, 0.2, 0.2);
-    metis->transform.beta = 0.;
-
-	SceneNode *arrow = new SceneNode(arrow_mesh);
-	arrow->bind_shader(&basic_shader);
-	arrow->transform.position = vec3(0., 0., 0.);
-	arrow->transform.scale = vec3(1., 1., 1.5);
-	arrow->color = vec4(0.7, 0.2, 0.2, 1.0);
+    metis->transform.position = vec3(0., 0., 0.);
+//     metis->transform.scale = vec3(0.2, 0.2, 0.2);
+//     metis->transform.beta = 0.;
+//
+// 	SceneNode *arrow = new SceneNode(arrow_mesh);
+// 	arrow->bind_shader(&basic_shader);
+// 	arrow->transform.position = vec3(0., 0., 0.);
+// 	arrow->transform.scale = vec3(1., 1., 1.5);
+// 	arrow->color = vec4(0.7, 0.2, 0.2, 1.0);
 
 
 	SceneNode *plane = new SceneNode(plane_mesh);
 	plane->bind_shader(&basic_shader);
-	plane->transform.position = vec3(0.0, 2., -1.);
+	plane->transform.position = vec3(0., 2., 0.);
 	plane->transform.gamma = 1;
-	plane->transform.scale = vec3(1.f);
+	plane->transform.scale = vec3(2.f);
 
-	Texture texture("../data/dots.png");
-	texture.bind(0);
-	basic_shader.set_uniform_1i("u_texture", 0);
+// 	Texture fractal("../data/fraktal.png");
+// 	Texture bike("../data/wesele.jpg");
+	Texture photo("../data/horsehead.jpeg");
+//
+// 	ico->texture = &fractal;
+// 	eros->texture = &bike;
+// 	plane->texture = &bike;
 
+	metis->texture = &photo;
 
 	// ad children
-	svarog.scene_graph_root->add_child(plane);
+	svarog.scene_graph_root->add_child(metis);
 //
-    svarog.scene_graph_root->add_child(eros);
+//     svarog.scene_graph_root->add_child(eros);
+//     svarog.scene_graph_root->add_child(ico);
 // 	eros->add_child(arrow);
 //     eros->add_child(metis);
 
 
-    svarog.current_node = plane;
+    svarog.current_node = metis;
 
-    Camera *camera = new Camera(vec3(0., -3., 0.), eros->transform.position,
+    Camera *camera = new Camera(vec3(0., -3., 0.), vec3(0., 0., 0.),
                                 radians(45.0), WIN_W/(float)WIN_H, 0.1, 100.0);
 	camera->speed = 1.;
     svarog.current_camera = camera;

@@ -2,7 +2,7 @@
 
 Shader::Shader()
 {
-	string vs = R"(#version 450 core
+	string vs = R"(#version 330 core
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec2 tex_coord;
 layout(location = 2) in vec3 normal;
@@ -13,8 +13,18 @@ uniform mat4 perspective_matrix;
 
 out vec3 normal_world;
 out vec2 v_tex_coord;
+out float u1, u2;
+
+float frac(float x)
+{
+	return x - floor(x);
+}
 
 void main() {
+	u1 = frac( tex_coord.x );
+	u2 = frac( tex_coord.x + 0.5 ) -0.5;
+
+
 	normal_world = vec3(view_matrix * model_matrix * vec4(normal, 0.0) );
 	normal_world = normalize(normal_world);
 
@@ -23,20 +33,29 @@ void main() {
 	gl_Position = perspective_matrix * view_matrix * model_matrix * position;
 })";
 //
-	string fs = R"(#version 450 core
+	string fs = R"(#version 330 core
 layout(location = 0) out vec4 color;
 
 in vec3 normal_world;
 in vec2 v_tex_coord;
+in float u1, u2;
 
 uniform sampler2D u_texture;
 uniform vec4 u_color;
 
 void main() {
+	vec2 tex_coord = v_tex_coord;
+	// fix texture seam
+	if ( fwidth(u1) <= fwidth(u2) )
+		tex_coord.x = u1;
+	else
+		tex_coord.x = u2;
+
+
 	float d = dot( normal_world, vec3(0, 0, 1) );
 	d = max(d, 0);
  	//color = u_color  * d * texture2D(u_texture, v_tex_coord);
- 	color = texture2D(u_texture, v_tex_coord);
+ 	color = texture2D(u_texture, tex_coord);
 	//color = vec4(1.0);
 	//color.x = v_tex_coord.x;
 	//color.y = v_tex_coord.y;
