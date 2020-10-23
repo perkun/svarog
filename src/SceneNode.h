@@ -35,6 +35,8 @@ public:
 	vector<SceneNode*> children;
 	Transform world_transform, transform;
 
+	vec4 color = vec4(1., 1., 1., 1.);
+
 
 	Mesh *mesh;
 	Shader *shader;

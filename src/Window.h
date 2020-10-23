@@ -8,13 +8,14 @@
 #include "Event/Event.h"
 #include "Event/KeyEvent.h"
 #include "Event/MouseEvent.h"
+#include "Event/WindowEvent.h"
 
 using namespace std;
 
 class Window
 {
 public:
-	Window(int, int, string, bool);
+	Window(int, int, string, bool, bool);
 	~Window();
 
 	void show();

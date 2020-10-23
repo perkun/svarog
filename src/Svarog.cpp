@@ -1,26 +1,26 @@
 #include "Svarog.h"
 
-Svarog::Svarog(int width, int height, string w_title, bool visible)
+Svarog::Svarog(int width, int height, string w_title, bool fullscreen,
+               bool visible)
 {
-	window = new Window(width, height, w_title, visible);
-	window->set_event_callback_fn(bind(&Svarog::on_event, this, placeholders::_1));
+    window = new Window(width, height, w_title, fullscreen, visible);
+    window->set_event_callback_fn(
+        bind(&Svarog::on_event, this, placeholders::_1));
 
-	// start GLEW extension handler
-	GLenum err = glewInit();
-	if (err != GLEW_OK)
-		cout << "glew init failed" << endl;
+    // start GLEW extension handler
+    GLenum err = glewInit();
+    if (err != GLEW_OK)
+        cout << "glew init failed" << endl;
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace (GL_CCW);
+    scene_graph_root = new SceneNode();
 
-	scene_graph_root = new SceneNode();
-
-	cursor_pos = vec2(width/2.0, height/2.0);
+    cursor_pos = vec2(width / 2.0, height / 2.0);
 }
-
 
 Svarog::~Svarog()
 {
@@ -40,12 +40,37 @@ void Svarog::on_event(Event& event)
 	dispatcher.dispatch<KeyReleasedEvent>(
 		bind(&Svarog::on_key_released_event, this, placeholders::_1));
 
-	dispatcher.dispatch<MouseButtonPressEvent>(
-		bind(&Svarog::on_mouse_button_press_event, this, placeholders::_1));
+	dispatcher.dispatch<MouseButtonPressedEvent>(
+		bind(&Svarog::on_mouse_button_pressed_event, this, placeholders::_1));
+
+	dispatcher.dispatch<MouseButtonReleasedEvent>(
+		bind(&Svarog::on_mouse_button_released_event, this, placeholders::_1));
 
 	dispatcher.dispatch<MouseMovedEvent>(
 		bind(&Svarog::on_curosr_moved_event, this, placeholders::_1));
 
+	dispatcher.dispatch<MouseScrolledEvent>(
+		bind(&Svarog::on_mouse_scrolled_event, this, placeholders::_1));
+
+	dispatcher.dispatch<WindowResizeEvent>(
+		bind(&Svarog::on_window_resize_event, this, placeholders::_1));
+
+}
+
+
+void Svarog::on_window_resize_event(WindowResizeEvent &event)
+{
+	ivec2 size = event.get_size();
+	glViewport(0., 0., size.x, size.y);
+	current_camera->aspect = size.x / (float)size.y;
+	current_camera->update();
+}
+
+
+void Svarog::on_mouse_scrolled_event(MouseScrolledEvent& event)
+{
+// 	cout << event.get_offset().y << endl;
+	mouse_scrolled_action(this, event.get_offset());
 }
 
 void Svarog::on_curosr_moved_event(MouseMovedEvent& event)
@@ -57,26 +82,39 @@ void Svarog::on_curosr_moved_event(MouseMovedEvent& event)
 	cursor_pos = event.get_cursor_pos();
 	cursor_shift = cursor_pos - old_cursor_pos;
 
-	mouse_cursor_action(current_node, current_camera, cursor_shift);
+	mouse_cursor_action(this, cursor_shift);
 
 }
 
 
-void Svarog::on_mouse_button_press_event(MouseButtonPressEvent& event)
+void Svarog::on_mouse_button_released_event(MouseButtonReleasedEvent &event)
 {
-	int button_code = event.get_button_code();
-// 	cout << "on_mouse_button_press_event    ";
-// 	event.print_type();
+    int button_code = event.get_button_code();
 
+    if (mouse_button_released_map.find(button_code) !=
+        mouse_button_released_map.end())
+        mouse_button_released_map[button_code](this);
 }
 
+
+void Svarog::on_mouse_button_pressed_event(MouseButtonPressedEvent &event)
+{
+    int button_code = event.get_button_code();
+
+    if (mouse_button_pressed_map.find(button_code) !=
+        mouse_button_pressed_map.end())
+        mouse_button_pressed_map[button_code](this);
+
+    // 	cout << "on_mouse_button_pressed_event    ";
+    // 	event.print_type();
+}
 
 void Svarog::on_key_released_event(KeyReleasedEvent &event)
 {
 	int key_code = event.get_key_code();
 
 	if (key_released_map.find(key_code) != key_released_map.end())
-		key_released_map[key_code](current_node, current_camera);
+		key_released_map[key_code](this);
 
 
 // 	event.print_type();
@@ -95,7 +133,7 @@ void Svarog::on_key_pressed_event(KeyPressedEvent &event)
 		glfwSetWindowShouldClose(window->winptr, GLFW_TRUE);
 
 	if (key_pressed_map.find(key_code) != key_pressed_map.end())
-		key_pressed_map[key_code](current_node, current_camera);
+		key_pressed_map[key_code](this);
 
 }
 

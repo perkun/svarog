@@ -87,6 +87,7 @@ void SceneNode::draw(mat4 view_matrix, mat4 perspective_matrix)
 {
 	if (mesh != NULL)
 	{
+    	shader->set_uniform_4fv("u_color", color);
 		shader->set_uniform_mat4f("view_matrix", view_matrix);
 		shader->set_uniform_mat4f("perspective_matrix", perspective_matrix);
 		shader->set_uniform_mat4f("model_matrix", world_transform.model_matrix);

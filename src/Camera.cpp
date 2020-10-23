@@ -73,34 +73,36 @@ void Camera::yaw(float shift_x)
 
 void Camera::move(double time_delta)
 {
-	bool refresh = false;
+    bool refresh = false;
 
-	if (is_moving_forwards) {
-		move_forwards(time_delta);
-		refresh = true;
-	}
+    if (is_moving_forwards)
+    {
+        move_forwards(time_delta);
+        refresh = true;
+    }
 
-	if (is_moving_backwards)
-	{
-		move_backwards(time_delta);
-		refresh = true;
-	}
+    if (is_moving_backwards)
+    {
+        move_backwards(time_delta);
+        refresh = true;
+    }
 
-	if (is_moving_left)
-	{
-		move_left(time_delta);
-		refresh = true;
-	}
+    if (is_moving_left)
+    {
+        move_left(time_delta);
+        refresh = true;
+    }
 
-	if (is_moving_right)
-	{
-		move_right(time_delta);
-		refresh = true;
-	}
+    if (is_moving_right)
+    {
+        move_right(time_delta);
+        refresh = true;
+    }
 
-	if (refresh) {
-		update();
-	}
+    if (refresh)
+    {
+        update();
+    }
 }
 
 

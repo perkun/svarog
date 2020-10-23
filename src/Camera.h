@@ -35,6 +35,7 @@ public:
 
 	void move(double);
 
+	void update();
 
 	vec3 position;
 	vec3 target;
@@ -51,7 +52,6 @@ private:
 
 	vec3 up, right, front;
 
-	void update();
 
 
 

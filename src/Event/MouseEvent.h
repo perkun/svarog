@@ -10,10 +10,26 @@
 using namespace std;
 using namespace glm;
 
-class MouseButtonPressEvent: public Event
+class MouseButtonPressedEvent: public Event
 {
 public:
-	MouseButtonPressEvent(int);
+	MouseButtonPressedEvent(int);
+	int get_button_code();
+
+	void print_type();
+	static EventType get_static_event_type();
+	EventType get_event_type();
+
+private:
+	int button_code;
+
+};
+
+
+class MouseButtonReleasedEvent: public Event
+{
+public:
+	MouseButtonReleasedEvent(int);
 	int get_button_code();
 
 	void print_type();
@@ -40,5 +56,22 @@ private:
 
 
 };
+
+
+class MouseScrolledEvent: public Event
+{
+public:
+	MouseScrolledEvent(vec2);
+	vec2 get_offset();
+
+	void print_type();
+	static EventType get_static_event_type();
+	EventType get_event_type();
+private:
+	vec2 offset;
+
+
+};
+
 
 #endif

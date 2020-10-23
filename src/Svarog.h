@@ -16,6 +16,7 @@
 #include "Event/Event.h"
 #include "Event/KeyEvent.h"
 #include "Event/MouseEvent.h"
+#include "Event/WindowEvent.h"
 #include "Camera.h"
 
 
@@ -24,7 +25,7 @@ using namespace std;
 class Svarog
 {
 public:
-	Svarog(int, int, string, bool visible = true);
+	Svarog(int, int, string, bool fullscreen = false, bool visible = true);
 	~Svarog();
 
 	Mesh* create_mesh(string filename, int mode);
@@ -33,8 +34,11 @@ public:
 	void on_event(Event&);
 	void on_key_pressed_event(KeyPressedEvent&);
 	void on_key_released_event(KeyReleasedEvent&);
-	void on_mouse_button_press_event(MouseButtonPressEvent&);
-	void on_curosr_moved_event(MouseMovedEvent& event);
+	void on_mouse_button_pressed_event(MouseButtonPressedEvent&);
+	void on_mouse_button_released_event(MouseButtonReleasedEvent&);
+	void on_mouse_scrolled_event(MouseScrolledEvent&);
+	void on_curosr_moved_event(MouseMovedEvent&);
+	void on_window_resize_event(WindowResizeEvent&);
 
 // 	void rendering_loop();
 
@@ -42,9 +46,13 @@ public:
 	SceneNode *current_node = NULL;
 	Camera *current_camera;
 
-	map<int, function<void(SceneNode*, Camera*)> > key_pressed_map;
-	map<int, function<void(SceneNode*, Camera*)> > key_released_map;
-	function<void(SceneNode*, Camera*, vec2 cursor_shift)> mouse_cursor_action;
+	map<int, function<void(Svarog*)> > key_pressed_map;
+	map<int, function<void(Svarog*)> > key_released_map;
+	map<int, function<void(Svarog*)> > mouse_button_pressed_map;
+	map<int, function<void(Svarog*)> > mouse_button_released_map;
+
+	function<void(Svarog*, vec2 cursor_shift)> mouse_cursor_action;
+	function<void(Svarog*, vec2 offset)> mouse_scrolled_action;
 
 	Window *window;
 

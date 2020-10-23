@@ -1,32 +1,57 @@
 #include "MouseEvent.h"
 
-MouseButtonPressEvent::MouseButtonPressEvent(int button_code)
+MouseButtonPressedEvent::MouseButtonPressedEvent(int button_code)
 	: button_code(button_code)
 {
 }
 
-void MouseButtonPressEvent::print_type()
+void MouseButtonPressedEvent::print_type()
 {
 	cout << "MouseButtonPressEvent: " << button_code << endl;
 }
 
-int MouseButtonPressEvent::get_button_code()
+int MouseButtonPressedEvent::get_button_code()
 {
 	return button_code;
 }
 
-EventType MouseButtonPressEvent::get_event_type()
+EventType MouseButtonPressedEvent::get_event_type()
 {
 	return get_static_event_type();
 }
 
 
-EventType MouseButtonPressEvent::get_static_event_type()
+EventType MouseButtonPressedEvent::get_static_event_type()
 {
 	return EventType::mouse_button_pressed;
 }
 
 
+MouseButtonReleasedEvent::MouseButtonReleasedEvent(int button_code)
+	: button_code(button_code)
+{
+}
+
+void MouseButtonReleasedEvent::print_type()
+{
+	cout << "MouseButtonReleasedEvent: " << button_code << endl;
+}
+
+int MouseButtonReleasedEvent::get_button_code()
+{
+	return button_code;
+}
+
+EventType MouseButtonReleasedEvent::get_event_type()
+{
+	return get_static_event_type();
+}
+
+
+EventType MouseButtonReleasedEvent::get_static_event_type()
+{
+	return EventType::mouse_button_released;
+}
 
 
 
@@ -57,4 +82,34 @@ EventType MouseMovedEvent::get_event_type()
 EventType MouseMovedEvent::get_static_event_type()
 {
 	return EventType::cursor_moved;
+}
+
+
+
+
+
+MouseScrolledEvent::MouseScrolledEvent(vec2 offset) : offset(offset)
+{
+}
+
+vec2 MouseScrolledEvent::get_offset()
+{
+	return offset;
+}
+
+void MouseScrolledEvent::print_type()
+{
+	cout << "MouseMovedEvent: " << offset.x << ", " << offset.y << endl;
+}
+
+
+EventType MouseScrolledEvent::get_event_type()
+{
+	return get_static_event_type();
+}
+
+
+EventType MouseScrolledEvent::get_static_event_type()
+{
+	return EventType::mouse_scrolled;
 }

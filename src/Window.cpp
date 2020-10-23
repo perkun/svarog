@@ -1,6 +1,6 @@
 #include "Window.h"
 
-Window::Window(int w, int h, string title, bool visible)
+Window::Window(int w, int h, string title, bool fullscreen, bool visible)
 {
 	if (!glfwInit())
 	{
@@ -17,12 +17,17 @@ Window::Window(int w, int h, string title, bool visible)
 	else
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-	winptr = glfwCreateWindow(w, h, title.c_str(), glfwGetPrimaryMonitor(), NULL);
+	if (fullscreen)
+		winptr = glfwCreateWindow(w, h, title.c_str(), glfwGetPrimaryMonitor(), NULL);
+	else
+		winptr = glfwCreateWindow(w, h, title.c_str(), NULL, NULL);
 
 	glfwMakeContextCurrent(winptr);
 
 	// user pointer
 	glfwSetWindowUserPointer(winptr, this);
+	// invisible cursor
+// 	glfwSetInputMode(winptr, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 
 	// set callbacks
@@ -65,14 +70,14 @@ Window::Window(int w, int h, string title, bool visible)
 			{
 				case GLFW_PRESS:
 				{
-					MouseButtonPressEvent event(button);
+					MouseButtonPressedEvent event(button);
 					window->event_callback_fn(event);
 					break;
 				}
 				case GLFW_RELEASE:
 				{
-// 					MouseButtonReleaseEvent event(key);
-// 					window->event_callback_fn(event);
+					MouseButtonReleasedEvent event(button);
+					window->event_callback_fn(event);
 					break;
 				}
 			}
@@ -90,7 +95,25 @@ Window::Window(int w, int h, string title, bool visible)
 		}
 	);
 
-	glfwSetInputMode(winptr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetScrollCallback(winptr,
+		[](GLFWwindow *win, double xoffset, double yoffset)
+		{
+			Window *window = (Window*)glfwGetWindowUserPointer(win);
+			MouseScrolledEvent event(vec2(xoffset, yoffset));
+			window->event_callback_fn(event);
+		}
+	);
+
+
+	glfwSetWindowSizeCallback(winptr,
+		[](GLFWwindow *win, int width, int height)
+		{
+			Window *window = (Window*)glfwGetWindowUserPointer(win);
+			WindowResizeEvent event(width, height);
+			window->event_callback_fn(event);
+		}
+	);
+
 
 }
 

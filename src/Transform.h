@@ -23,6 +23,10 @@ public:
 	float alpha, beta, gamma;
 	vec3 scale, position;
 
+	bool change_alpha = false;
+	bool change_beta = false;
+	bool change_gamma = false;
+
 private:
 	mat4 get_rotation_matrix_313();
 };

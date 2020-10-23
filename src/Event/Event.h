@@ -10,7 +10,8 @@ using namespace std;
 enum class EventType {
 	none = 0,
 	key_pressed, key_released, mouse_button_pressed,
-	mouse_button_released, cursor_moved
+	mouse_button_released, cursor_moved, mouse_scrolled,
+	window_resized
 };
 
 
