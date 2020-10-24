@@ -26,7 +26,9 @@ public:
 	void add_child(SceneNode *c);
 // 	SceneNode* detatch_child(SceneNode*);
 	void detatch();
-	void bind_shader(Shader *s);
+	void bind_shader(Shader*);
+	void bind_texture(Texture*);
+
 
 	virtual void update();
 	virtual void draw(mat4, mat4);

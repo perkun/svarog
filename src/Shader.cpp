@@ -1,71 +1,45 @@
 #include "Shader.h"
 
-Shader::Shader()
+Shader::Shader(string vertex_fn, string fragment_fn)
 {
-	string vs = R"(#version 330 core
-layout(location = 0) in vec4 position;
-layout(location = 1) in vec2 tex_coord;
-layout(location = 2) in vec3 normal;
 
-uniform mat4 model_matrix;
-uniform mat4 view_matrix;
-uniform mat4 perspective_matrix;
+	FILE *f = fopen(vertex_fn.c_str(), "rb");
+	if (f == NULL)
+	{
+		cout << "could not open vertex shader file: " << vertex_fn << "\n";
+		return;
+	}
 
-out vec3 normal_world;
-out vec2 v_tex_coord;
-out float u1, u2;
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);  /* same as rewind(f); */
 
-float frac(float x)
-{
-	return x - floor(x);
-}
-
-void main() {
-	u1 = frac( tex_coord.x );
-	u2 = frac( tex_coord.x + 0.5 ) -0.5;
+	char *vertex_shader = (char*)malloc(fsize + 1);
+	fread(vertex_shader, 1, fsize, f);
+	vertex_shader[fsize] = 0;
+	fclose(f);
 
 
-	normal_world = vec3(view_matrix * model_matrix * vec4(normal, 0.0) );
-	normal_world = normalize(normal_world);
+	f = fopen(fragment_fn.c_str(), "rb");
+	if (f == NULL)
+	{
+		cout << "could not open fragment shader file: " << fragment_fn << "\n";
+		return;
+	}
 
-	v_tex_coord = tex_coord;
+	fseek(f, 0, SEEK_END);
+	fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);  /* same as rewind(f); */
 
-	gl_Position = perspective_matrix * view_matrix * model_matrix * position;
-})";
-//
-	string fs = R"(#version 330 core
-layout(location = 0) out vec4 color;
+	char *fragment_shader = (char*)malloc(fsize + 1);
+	fread(fragment_shader, 1, fsize, f);
+	fragment_shader[fsize] = 0;
+	fclose(f);
 
-in vec3 normal_world;
-in vec2 v_tex_coord;
-in float u1, u2;
+	create_shader(vertex_shader, fragment_shader);
 
-uniform sampler2D u_texture;
-uniform vec4 u_color;
-
-void main() {
-	vec2 tex_coord = v_tex_coord;
-	// fix texture seam
-	if ( fwidth(u1) <= fwidth(u2) )
-		tex_coord.x = u1;
-	else
-		tex_coord.x = u2;
-
-
-	float d = dot( normal_world, vec3(0, 0, 1) );
-	d = max(d, 0);
- 	//color = u_color  * d * texture2D(u_texture, v_tex_coord);
- 	color = texture2D(u_texture, tex_coord);
-	//color = vec4(1.0);
-	//color.x = v_tex_coord.x;
-	//color.y = v_tex_coord.y;
-	//color.z = 0.0;
- 	//color = vec4(normal_world, 1.0);
-})";
-
-
-	create_shader(vs, fs);
-
+	free(vertex_shader);
+	free(fragment_shader);
 }
 
 Shader::~Shader()
@@ -83,11 +57,11 @@ void Shader::unbind()
 	glUseProgram(0);
 }
 
-unsigned int Shader::compile_shader(unsigned int type, const string &source)
+unsigned int Shader::compile_shader(unsigned int type, const char *source)
 {
 	unsigned int id = glCreateShader(type);
-	const char *src = source.c_str();
-	glShaderSource(id, 1, &src, NULL);
+// 	const char *src = source.c_str();
+	glShaderSource(id, 1, &source, NULL);
 	glCompileShader(id);
 
 
@@ -110,8 +84,8 @@ unsigned int Shader::compile_shader(unsigned int type, const string &source)
 	return id;
 }
 
-void Shader::create_shader(const string &vertex_shader,
-						   const string &fragment_shader)
+void Shader::create_shader(const char *vertex_shader,
+						   const char *fragment_shader)
 {
 	program = glCreateProgram();
 	unsigned int vs = compile_shader(GL_VERTEX_SHADER, vertex_shader);
@@ -128,17 +102,34 @@ void Shader::create_shader(const string &vertex_shader,
 
 int Shader::get_uniform_location(string name)
 {
-	if (uniform_lication_cache.find(name) != uniform_lication_cache.end())
-		return uniform_lication_cache[name];
+	if (uniform_location_cache.find(name) != uniform_location_cache.end())
+		return uniform_location_cache[name];
 
 	int location;
 	location = glGetUniformLocation(program, name.c_str());
 	if (location == -1)
 		cout << "The name \"" << name << "\" does not exist in shader!" << endl;
 
-	uniform_lication_cache[name] = location;
+	uniform_location_cache[name] = location;
 
 	return location;
+}
+
+void Shader::set_uniforms()
+{
+// 	bind();
+// 	for (Uniform uni: uniforms)
+// 	{
+// 		if (uni.type == INT)
+// 			set_uniform_1i(uni.name, *((int*)uni.data));
+// 		else if (uni.type == FLOAT)
+// 			set_uniform_1f(uni.name, *((float*)uni.data));
+// 		else if (uni.type == VEC4)
+// 			set_uniform_4fv(uni.name, *((vec4*)uni.data));
+// 		else if (uni.type == MAT4)
+// 			set_uniform_mat4f(uni.name, *((mat4*)uni.data));
+// 	}
+
 }
 
 void Shader::set_uniform_4fv(string name, vec4 data)

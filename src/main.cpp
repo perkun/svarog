@@ -37,9 +37,28 @@ int main()
     Svarog svarog(WIN_W, WIN_H, "Svarog", false);
 	set_keybindings(svarog);
 
+    Camera *camera = new Camera(vec3(0., -3., 0.), vec3(0., 0., 0.),
+                                radians(45.0), WIN_W/(float)WIN_H, 0.1, 100.0);
+	camera->speed = 1.;
+    svarog.current_camera = camera;
 
-    Shader basic_shader;
-    basic_shader.set_uniform_4fv("u_color", vec4(1., 1., 1., 1.));
+
+
+    Shader basic_shader("../src/shaders/basic_shader.vs",
+						"../src/shaders/basic_shader.fs");
+
+//     basic_shader.set_uniform_4fv("u_color", vec4(1., 1., 1., 1.));
+	vec4 color(1.0);
+// 	basic_shader.uniforms.push_back(Uniform("u_color", type::VEC4, (void*)&color));
+// 	basic_shader.uniforms.push_back(Uniform("view_matrix", type::MAT4, (void*)&camera->view));
+// 	basic_shader.uniforms.push_back(Uniform("perspective_matrix", type::MAT4, (void*)&camera->perspective));
+// 	basic_shader.uniforms.push_back(Uniform("model_matrix", type::MAT4, (void*)&color));
+
+
+//     	shader->set_uniform_4fv("u_color", color);
+// 		shader->set_uniform_mat4f("view_matrix", view_matrix);
+// 		shader->set_uniform_mat4f("perspective_matrix", perspective_matrix);
+// 		shader->set_uniform_mat4f("model_matrix", world_transform.model_matrix);
 
     // 	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
     // 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj",
@@ -96,7 +115,7 @@ int main()
 // 	eros->texture = &bike;
 // 	plane->texture = &bike;
 
-	metis->texture = &photo;
+	metis->bind_texture(&photo);
 
 	// ad children
 	svarog.scene_graph_root->add_child(metis);
@@ -108,11 +127,6 @@ int main()
 
 
     svarog.current_node = metis;
-
-    Camera *camera = new Camera(vec3(0., -3., 0.), vec3(0., 0., 0.),
-                                radians(45.0), WIN_W/(float)WIN_H, 0.1, 100.0);
-	camera->speed = 1.;
-    svarog.current_camera = camera;
 
 
 

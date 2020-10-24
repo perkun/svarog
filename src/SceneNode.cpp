@@ -89,6 +89,7 @@ void SceneNode::draw(mat4 view_matrix, mat4 perspective_matrix)
 		shader->set_uniform_mat4f("view_matrix", view_matrix);
 		shader->set_uniform_mat4f("perspective_matrix", perspective_matrix);
 		shader->set_uniform_mat4f("model_matrix", world_transform.model_matrix);
+// 		shader->set_uniforms();
 		shader->bind();
 		mesh->draw();
 	}
@@ -118,5 +119,10 @@ void SceneNode::draw_depth_first(mat4 view_matrix, mat4 perspective_matrix)
 void SceneNode::bind_shader(Shader *s)
 {
 	shader = s;
+}
+
+void SceneNode::bind_texture(Texture *t)
+{
+	texture = t;
 }
 
