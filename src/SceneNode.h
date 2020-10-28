@@ -11,6 +11,7 @@
 #include "Transform.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Camera.h"
 
 using namespace std;
 
@@ -31,19 +32,20 @@ public:
 
 
 	virtual void update();
-	virtual void draw(mat4, mat4);
+	virtual void draw();
 	void update_depth_first();
-	void draw_depth_first(mat4, mat4);
+	void draw_depth_first();
 
 	vector<SceneNode*> children;
 	Transform world_transform, transform;
 
 	vec4 color = vec4(1., 1., 1., 1.);
 
-
 	Mesh *mesh = NULL;
 	Shader *shader = NULL;
 	Texture *texture = NULL;
+	Camera *camera = NULL;
+
 	SceneNode *parent = NULL;
 private:
 };

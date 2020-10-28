@@ -12,10 +12,10 @@ void main()
 {
 	vec2 tex_coord = v_tex_coord;
 	// fix texture seam
-	if ( fwidth(u1) <= fwidth(u2) )
-		tex_coord.x = u1;
-	else
-		tex_coord.x = u2;
+// 	if ( fwidth(u1) <= fwidth(u2) )
+// 		tex_coord.x = u1;
+// 	else
+// 		tex_coord.x = u2;
 
 
 	float d = dot( normal_world, vec3(0, 0, 1) );

@@ -73,10 +73,11 @@ void SceneNode::update()
 		transform.update_model_matrix();
 		world_transform.model_matrix =
 			parent->world_transform.model_matrix * transform.model_matrix;
+		camera = parent->camera;
 	}
 }
 
-void SceneNode::draw(mat4 view_matrix, mat4 perspective_matrix)
+void SceneNode::draw()
 {
 	if (mesh != NULL)
 	{
@@ -86,8 +87,8 @@ void SceneNode::draw(mat4 view_matrix, mat4 perspective_matrix)
 			shader->set_uniform_1i("u_texture", 0);
 		}
     	shader->set_uniform_4fv("u_color", color);
-		shader->set_uniform_mat4f("view_matrix", view_matrix);
-		shader->set_uniform_mat4f("perspective_matrix", perspective_matrix);
+		shader->set_uniform_mat4f("view_matrix", camera->get_view());
+		shader->set_uniform_mat4f("perspective_matrix", camera->get_perspective());
 		shader->set_uniform_mat4f("model_matrix", world_transform.model_matrix);
 // 		shader->set_uniforms();
 		shader->bind();
@@ -106,12 +107,12 @@ void SceneNode::update_depth_first()
 }
 
 
-void SceneNode::draw_depth_first(mat4 view_matrix, mat4 perspective_matrix)
+void SceneNode::draw_depth_first()
 {
 	for (SceneNode *child: this->children)
 	{
-		child->draw(view_matrix, perspective_matrix);
-		child->draw_depth_first(view_matrix, perspective_matrix);
+		child->draw();
+		child->draw_depth_first();
 	}
 }
 

@@ -35,14 +35,13 @@ int main()
     cout << "This is Svarog!" << endl;
 
     Svarog svarog(WIN_W, WIN_H, "Svarog", false);
-	set_keybindings(svarog);
+    set_keybindings(svarog);
 
-    Camera *camera = new Camera(vec3(0., -3., 0.), vec3(0., 0., 0.),
-                                radians(45.0), WIN_W/(float)WIN_H, 0.1, 100.0);
-	camera->speed = 1.;
-    svarog.current_camera = camera;
+    Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
+                  WIN_W / (float)WIN_H, 0.1, 100.0);
 
-
+    camera.speed = 1.;
+    svarog.current_camera = &camera;
 
     Shader basic_shader("../src/shaders/basic_shader.vs",
 						"../src/shaders/basic_shader.fs");
@@ -64,10 +63,10 @@ int main()
     // 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj",
     // IndexModel::PER_FACE); 	Mesh *square_mesh =
     // svarog.create_mesh("/home/perkun/models/sphere.obj");
-    Mesh *eros_mesh = svarog.create_mesh("../data/ico.obj",
-//     Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
+//     Mesh *eros_mesh = svarog.create_mesh("../data/ico.obj",
+    Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
                                          IndexModel::PER_VERTEX);
-    Mesh *metis_mesh = svarog.create_mesh("../data/metis.obj",
+    Mesh *metis_mesh = svarog.create_mesh("../data/model.obj",
                                           IndexModel::PER_VERTEX);
 // 	Mesh *arrow_mesh = svarog.create_mesh("../data/arrow.obj",
 // 										  IndexModel::PER_FACE);
@@ -104,31 +103,32 @@ int main()
 	SceneNode *plane = new SceneNode(plane_mesh);
 	plane->bind_shader(&basic_shader);
 	plane->transform.position = vec3(0., 2., 0.);
+	plane->transform.beta = 1;
 	plane->transform.gamma = 1;
 	plane->transform.scale = vec3(2.f);
 
 // 	Texture fractal("../data/fraktal.png");
-// 	Texture bike("../data/wesele.jpg");
-	Texture photo("../data/horsehead.jpeg");
+	Texture bike("../data/makeeva2.png");
+	Texture photo("../data/forest.jpg");
 //
 // 	ico->texture = &fractal;
 // 	eros->texture = &bike;
-// 	plane->texture = &bike;
+	plane->texture = &bike;
 
 	metis->bind_texture(&photo);
 
 	// ad children
 	svarog.scene_graph_root->add_child(metis);
+	svarog.scene_graph_root->add_child(plane);
 //
 //     svarog.scene_graph_root->add_child(eros);
 //     svarog.scene_graph_root->add_child(ico);
 // 	eros->add_child(arrow);
 //     eros->add_child(metis);
 
+	svarog.scene_graph_root->camera = &camera;
 
-    svarog.current_node = metis;
-
-
+    svarog.current_node = plane;
 
 
     double time = glfwGetTime();
@@ -146,8 +146,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         svarog.scene_graph_root->update_depth_first();
-        svarog.scene_graph_root->draw_depth_first(camera->get_view(),
-                                                  camera->get_perspective());
+        svarog.scene_graph_root->draw_depth_first();
+
         glfwSwapBuffers(svarog.window->winptr);
 //         glfwPollEvents();
 		glfwWaitEvents();
@@ -155,10 +155,8 @@ int main()
 		svarog.current_camera->move(time_delta);
     }
 
-	delete camera;
     return 0;
 }
-
 
 void set_keybindings(Svarog &svarog)
 {

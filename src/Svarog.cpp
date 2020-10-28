@@ -17,8 +17,8 @@ Svarog::Svarog(int width, int height, string w_title, bool fullscreen,
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+// 	glEnable(GL_BLEND);
+// 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     scene_graph_root = new SceneNode();
 
