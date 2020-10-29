@@ -17,6 +17,12 @@ void Transform::update_model_matrix()
 }
 
 
+mat4 Transform::get_model_matrix()
+{
+	update_model_matrix();
+	return model_matrix;
+}
+
 mat4 Transform::get_rotation_matrix_313()
 {
 	/**

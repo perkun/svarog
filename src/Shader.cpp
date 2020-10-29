@@ -41,15 +41,30 @@ Shader::Shader(string vertex_fn, string fragment_fn)
     free(fragment_shader);
 }
 
+
+Shader::Shader(const Shader &other)
+{
+	program = other.program;
+}
+
+
 Shader::~Shader()
+{
+// 	destroy();
+}
+
+void Shader::destroy()
 {
     glDeleteProgram(program);
 }
+
+
 
 void Shader::bind()
 {
     glUseProgram(program);
 }
+
 
 void Shader::unbind()
 {

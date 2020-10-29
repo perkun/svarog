@@ -6,6 +6,7 @@ IndexModel::IndexModel(string filename, int mode)
 }
 
 
+
 IndexModel::~IndexModel()
 {
 }
@@ -303,12 +304,31 @@ Mesh::Mesh(string filename, int mode)
 // 	cout << "num_texcoords: " << indexed_model.tex.size() << endl;
 }
 
+Mesh::Mesh(const Mesh &other)
+{
+	id = other.id;
+	num_triangles = other.num_triangles;
+	vertex_array_object = other.vertex_array_object;
+	for (int i = 0; i < other.NUM_BUFFS; i++)
+	{
+		vertex_buffers[i] = other.vertex_buffers[i];
+	}
+
+}
+
+
 Mesh::~Mesh()
+{
+// 	destroy();
+}
+
+void Mesh::destroy()
 {
     glDeleteVertexArrays(1, &vertex_array_object);
     glDeleteBuffers(NUM_BUFFS, vertex_buffers);
-
 }
+
+
 
 void Mesh::create_vao(IndexModel *indexed_model)
 {

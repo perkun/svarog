@@ -16,6 +16,8 @@ public:
     Texture(string);
 	~Texture();
 
+	void destroy();
+
 	void bind(unsigned int slot = 0);
 
 private:

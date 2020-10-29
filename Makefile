@@ -13,7 +13,9 @@ OBJECTS = build/main.o build/Svarog.o build/Mesh.o build/Transform.o \
 		  build/Camera.o \
 		  build/stb_image.o \
 		  build/Texture.o \
-		  build/Renderer.o
+		  build/Renderer.o \
+		  build/Scene.o \
+		  build/Entity.o
 
  #build/SceneGraph.o
 
@@ -36,9 +38,6 @@ build/Transform.o: src/Transform.cpp
 
 build/SceneNode.o: src/SceneNode.cpp
 		$(CC) $(CFLAGS) -o $@ $^
-
-#build/SceneGraph.o: src/SceneGraph.cpp
-		#$(CC) $(CFLAGS) -o $@ $^
 
 build/Shader.o: src/Shader.cpp
 		$(CC) $(CFLAGS) -o $@ $^
@@ -68,6 +67,13 @@ build/Texture.o: src/Texture.cpp
 
 build/Renderer.o: src/Renderer.cpp
 		$(CC) $(CFLAGS) -o $@ $^
+
+build/Scene.o: src/Scene.cpp
+		$(CC) $(CFLAGS) -o $@ $^
+
+build/Entity.o: src/Entity.cpp
+		$(CC) $(CFLAGS) -o $@ $^
+
 
 build/stb_image.o: src/vendor/stb_image/stb_image.cpp
 		$(CC) $(CFLAGS) -o $@ $^

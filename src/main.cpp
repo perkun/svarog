@@ -10,7 +10,9 @@
 #include "Shader.h"
 #include "Svarog.h"
 #include "Texture.h"
+#include "Transform.h"
 #include "Renderer.h"
+#include "vendor/entt/entt.hpp"
 
 #define WIN_W 800
 #define WIN_H 600
@@ -25,6 +27,12 @@ void print_id(SceneNode *n)
 
 
 void set_keybindings(Svarog &svarog);
+
+struct Tag
+{
+	Tag(string tag) : tag(tag) {}
+	string tag;
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,89 +56,47 @@ int main()
     Shader basic_shader("../src/shaders/basic_shader.vs",
 						"../src/shaders/basic_shader.fs");
 
-//     basic_shader.set_uniform_4fv("u_color", vec4(1., 1., 1., 1.));
-	vec4 color(1.0);
-// 	basic_shader.uniforms.push_back(Uniform("u_color", type::VEC4, (void*)&color));
-// 	basic_shader.uniforms.push_back(Uniform("view_matrix", type::MAT4, (void*)&camera->view));
-// 	basic_shader.uniforms.push_back(Uniform("perspective_matrix", type::MAT4, (void*)&camera->perspective));
-// 	basic_shader.uniforms.push_back(Uniform("model_matrix", type::MAT4, (void*)&color));
-
-
-//     	shader->set_uniform_4fv("u_color", color);
-// 		shader->set_uniform_mat4f("view_matrix", view_matrix);
-// 		shader->set_uniform_mat4f("perspective_matrix", perspective_matrix);
-// 		shader->set_uniform_mat4f("model_matrix", world_transform.model_matrix);
-
     // 	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
     // 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj",
     // IndexModel::PER_FACE); 	Mesh *square_mesh =
     // svarog.create_mesh("/home/perkun/models/sphere.obj");
 //     Mesh *eros_mesh = svarog.create_mesh("../data/ico.obj",
-    Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
-                                         IndexModel::PER_VERTEX);
-    Mesh *metis_mesh = svarog.create_mesh("../data/model.obj",
-                                          IndexModel::PER_VERTEX);
-// 	Mesh *arrow_mesh = svarog.create_mesh("../data/arrow.obj",
+//     Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
+//                                          IndexModel::PER_VERTEX);
+//     Mesh *metis_mesh = svarog.create_mesh("../data/model.obj",
+//                                           IndexModel::PER_VERTEX);
+// // 	Mesh *arrow_mesh = svarog.create_mesh("../data/arrow.obj",
+// // 										  IndexModel::PER_FACE);
+//
+// 	Mesh *plane_mesh = svarog.create_mesh("../data/plane.obj",
 // 										  IndexModel::PER_FACE);
 
-	Mesh *plane_mesh = svarog.create_mesh("../data/plane.obj",
-										  IndexModel::PER_FACE);
 
-    SceneNode *eros = new SceneNode(eros_mesh);
-    eros->bind_shader(&basic_shader);
-    eros->transform.position = vec3(0.5, 0., 0.);
-    eros->transform.scale = vec3(0.5);
-//     eros->transform.alpha = 1.0;
-    // 	eros->transform.beta = 1.0;
+	Mesh metis_mesh("../data/model.obj", IndexModel::PER_VERTEX);
+	Mesh plane_mesh("../data/plane.obj", IndexModel::PER_VERTEX);
 
-	SceneNode *ico = new SceneNode(eros_mesh);
-	ico->bind_shader(&basic_shader);
-	ico->transform.scale = vec3(0.5);
-	ico->transform.position = vec3(-0.5, 0., 0.0);
-
-
-    SceneNode *metis = new SceneNode(metis_mesh);
-    metis->bind_shader(&basic_shader);
-    metis->transform.position = vec3(0., 0., 0.);
-//     metis->transform.scale = vec3(0.2, 0.2, 0.2);
-//     metis->transform.beta = 0.;
-//
-// 	SceneNode *arrow = new SceneNode(arrow_mesh);
-// 	arrow->bind_shader(&basic_shader);
-// 	arrow->transform.position = vec3(0., 0., 0.);
-// 	arrow->transform.scale = vec3(1., 1., 1.5);
-// 	arrow->color = vec4(0.7, 0.2, 0.2, 1.0);
-
-
-	SceneNode *plane = new SceneNode(plane_mesh);
-	plane->bind_shader(&basic_shader);
-	plane->transform.position = vec3(0., 2., 0.);
-	plane->transform.beta = 1;
-	plane->transform.gamma = 1;
-	plane->transform.scale = vec3(2.f);
-
-// 	Texture fractal("../data/fraktal.png");
 	Texture bike("../data/makeeva2.png");
 	Texture photo("../data/forest.jpg");
-//
-// 	ico->texture = &fractal;
-// 	eros->texture = &bike;
-	plane->texture = &bike;
 
-	metis->bind_texture(&photo);
 
-	// ad children
-	svarog.scene_graph_root->add_child(metis);
-	svarog.scene_graph_root->add_child(plane);
-//
-//     svarog.scene_graph_root->add_child(eros);
-//     svarog.scene_graph_root->add_child(ico);
-// 	eros->add_child(arrow);
-//     eros->add_child(metis);
+	entt::registry registry;
 
-	svarog.scene_graph_root->camera = &camera;
+	entt::entity plane = registry.create();
+	registry.emplace<Mesh>(plane, plane_mesh);
+	registry.emplace<Texture>(plane, bike);
+	Transform pt = Transform();
+	pt.beta = 1.;
+	registry.emplace<Transform>(plane, pt);
+	registry.emplace<Shader>(plane, basic_shader);
+	registry.emplace<Tag>(plane, "PLANE");
 
-    svarog.current_node = plane;
+	entt::entity metis = registry.create();
+	registry.emplace<Mesh>(metis, metis_mesh);
+	registry.emplace<Texture>(metis, photo);
+	registry.emplace<Transform>(metis, Transform());
+	registry.emplace<Shader>(metis, basic_shader);
+	registry.emplace<Tag>(metis, "METIS");
+
 
 
     double time = glfwGetTime();
@@ -145,8 +111,27 @@ int main()
 
         // RENDER STUFF
 		renderer.clear(BG_COLOR);
-//         svarog.scene_graph_root->update_depth_first();
-        svarog.scene_graph_root->draw_depth_first(renderer);
+
+		auto view = registry.view<Mesh, Transform, Texture, Shader>();
+		for (entt::entity ent: view)
+		{
+
+			Mesh &m = registry.get<Mesh>(ent);
+			Transform &tr = registry.get<Transform>(ent);
+			Texture &tx = registry.get<Texture>(ent);
+			Shader &s = registry.get<Shader>(ent);
+			cout << registry.get<Tag>(ent).tag << "\t" << s.program << endl;
+
+			tx.bind();
+			s.set_uniform_1i("u_texture", 0);
+			s.set_uniform_4fv("u_color", vec4(1.0));
+			s.set_uniform_mat4f("model_matrix", tr.get_model_matrix());
+			s.set_uniform_mat4f("view_matrix", camera.get_view());
+			s.set_uniform_mat4f("perspective_matrix", camera.get_perspective());
+
+			renderer.draw(m, s);
+		}
+// 		renderer.draw(metis_mesh, basic_shader);
 
 
         glfwSwapBuffers(svarog.window->winptr);
@@ -155,6 +140,11 @@ int main()
 
 		svarog.current_camera->move(time_delta);
     }
+
+	plane_mesh.destroy();
+	bike.destroy();
+	photo.destroy();
+	basic_shader.destroy();
 
     return 0;
 }
@@ -219,32 +209,39 @@ void set_keybindings(Svarog &svarog)
 	};
 
 	svarog.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_1] = [](Svarog *svarog) {
-		svarog->current_node->transform.change_alpha = true;
+		if (svarog->current_node != NULL)
+			svarog->current_node->transform.change_alpha = true;
 	};
 
 	svarog.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_2] = [](Svarog *svarog) {
-		svarog->current_node->transform.change_beta = true;
+		if (svarog->current_node != NULL)
+			svarog->current_node->transform.change_beta = true;
 	};
 
 	svarog.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_3] = [](Svarog *svarog) {
-		svarog->current_node->transform.change_gamma = true;
+		if (svarog->current_node != NULL)
+			svarog->current_node->transform.change_gamma = true;
 	};
 
 
 	svarog.mouse_button_released_map[GLFW_MOUSE_BUTTON_1] = [](Svarog *svarog) {
-		svarog->current_node->transform.change_alpha = false;
+		if (svarog->current_node != NULL)
+			svarog->current_node->transform.change_alpha = false;
 	};
 
 	svarog.mouse_button_released_map[GLFW_MOUSE_BUTTON_2] = [](Svarog *svarog) {
-		svarog->current_node->transform.change_beta = false;
+		if (svarog->current_node != NULL)
+			svarog->current_node->transform.change_beta = false;
 	};
 
 	svarog.mouse_button_released_map[GLFW_MOUSE_BUTTON_3] = [](Svarog *svarog) {
-		svarog->current_node->transform.change_gamma = false;
+		if (svarog->current_node != NULL)
+			svarog->current_node->transform.change_gamma = false;
 	};
 
 	svarog.mouse_scrolled_action = [](Svarog *svarog, vec2 offset) {
-		svarog->current_node->transform.scale += offset.y / 50.f * vec3(1.0);
+		if (svarog->current_node != NULL)
+			svarog->current_node->transform.scale += offset.y / 50.f * vec3(1.0);
 	};
 
 

@@ -37,6 +37,11 @@ Texture::Texture(string path)
 
 Texture::~Texture()
 {
+// 	destroy();
+}
+
+void Texture::destroy()
+{
 	glDeleteTextures(1, &texture_id);
 }
 

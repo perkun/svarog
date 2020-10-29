@@ -44,6 +44,7 @@ class Shader
 {
 public:
 	Shader(string vertex_fn, string fragment_fn);
+	Shader(const Shader &other);
 	~Shader();
 
 	void set_uniforms();
@@ -56,15 +57,17 @@ public:
 	void bind();
 	void unbind();
 
+	void destroy();
+
 	vector<Uniform> uniforms;
 
+	unsigned int program;
 private:
 	int get_uniform_location(string name);
 	unsigned int compile_shader(unsigned int type, const char *source);
 	void create_shader(const char *vertex_shader,
 					   const char *fragment_shader);
 
-	unsigned int program;
 
 	map<string, int> uniform_location_cache;
 

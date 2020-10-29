@@ -69,7 +69,9 @@ public:
 	};
 
 	Mesh(string filename, int mode);
+	Mesh(const Mesh &other);
 	~Mesh();
+	void destroy();
 	uint id;
 	unsigned int num_triangles = 0;
 

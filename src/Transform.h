@@ -17,6 +17,7 @@ public:
 	~Transform();
 
 	void update_model_matrix();
+	mat4 get_model_matrix();
 
 	mat4 model_matrix;
 
