@@ -10,17 +10,23 @@ Transform::Transform()
 Transform::~Transform() {}
 
 
-void Transform::update_model_matrix()
+void Transform::update_local()
 {
-	model_matrix =
+	local =
 		glm::translate(position) * get_rotation_matrix_313() *glm::scale(scale);
 }
 
 
-mat4 Transform::get_model_matrix()
+mat4 Transform::get_local_tansform()
 {
-	update_model_matrix();
-	return model_matrix;
+	update_local();
+	return local;
+}
+
+
+mat4 Transform::get_world_tansform()
+{
+	return world;
 }
 
 mat4 Transform::get_rotation_matrix_313()

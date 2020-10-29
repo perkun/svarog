@@ -11,8 +11,8 @@
 #include "Svarog.h"
 #include "Texture.h"
 #include "Transform.h"
-#include "Renderer.h"
-#include "vendor/entt/entt.hpp"
+// #include "vendor/entt/entt.hpp"
+#include "Entity.h"
 
 #define WIN_W 800
 #define WIN_H 600
@@ -28,11 +28,6 @@ void print_id(SceneNode *n)
 
 void set_keybindings(Svarog &svarog);
 
-struct Tag
-{
-	Tag(string tag) : tag(tag) {}
-	string tag;
-};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,49 +51,46 @@ int main()
     Shader basic_shader("../src/shaders/basic_shader.vs",
 						"../src/shaders/basic_shader.fs");
 
-    // 	Mesh *square_mesh = svarog.create_mesh("../data/square.obj");
-    // 	Mesh *square_mesh = svarog.create_mesh("../data/ico.obj",
-    // IndexModel::PER_FACE); 	Mesh *square_mesh =
-    // svarog.create_mesh("/home/perkun/models/sphere.obj");
-//     Mesh *eros_mesh = svarog.create_mesh("../data/ico.obj",
-//     Mesh *eros_mesh = svarog.create_mesh("/home/perkun/models/erosNEAR.obj",
-//                                          IndexModel::PER_VERTEX);
-//     Mesh *metis_mesh = svarog.create_mesh("../data/model.obj",
-//                                           IndexModel::PER_VERTEX);
-// // 	Mesh *arrow_mesh = svarog.create_mesh("../data/arrow.obj",
-// // 										  IndexModel::PER_FACE);
-//
-// 	Mesh *plane_mesh = svarog.create_mesh("../data/plane.obj",
-// 										  IndexModel::PER_FACE);
 
-
+	// Meshes
 	Mesh metis_mesh("../data/model.obj", IndexModel::PER_VERTEX);
 	Mesh plane_mesh("../data/plane.obj", IndexModel::PER_VERTEX);
 
-	Texture bike("../data/makeeva2.png");
-	Texture photo("../data/forest.jpg");
+	// Textures
+	Texture tex_1("../data/cyber.png");
+	Texture tex_2("../data/horsehead.jpeg");
+
+	// Create scene
+	Scene scene;
 
 
-	entt::registry registry;
+	// Entities
 
-	entt::entity plane = registry.create();
-	registry.emplace<Mesh>(plane, plane_mesh);
-	registry.emplace<Texture>(plane, bike);
-	Transform pt = Transform();
-	pt.beta = 1.;
-	registry.emplace<Transform>(plane, pt);
-	registry.emplace<Shader>(plane, basic_shader);
-	registry.emplace<Tag>(plane, "PLANE");
+	Entity plane = scene.create_entity();
+	plane.add_component<Mesh>(plane_mesh);
+	plane.add_component<Texture>(tex_1);
+	plane.add_component<Shader>(basic_shader);
 
-	entt::entity metis = registry.create();
-	registry.emplace<Mesh>(metis, metis_mesh);
-	registry.emplace<Texture>(metis, photo);
-	registry.emplace<Transform>(metis, Transform());
-	registry.emplace<Shader>(metis, basic_shader);
-	registry.emplace<Tag>(metis, "METIS");
+	Transform &tr = plane.get_component<Transform>();
+	tr.beta = 1;
+	tr.position = vec3(-1.0, 0., 0.);
+
+	Entity metis = scene.create_entity("Metis ent");
+	metis.add_component<Mesh>(metis_mesh);
+	metis.add_component<Texture>(tex_2);
+	metis.add_component<Shader>(basic_shader);
+	Transform &metis_trans = metis.get_component<Transform>();
+	metis_trans.position = vec3(1.5, 0.0, 0.0);
 
 
+	Entity root_entity = scene.create_entity("Root");
+	Transform &rt = root_entity.get_component<Transform>();
+	rt.position = vec3(0., 0., 0.5);
 
+	root_entity.add_child(&plane);
+	plane.add_child(&metis);
+
+	// RENDER LOOP
     double time = glfwGetTime();
     double previous_time;
     double time_delta;
@@ -112,27 +104,7 @@ int main()
         // RENDER STUFF
 		renderer.clear(BG_COLOR);
 
-		auto view = registry.view<Mesh, Transform, Texture, Shader>();
-		for (entt::entity ent: view)
-		{
-
-			Mesh &m = registry.get<Mesh>(ent);
-			Transform &tr = registry.get<Transform>(ent);
-			Texture &tx = registry.get<Texture>(ent);
-			Shader &s = registry.get<Shader>(ent);
-			cout << registry.get<Tag>(ent).tag << "\t" << s.program << endl;
-
-			tx.bind();
-			s.set_uniform_1i("u_texture", 0);
-			s.set_uniform_4fv("u_color", vec4(1.0));
-			s.set_uniform_mat4f("model_matrix", tr.get_model_matrix());
-			s.set_uniform_mat4f("view_matrix", camera.get_view());
-			s.set_uniform_mat4f("perspective_matrix", camera.get_perspective());
-
-			renderer.draw(m, s);
-		}
-// 		renderer.draw(metis_mesh, basic_shader);
-
+		scene.draw_depth_first(&root_entity, &camera);
 
         glfwSwapBuffers(svarog.window->winptr);
 //         glfwPollEvents();
@@ -142,8 +114,8 @@ int main()
     }
 
 	plane_mesh.destroy();
-	bike.destroy();
-	photo.destroy();
+	tex_1.destroy();
+	tex_2.destroy();
 	basic_shader.destroy();
 
     return 0;

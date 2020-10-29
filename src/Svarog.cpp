@@ -20,7 +20,7 @@ Svarog::Svarog(int width, int height, string w_title, bool fullscreen,
 // 	glEnable(GL_BLEND);
 // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    scene_graph_root = new SceneNode();
+//     scene_graph_root = new SceneNode();
 
     cursor_pos = vec2(width / 2.0, height / 2.0);
 }
@@ -30,7 +30,7 @@ Svarog::~Svarog()
 {
 	mesh_ledger.delete_all();
 
-	delete scene_graph_root;
+// 	delete scene_graph_root;
 	delete window;
 }
 

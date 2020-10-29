@@ -16,10 +16,12 @@ public:
 	Transform();
 	~Transform();
 
-	void update_model_matrix();
-	mat4 get_model_matrix();
+	void update_local();
+	mat4 get_local_tansform();
+	mat4 get_world_tansform();
 
-	mat4 model_matrix;
+	mat4 local;
+	mat4 world;
 
 	float alpha, beta, gamma;
 	vec3 scale, position;
