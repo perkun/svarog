@@ -120,8 +120,8 @@ void Shader::set_uniforms()
     {
     	if (uni.type == INT)
     		set_uniform_1i(uni.name, *((int*)uni.data));
-    	else if (uni.type == FLOAT)
-    		set_uniform_1f(uni.name, *((float*)uni.data));
+//     	else if (uni.type == FLOAT)
+//     		set_uniform_1f(uni.name, *((float*)uni.data));
     	else if (uni.type == VEC4)
     		set_uniform_4fv(uni.name, *((vec4*)uni.data));
     	else if (uni.type == MAT4)

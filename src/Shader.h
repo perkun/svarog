@@ -31,6 +31,7 @@ class Uniform
 public:
 	Uniform(string name, int type, void *data)
 		: name(name), type(type), data(data) {}
+
 	void set_data(void *d) { data = d; }
 
 	string name;

@@ -3,7 +3,7 @@ TARGET = bin/$(PROGRAM_NAME)
 CC = g++
 SRCDIR = src
 BUILDDIR = build
-CFLAGS = -g -c -std=c++11
+CFLAGS = -g -c -std=c++17
 LIB = -lglfw -lGLEW -lGL #-lrenderEngine -lm -lGL -lGLU -lGLEW -lnetcdf_c++4 -lnetcdf -L/opt/cuda/lib64 -lcudart # -lfreeimage
 
 OBJECTS = build/main.o build/Svarog.o build/Mesh.o build/Transform.o \
@@ -12,7 +12,8 @@ OBJECTS = build/main.o build/Svarog.o build/Mesh.o build/Transform.o \
 		  build/WindowEvent.o \
 		  build/Camera.o \
 		  build/stb_image.o \
-		  build/Texture.o
+		  build/Texture.o \
+		  build/Renderer.o
 
  #build/SceneGraph.o
 
@@ -65,6 +66,8 @@ build/WindowEvent.o: src/Event/WindowEvent.cpp
 build/Texture.o: src/Texture.cpp
 		$(CC) $(CFLAGS) -o $@ $^
 
+build/Renderer.o: src/Renderer.cpp
+		$(CC) $(CFLAGS) -o $@ $^
 
 build/stb_image.o: src/vendor/stb_image/stb_image.cpp
 		$(CC) $(CFLAGS) -o $@ $^

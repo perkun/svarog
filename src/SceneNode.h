@@ -12,6 +12,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "Renderer.h"
 
 using namespace std;
 
@@ -32,9 +33,9 @@ public:
 
 
 	virtual void update();
-	virtual void draw();
+	virtual void draw(Renderer&);
 	void update_depth_first();
-	void draw_depth_first();
+ 	void draw_depth_first(Renderer&);
 
 	vector<SceneNode*> children;
 	Transform world_transform, transform;

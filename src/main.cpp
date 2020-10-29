@@ -10,6 +10,7 @@
 #include "Shader.h"
 #include "Svarog.h"
 #include "Texture.h"
+#include "Renderer.h"
 
 #define WIN_W 800
 #define WIN_H 600
@@ -35,6 +36,7 @@ int main()
     cout << "This is Svarog!" << endl;
 
     Svarog svarog(WIN_W, WIN_H, "Svarog", false);
+	Renderer renderer;
     set_keybindings(svarog);
 
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
@@ -142,11 +144,10 @@ int main()
 		time_delta = time - previous_time;
 
         // RENDER STUFF
-		glClearColor(BG_COLOR);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderer.clear(BG_COLOR);
+//         svarog.scene_graph_root->update_depth_first();
+        svarog.scene_graph_root->draw_depth_first(renderer);
 
-        svarog.scene_graph_root->update_depth_first();
-        svarog.scene_graph_root->draw_depth_first();
 
         glfwSwapBuffers(svarog.window->winptr);
 //         glfwPollEvents();

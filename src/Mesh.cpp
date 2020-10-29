@@ -358,10 +358,8 @@ void Mesh::create_vao(IndexModel *indexed_model)
 
 
 
-void Mesh::draw()
-{
-	// DRAWING
-	glBindVertexArray(vertex_array_object);
-	glDrawElements(GL_TRIANGLES, num_triangles * 3, GL_UNSIGNED_INT, NULL);
-}
+// void Mesh::draw(Renderer &renderer)
+// {
+// 	renderer.draw(mesh, shader);
+// }
 

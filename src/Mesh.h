@@ -60,15 +60,6 @@ private:
 class Mesh
 {
 public:
-	Mesh(string filename, int mode);
-	~Mesh();
-	uint id;
-	unsigned int num_triangles = 0;
-	void draw();
-
-private:
-	void create_vao(IndexModel *indexed_model);
-
 	enum {
 		POSITIONS,
 		TEXTURE_COORDS,
@@ -77,8 +68,17 @@ private:
 		NUM_BUFFS
 	};
 
+	Mesh(string filename, int mode);
+	~Mesh();
+	uint id;
+	unsigned int num_triangles = 0;
+
 	GLuint vertex_array_object;
 	GLuint vertex_buffers[NUM_BUFFS];
+private:
+	void create_vao(IndexModel *indexed_model);
+
+
 };
 
 #endif
