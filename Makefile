@@ -36,9 +36,6 @@ build/Mesh.o: src/Mesh.cpp src/Mesh.h
 build/Transform.o: src/Transform.cpp src/Transform.h
 		$(CC) $(CFLAGS) -o $@ $<
 
-build/SceneNode.o: src/SceneNode.cpp src/SceneNode.h
-		$(CC) $(CFLAGS) -o $@ $<
-
 build/Shader.o: src/Shader.cpp src/Shader.h
 		$(CC) $(CFLAGS) -o $@ $<
 
@@ -66,13 +63,13 @@ build/Texture.o: src/Texture.cpp src/Texture.h
 build/Renderer.o: src/Renderer.cpp src/Renderer.h
 		$(CC) $(CFLAGS) -o $@ $<
 
-build/Scene.o: src/Scene.cpp src/Scene.h
+build/Scene.o: src/Scene/Scene.cpp src/Scene/Scene.h
 		$(CC) $(CFLAGS) -o $@ $<
 
-build/SceneStatus.o: src/SceneStatus.cpp src/SceneStatus.h
+build/SceneStatus.o: src/Scene/SceneStatus.cpp src/Scene/SceneStatus.h
 		$(CC) $(CFLAGS) -o $@ $<
 
-build/Entity.o: src/Entity.cpp src/Entity.h
+build/Entity.o: src/Scene/Entity.cpp src/Scene/Entity.h
 		$(CC) $(CFLAGS) -o $@ $<
 
 
