@@ -1,8 +1,7 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
-#include "Renderer.h"
-#include "vendor/entt/entt.hpp"
+#include "../vendor/entt/entt.hpp"
 #include <iostream>
 #include <stdio.h>
 

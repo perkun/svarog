@@ -26,6 +26,7 @@ Window::Window(int w, int h, string title, bool fullscreen, bool visible)
 
 	// user pointer
 	glfwSetWindowUserPointer(winptr, this);
+
 	// invisible cursor
 // 	glfwSetInputMode(winptr, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -117,10 +118,36 @@ Window::Window(int w, int h, string title, bool fullscreen, bool visible)
 
 }
 
+
+
 Window::~Window()
 {
 	destroy();
 	glfwTerminate();
+}
+
+
+void Window::set_cursor_mode(unsigned int mode)
+{
+	glfwSetInputMode(winptr, GLFW_CURSOR, mode);
+}
+
+
+void Window::set_cursor_hidden()
+{
+	set_cursor_mode(GLFW_CURSOR_HIDDEN);
+}
+
+void Window::set_cursor_normal()
+{
+
+	set_cursor_mode(GLFW_CURSOR_NORMAL);
+}
+
+void Window::set_cursor_disabled()
+{
+
+	set_cursor_mode(GLFW_CURSOR_DISABLED);
 }
 
 

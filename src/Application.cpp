@@ -149,9 +149,15 @@ void Application::rendering_loop(GlfwEventMethod glfw_event_method)
     double previous_time;
     double time_delta;
 
+	if (active_scene == NULL)
+	{
+		cout << "No active Scene set, not rendering" << endl;
+		return;
+	}
+
 	if (active_scene->get_active_camera() == NULL)
 	{
-		cout << "No active camera set, not rendering" << endl;
+		cout << "No active Camera set, not rendering" << endl;
 		return;
 	}
 

@@ -26,11 +26,18 @@ public:
 
 	void set_event_callback_fn(const function<void(Event&)> &func);
 
+	void set_cursor_hidden();
+	void set_cursor_normal();
+	void set_cursor_disabled();
+
+
 	GLFWwindow* winptr;
 	int width, height;
 	string title;
 
 	function< void(Event&) > event_callback_fn;
+private:
+	void set_cursor_mode(unsigned int);
 
 };
 

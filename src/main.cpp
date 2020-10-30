@@ -12,8 +12,8 @@
 #include "Texture.h"
 #include "Transform.h"
 // #include "vendor/entt/entt.hpp"
-#include "Scene.h"
-#include "SceneStatus.h"
+#include "Scene/Scene.h"
+#include "Scene/SceneStatus.h"
 
 #define WIN_W 800
 #define WIN_H 600
@@ -33,6 +33,9 @@ int main()
     cout << "This is Application!" << endl;
 
     Application app(WIN_W, WIN_H, "Application", false);
+
+	app.window->set_cursor_normal();
+
     set_keybindings(app);
 
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
@@ -53,7 +56,6 @@ int main()
 
 	// Create scene
 	Scene scene;
-
 	app.active_scene = &scene;
 
 
@@ -135,23 +137,24 @@ void set_keybindings(Application &app)
     };
 
     app.mouse_cursor_action = [](Application *app, vec2 cursor_shift) {
-        //         if (current_camera != NULL)
-        // 		{
-        // active_scene->active_camera.pitch(cursor_shift.y);
-        // 			active_scene->active_camera.yaw(cursor_shift.x);
-        // 		}
-		Transform *trans = app->active_scene->get_active_drawable_transform();
-		if (trans == NULL)
-			return;
+        // free floating camera movement
+        // 		Camera *camera = app->active_scene->get_active_camera();
+        // 		camera->pitch(cursor_shift.y);
+        // 		camera->yaw(cursor_shift.x);
 
-		if (trans->change_alpha)
-			trans->alpha += cursor_shift.x / 200.;
-		if (trans->change_beta)
-			trans->beta += cursor_shift.y / 300.;
-		if (trans->change_gamma)
-			trans->gamma += cursor_shift.x / 300.;
+        // rotating meshes
+        Transform *trans = app->active_scene->get_active_drawable_transform();
+        if (trans == NULL)
+            return;
+
+        if (trans->change_alpha)
+            trans->alpha += cursor_shift.x / 200.;
+        if (trans->change_beta)
+            trans->beta += cursor_shift.y / 300.;
+        if (trans->change_gamma)
+            trans->gamma += cursor_shift.x / 300.;
     };
-//
+    //
     app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_1] = [](Application *app) {
 		Transform *trans = app->active_scene->get_active_drawable_transform();
 		if (trans == NULL)

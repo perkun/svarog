@@ -8,7 +8,6 @@
 #include <map>
 #include <functional>
 
-#include "MemmoryLedger.h"
 #include "Mesh.h"
 #include "Transform.h"
 #include "Window.h"
@@ -17,7 +16,7 @@
 #include "Event/MouseEvent.h"
 #include "Event/WindowEvent.h"
 #include "Camera.h"
-#include "Scene.h"
+#include "Scene/Scene.h"
 #include "Renderer.h"
 
 #define BG_COLOR 41/256., 46/256., 48/256., 1.0
