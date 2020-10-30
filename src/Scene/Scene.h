@@ -26,8 +26,8 @@ public:
 
 	Entity create_entity(string name = "Default entity");
 
-	void draw(Entity&);
-	void draw_depth_first(Entity&);
+	void draw(Entity*);
+	void draw_depth_first(Entity*);
 
 	void on_update();
 	void on_resize(int, int);

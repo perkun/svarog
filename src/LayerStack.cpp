@@ -9,18 +9,18 @@ LayerStack::~LayerStack()
     }
 }
 
-void LayerStack::PushLayer(Layer *layer)
+void LayerStack::push_layer(Layer *layer)
 {
     layers.emplace(layers.begin() + layer_insert_index, layer);
     layer_insert_index++;
 }
 
-void LayerStack::PushOverlay(Layer *overlay)
+void LayerStack::push_overlay(Layer *overlay)
 {
     layers.emplace_back(overlay);
 }
 
-void LayerStack::PopLayer(Layer *layer)
+void LayerStack::pop_layer(Layer *layer)
 {
     auto it = find(layers.begin(), layers.begin() + layer_insert_index,
                         layer);
@@ -32,7 +32,7 @@ void LayerStack::PopLayer(Layer *layer)
     }
 }
 
-void LayerStack::PopOverlay(Layer *overlay)
+void LayerStack::pop_overlay(Layer *overlay)
 {
     auto it = find(layers.begin() + layer_insert_index, layers.end(),
                         overlay);

@@ -57,6 +57,9 @@ void Application::on_event(Event& event)
 	dispatcher.dispatch<WindowResizeEvent>(
 		bind(&Application::on_window_resize_event, this, placeholders::_1));
 
+
+	for (Layer *layer: layer_stack)
+		layer->on_event(event);
 }
 
 
@@ -65,7 +68,8 @@ void Application::on_window_resize_event(WindowResizeEvent &event)
 	ivec2 size = event.get_size();
 	glViewport(0., 0., size.x, size.y);
 
-	active_scene->on_resize(size.x, size.y);
+// 	active_scene->on_resize(size.x, size.y);
+
 }
 
 
@@ -149,17 +153,17 @@ void Application::rendering_loop(GlfwEventMethod glfw_event_method)
     double previous_time;
     double time_delta;
 
-	if (active_scene == NULL)
-	{
-		cout << "No active Scene set, not rendering" << endl;
-		return;
-	}
-
-	if (active_scene->get_active_camera() == NULL)
-	{
-		cout << "No active Camera set, not rendering" << endl;
-		return;
-	}
+// 	if (active_scene == NULL)
+// 	{
+// 		cout << "No active Scene set, not rendering" << endl;
+// 		return;
+// 	}
+//
+// 	if (active_scene->get_active_camera() == NULL)
+// 	{
+// 		cout << "No active Camera set, not rendering" << endl;
+// 		return;
+// 	}
 
     while (!glfwWindowShouldClose(window->winptr))
     {
@@ -172,7 +176,10 @@ void Application::rendering_loop(GlfwEventMethod glfw_event_method)
 		renderer.clear(BG_COLOR);
 
 // 		scene.draw_depth_first(scene.root_entity, &camera);
-		active_scene->draw_root();
+		for (Layer *layer: layer_stack)
+		{
+			layer->on_update(time_delta);
+		}
 
         glfwSwapBuffers(window->winptr);
 
@@ -181,7 +188,6 @@ void Application::rendering_loop(GlfwEventMethod glfw_event_method)
 		else if (glfw_event_method == GlfwEventMethod::WAIT)
 			glfwWaitEvents();
 
-		active_scene->get_active_camera()->move(time_delta);
     }
 
 

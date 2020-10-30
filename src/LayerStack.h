@@ -1,7 +1,7 @@
-#include "Layer.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include "Layer.h"
 
 using namespace std;
 
@@ -11,10 +11,10 @@ class LayerStack
     LayerStack() = default;
     ~LayerStack();
 
-    void PushLayer(Layer *layer);
-    void PushOverlay(Layer *overlay);
-    void PopLayer(Layer *layer);
-    void PopOverlay(Layer *overlay);
+    void push_layer(Layer *layer);
+    void push_overlay(Layer *overlay);
+    void pop_layer(Layer *layer);
+    void pop_overlay(Layer *overlay);
 
     vector<Layer *>::iterator begin()
     {

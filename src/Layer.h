@@ -7,7 +7,7 @@ using namespace std;
 
 class Layer
 {
-    public:
+public:
     Layer(const string &name = "Layer");
     virtual ~Layer() = default;
 
@@ -22,6 +22,6 @@ class Layer
         return m_DebugName;
     }
 
-    protected:
+protected:
     std::string m_DebugName;
 };

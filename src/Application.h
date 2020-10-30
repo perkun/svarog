@@ -61,7 +61,7 @@ public:
 	function<void(Application*, vec2 offset)> mouse_scrolled_action = NULL;
 
 	Window *window;
-	Scene *active_scene = NULL;
+// 	Scene *active_scene = NULL;
 
 	vec2 cursor_pos;
 
