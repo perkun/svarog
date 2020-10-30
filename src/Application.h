@@ -18,6 +18,7 @@
 #include "Camera.h"
 #include "Scene/Scene.h"
 #include "Renderer.h"
+#include "LayerStack.h"
 
 #define BG_COLOR 41/256., 46/256., 48/256., 1.0
 
@@ -64,7 +65,9 @@ public:
 
 	vec2 cursor_pos;
 
+	LayerStack layer_stack;
 private:
+
 
 };
 

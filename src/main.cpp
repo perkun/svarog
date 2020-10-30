@@ -14,6 +14,8 @@
 // #include "vendor/entt/entt.hpp"
 #include "Scene/Scene.h"
 #include "Scene/SceneStatus.h"
+#include "Layer.h"
+
 
 #define WIN_W 800
 #define WIN_H 600
@@ -24,20 +26,29 @@ using namespace std;
 void set_keybindings(Application &app);
 
 
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////   MAIN   ///////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-int main()
+class ExampleLayer : Layer
 {
-    cout << "This is Application!" << endl;
+	ExampleLayer();
+	virtual ~ExampleLayer();
 
-    Application app(WIN_W, WIN_H, "Application", false);
+	virtual void on_attach() override;
+	virtual void on_detach() override;
 
-	app.window->set_cursor_normal();
+	void on_update(double ts) override;
+// 	virtual void OnImGuiRender() override;
+	void on_event(Event& e) override;
 
-    set_keybindings(app);
+private:
+// 	Mesh *plane_mesh;
+// 	Texture *tex_1;
+// 	Texture *tex_2;
+// 	Shader *basic_shader;
+// 	Camera *camera;
+};
 
+
+ExampleLayer::ExampleLayer()
+{
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
                   WIN_W / (float)WIN_H, 0.1, 100.0);
 
@@ -56,7 +67,7 @@ int main()
 
 	// Create scene
 	Scene scene;
-	app.active_scene = &scene;
+// 	app.active_scene = &scene;
 
 
 	// Entities
@@ -88,16 +99,43 @@ int main()
 
 	scene.root_entity.add_child(&plane);
 	plane.add_child(&metis);
+}
+
+
+ExampleLayer::~ExampleLayer()
+{
+// 	plane_mesh->destroy();
+// 	tex_1->destroy();
+// 	tex_2->destroy();
+// 	basic_shader->destroy();
+//
+// 	delete camera;
+//
+// 	delete plane_mesh;
+// 	delete tex_1;
+// 	delete tex_2;
+// 	delete basic_shader;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////   MAIN   ///////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+int main()
+{
+    cout << "This is Application!" << endl;
+
+    Application app(WIN_W, WIN_H, "Application", false);
+	app.window->set_cursor_normal();
+
+//     set_keybindings(app);
+
 
 
 
 	// RENDER LOOP
 	app.rendering_loop(GlfwEventMethod::POLL);
 
-	plane_mesh.destroy();
-	tex_1.destroy();
-	tex_2.destroy();
-	basic_shader.destroy();
 
     return 0;
 }

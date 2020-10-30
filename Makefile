@@ -14,8 +14,9 @@ OBJECTS = build/main.o build/Application.o build/Mesh.o build/Transform.o \
 		  build/stb_image.o \
 		  build/Texture.o \
 		  build/Renderer.o \
-		  build/Scene.o build/SceneStatus.o\
-		  build/Entity.o
+		  build/Scene.o build/SceneStatus.o build/Entity.o \
+		  build/Layer.o LayerStack.o
+
 
  #build/SceneGraph.o
 
@@ -70,6 +71,12 @@ build/SceneStatus.o: src/Scene/SceneStatus.cpp src/Scene/SceneStatus.h
 		$(CC) $(CFLAGS) -o $@ $<
 
 build/Entity.o: src/Scene/Entity.cpp src/Scene/Entity.h
+		$(CC) $(CFLAGS) -o $@ $<
+
+build/Layer.o: src/Layer.cpp src/Layer.h
+		$(CC) $(CFLAGS) -o $@ $<
+
+build/LayerStack.o: src/LayerStack.cpp src/LayerStack.h
 		$(CC) $(CFLAGS) -o $@ $<
 
 
