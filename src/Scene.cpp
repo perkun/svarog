@@ -1,7 +1,7 @@
 #include "Scene.h"
 
 
-Scene::Scene(Camera &c)  : active_camera(c)
+Scene::Scene()
 {
 	root_entity = create_entity("Root");
 }
@@ -19,29 +19,84 @@ Entity Scene::create_entity(string name)
 	return entity;
 }
 
-Entity* Scene::get_active_depth_first(Entity *entity)
+
+void Scene::on_resize(int width, int height)
 {
-	Entity *tmp = NULL;
+	auto view = registry.view<Camera>();
+	for (auto e: view)
+	{
+		Camera &camera = registry.get<Camera>(e);
+		camera.aspect = width / (float)height;
+		camera.update();
+	}
 
-	if (entity->active)
-		tmp = entity;
-	else
-		for (Entity *child: entity->children)
-			tmp = get_active_depth_first(child);
-
-	return tmp;
-}
-
-Entity* Scene::get_active_entity()
-{
-	// TODO: search for active only when updated
-	active_entity = get_active_depth_first(&root_entity);
-	return active_entity;
 }
 
 
-void Scene::draw(Entity &entity, Camera &camera)
+// Entity* Scene::get_active_depth_first(Entity *entity)
+// {
+// 	Entity *tmp = NULL;
+//
+// 	if (entity->active)
+// 		tmp = entity;
+// 	else
+// 		for (Entity *child: entity->children)
+// 			tmp = get_active_depth_first(child);
+//
+// 	return tmp;
+// }
+
+// Entity* Scene::get_active_entity()
+// {
+// 	// TODO: search for active only when updated
+// 	active_entity = get_active_depth_first(&root_entity);
+// 	return active_entity;
+// }
+
+Transform* Scene::get_active_drawable_transform()
 {
+	auto view = registry.view<Mesh, SceneStatus>();
+	for (auto e: view)
+	{
+		SceneStatus &ss = registry.get<SceneStatus>(e);
+		if (ss.active)
+		{
+			return &registry.get<Transform>(e);
+
+		}
+	}
+	return NULL;
+}
+
+
+Camera* Scene::get_active_camera()
+{
+	auto view = registry.view<Camera, SceneStatus>();
+	for (auto e: view)
+	{
+		if (registry.get<SceneStatus>(e).active)
+		{
+			return &registry.get<Camera>(e);
+		}
+	}
+	return NULL;
+}
+
+
+void Scene::draw(Entity &entity)
+{
+	Camera camera;
+	auto view = registry.view<Camera, SceneStatus>();
+	for (auto e: view)
+	{
+		if (registry.get<SceneStatus>(e).active)
+		{
+			camera = registry.get<Camera>(e);
+			break;
+		}
+	}
+
+
 	// update local transform, then multiply by parent.local
 	Transform &tr = entity.get_component<Transform>();
 	tr.update_local();
@@ -75,17 +130,17 @@ void Scene::draw(Entity &entity, Camera &camera)
 }
 
 
-void Scene::draw_depth_first(Entity &entity, Camera &camera)
+void Scene::draw_depth_first(Entity &entity)
 {
-	draw(entity, camera);
+	draw(entity);
 	for (Entity *child: entity.children)
-		draw_depth_first(*child, camera);
+		draw_depth_first(*child);
 }
 
 
 void Scene::draw_root()
 {
-	draw_depth_first(root_entity, active_camera);
+	draw_depth_first(root_entity);
 }
 
 

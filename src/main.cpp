@@ -13,6 +13,7 @@
 #include "Transform.h"
 // #include "vendor/entt/entt.hpp"
 #include "Scene.h"
+#include "SceneStatus.h"
 
 #define WIN_W 800
 #define WIN_H 600
@@ -51,11 +52,17 @@ int main()
 	Texture tex_2("../data/forest.jpg");
 
 	// Create scene
-	Scene scene(camera);
+	Scene scene;
 
 	app.active_scene = &scene;
 
+
 	// Entities
+	Entity scene_camera = scene.create_entity();
+	scene_camera.add_component<Camera>(camera);
+	scene_camera.add_component<SceneStatus>(SceneStatus(true));
+
+
 	Entity plane = scene.create_entity();
 	plane.add_component<Mesh>(plane_mesh);
 	plane.add_component<Texture>(tex_1);
@@ -69,6 +76,7 @@ int main()
 	metis.add_component<Mesh>(metis_mesh);
 	metis.add_component<Texture>(tex_2);
 	metis.add_component<Shader>(basic_shader);
+	metis.add_component<SceneStatus>(SceneStatus(true));
 	Transform &metis_trans = metis.get_component<Transform>();
 	metis_trans.position = vec3(0.0, 0.0, 0.0);
 
@@ -79,7 +87,6 @@ int main()
 	scene.root_entity.add_child(&plane);
 	plane.add_child(&metis);
 
-	plane.active = true;
 
 
 	// RENDER LOOP
@@ -98,33 +105,33 @@ void set_keybindings(Application &app)
     //
     // Key mappings :)
     app.key_pressed_map[GLFW_KEY_W] = [](Application *app) {
-        app->active_scene->active_camera.is_moving_forwards = true;
+        app->active_scene->get_active_camera()->is_moving_forwards = true;
         //
     };
     app.key_pressed_map[GLFW_KEY_S] = [](Application *app) {
-        app->active_scene->active_camera.is_moving_backwards = true;
+        app->active_scene->get_active_camera()->is_moving_backwards = true;
     };
     app.key_pressed_map[GLFW_KEY_A] = [](Application *app) {
-        app->active_scene->active_camera.is_moving_left = true;
+        app->active_scene->get_active_camera()->is_moving_left = true;
     };
     app.key_pressed_map[GLFW_KEY_D] = [](Application *app) {
-        app->active_scene->active_camera.is_moving_right = true;
+        app->active_scene->get_active_camera()->is_moving_right = true;
     };
-
+//
     //
     // KEY RELEASED
     app.key_released_map[GLFW_KEY_W] = [](Application *app) {
-        app->active_scene->active_camera.is_moving_forwards = false;
+        app->active_scene->get_active_camera()->is_moving_forwards = false;
         //
     };
     app.key_released_map[GLFW_KEY_S] = [](Application *app) {
-        app->active_scene->active_camera.is_moving_backwards = false;
+        app->active_scene->get_active_camera()->is_moving_backwards = false;
     };
     app.key_released_map[GLFW_KEY_A] = [](Application *app) {
-        app->active_scene->active_camera.is_moving_left = false;
+        app->active_scene->get_active_camera()->is_moving_left = false;
     };
     app.key_released_map[GLFW_KEY_D] = [](Application *app) {
-        app->active_scene->active_camera.is_moving_right = false;
+        app->active_scene->get_active_camera()->is_moving_right = false;
     };
 
     app.mouse_cursor_action = [](Application *app, vec2 cursor_shift) {
@@ -133,71 +140,64 @@ void set_keybindings(Application &app)
         // active_scene->active_camera.pitch(cursor_shift.y);
         // 			active_scene->active_camera.yaw(cursor_shift.x);
         // 		}
-		Entity *ent = app->active_scene->get_active_entity();
-		if (ent == NULL)
+		Transform *trans = app->active_scene->get_active_drawable_transform();
+		if (trans == NULL)
 			return;
-		Transform &trans = ent->get_component<Transform>();
-		if (trans.change_alpha)
-			trans.alpha += cursor_shift.x / 200.;
-		if (trans.change_beta)
-			trans.beta += cursor_shift.y / 300.;
-		if (trans.change_gamma)
-			trans.gamma += cursor_shift.x / 300.;
+
+		if (trans->change_alpha)
+			trans->alpha += cursor_shift.x / 200.;
+		if (trans->change_beta)
+			trans->beta += cursor_shift.y / 300.;
+		if (trans->change_gamma)
+			trans->gamma += cursor_shift.x / 300.;
     };
-
+//
     app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_1] = [](Application *app) {
-		Entity *ent = app->active_scene->get_active_entity();
-		if (ent == NULL)
+		Transform *trans = app->active_scene->get_active_drawable_transform();
+		if (trans == NULL)
 			return;
-		Transform &trans = ent->get_component<Transform>();
-		trans.change_alpha = true;
+		trans->change_alpha = true;
 	};
-
+//
     app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_2] = [](Application *app) {
-		Entity *ent = app->active_scene->get_active_entity();
-		if (ent == NULL)
+		Transform *trans = app->active_scene->get_active_drawable_transform();
+		if (trans == NULL)
 			return;
-		Transform &trans = ent->get_component<Transform>();
-		trans.change_beta = true;
+		trans->change_beta = true;
 	};
-
+//
     app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_3] = [](Application *app) {
-		Entity *ent = app->active_scene->get_active_entity();
-		if (ent == NULL)
+		Transform *trans = app->active_scene->get_active_drawable_transform();
+		if (trans == NULL)
 			return;
-		Transform &trans = ent->get_component<Transform>();
-		trans.change_gamma = true;
+		trans->change_gamma = true;
 	};
-
+//
     app.mouse_button_released_map[GLFW_MOUSE_BUTTON_1] = [](Application *app) {
-		Entity *ent = app->active_scene->get_active_entity();
-		if (ent == NULL)
+		Transform *trans = app->active_scene->get_active_drawable_transform();
+		if (trans == NULL)
 			return;
-		Transform &trans = ent->get_component<Transform>();
-		trans.change_alpha = false;
+		trans->change_alpha = false;
 	};
-
+//
     app.mouse_button_released_map[GLFW_MOUSE_BUTTON_2] = [](Application *app) {
-		Entity *ent = app->active_scene->get_active_entity();
-		if (ent == NULL)
+		Transform *trans = app->active_scene->get_active_drawable_transform();
+		if (trans == NULL)
 			return;
-		Transform &trans = ent->get_component<Transform>();
-		trans.change_beta = false;
+		trans->change_beta = false;
 	};
-
+//
     app.mouse_button_released_map[GLFW_MOUSE_BUTTON_3] = [](Application *app) {
-		Entity *ent = app->active_scene->get_active_entity();
-		if (ent == NULL)
+		Transform *trans = app->active_scene->get_active_drawable_transform();
+		if (trans == NULL)
 			return;
-		Transform &trans = ent->get_component<Transform>();
-		trans.change_gamma = false;
+		trans->change_gamma = false;
 	};
-
+//
     app.mouse_scrolled_action = [](Application *app, vec2 offset) {
-		Entity *ent = app->active_scene->get_active_entity();
-		if (ent == NULL)
+		Transform *trans = app->active_scene->get_active_drawable_transform();
+		if (trans == NULL)
 			return;
-		Transform &trans = ent->get_component<Transform>();
-		trans.scale += offset.y / 50.f * vec3(1.0);
+		trans->scale += offset.y / 50.f * vec3(1.0);
 	};
 }

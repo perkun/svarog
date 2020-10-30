@@ -12,6 +12,7 @@ using namespace glm;
 class Camera
 {
 public:
+	Camera() = default;
 	Camera(const glm::vec3 pos, glm::vec3 targ, float fov, float aspect,
 			float zNear, float zFar);
 
@@ -42,6 +43,8 @@ public:
 	double rotation_speed = 0.001;  // radians / sec
 
 	float fov, aspect, z_near, z_far;
+
+	bool active = false;
 
 private:
 	mat4 perspective;

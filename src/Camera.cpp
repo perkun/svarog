@@ -1,5 +1,6 @@
 #include "Camera.h"
 
+
 Camera::Camera(const glm::vec3 pos, glm::vec3 targ, float fov, float aspect,
                float zNear, float zFar)
     : position(pos), target(targ), fov(fov), aspect(aspect), z_near(zNear),

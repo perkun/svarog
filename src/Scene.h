@@ -1,6 +1,7 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
+#include <algorithm>
 #include <iostream>
 #include <stdio.h>
 #include "Entity.h"
@@ -10,6 +11,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Renderer.h"
+#include "SceneStatus.h"
 #include "vendor/entt/entt.hpp"
 
 using namespace std;
@@ -19,28 +21,29 @@ class Scene
 {
 	friend class Entity;
 public:
-    Scene(Camera &c);
+    Scene();
 	~Scene();
 
 	Entity create_entity(string name = "Default entity");
 
-	void draw(Entity&, Camera&);
-	void draw_depth_first(Entity&, Camera&);
+	void draw(Entity&);
+	void draw_depth_first(Entity&);
 
 	void on_update();
+	void on_resize(int, int);
 	void draw_root();
 
-	Entity* get_active_entity();
-	Entity* get_active_camera();
-	Entity* set_active_camera(Entity*);
+// 	Entity* get_active_entity();
+
+	Camera* get_active_camera();
+	Transform* get_active_drawable_transform();
+// 	Entity* set_active_camera(Entity*);
 
 	Renderer renderer;
-
 	Entity root_entity;
-	Camera &active_camera;
 private:
 	Entity *active_entity;
-	Entity* get_active_depth_first(Entity*);
+// 	Entity* get_active_depth_first(Entity*);
 
 	entt::registry registry;
 };
