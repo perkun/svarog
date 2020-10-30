@@ -21,7 +21,7 @@ public:
 	virtual EventType get_event_type() = 0;
 	virtual void print_type() = 0;
 
-
+	bool handled = false;
 };
 
 

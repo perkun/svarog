@@ -43,6 +43,7 @@ public:
 
 	void on_event(Event&);
 	void on_window_resize_event(WindowResizeEvent&);
+	void on_key_released_event(KeyReleasedEvent&);
 
 	void rendering_loop(GlfwEventMethod);
 

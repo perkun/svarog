@@ -39,8 +39,8 @@ void Application::on_event(Event& event)
 // 	dispatcher.dispatch<KeyPressedEvent>(
 // 		bind(&Application::on_key_pressed_event, this, placeholders::_1));
 //
-// 	dispatcher.dispatch<KeyReleasedEvent>(
-// 		bind(&Application::on_key_released_event, this, placeholders::_1));
+	dispatcher.dispatch<KeyReleasedEvent>(
+		bind(&Application::on_key_released_event, this, placeholders::_1));
 //
 // 	dispatcher.dispatch<MouseButtonPressedEvent>(
 // 		bind(&Application::on_mouse_button_pressed_event, this, placeholders::_1));
@@ -57,9 +57,13 @@ void Application::on_event(Event& event)
 	dispatcher.dispatch<WindowResizeEvent>(
 		bind(&Application::on_window_resize_event, this, placeholders::_1));
 
+	for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it)
+	{
+		if (event.handled)
+			break;
 
-	for (Layer *layer: layer_stack)
-		layer->on_event(event);
+		(*it)->on_event(event);
+	}
 }
 
 
@@ -67,8 +71,6 @@ void Application::on_window_resize_event(WindowResizeEvent &event)
 {
 	ivec2 size = event.get_size();
 	glViewport(0., 0., size.x, size.y);
-
-// 	active_scene->on_resize(size.x, size.y);
 
 }
 
@@ -117,17 +119,14 @@ void Application::on_window_resize_event(WindowResizeEvent &event)
 //     // 	event.print_type();
 // }
 //
-// void Application::on_key_released_event(KeyReleasedEvent &event)
-// {
-// 	int key_code = event.get_key_code();
-//
-// 	if (key_released_map.find(key_code) != key_released_map.end())
-// 		key_released_map[key_code](this);
-//
-//
-// // 	event.print_type();
-// 	return;
-// }
+void Application::on_key_released_event(KeyReleasedEvent &event)
+{
+	int key_code = event.get_key_code();
+
+	if (key_code == GLFW_KEY_Q)
+		glfwSetWindowShouldClose(window->winptr, GLFW_TRUE);
+
+}
 //
 // void Application::on_key_pressed_event(KeyPressedEvent &event)
 // {
@@ -176,9 +175,10 @@ void Application::rendering_loop(GlfwEventMethod glfw_event_method)
 		renderer.clear(BG_COLOR);
 
 // 		scene.draw_depth_first(scene.root_entity, &camera);
-		for (Layer *layer: layer_stack)
+
+		for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it)
 		{
-			layer->on_update(time_delta);
+			(*it)->on_update(time_delta);
 		}
 
         glfwSwapBuffers(window->winptr);
