@@ -30,11 +30,18 @@ public:
 	void on_update();
 	void draw_root();
 
+	Entity* get_active_entity();
+	Entity* get_active_camera();
+	Entity* set_active_camera(Entity*);
+
 	Renderer renderer;
 
 	Entity root_entity;
 	Camera &active_camera;
 private:
+	Entity *active_entity;
+	Entity* get_active_depth_first(Entity*);
+
 	entt::registry registry;
 };
 

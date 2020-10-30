@@ -78,9 +78,9 @@ public:
     Entity *parent = NULL;
     vector<Entity *> children;
 
+	bool active = false;
 private:
     entt::entity entity_handle = entt::null;
-    // 	Scene *scene = NULL;
     entt::registry *scene_registry_handle;
 };
 

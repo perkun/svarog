@@ -19,6 +19,26 @@ Entity Scene::create_entity(string name)
 	return entity;
 }
 
+Entity* Scene::get_active_depth_first(Entity *entity)
+{
+	Entity *tmp = NULL;
+
+	if (entity->active)
+		tmp = entity;
+	else
+		for (Entity *child: entity->children)
+			tmp = get_active_depth_first(child);
+
+	return tmp;
+}
+
+Entity* Scene::get_active_entity()
+{
+	// TODO: search for active only when updated
+	active_entity = get_active_depth_first(&root_entity);
+	return active_entity;
+}
+
 
 void Scene::draw(Entity &entity, Camera &camera)
 {

@@ -63,21 +63,24 @@ int main()
 
 	Transform &tr = plane.get_component<Transform>();
 	tr.beta = 1;
-	tr.position = vec3(-1.0, 0., 0.);
+	tr.position = vec3(0.0, 0., 0.);
 
 	Entity metis = scene.create_entity("Metis ent");
 	metis.add_component<Mesh>(metis_mesh);
 	metis.add_component<Texture>(tex_2);
 	metis.add_component<Shader>(basic_shader);
 	Transform &metis_trans = metis.get_component<Transform>();
-	metis_trans.position = vec3(1.5, 0.0, 0.0);
+	metis_trans.position = vec3(0.0, 0.0, 0.0);
 
 
 	Transform &rt = scene.root_entity.get_component<Transform>();
-	rt.position = vec3(0., 0., 0.5);
+	rt.position = vec3(-1., 0., 0.);
 
 	scene.root_entity.add_child(&plane);
 	plane.add_child(&metis);
+
+	plane.active = true;
+
 
 	// RENDER LOOP
 	app.rendering_loop(GlfwEventMethod::POLL);
@@ -124,60 +127,77 @@ void set_keybindings(Application &app)
         app->active_scene->active_camera.is_moving_right = false;
     };
 
-    // 	app.mouse_cursor_action = [](Application *app, vec2 cursor_shift) {
-    // //         if (current_camera != NULL)
-    // // 		{
-    // // active_scene->active_camera.pitch(cursor_shift.y);
-    // // 			active_scene->active_camera.yaw(cursor_shift.x);
-    // // 		}
-    // 		if (app->current_node != NULL)
-    // 		{
-    // 			if (app->current_node->transform.change_alpha)
-    // 				app->current_node->transform.alpha += cursor_shift.x /
-    // 200.; 			if (app->current_node->transform.change_beta)
-    // 				app->current_node->transform.beta +=  cursor_shift.y /
-    // 300.; 			if (app->current_node->transform.change_gamma)
-    // 				app->current_node->transform.gamma +=  cursor_shift.x /
-    // 300.;
-    // 		}
-    // 	};
-    //
-    // 	app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_1] = [](Application *app)
-    // { 		if (app->current_node != NULL)
-    // 			app->current_node->transform.change_alpha = true;
-    // 	};
-    //
-    // 	app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_2] = [](Application *app)
-    // { 		if (app->current_node != NULL) 			app->current_node->transform.change_beta
-    // = true;
-    // 	};
-    //
-    // 	app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_3] = [](Application *app)
-    // { 		if (app->current_node != NULL)
-    // 			app->current_node->transform.change_gamma = true;
-    // 	};
-    //
-    //
-    // 	app.mouse_button_released_map[GLFW_MOUSE_BUTTON_1] = [](Application
-    // *app) { 		if (app->current_node != NULL)
-    // 			app->current_node->transform.change_alpha = false;
-    // 	};
-    //
-    // 	app.mouse_button_released_map[GLFW_MOUSE_BUTTON_2] = [](Application
-    // *app) { 		if (app->current_node != NULL)
-    // 			app->current_node->transform.change_beta = false;
-    // 	};
-    //
-    // 	app.mouse_button_released_map[GLFW_MOUSE_BUTTON_3] = [](Application
-    // *app) { 		if (app->current_node != NULL)
-    // 			app->current_node->transform.change_gamma = false;
-    // 	};
-    //
-    // 	app.mouse_scrolled_action = [](Application *app, vec2 offset) {
-    // 		if (app->current_node != NULL)
-    // 			app->current_node->transform.scale += offset.y / 50.f *
-    // vec3(1.0);
-    // 	};
-    //
-    //
+    app.mouse_cursor_action = [](Application *app, vec2 cursor_shift) {
+        //         if (current_camera != NULL)
+        // 		{
+        // active_scene->active_camera.pitch(cursor_shift.y);
+        // 			active_scene->active_camera.yaw(cursor_shift.x);
+        // 		}
+		Entity *ent = app->active_scene->get_active_entity();
+		if (ent == NULL)
+			return;
+		Transform &trans = ent->get_component<Transform>();
+		if (trans.change_alpha)
+			trans.alpha += cursor_shift.x / 200.;
+		if (trans.change_beta)
+			trans.beta += cursor_shift.y / 300.;
+		if (trans.change_gamma)
+			trans.gamma += cursor_shift.x / 300.;
+    };
+
+    app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_1] = [](Application *app) {
+		Entity *ent = app->active_scene->get_active_entity();
+		if (ent == NULL)
+			return;
+		Transform &trans = ent->get_component<Transform>();
+		trans.change_alpha = true;
+	};
+
+    app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_2] = [](Application *app) {
+		Entity *ent = app->active_scene->get_active_entity();
+		if (ent == NULL)
+			return;
+		Transform &trans = ent->get_component<Transform>();
+		trans.change_beta = true;
+	};
+
+    app.mouse_button_pressed_map[GLFW_MOUSE_BUTTON_3] = [](Application *app) {
+		Entity *ent = app->active_scene->get_active_entity();
+		if (ent == NULL)
+			return;
+		Transform &trans = ent->get_component<Transform>();
+		trans.change_gamma = true;
+	};
+
+    app.mouse_button_released_map[GLFW_MOUSE_BUTTON_1] = [](Application *app) {
+		Entity *ent = app->active_scene->get_active_entity();
+		if (ent == NULL)
+			return;
+		Transform &trans = ent->get_component<Transform>();
+		trans.change_alpha = false;
+	};
+
+    app.mouse_button_released_map[GLFW_MOUSE_BUTTON_2] = [](Application *app) {
+		Entity *ent = app->active_scene->get_active_entity();
+		if (ent == NULL)
+			return;
+		Transform &trans = ent->get_component<Transform>();
+		trans.change_beta = false;
+	};
+
+    app.mouse_button_released_map[GLFW_MOUSE_BUTTON_3] = [](Application *app) {
+		Entity *ent = app->active_scene->get_active_entity();
+		if (ent == NULL)
+			return;
+		Transform &trans = ent->get_component<Transform>();
+		trans.change_gamma = false;
+	};
+
+    app.mouse_scrolled_action = [](Application *app, vec2 offset) {
+		Entity *ent = app->active_scene->get_active_entity();
+		if (ent == NULL)
+			return;
+		Transform &trans = ent->get_component<Transform>();
+		trans.scale += offset.y / 50.f * vec3(1.0);
+	};
 }

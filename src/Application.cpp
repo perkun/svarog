@@ -138,8 +138,7 @@ void Application::on_key_pressed_event(KeyPressedEvent &event)
 
 	if (key_code == GLFW_KEY_Q)
 		glfwSetWindowShouldClose(window->winptr, GLFW_TRUE);
-
-	if (key_pressed_map.find(key_code) != key_pressed_map.end())
+	else if (key_pressed_map.find(key_code) != key_pressed_map.end())
 		key_pressed_map[key_code](this);
 
 }
