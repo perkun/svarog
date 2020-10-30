@@ -12,7 +12,7 @@
 #include "Texture.h"
 #include "Transform.h"
 // #include "vendor/entt/entt.hpp"
-#include "Entity.h"
+#include "Scene.h"
 
 #define WIN_W 800
 #define WIN_H 600
@@ -57,11 +57,11 @@ int main()
 	Mesh plane_mesh("../data/plane.obj", IndexModel::PER_VERTEX);
 
 	// Textures
-	Texture tex_1("../data/cyber.png");
-	Texture tex_2("../data/horsehead.jpeg");
+	Texture tex_1("../data/makeeva2.png");
+	Texture tex_2("../data/forest.jpg");
 
 	// Create scene
-	Scene scene;
+	Scene scene(camera);
 
 
 	// Entities
@@ -83,11 +83,10 @@ int main()
 	metis_trans.position = vec3(1.5, 0.0, 0.0);
 
 
-	Entity root_entity = scene.create_entity("Root");
-	Transform &rt = root_entity.get_component<Transform>();
+	Transform &rt = scene.root_entity.get_component<Transform>();
 	rt.position = vec3(0., 0., 0.5);
 
-	root_entity.add_child(&plane);
+	scene.root_entity.add_child(&plane);
 	plane.add_child(&metis);
 
 	// RENDER LOOP
@@ -104,7 +103,8 @@ int main()
         // RENDER STUFF
 		renderer.clear(BG_COLOR);
 
-		scene.draw_depth_first(&root_entity, &camera);
+// 		scene.draw_depth_first(scene.root_entity, &camera);
+		scene.draw_root();
 
         glfwSwapBuffers(svarog.window->winptr);
 //         glfwPollEvents();
