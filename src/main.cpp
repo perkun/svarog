@@ -76,7 +76,7 @@ int main()
 	metis.add_component<Mesh>(metis_mesh);
 	metis.add_component<Texture>(tex_2);
 	metis.add_component<Shader>(basic_shader);
-	metis.add_component<SceneStatus>(SceneStatus(true));
+	metis.add_component<SceneStatus>(true);
 	Transform &metis_trans = metis.get_component<Transform>();
 	metis_trans.position = vec3(0.0, 0.0, 0.0);
 

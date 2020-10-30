@@ -105,7 +105,7 @@ void Scene::draw(Entity &entity)
 	else
 	{
 		Transform &pt = entity.parent->get_component<Transform>();
-		tr.world = tr.local * pt.world;
+		tr.world = pt.world * tr.local;
 	}
 
 	if (entity.has_component<Mesh>() && entity.has_component<Shader>())

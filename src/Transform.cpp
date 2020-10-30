@@ -13,7 +13,7 @@ Transform::~Transform() {}
 void Transform::update_local()
 {
 	local =
-		glm::translate(position) * get_rotation_matrix_313() *glm::scale(scale);
+	 	get_rotation_matrix_313() * glm::translate(position) * glm::scale(scale);
 }
 
 
