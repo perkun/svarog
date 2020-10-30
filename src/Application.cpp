@@ -145,7 +145,7 @@ void Application::on_key_pressed_event(KeyPressedEvent &event)
 }
 
 
-void Application::rendering_loop()
+void Application::rendering_loop(GlfwEventMethod glfw_event_method)
 {
 	Renderer renderer;
 
@@ -167,8 +167,11 @@ void Application::rendering_loop()
 		active_scene->draw_root();
 
         glfwSwapBuffers(window->winptr);
-//         glfwPollEvents();
-		glfwWaitEvents();
+
+		if (glfw_event_method == GlfwEventMethod::POLL)
+			glfwPollEvents();
+		else if (glfw_event_method == GlfwEventMethod::WAIT)
+			glfwWaitEvents();
 
 		active_scene->active_camera.move(time_delta);
     }

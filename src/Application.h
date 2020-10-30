@@ -24,9 +24,18 @@
 
 using namespace std;
 
+
+enum class GlfwEventMethod {
+	POLL,
+	WAIT
+};
+
+
 class Application
 {
 public:
+
+
 	Application(int, int, string, bool fullscreen = false, bool visible = true);
 	~Application();
 
@@ -41,7 +50,7 @@ public:
 	void on_curosr_moved_event(MouseMovedEvent&);
 	void on_window_resize_event(WindowResizeEvent&);
 
-	void rendering_loop();
+	void rendering_loop(GlfwEventMethod);
 
 	map<int, function<void(Application*)> > key_pressed_map;
 	map<int, function<void(Application*)> > key_released_map;

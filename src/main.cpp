@@ -80,7 +80,7 @@ int main()
 	plane.add_child(&metis);
 
 	// RENDER LOOP
-	app.rendering_loop();
+	app.rendering_loop(GlfwEventMethod::POLL);
 
 	plane_mesh.destroy();
 	tex_1.destroy();
