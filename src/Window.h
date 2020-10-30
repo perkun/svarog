@@ -32,8 +32,6 @@ public:
 
 	function< void(Event&) > event_callback_fn;
 
-
-
 };
 
 #endif /* WINDOW_H_ */

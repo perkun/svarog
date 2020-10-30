@@ -1,11 +1,11 @@
-#include "Svarog.h"
+#include "Application.h"
 
-Svarog::Svarog(int width, int height, string w_title, bool fullscreen,
+Application::Application(int width, int height, string w_title, bool fullscreen,
                bool visible)
 {
     window = new Window(width, height, w_title, fullscreen, visible);
     window->set_event_callback_fn(
-        bind(&Svarog::on_event, this, placeholders::_1));
+        bind(&Application::on_event, this, placeholders::_1));
 
     // start GLEW extension handler
     GLenum err = glewInit();
@@ -26,60 +26,60 @@ Svarog::Svarog(int width, int height, string w_title, bool fullscreen,
 }
 
 
-Svarog::~Svarog()
+Application::~Application()
 {
-	mesh_ledger.delete_all();
-
-// 	delete scene_graph_root;
 	delete window;
 }
 
 
-void Svarog::on_event(Event& event)
+void Application::on_event(Event& event)
 {
 	EventDispacher dispatcher(event);
 
 	dispatcher.dispatch<KeyPressedEvent>(
-		bind(&Svarog::on_key_pressed_event, this, placeholders::_1));
+		bind(&Application::on_key_pressed_event, this, placeholders::_1));
 
 	dispatcher.dispatch<KeyReleasedEvent>(
-		bind(&Svarog::on_key_released_event, this, placeholders::_1));
+		bind(&Application::on_key_released_event, this, placeholders::_1));
 
 	dispatcher.dispatch<MouseButtonPressedEvent>(
-		bind(&Svarog::on_mouse_button_pressed_event, this, placeholders::_1));
+		bind(&Application::on_mouse_button_pressed_event, this, placeholders::_1));
 
 	dispatcher.dispatch<MouseButtonReleasedEvent>(
-		bind(&Svarog::on_mouse_button_released_event, this, placeholders::_1));
+		bind(&Application::on_mouse_button_released_event, this, placeholders::_1));
 
 	dispatcher.dispatch<MouseMovedEvent>(
-		bind(&Svarog::on_curosr_moved_event, this, placeholders::_1));
+		bind(&Application::on_curosr_moved_event, this, placeholders::_1));
 
 	dispatcher.dispatch<MouseScrolledEvent>(
-		bind(&Svarog::on_mouse_scrolled_event, this, placeholders::_1));
+		bind(&Application::on_mouse_scrolled_event, this, placeholders::_1));
 
 	dispatcher.dispatch<WindowResizeEvent>(
-		bind(&Svarog::on_window_resize_event, this, placeholders::_1));
+		bind(&Application::on_window_resize_event, this, placeholders::_1));
 
 }
 
 
-void Svarog::on_window_resize_event(WindowResizeEvent &event)
+void Application::on_window_resize_event(WindowResizeEvent &event)
 {
 	ivec2 size = event.get_size();
 	glViewport(0., 0., size.x, size.y);
-	current_camera->aspect = size.x / (float)size.y;
-	current_camera->update();
+	if (active_scene != NULL)
+	{
+		active_scene->active_camera.aspect = size.x / (float)size.y;
+		active_scene->active_camera.update();
+	}
 }
 
 
-void Svarog::on_mouse_scrolled_event(MouseScrolledEvent& event)
+void Application::on_mouse_scrolled_event(MouseScrolledEvent& event)
 {
 // 	cout << event.get_offset().y << endl;
 	if (mouse_scrolled_action != NULL)
 		mouse_scrolled_action(this, event.get_offset());
 }
 
-void Svarog::on_curosr_moved_event(MouseMovedEvent& event)
+void Application::on_curosr_moved_event(MouseMovedEvent& event)
 {
 // 	cout << "on_curosr_moved_event    ";
 // 	event.print_type();
@@ -94,7 +94,7 @@ void Svarog::on_curosr_moved_event(MouseMovedEvent& event)
 }
 
 
-void Svarog::on_mouse_button_released_event(MouseButtonReleasedEvent &event)
+void Application::on_mouse_button_released_event(MouseButtonReleasedEvent &event)
 {
     int button_code = event.get_button_code();
 
@@ -104,7 +104,7 @@ void Svarog::on_mouse_button_released_event(MouseButtonReleasedEvent &event)
 }
 
 
-void Svarog::on_mouse_button_pressed_event(MouseButtonPressedEvent &event)
+void Application::on_mouse_button_pressed_event(MouseButtonPressedEvent &event)
 {
     int button_code = event.get_button_code();
 
@@ -116,7 +116,7 @@ void Svarog::on_mouse_button_pressed_event(MouseButtonPressedEvent &event)
     // 	event.print_type();
 }
 
-void Svarog::on_key_released_event(KeyReleasedEvent &event)
+void Application::on_key_released_event(KeyReleasedEvent &event)
 {
 	int key_code = event.get_key_code();
 
@@ -128,7 +128,7 @@ void Svarog::on_key_released_event(KeyReleasedEvent &event)
 	return;
 }
 
-void Svarog::on_key_pressed_event(KeyPressedEvent &event)
+void Application::on_key_pressed_event(KeyPressedEvent &event)
 {
 	int key_code = event.get_key_code();
 	int repeat_count = event.get_repeat_count();
@@ -145,24 +145,3 @@ void Svarog::on_key_pressed_event(KeyPressedEvent &event)
 }
 
 
-
-Mesh* Svarog::create_mesh(string filename, int mode)
-{
-	Mesh *m = new Mesh(filename, mode);
-	mesh_ledger.add(m);
-	return m;
-}
-
-// void Svarog::rendering_loop() {
-//
-// 	while (!glfwWindowShouldClose(svarog.window->winptr)) {
-// 		// RENDER STUFF
-// 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-// 		svarog.scene_graph_root->update_depth_first();
-// 		svarog.scene_graph_root->draw_depth_first(camera.get_view(),
-// 				camera.get_perspective());
-// 		glfwSwapBuffers(svarog.window->winptr);
-// 		glfwPollEvents();
-// 	}
-// }

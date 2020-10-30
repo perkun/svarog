@@ -32,14 +32,11 @@ public:
 
 	void pitch(float);
 	void yaw(float);
-
 	void move(double);
-
 	void update();
 
 	vec3 position;
 	vec3 target;
-	vec3 forward;
 
 	double speed = 0.6; // world space units per second
 	double rotation_speed = 0.001;  // radians / sec
