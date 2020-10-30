@@ -18,7 +18,9 @@
 #include "Event/WindowEvent.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "Renderer.h"
 
+#define BG_COLOR 41/256., 46/256., 48/256., 1.0
 
 using namespace std;
 
@@ -39,7 +41,7 @@ public:
 	void on_curosr_moved_event(MouseMovedEvent&);
 	void on_window_resize_event(WindowResizeEvent&);
 
-// 	void rendering_loop();
+	void rendering_loop();
 
 	map<int, function<void(Application*)> > key_pressed_map;
 	map<int, function<void(Application*)> > key_released_map;

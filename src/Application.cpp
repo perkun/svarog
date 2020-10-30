@@ -145,3 +145,33 @@ void Application::on_key_pressed_event(KeyPressedEvent &event)
 }
 
 
+void Application::rendering_loop()
+{
+	Renderer renderer;
+
+    double time = glfwGetTime();
+    double previous_time;
+    double time_delta;
+
+    while (!glfwWindowShouldClose(window->winptr))
+    {
+
+		previous_time = time;
+		time = glfwGetTime();
+		time_delta = time - previous_time;
+
+        // RENDER STUFF
+		renderer.clear(BG_COLOR);
+
+// 		scene.draw_depth_first(scene.root_entity, &camera);
+		active_scene->draw_root();
+
+        glfwSwapBuffers(window->winptr);
+//         glfwPollEvents();
+		glfwWaitEvents();
+
+		active_scene->active_camera.move(time_delta);
+    }
+
+
+}

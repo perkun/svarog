@@ -16,7 +16,6 @@
 
 #define WIN_W 800
 #define WIN_H 600
-#define BG_COLOR 41/256., 46/256., 48/256., 1.0
 
 using namespace std;
 
@@ -33,7 +32,6 @@ int main()
     cout << "This is Application!" << endl;
 
     Application app(WIN_W, WIN_H, "Application", false);
-	Renderer renderer;
     set_keybindings(app);
 
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
@@ -43,7 +41,6 @@ int main()
 
     Shader basic_shader("../src/shaders/basic_shader.vs",
 						"../src/shaders/basic_shader.fs");
-
 
 	// Meshes
 	Mesh metis_mesh("../data/model.obj", IndexModel::PER_VERTEX);
@@ -59,7 +56,6 @@ int main()
 	app.active_scene = &scene;
 
 	// Entities
-
 	Entity plane = scene.create_entity();
 	plane.add_component<Mesh>(plane_mesh);
 	plane.add_component<Texture>(tex_1);
@@ -84,28 +80,7 @@ int main()
 	plane.add_child(&metis);
 
 	// RENDER LOOP
-    double time = glfwGetTime();
-    double previous_time;
-    double time_delta;
-    while (!glfwWindowShouldClose(app.window->winptr))
-    {
-
-		previous_time = time;
-		time = glfwGetTime();
-		time_delta = time - previous_time;
-
-        // RENDER STUFF
-		renderer.clear(BG_COLOR);
-
-// 		scene.draw_depth_first(scene.root_entity, &camera);
-		scene.draw_root();
-
-        glfwSwapBuffers(app.window->winptr);
-//         glfwPollEvents();
-		glfwWaitEvents();
-
-		scene.active_camera.move(time_delta);
-    }
+	app.rendering_loop();
 
 	plane_mesh.destroy();
 	tex_1.destroy();
