@@ -26,8 +26,23 @@ public:
 	void on_event(Event& e) override;
 	Scene *active_scene;
 private:
-	Entity scene_camera, metis, plane;
 	void on_window_resize_event(WindowResizeEvent&);
+	void on_key_pressed_event(KeyPressedEvent&);
+	void on_key_released_event(KeyReleasedEvent&);
+	void on_mouse_button_pressed_event(MouseButtonPressedEvent&);
+	void on_mouse_button_released_event(MouseButtonReleasedEvent&);
+	void on_mouse_scrolled_event(MouseScrolledEvent&);
+	void on_curosr_moved_event(MouseMovedEvent&);
+
+	map<int, function<void(ExampleLayer*)> > key_pressed_map;
+	map<int, function<void(ExampleLayer*)> > key_released_map;
+	map<int, function<void(ExampleLayer*)> > mouse_button_pressed_map;
+	map<int, function<void(ExampleLayer*)> > mouse_button_released_map;
+
+	function<void(ExampleLayer*, vec2 cursor_shift)> mouse_cursor_action = NULL;
+	function<void(ExampleLayer*, vec2 offset)> mouse_scrolled_action = NULL;
+
+	Entity scene_camera, metis, plane;
 // 	Mesh *plane_mesh;
 // 	Texture *tex_1;
 // 	Texture *tex_2;
