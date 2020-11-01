@@ -22,7 +22,7 @@
 using namespace std;
 
 
-void set_keybindings(Application &app);
+// void set_keybindings(Application &app);
 
 
 #define WIN_W 800
@@ -37,16 +37,18 @@ int main()
 {
     cout << "This is Application!" << endl;
 
-    Application app(WIN_W, WIN_H, "Application", false);
-	app.window->set_cursor_normal();
+//     Application app;
+	Application::init(WIN_W, WIN_H, "Application", false);
+// 	app.window->set_cursor_normal();
+	Application::get_window()->set_cursor_normal();
 
 //     set_keybindings(app);
 
-	app.layer_stack.push_layer(new ExampleLayer);
+	Application::push_layer(new ExampleLayer);
 
 	// RENDER LOOP
-	app.rendering_loop(GlfwEventMethod::POLL);
-
+	Application::rendering_loop(GlfwEventMethod::POLL);
+	Application::destroy();
     return 0;
 }
 

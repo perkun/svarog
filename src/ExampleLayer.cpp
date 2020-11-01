@@ -49,7 +49,6 @@ ExampleLayer::ExampleLayer()
 	Transform &metis_trans = metis.get_component<Transform>();
 	metis_trans.position = vec3(0.0, 0.0, 0.0);
 
-
 	Transform &rt = active_scene->root_entity.get_component<Transform>();
 	rt.position = vec3(-1., 0., 0.);
 

@@ -31,15 +31,19 @@ enum class GlfwEventMethod {
 };
 
 
-class Application
+// class Application
+namespace Application
 {
-public:
-
-
-	Application(int, int, string, bool fullscreen = false, bool visible = true);
-	~Application();
+// public:
+	void init(int, int, string, bool fullscreen = false, bool visible = true);
+	void destroy();
 
 	void close_window(int);
+
+	void push_layer(Layer*);
+	void push_overlay(Layer*);
+	void pop_layer(Layer*);
+	void pop_overlay(Layer*);
 
 	void on_event(Event&);
 	void on_window_resize_event(WindowResizeEvent&);
@@ -47,16 +51,17 @@ public:
 
 	void rendering_loop(GlfwEventMethod);
 
+	Window* get_window();
 
-	Window *window;
-// 	Scene *active_scene = NULL;
+// 	Application* get();
 
-	vec2 cursor_pos;
+// 	Window *window = NULL;
+// 	vec2 cursor_pos;
+//
+// // private:
+// 	LayerStack layer_stack;
 
-	LayerStack layer_stack;
-private:
 
-
-};
+}
 
 #endif

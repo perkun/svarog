@@ -1,61 +1,104 @@
 #include "Application.h"
 
-Application::Application(int width, int height, string w_title, bool fullscreen,
-               bool visible)
+// private variables
+namespace Application
 {
-    window = new Window(width, height, w_title, fullscreen, visible);
-    window->set_event_callback_fn(
-        bind(&Application::on_event, this, placeholders::_1));
+	Window *window = NULL;
+	vec2 cursor_pos;
+	LayerStack layer_stack;
 
-    // start GLEW extension handler
-    GLenum err = glewInit();
-    if (err != GLEW_OK)
-        cout << "glew init failed" << endl;
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
+Window* get_window()
+{
+	return window;
+}
 
-// 	glEnable(GL_BLEND);
-// 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+void init(int width, int height, string w_title, bool fullscreen,
+                       bool visible)
+{
+  window = new Window(width, height, w_title, fullscreen, visible);
+  window->set_event_callback_fn(
+      bind(&on_event, placeholders::_1));
+//       bind(&on_event, this, placeholders::_1));
 
-//     scene_graph_root = new SceneNode();
+  // start GLEW extension handler
+  GLenum err = glewInit();
+  if (err != GLEW_OK)
+    cout << "glew init failed" << endl;
 
-    cursor_pos = vec2(width / 2.0, height / 2.0);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CCW);
+
+  // 	glEnable(GL_BLEND);
+  // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  //     scene_graph_root = new SceneNode();
+
+  cursor_pos = vec2(width / 2.0, height / 2.0);
+}
+
+// ~Application()
+void destroy()
+{
+	if (window != NULL)
+		delete window;
+}
+
+void push_layer(Layer *layer)
+{
+	layer_stack.push_layer(layer);
+	layer->on_attach();
 }
 
 
-Application::~Application()
+void push_overlay(Layer *layer)
 {
-	delete window;
+	layer_stack.push_overlay(layer);
+	layer->on_attach();
+}
+
+void pop_layer(Layer *layer)
+{
+	layer_stack.pop_layer(layer);
+	layer->on_detach();
 }
 
 
-void Application::on_event(Event& event)
+void pop_overlay(Layer *layer)
+{
+	layer_stack.pop_overlay(layer);
+	layer->on_detach();
+}
+
+
+void on_event(Event& event)
 {
 	EventDispacher dispatcher(event);
 
 // 	dispatcher.dispatch<KeyPressedEvent>(
-// 		bind(&Application::on_key_pressed_event, this, placeholders::_1));
+// 		bind(&on_key_pressed_event, this, placeholders::_1));
 //
 	dispatcher.dispatch<KeyReleasedEvent>(
-		bind(&Application::on_key_released_event, this, placeholders::_1));
+		bind(&on_key_released_event, placeholders::_1));
+// 		bind(&on_key_released_event, this, placeholders::_1));
 //
 // 	dispatcher.dispatch<MouseButtonPressedEvent>(
-// 		bind(&Application::on_mouse_button_pressed_event, this, placeholders::_1));
+// 		bind(&on_mouse_button_pressed_event, this, placeholders::_1));
 //
 // 	dispatcher.dispatch<MouseButtonReleasedEvent>(
-// 		bind(&Application::on_mouse_button_released_event, this, placeholders::_1));
+// 		bind(&on_mouse_button_released_event, this, placeholders::_1));
 //
 // 	dispatcher.dispatch<MouseMovedEvent>(
-// 		bind(&Application::on_curosr_moved_event, this, placeholders::_1));
+// 		bind(&on_curosr_moved_event, this, placeholders::_1));
 //
 // 	dispatcher.dispatch<MouseScrolledEvent>(
-// 		bind(&Application::on_mouse_scrolled_event, this, placeholders::_1));
+// 		bind(&on_mouse_scrolled_event, this, placeholders::_1));
 
 	dispatcher.dispatch<WindowResizeEvent>(
-		bind(&Application::on_window_resize_event, this, placeholders::_1));
+		bind(&on_window_resize_event, placeholders::_1));
+// 		bind(&on_window_resize_event, this, placeholders::_1));
 
 	for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it)
 	{
@@ -67,7 +110,7 @@ void Application::on_event(Event& event)
 }
 
 
-void Application::on_window_resize_event(WindowResizeEvent &event)
+void on_window_resize_event(WindowResizeEvent &event)
 {
 	ivec2 size = event.get_size();
 	glViewport(0., 0., size.x, size.y);
@@ -75,14 +118,14 @@ void Application::on_window_resize_event(WindowResizeEvent &event)
 }
 
 
-// void Application::on_mouse_scrolled_event(MouseScrolledEvent& event)
+// void on_mouse_scrolled_event(MouseScrolledEvent& event)
 // {
 // // 	cout << event.get_offset().y << endl;
 // 	if (mouse_scrolled_action != NULL)
 // 		mouse_scrolled_action(this, event.get_offset());
 // }
 //
-// void Application::on_curosr_moved_event(MouseMovedEvent& event)
+// void on_curosr_moved_event(MouseMovedEvent& event)
 // {
 // // 	cout << "on_curosr_moved_event    ";
 // // 	event.print_type();
@@ -97,7 +140,7 @@ void Application::on_window_resize_event(WindowResizeEvent &event)
 // }
 //
 //
-// void Application::on_mouse_button_released_event(MouseButtonReleasedEvent &event)
+// void on_mouse_button_released_event(MouseButtonReleasedEvent &event)
 // {
 //     int button_code = event.get_button_code();
 //
@@ -107,7 +150,7 @@ void Application::on_window_resize_event(WindowResizeEvent &event)
 // }
 //
 //
-// void Application::on_mouse_button_pressed_event(MouseButtonPressedEvent &event)
+// void on_mouse_button_pressed_event(MouseButtonPressedEvent &event)
 // {
 //     int button_code = event.get_button_code();
 //
@@ -119,7 +162,7 @@ void Application::on_window_resize_event(WindowResizeEvent &event)
 //     // 	event.print_type();
 // }
 //
-void Application::on_key_released_event(KeyReleasedEvent &event)
+void on_key_released_event(KeyReleasedEvent &event)
 {
 	int key_code = event.get_key_code();
 
@@ -128,7 +171,7 @@ void Application::on_key_released_event(KeyReleasedEvent &event)
 
 }
 //
-// void Application::on_key_pressed_event(KeyPressedEvent &event)
+// void on_key_pressed_event(KeyPressedEvent &event)
 // {
 // 	int key_code = event.get_key_code();
 // 	int repeat_count = event.get_repeat_count();
@@ -144,7 +187,7 @@ void Application::on_key_released_event(KeyReleasedEvent &event)
 // }
 
 
-void Application::rendering_loop(GlfwEventMethod glfw_event_method)
+void rendering_loop(GlfwEventMethod glfw_event_method)
 {
 	Renderer renderer;
 
@@ -176,9 +219,9 @@ void Application::rendering_loop(GlfwEventMethod glfw_event_method)
 
 // 		scene.draw_depth_first(scene.root_entity, &camera);
 
-		for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it)
+		for (Layer *layer: layer_stack)
 		{
-			(*it)->on_update(time_delta);
+			layer->on_update(time_delta);
 		}
 
         glfwSwapBuffers(window->winptr);
@@ -189,6 +232,13 @@ void Application::rendering_loop(GlfwEventMethod glfw_event_method)
 			glfwWaitEvents();
 
     }
-
+}
 
 }
+
+// Application* get()
+// {
+// 	return this;
+// }
+
+
