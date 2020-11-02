@@ -1,4 +1,6 @@
 #include "LayerStack.h"
+#include "Layer.h"
+
 
 LayerStack::~LayerStack()
 {

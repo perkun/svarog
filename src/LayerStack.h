@@ -1,9 +1,10 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
-#include "Layer.h"
 
 using namespace std;
+
+class Layer;
 
 class LayerStack
 {

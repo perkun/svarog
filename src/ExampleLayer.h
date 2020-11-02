@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include "Application.h"
+#include "vendor/imgui/imgui.h"
 // #include "Layer.h"
 // #include "Scene/Entity.h"
 // #include "Scene/Scene.h"
@@ -22,7 +23,7 @@ public:
 	virtual void on_detach() override;
 
 	void on_update(double ts) override;
-// 	virtual void OnImGuiRender() override;
+	virtual void on_imgui_render() override;
 	void on_event(Event& e) override;
 	Scene *active_scene;
 private:
@@ -48,6 +49,9 @@ private:
 // 	Texture *tex_2;
 // 	Shader *basic_shader;
 // 	Camera *camera;
+
+
+	float tmp[4];
 };
 
 #endif /* EXAMPLELAYER_H_ */

@@ -19,6 +19,7 @@
 #include "Scene/Scene.h"
 #include "Transform.h"
 #include "Window.h"
+#include "ImGuiLayer.h"
 
 #define BG_COLOR 41 / 256., 46 / 256., 48 / 256., 1.0
 
@@ -50,7 +51,8 @@ void on_key_released_event(KeyReleasedEvent &);
 
 void rendering_loop(GlfwEventMethod);
 
-Window *get_window();
+Window* get_window();
+ImGuiLayer* get_imgui_layer();
 } // namespace Application
 
 #endif

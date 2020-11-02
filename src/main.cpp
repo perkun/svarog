@@ -46,10 +46,9 @@ int main()
 //     set_keybindings(app);
 
 	Application::push_layer(new ExampleLayer);
-	Application::push_layer(new ImGuiLayer);
 
 	// RENDER LOOP
-	Application::rendering_loop(GlfwEventMethod::POLL);
+	Application::rendering_loop(GlfwEventMethod::WAIT);
 	Application::destroy();
     return 0;
 }

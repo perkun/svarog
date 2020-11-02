@@ -32,8 +32,8 @@ void ExampleLayer::on_attach()
 	Mesh plane_mesh("../data/plane.obj", IndexModel::PER_VERTEX);
 
 	// Textures
-	Texture tex_1("../data/forest.jpg");
-	Texture tex_2("../data/makeeva2.png");
+	Texture tex_1("../data/cyber.png");
+	Texture tex_2("../data/horsehead.jpeg");
 
 	// Create scene
 	active_scene = new Scene();
@@ -113,7 +113,45 @@ void ExampleLayer::on_update(double ts)
 }
 
 
+void ExampleLayer::on_imgui_render()
+{
 
+// 	ImGui::Begin("Settings");
+// 	ImGui::ColorEdit3("Square Color", tmp);
+// 	ImGui::End();
+
+	bool show = true;
+	ImGui::ShowDemoWindow(&show);
+
+
+//     ImGuiIO& io = ImGui::GetIO();
+//
+//     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+//
+//     static int corner = 0;
+//     ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+//     if (ImGui::Begin("Example: Simple overlay", &show, window_flags))
+//     {
+//         ImGui::Text("Simple overlay\n" "in the corner of the screen.\n" "(right-click to change position)");
+//         ImGui::Separator();
+//         if (ImGui::IsMousePosValid())
+//             ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+//         else
+//             ImGui::Text("Mouse Position: <invalid>");
+//         if (ImGui::BeginPopupContextWindow())
+//         {
+//             if (ImGui::MenuItem("Custom",       NULL, corner == -1)) corner = -1;
+//             if (ImGui::MenuItem("Top-left",     NULL, corner == 0)) corner = 0;
+//             if (ImGui::MenuItem("Top-right",    NULL, corner == 1)) corner = 1;
+//             if (ImGui::MenuItem("Bottom-left",  NULL, corner == 2)) corner = 2;
+//             if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
+//             if (show && ImGui::MenuItem("Close")) show = false;
+//             ImGui::EndPopup();
+//         }
+//     }
+// 	ImGui::End();
+
+}
 
 
 

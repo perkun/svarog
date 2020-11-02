@@ -14,7 +14,7 @@ public:
     virtual void on_attach() { }
     virtual void on_detach() { }
     virtual void on_update(double ts) { }
-//     virtual void on_imGuiRender() { }
+    virtual void on_imgui_render() { }
     virtual void on_event(Event &event) { }
 
     const std::string &GetName() const

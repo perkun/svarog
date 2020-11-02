@@ -1,4 +1,5 @@
 #include "ImGuiLayer.h"
+#include "Application.h"
 
 ImGuiLayer::ImGuiLayer()
 {
@@ -17,7 +18,7 @@ void ImGuiLayer::on_attach()
         ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable
     // Gamepad Controls
-//     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
 //     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport
                                                         // / Platform Windows
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
@@ -34,11 +35,11 @@ void ImGuiLayer::on_attach()
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform
     // windows can look identical to regular ones.
     ImGuiStyle &style = ImGui::GetStyle();
-    if (io.ConfigFlags /*& ImGuiConfigFlags_ViewportsEnable*/)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
+//     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+//     {
+//         style.WindowRounding = 0.0f;
+//         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+//     }
 
 //     SetDarkThemeColors();
 
@@ -54,23 +55,41 @@ void ImGuiLayer::on_detach()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+
 }
 
 void ImGuiLayer::on_event(Event &event)
 {
 }
 
-void ImGuiLayer::on_update(double time_delta)
+
+
+void ImGuiLayer::begin()
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	bool show = true;
-	ImGui::ShowDemoWindow(&show);
 
+}
+
+
+void ImGuiLayer::end()
+{
+	ImGuiIO& io = ImGui::GetIO();
+    Window *window = Application::get_window();
+	io.DisplaySize = ImVec2((float)window->width, (float)window->height);
+
+	// Rendering
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+// 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+// 	{
+// 		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+// 		ImGui::UpdatePlatformWindows();
+// 		ImGui::RenderPlatformWindowsDefault();
+// 		glfwMakeContextCurrent(backup_current_context);
+// 	}
 
 }

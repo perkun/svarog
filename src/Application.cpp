@@ -7,6 +7,13 @@ namespace Application
 Window *window = NULL;
 vec2 cursor_pos;
 LayerStack layer_stack;
+ImGuiLayer *imgui_layer;
+
+
+ImGuiLayer* get_imgui_layer()
+{
+	return imgui_layer;
+}
 
 Window *get_window()
 {
@@ -35,6 +42,9 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
     //     scene_graph_root = new SceneNode();
 
     cursor_pos = vec2(width / 2.0, height / 2.0);
+
+	imgui_layer = new ImGuiLayer;
+	push_overlay(imgui_layer);
 }
 
 // ~Application()
@@ -107,6 +117,8 @@ void on_event(Event &event)
 void on_window_resize_event(WindowResizeEvent &event)
 {
     ivec2 size = event.get_size();
+	window->width = size.x;
+	window->height = size.y;
     glViewport(0., 0., size.x, size.y);
 }
 
@@ -213,6 +225,14 @@ void rendering_loop(GlfwEventMethod glfw_event_method)
         {
             layer->on_update(time_delta);
         }
+
+		imgui_layer->begin();
+		{
+			for (Layer* layer : layer_stack)
+				layer->on_imgui_render();
+		}
+		imgui_layer->end();
+
 
         glfwSwapBuffers(window->winptr);
 

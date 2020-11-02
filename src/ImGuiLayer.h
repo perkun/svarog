@@ -3,12 +3,13 @@
 
 #include <iostream>
 #include <stdio.h>
-#include "Application.h"
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/backends/imgui_impl_glfw.h"
 #include "vendor/imgui/backends/imgui_impl_opengl3.h"
+#include "Layer.h"
 
 using namespace std;
+
 
 class ImGuiLayer : public Layer
 {
@@ -18,8 +19,9 @@ public:
 
 	virtual void on_attach() override;
 	virtual void on_detach() override;
-	virtual void on_update(double ts) override;
 	virtual void on_event(Event&) override;
+	void begin();
+	void end();
 
 };
 
