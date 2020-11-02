@@ -1,14 +1,26 @@
 #include "ExampleLayer.h"
 
-#define WIN_W 800
-#define WIN_H 600
 
 ExampleLayer::ExampleLayer()
 {
-	cout << "ExampleLayer constructor" << "\n";
+}
 
+
+ExampleLayer::~ExampleLayer()
+{
+	delete active_scene;
+// 	plane_mesh->destroy();
+// 	tex_1->destroy();
+// 	tex_2->destroy();
+// 	basic_shader->destroy();
+}
+
+
+void ExampleLayer::on_attach()
+{
+	Window *window = Application::get_window();
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
-                  WIN_W / (float)WIN_H, 0.1, 100.0);
+                  window->width / (float)window->height, 0.1, 100.0);
 
     camera.speed = 1.;
 
@@ -20,8 +32,8 @@ ExampleLayer::ExampleLayer()
 	Mesh plane_mesh("../data/plane.obj", IndexModel::PER_VERTEX);
 
 	// Textures
-	Texture tex_1("../data/cyber.png");
-	Texture tex_2("../data/horsehead.jpeg");
+	Texture tex_1("../data/forest.jpg");
+	Texture tex_2("../data/makeeva2.png");
 
 	// Create scene
 	active_scene = new Scene();
@@ -55,17 +67,15 @@ ExampleLayer::ExampleLayer()
 
 	active_scene->root_entity.add_child(&plane);
 	plane.add_child(&metis);
+
 }
 
-
-ExampleLayer::~ExampleLayer()
+void ExampleLayer::on_detach()
 {
-	delete active_scene;
-// 	plane_mesh->destroy();
-// 	tex_1->destroy();
-// 	tex_2->destroy();
-// 	basic_shader->destroy();
+
 }
+
+
 
 void ExampleLayer::on_event(Event &event)
 {
@@ -102,15 +112,6 @@ void ExampleLayer::on_update(double ts)
 
 }
 
-void ExampleLayer::on_attach()
-{
-
-}
-
-void ExampleLayer::on_detach()
-{
-
-}
 
 
 

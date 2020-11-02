@@ -1,122 +1,114 @@
 #include "Application.h"
 
-// private variables
 namespace Application
 {
-	Window *window = NULL;
-	vec2 cursor_pos;
-	LayerStack layer_stack;
 
+// private variables
+Window *window = NULL;
+vec2 cursor_pos;
+LayerStack layer_stack;
 
-Window* get_window()
+Window *get_window()
 {
-	return window;
+    return window;
 }
 
-void init(int width, int height, string w_title, bool fullscreen,
-                       bool visible)
+void init(int width, int height, string w_title, bool fullscreen, bool visible)
 {
-  window = new Window(width, height, w_title, fullscreen, visible);
-  window->set_event_callback_fn(
-      bind(&on_event, placeholders::_1));
-//       bind(&on_event, this, placeholders::_1));
+    window = new Window(width, height, w_title, fullscreen, visible);
+    window->set_event_callback_fn(bind(&on_event, placeholders::_1));
+    //       bind(&on_event, this, placeholders::_1));
 
-  // start GLEW extension handler
-  GLenum err = glewInit();
-  if (err != GLEW_OK)
-    cout << "glew init failed" << endl;
+    // start GLEW extension handler
+    GLenum err = glewInit();
+    if (err != GLEW_OK)
+        cout << "glew init failed" << endl;
 
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glFrontFace(GL_CCW);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
-  // 	glEnable(GL_BLEND);
-  // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // 	glEnable(GL_BLEND);
+    // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  //     scene_graph_root = new SceneNode();
+    //     scene_graph_root = new SceneNode();
 
-  cursor_pos = vec2(width / 2.0, height / 2.0);
+    cursor_pos = vec2(width / 2.0, height / 2.0);
 }
 
 // ~Application()
 void destroy()
 {
-	if (window != NULL)
-		delete window;
+    if (window != NULL)
+        delete window;
 }
 
 void push_layer(Layer *layer)
 {
-	layer_stack.push_layer(layer);
-	layer->on_attach();
+    layer_stack.push_layer(layer);
+    layer->on_attach();
 }
-
 
 void push_overlay(Layer *layer)
 {
-	layer_stack.push_overlay(layer);
-	layer->on_attach();
+    layer_stack.push_overlay(layer);
+    layer->on_attach();
 }
 
 void pop_layer(Layer *layer)
 {
-	layer_stack.pop_layer(layer);
-	layer->on_detach();
+    layer_stack.pop_layer(layer);
+    layer->on_detach();
 }
-
 
 void pop_overlay(Layer *layer)
 {
-	layer_stack.pop_overlay(layer);
-	layer->on_detach();
+    layer_stack.pop_overlay(layer);
+    layer->on_detach();
 }
 
-
-void on_event(Event& event)
+void on_event(Event &event)
 {
-	EventDispacher dispatcher(event);
+    EventDispacher dispatcher(event);
 
-// 	dispatcher.dispatch<KeyPressedEvent>(
-// 		bind(&on_key_pressed_event, this, placeholders::_1));
-//
-	dispatcher.dispatch<KeyReleasedEvent>(
-		bind(&on_key_released_event, placeholders::_1));
-// 		bind(&on_key_released_event, this, placeholders::_1));
-//
-// 	dispatcher.dispatch<MouseButtonPressedEvent>(
-// 		bind(&on_mouse_button_pressed_event, this, placeholders::_1));
-//
-// 	dispatcher.dispatch<MouseButtonReleasedEvent>(
-// 		bind(&on_mouse_button_released_event, this, placeholders::_1));
-//
-// 	dispatcher.dispatch<MouseMovedEvent>(
-// 		bind(&on_curosr_moved_event, this, placeholders::_1));
-//
-// 	dispatcher.dispatch<MouseScrolledEvent>(
-// 		bind(&on_mouse_scrolled_event, this, placeholders::_1));
+    // 	dispatcher.dispatch<KeyPressedEvent>(
+    // 		bind(&on_key_pressed_event, this, placeholders::_1));
+    //
+    dispatcher.dispatch<KeyReleasedEvent>(
+        bind(&on_key_released_event, placeholders::_1));
+    // 		bind(&on_key_released_event, this, placeholders::_1));
+    //
+    // 	dispatcher.dispatch<MouseButtonPressedEvent>(
+    // 		bind(&on_mouse_button_pressed_event, this, placeholders::_1));
+    //
+    // 	dispatcher.dispatch<MouseButtonReleasedEvent>(
+    // 		bind(&on_mouse_button_released_event, this, placeholders::_1));
+    //
+    // 	dispatcher.dispatch<MouseMovedEvent>(
+    // 		bind(&on_curosr_moved_event, this, placeholders::_1));
+    //
+    // 	dispatcher.dispatch<MouseScrolledEvent>(
+    // 		bind(&on_mouse_scrolled_event, this, placeholders::_1));
 
-	dispatcher.dispatch<WindowResizeEvent>(
-		bind(&on_window_resize_event, placeholders::_1));
-// 		bind(&on_window_resize_event, this, placeholders::_1));
+    dispatcher.dispatch<WindowResizeEvent>(
+        bind(&on_window_resize_event, placeholders::_1));
+    // 		bind(&on_window_resize_event, this, placeholders::_1));
 
-	for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it)
-	{
-		if (event.handled)
-			break;
+    for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it)
+    {
+        if (event.handled)
+            break;
 
-		(*it)->on_event(event);
-	}
+        (*it)->on_event(event);
+    }
 }
-
 
 void on_window_resize_event(WindowResizeEvent &event)
 {
-	ivec2 size = event.get_size();
-	glViewport(0., 0., size.x, size.y);
-
+    ivec2 size = event.get_size();
+    glViewport(0., 0., size.x, size.y);
 }
-
 
 // void on_mouse_scrolled_event(MouseScrolledEvent& event)
 // {
@@ -164,11 +156,10 @@ void on_window_resize_event(WindowResizeEvent &event)
 //
 void on_key_released_event(KeyReleasedEvent &event)
 {
-	int key_code = event.get_key_code();
+    int key_code = event.get_key_code();
 
-	if (key_code == GLFW_KEY_Q)
-		glfwSetWindowShouldClose(window->winptr, GLFW_TRUE);
-
+    if (key_code == GLFW_KEY_Q)
+        glfwSetWindowShouldClose(window->winptr, GLFW_TRUE);
 }
 //
 // void on_key_pressed_event(KeyPressedEvent &event)
@@ -186,59 +177,55 @@ void on_key_released_event(KeyReleasedEvent &event)
 //
 // }
 
-
 void rendering_loop(GlfwEventMethod glfw_event_method)
 {
-	Renderer renderer;
+    Renderer renderer;
 
     double time = glfwGetTime();
     double previous_time;
     double time_delta;
 
-// 	if (active_scene == NULL)
-// 	{
-// 		cout << "No active Scene set, not rendering" << endl;
-// 		return;
-// 	}
-//
-// 	if (active_scene->get_active_camera() == NULL)
-// 	{
-// 		cout << "No active Camera set, not rendering" << endl;
-// 		return;
-// 	}
+    // 	if (active_scene == NULL)
+    // 	{
+    // 		cout << "No active Scene set, not rendering" << endl;
+    // 		return;
+    // 	}
+    //
+    // 	if (active_scene->get_active_camera() == NULL)
+    // 	{
+    // 		cout << "No active Camera set, not rendering" << endl;
+    // 		return;
+    // 	}
 
     while (!glfwWindowShouldClose(window->winptr))
     {
 
-		previous_time = time;
-		time = glfwGetTime();
-		time_delta = time - previous_time;
+        previous_time = time;
+        time = glfwGetTime();
+        time_delta = time - previous_time;
 
         // RENDER STUFF
-		renderer.clear(BG_COLOR);
+        renderer.clear(BG_COLOR);
 
-// 		scene.draw_depth_first(scene.root_entity, &camera);
+        // 		scene.draw_depth_first(scene.root_entity, &camera);
 
-		for (Layer *layer: layer_stack)
-		{
-			layer->on_update(time_delta);
-		}
+        for (Layer *layer : layer_stack)
+        {
+            layer->on_update(time_delta);
+        }
 
         glfwSwapBuffers(window->winptr);
 
-		if (glfw_event_method == GlfwEventMethod::POLL)
-			glfwPollEvents();
-		else if (glfw_event_method == GlfwEventMethod::WAIT)
-			glfwWaitEvents();
-
+        if (glfw_event_method == GlfwEventMethod::POLL)
+            glfwPollEvents();
+        else if (glfw_event_method == GlfwEventMethod::WAIT)
+            glfwWaitEvents();
     }
 }
 
-}
+} // namespace Application
 
 // Application* get()
 // {
 // 	return this;
 // }
-
-
