@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include "Application.h"
+#include "Framebuffer.h"
 #include "vendor/imgui/imgui.h"
 // #include "Layer.h"
 // #include "Scene/Entity.h"
@@ -26,6 +27,8 @@ public:
 	virtual void on_imgui_render() override;
 	void on_event(Event& e) override;
 	Scene *active_scene;
+	Framebuffer *framefuffer;
+	Texture *tex_tmp;
 private:
 	void on_window_resize_event(WindowResizeEvent&);
 	void on_key_pressed_event(KeyPressedEvent&);

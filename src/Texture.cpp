@@ -50,3 +50,11 @@ void Texture::bind(unsigned int slot)
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 }
+
+unsigned int Texture::get_texture_id()
+{
+	return texture_id;
+}
+
+
+

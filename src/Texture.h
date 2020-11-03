@@ -17,6 +17,7 @@ public:
 	~Texture();
 
 	void destroy();
+	unsigned int get_texture_id();
 
 	void bind(unsigned int slot = 0);
 
