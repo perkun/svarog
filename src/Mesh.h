@@ -77,6 +77,8 @@ public:
 
 	GLuint vertex_array_object;
 	GLuint vertex_buffers[NUM_BUFFS];
+
+	vec4 color = vec4(1.0f);
 private:
 	void create_vao(IndexModel *indexed_model);
 

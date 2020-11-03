@@ -33,7 +33,7 @@ public:
 	void on_resize(int, int);
 	void draw_root();
 
-// 	Entity* get_active_entity();
+// 	void set_active_entity(Entity*);
 
 	Camera* get_active_camera();
 	Transform* get_active_drawable_transform();

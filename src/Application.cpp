@@ -5,10 +5,20 @@ namespace Application
 
 // private variables
 Window *window = NULL;
-vec2 cursor_pos;
 LayerStack layer_stack;
 ImGuiLayer *imgui_layer;
+vec2 cursor_pos;
 
+
+vec2 get_cursor_pos()
+{
+	return cursor_pos;
+}
+
+void set_cursor_pos(vec2 cp)
+{
+	cursor_pos = cp;
+}
 
 ImGuiLayer* get_imgui_layer()
 {

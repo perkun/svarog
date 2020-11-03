@@ -53,6 +53,12 @@ void Scene::on_resize(int width, int height)
 // 	active_entity = get_active_depth_first(&root_entity);
 // 	return active_entity;
 // }
+//
+
+// void Scene::set_active_entity(Entity *entity)
+// {
+// 	active_entity = entity;
+// }
 
 Transform* Scene::get_active_drawable_transform()
 {
@@ -86,8 +92,16 @@ Camera* Scene::get_active_camera()
 
 void Scene::draw(Entity *entity)
 {
+	if (entity->has_component<SceneStatus>())
+	{
+		SceneStatus &scene_status = entity->get_component<SceneStatus>();
+		if (!scene_status.render)
+			return;
+	}
+
 	Camera camera;
 	auto view = registry.view<Camera, SceneStatus>();
+	// get active camera
 	for (auto e: view)
 	{
 		if (registry.get<SceneStatus>(e).active)
@@ -116,13 +130,16 @@ void Scene::draw(Entity *entity)
 		shader.set_uniform_mat4f("model_matrix", tr.world);
 		shader.set_uniform_mat4f("view_matrix", camera.get_view());
 		shader.set_uniform_mat4f("perspective_matrix", camera.get_perspective());
-// 		shader.set_uniform_4fv("u_color", vec4(1.0));
+		shader.set_uniform_4fv("u_color", entity->get_component<Mesh>().color);
 
 		if (entity->has_component<Texture>())
 		{
 			Texture &t = entity->get_component<Texture>();
 			t.bind();
 			shader.set_uniform_1i("u_texture", 0);
+		}
+		else {
+			shader.set_uniform_1i("u_texture", 100);
 		}
 
 		Mesh &mesh = entity->get_component<Mesh>();
@@ -148,5 +165,6 @@ void Scene::draw_root()
 // 	cout << t.position.x << "\n";
 	draw_depth_first(&root_entity);
 }
+
 
 

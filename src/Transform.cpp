@@ -4,7 +4,7 @@ Transform::Transform()
 {
 	position = vec3(0.0);
 	scale = vec3(1.0);
-	alpha = beta = gamma = 0;
+	alpha = beta = gamma = 0.0;
 }
 
 Transform::~Transform() {}
@@ -13,7 +13,7 @@ Transform::~Transform() {}
 void Transform::update_local()
 {
 	local =
-	 	get_rotation_matrix_313() * glm::translate(position) * glm::scale(scale);
+	 	 glm::translate(position) * get_rotation_matrix_313() * glm::scale(scale);
 }
 
 

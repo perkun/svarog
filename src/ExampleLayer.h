@@ -43,7 +43,7 @@ private:
 	function<void(ExampleLayer*, vec2 cursor_shift)> mouse_cursor_action = NULL;
 	function<void(ExampleLayer*, vec2 offset)> mouse_scrolled_action = NULL;
 
-	Entity scene_camera, metis, plane;
+	Entity scene_camera, metis, plane, arrow;
 // 	Mesh *plane_mesh;
 // 	Texture *tex_1;
 // 	Texture *tex_2;

@@ -51,6 +51,9 @@ void on_key_released_event(KeyReleasedEvent &);
 
 void rendering_loop(GlfwEventMethod);
 
+vec2 get_cursor_pos();
+void set_cursor_pos(vec2);
+
 Window* get_window();
 ImGuiLayer* get_imgui_layer();
 } // namespace Application

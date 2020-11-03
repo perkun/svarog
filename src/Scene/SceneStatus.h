@@ -10,10 +10,11 @@ class SceneStatus
 {
 public:
 	SceneStatus();
-    SceneStatus(bool);
+    SceneStatus(bool, bool r = true);
 	~SceneStatus();
 
 	bool active;
+	bool render = true;
 };
 
 #endif /* SCENESTATUS_H_ */

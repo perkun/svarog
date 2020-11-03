@@ -314,6 +314,8 @@ Mesh::Mesh(const Mesh &other)
 		vertex_buffers[i] = other.vertex_buffers[i];
 	}
 
+	color = other.color;
+
 }
 
 
