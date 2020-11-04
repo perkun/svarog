@@ -90,7 +90,7 @@ void ExampleLayer::on_attach()
 {
     Window *window = Application::get_window();
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
-                  window->width / (float)window->height, 0.1, 100.0);
+                  window->width / (float)window->height, 0.01, 20.0);
 
     camera.speed = 1.;
 
@@ -164,12 +164,12 @@ void ExampleLayer::on_attach()
     light.add_component<Shader>(screen_shader);
     light.add_component<Material>();
 
-	light.get_component<Transform>().scale = vec3(0.2f, 0.2f, 0.2f);
+	light.get_component<Transform>().scale = vec3(0.3f, 0.3f, 0.3f);
 	light.get_component<Transform>().position = vec3(0.0f, -0.0f, 0.0f);
 
     light.get_component<Material>().uniforms_vec4["u_color"] = vec4(1, 1, 0, 1);
     light.get_component<Material>().uniforms_vec4["u_screen_pos"] =
-		vec4(1.8, -0.8, 0.0, 1.0);
+		vec4(0.0, -0.0, -0.3, 1.0);
 
 
 //     light.get_component<Material>().uniforms_int["u_scattering"] = 0;
@@ -252,13 +252,18 @@ void ExampleLayer::on_imgui_render()
 
     ImGui::Text("Camera");
 	Camera *cam = active_scene->get_active_camera();
-    ImGui::SliderFloat("cam pos x",
-		&(cam->position.x), -5.0, 5.0, "X");
-    ImGui::SliderFloat("cam pos y",
-		&(cam->position.y), -5.0, 5.0, "Y");
-    ImGui::SliderFloat("cam pos z",
-		&(cam->position.z), -5.0, 5.0, "Z");
+    ImGui::SliderFloat("cam pos x", &(cam->position.x), -5.0, 5.0, "X");
+    ImGui::SliderFloat("cam pos y", &(cam->position.y), -5.0, 5.0, "Y");
+    ImGui::SliderFloat("cam pos z", &(cam->position.z), -5.0, 5.0, "Z");
 	active_scene->get_active_camera()->update();
+
+
+    ImGui::Text("ARROW");
+	Material &lm = light.get_component<Material>();
+    ImGui::SliderFloat("a pos x", &(lm.uniforms_vec4["u_screen_pos"].x), -2.0, 2.0, "%.3f");
+    ImGui::SliderFloat("a pos y", &(lm.uniforms_vec4["u_screen_pos"].y), -2.0, 2.0, "%.3f");
+    ImGui::SliderFloat("a pos z", &(lm.uniforms_vec4["u_screen_pos"].z), -2.0, 2.0, "%.3f");
+
 
 
     ImGui::Text("Light direction");
