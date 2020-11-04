@@ -207,18 +207,6 @@ void rendering_loop(GlfwEventMethod glfw_event_method)
     double previous_time;
     double time_delta;
 
-    // 	if (active_scene == NULL)
-    // 	{
-    // 		cout << "No active Scene set, not rendering" << endl;
-    // 		return;
-    // 	}
-    //
-    // 	if (active_scene->get_active_camera() == NULL)
-    // 	{
-    // 		cout << "No active Camera set, not rendering" << endl;
-    // 		return;
-    // 	}
-
     while (!glfwWindowShouldClose(window->winptr))
     {
 
@@ -229,7 +217,6 @@ void rendering_loop(GlfwEventMethod glfw_event_method)
         // RENDER STUFF
         renderer.clear(BG_COLOR);
 
-        // 		scene.draw_depth_first(scene.root_entity, &camera);
 
         for (Layer *layer : layer_stack)
         {
@@ -255,7 +242,3 @@ void rendering_loop(GlfwEventMethod glfw_event_method)
 
 } // namespace Application
 
-// Application* get()
-// {
-// 	return this;
-// }

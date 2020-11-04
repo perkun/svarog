@@ -51,11 +51,12 @@ void Framebuffer::invalidate() {
 
 void Framebuffer::bind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
-// 	GLenum draw_buffers[1] = { GL_COLOR_ATTACHMENT0 };
-// 	glDrawBuffers (1, draw_buffers);
-// 	glBindTexture(GL_TEXTURE_2D, color_attachment);
-
   	glViewport(0, 0, specification.width, specification.height);
+}
+
+void Framebuffer::clear()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Framebuffer::unbind() {

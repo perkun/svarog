@@ -21,6 +21,7 @@ public:
   void invalidate();
 
   void bind();
+  void clear();
   void unbind();
 
   void resize(unsigned int width, unsigned int height);

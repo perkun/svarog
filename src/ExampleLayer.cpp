@@ -106,10 +106,10 @@ void ExampleLayer::on_attach()
 	arrow_mesh.color = vec4(157/256., 52/256., 255/256., 1.0);
 
     // Textures
-//     Texture tex_1("../data/makeeva2.png");
-//     Texture tex_2("../data/forest.jpg");
-    Texture tex_1("../data/cyber.png");
-    Texture tex_2("../data/horsehead.jpeg");
+    Texture tex_1("../data/makeeva2.png");
+    Texture tex_2("../data/forest.jpg");
+//     Texture tex_1("../data/cyber.png");
+//     Texture tex_2("../data/horsehead.jpeg");
 
     // Create scene
     active_scene = new Scene();
@@ -158,7 +158,7 @@ void ExampleLayer::on_attach()
 	fb_spec.height = Application::get_window()->height;
 
 	framefuffer = new Framebuffer(fb_spec);
-	tex_tmp = new Texture("../data/horsehead.jpeg");
+	tex_tmp = new Texture("../data/harley_quinn2.png");
 }
 
 void ExampleLayer::on_detach()
@@ -183,13 +183,14 @@ void ExampleLayer::on_update(double ts)
 		return;
 	}
 
-// 	framefuffer->bind();
-// 	glActiveTexture(GL_TEXTURE0 + 0);
-//   	glBindTexture(GL_TEXTURE_2D, framefuffer->get_color_attachment_id());
-	active_scene->draw_root();
-// 	framefuffer->unbind();
+	framefuffer->bind();
+	framefuffer->clear();
 
-// 	active_scene->draw_root();
+	active_scene->draw_root();
+
+	framefuffer->unbind();
+
+	active_scene->draw_root();
 	active_scene->get_active_camera()->move(ts);
 }
 
@@ -227,12 +228,10 @@ void ExampleLayer::on_imgui_render()
 
 
 	ImGui::Begin("FB texture");
-// 	long int tex_id = 3;
-	long int tex_id = framefuffer->get_color_attachment_id();
-//   	glBindTexture(GL_TEXTURE_2D, tex_id);
-// 	tex_tmp->bind();
+// 	long int tex_id = framefuffer->get_color_attachment_id();
+	long int tex_id = framefuffer->get_depth_attachment_id();
 // 	long int tex_id = tex_tmp->get_texture_id();
-	ImGui::Image((void*)tex_id, ImVec2(320., 180.));
+	ImGui::Image((void*)tex_id, ImVec2(320., 180.), ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();
     //     bool show = true;
     //     ImGui::ShowDemoWindow(&show);
