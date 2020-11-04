@@ -88,7 +88,7 @@ ExampleLayer::~ExampleLayer()
 
 void ExampleLayer::on_attach()
 {
-	Window *window = Application::get_window();
+    Window *window = Application::get_window();
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
                   window->width / (float)window->height, 0.1, 100.0);
 
@@ -99,17 +99,20 @@ void ExampleLayer::on_attach()
     Shader color_shader("../src/shaders/color_shader.vs",
                         "../src/shaders/color_shader.fs");
 
-        // Meshes
-        Mesh metis_mesh("../data/model.obj", IndexModel::PER_VERTEX);
+    Shader screen_shader("../src/shaders/screen_shader.vs",
+                        "../src/shaders/screen_shader.fs");
+
+    // Meshes
+    Mesh metis_mesh("../data/model.obj", IndexModel::PER_VERTEX);
     Mesh plane_mesh("../data/plane.obj", IndexModel::PER_FACE);
     Mesh arrow_mesh("../data/arrow.obj", IndexModel::PER_FACE);
-	arrow_mesh.color = vec4(157/256., 52/256., 255/256., 1.0);
+//     arrow_mesh.color = vec4(157 / 256., 52 / 256., 255 / 256., 1.0);
 
     // Textures
     Texture tex_1("../data/makeeva2.png");
     Texture tex_2("../data/forest.jpg");
-//     Texture tex_1("../data/cyber.png");
-//     Texture tex_2("../data/horsehead.jpeg");
+    //     Texture tex_1("../data/cyber.png");
+    //     Texture tex_2("../data/horsehead.jpeg");
 
     // Create scene
     active_scene = new Scene();
@@ -123,7 +126,7 @@ void ExampleLayer::on_attach()
     plane.add_component<Mesh>(plane_mesh);
     plane.add_component<Texture>(tex_1);
     plane.add_component<Shader>(texture_shader);
-	plane.add_component<SceneStatus>(false, false);
+    plane.add_component<SceneStatus>(false, false);
 
     Transform &tr = plane.get_component<Transform>();
     tr.beta = 1;
@@ -134,36 +137,62 @@ void ExampleLayer::on_attach()
     metis.add_component<Texture>(tex_2);
     metis.add_component<Shader>(color_shader);
     metis.add_component<SceneStatus>(true);
+    metis.add_component<Material>();
     Transform &metis_trans = metis.get_component<Transform>();
     metis_trans.position = vec3(0.0, 0.0, 0.0);
+
+    metis.get_component<Material>().uniforms_vec4["u_color"] = vec4(1, 1, 1, 1);
 
     arrow = active_scene->create_entity("Arrow");
     arrow.add_component<Mesh>(arrow_mesh);
     arrow.add_component<Shader>(color_shader);
     arrow.add_component<SceneStatus>(false, true);
+    arrow.add_component<Material>();
     Transform &arrow_tr = arrow.get_component<Transform>();
     arrow_tr.scale = vec3(1.f, 1.f, 2.f);
-    // 	arrow.add_component<Texture>(tex_1);
+
+    arrow.get_component<Material>().uniforms_vec4["u_color"] =
+		vec4(157 / 256., 52 / 256., 255 / 256., 1.0);
 
     Transform &rt = active_scene->root_entity.get_component<Transform>();
     rt.position = vec3(0., 0., 0.);
 
+	light = active_scene->create_entity("Light");
+	light.add_component<Light>(normalize(vec3(0, 0, 1)));
+	light.add_component<SceneStatus>(false);
+	light.add_component<Mesh>(arrow_mesh);
+    light.add_component<Shader>(screen_shader);
+    light.add_component<Material>();
+
+	light.get_component<Transform>().scale = vec3(0.2f, 0.2f, 0.2f);
+	light.get_component<Transform>().position = vec3(0.0f, -0.0f, 0.0f);
+
+    light.get_component<Material>().uniforms_vec4["u_color"] = vec4(1, 1, 0, 1);
+    light.get_component<Material>().uniforms_vec4["u_screen_pos"] =
+		vec4(1.8, -0.8, 0.0, 1.0);
+
+
+//     light.get_component<Material>().uniforms_int["u_scattering"] = 0;
+//     arrow.get_component<Material>().uniforms_int["u_scattering"] = 0;
+//     metis.get_component<Material>().uniforms_int["u_scattering"] = 1;
+
+
+
     active_scene->root_entity.add_child(&plane);
     active_scene->root_entity.add_child(&metis);
+    active_scene->root_entity.add_child(&light);
     metis.add_child(&arrow);
 
-	// FRAMEBUFFER
-	FramebufferSpecification fb_spec;
-	fb_spec.width = Application::get_window()->width;
-	fb_spec.height = Application::get_window()->height;
+    // FRAMEBUFFER
+    FramebufferSpecification fb_spec;
+    fb_spec.width = Application::get_window()->width;
+    fb_spec.height = Application::get_window()->height;
 
-	framefuffer = new Framebuffer(fb_spec);
-	tex_tmp = new Texture("../data/harley_quinn2.png");
+    framefuffer = new Framebuffer(fb_spec);
 }
 
 void ExampleLayer::on_detach()
 {
-	delete tex_tmp;
 	delete framefuffer;
 }
 
@@ -177,17 +206,11 @@ void ExampleLayer::on_update(double ts)
 		return;
 	}
 
-	if (active_scene->get_active_camera() == NULL)
-	{
-		cout << "No active Camera set, not rendering" << endl;
-		return;
-	}
+
 
 	framefuffer->bind();
 	framefuffer->clear();
-
 	active_scene->draw_root();
-
 	framefuffer->unbind();
 
 	active_scene->draw_root();
@@ -201,7 +224,7 @@ void ExampleLayer::on_imgui_render()
 
     ImGui::SetNextWindowBgAlpha(0.0);
     ImGui::SetNextWindowPos(ImVec2(0., 0.));
-    ImGui::SetNextWindowSize(ImVec2(300, 350));
+    ImGui::SetNextWindowSize(ImVec2(300, 550));
 
     ImGui::Begin("Settings", NULL,
                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
@@ -219,20 +242,42 @@ void ExampleLayer::on_imgui_render()
     ImGui::SliderFloat("Ggamma", &(tr.gamma), 0., M_PI * 2, "g = %.3f");
 
     ImGui::Text("Colors");
-    ImGui::ColorEdit4("metis color",
-                      (float *)&metis.get_component<Mesh>().color);
-    ImGui::ColorEdit4("arrow color",
-                      (float *)&arrow.get_component<Mesh>().color);
+    ImGui::ColorEdit4(
+        "metis color",
+        (float *)&metis.get_component<Material>().uniforms_vec4["u_color"]);
+    ImGui::ColorEdit4(
+        "arrow color",
+        (float *)&arrow.get_component<Material>().uniforms_vec4["u_color"]);
+
+
+    ImGui::Text("Camera");
+	Camera *cam = active_scene->get_active_camera();
+    ImGui::SliderFloat("cam pos x",
+		&(cam->position.x), -5.0, 5.0, "X");
+    ImGui::SliderFloat("cam pos y",
+		&(cam->position.y), -5.0, 5.0, "Y");
+    ImGui::SliderFloat("cam pos z",
+		&(cam->position.z), -5.0, 5.0, "Z");
+	active_scene->get_active_camera()->update();
+
+
+    ImGui::Text("Light direction");
+	Light *light =  active_scene->get_active_light();
+    ImGui::SliderFloat("light pos x", &(light->direction.x), -1.0, 1.0, "%.3f");
+    ImGui::SliderFloat("lightpos y",  &(light->direction.y), -1.0, 1.0, "%.3f");
+    ImGui::SliderFloat("lightpos z",  &(light->direction.z), -1.0, 1.0, "%.3f");
+	active_scene->get_active_camera()->update();
+
 
     ImGui::End();
 
-
-	ImGui::Begin("FB texture");
-// 	long int tex_id = framefuffer->get_color_attachment_id();
-	long int tex_id = framefuffer->get_depth_attachment_id();
-// 	long int tex_id = tex_tmp->get_texture_id();
-	ImGui::Image((void*)tex_id, ImVec2(320., 180.), ImVec2(0, 1), ImVec2(1, 0));
-	ImGui::End();
+    ImGui::Begin("depth map");
+    // 	long int tex_id = framefuffer->get_color_attachment_id();
+    long int tex_id = framefuffer->get_depth_attachment_id();
+    // 	long int tex_id = tex_tmp->get_texture_id();
+    ImGui::Image((void *)tex_id, ImVec2(320., 180.), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::End();
     //     bool show = true;
     //     ImGui::ShowDemoWindow(&show);
 }

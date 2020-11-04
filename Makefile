@@ -18,7 +18,9 @@ OBJECTS = build/main.o build/Application.o build/Mesh.o build/Transform.o \
 		  build/Scene.o build/SceneStatus.o build/Entity.o \
 		  build/Layer.o build/LayerStack.o \
 		  build/ExampleLayer.o build/ImGuiLayer.o \
-		  build/Framebuffer.o
+		  build/Framebuffer.o \
+		  build/Material.o \
+		  build/Light.o
 
 
 ## ImGui STUFF
@@ -98,11 +100,21 @@ build/ExampleLayer.o: src/ExampleLayer.cpp src/ExampleLayer.h
 build/ImGuiLayer.o: src/ImGuiLayer.cpp src/ImGuiLayer.h
 		$(CC) $(CFLAGS) -o $@ $<
 
+
+build/Material.o: src/Material.cpp src/Material.h
+		$(CC) $(CFLAGS) -o $@ $<
+
+build/Light.o: src/Light.cpp src/Light.h
+		$(CC) $(CFLAGS) -o $@ $<
+
+
 build/Framebuffer.o: src/Framebuffer.cpp src/Framebuffer.h
 		$(CC) $(CFLAGS) -o $@ $<
 
 build/stb_image.o: src/vendor/stb_image/stb_image.cpp
 		$(CC) $(CFLAGS) -o $@ $<
+
+
 
 
 

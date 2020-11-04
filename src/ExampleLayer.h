@@ -4,7 +4,9 @@
 #include <iostream>
 #include <stdio.h>
 #include "Application.h"
+#include "Light.h"
 #include "Framebuffer.h"
+#include "Material.h"
 #include "vendor/imgui/imgui.h"
 // #include "Layer.h"
 // #include "Scene/Entity.h"
@@ -28,7 +30,6 @@ public:
 	void on_event(Event& e) override;
 	Scene *active_scene;
 	Framebuffer *framefuffer;
-	Texture *tex_tmp;
 private:
 	void on_window_resize_event(WindowResizeEvent&);
 	void on_key_pressed_event(KeyPressedEvent&);
@@ -46,7 +47,7 @@ private:
 	function<void(ExampleLayer*, vec2 cursor_shift)> mouse_cursor_action = NULL;
 	function<void(ExampleLayer*, vec2 offset)> mouse_scrolled_action = NULL;
 
-	Entity scene_camera, metis, plane, arrow;
+	Entity scene_camera, metis, plane, arrow, light;
 // 	Mesh *plane_mesh;
 // 	Texture *tex_1;
 // 	Texture *tex_2;

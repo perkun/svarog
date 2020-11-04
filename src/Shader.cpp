@@ -113,6 +113,7 @@ void Shader::create_shader(const char *vertex_shader,
     glDeleteShader(fs);
 }
 
+
 int Shader::get_uniform_location(string name)
 {
     if (uniform_location_cache.find(name) != uniform_location_cache.end())
@@ -127,39 +128,91 @@ int Shader::get_uniform_location(string name)
 
     return location;
 }
-
-void Shader::set_uniforms()
+void Shader::set_uniform_3fv(string name, vec3 data)
 {
-    bind();
-    for (Uniform uni: uniforms)
-    {
-    	if (uni.type == INT)
-    		set_uniform_1i(uni.name, *((int*)uni.data));
-//     	else if (uni.type == FLOAT)
-//     		set_uniform_1f(uni.name, *((float*)uni.data));
-    	else if (uni.type == VEC4)
-    		set_uniform_4fv(uni.name, *((vec4*)uni.data));
-    	else if (uni.type == MAT4)
-    		set_uniform_mat4f(uni.name, *((mat4*)uni.data));
-    }
+//     bind();
+    glUniform3fv(get_uniform_location(name), 1, &data[0]);
+    // 	unbind();
 }
 
 void Shader::set_uniform_4fv(string name, vec4 data)
 {
-    bind();
+//     bind();
     glUniform4fv(get_uniform_location(name), 1, &data[0]);
     // 	unbind();
 }
 
 void Shader::set_uniform_mat4f(string name, mat4 data)
 {
-    bind();
+//     bind();
     glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &data[0][0]);
     // 	unbind();
 }
 
-void Shader::set_uniform_1i(string name, int value)
+void Shader::set_uniform_1f(string name, float data)
+{
+//     bind();
+    glUniform1i(get_uniform_location(name), data);
+}
+
+void Shader::set_uniform_1i(string name, int data)
+{
+//     bind();
+    glUniform1i(get_uniform_location(name), data);
+}
+
+
+void Shader::set_uniforms(Material &material)
 {
     bind();
-    glUniform1i(get_uniform_location(name), value);
+
+	for (auto u: material.uniforms_vec3)
+    {
+		set_uniform_3fv(u.first, u.second);
+	}
+
+	for (auto u: material.uniforms_vec4)
+    {
+		set_uniform_4fv(u.first, u.second);
+	}
+
+	for (auto u: material.uniforms_mat4)
+	{
+		set_uniform_mat4f(u.first, u.second);
+	}
+
+	for (auto u: material.uniforms_int)
+	{
+		set_uniform_1i(u.first, u.second);
+	}
+
+
+
+//     	if (uni.second.type == INT)
+//     		set_uniform_1i(uni.first, uni.second.get_data);
+// //
+//     	else if (uni.second.type == FLOAT)
+//     		set_uniform_1f(uni.first, uni.second.data);
+// //
+//     	else if (uni.second.type == VEC3)
+//     		set_uniform_3fv(uni.first, uni.second.data);
+//
+//     	if (uni.second.type == VEC4)
+// 		{
+// 			cout << "setting " << uni.first << " VEC4 "
+// 			 	 << uni.second.data[1] << endl;
+//     		set_uniform_4fv(uni.first, *(vec4*)uni.second.get_data() );
+// 		}
+// //
+//     	else if (uni.second.type == MAT4)
+//     		set_uniform_mat4f(uni.first, uni.second.data);
+//     }
 }
+//
+// void Shader::set_uniforms(map<string, vec4> &uniforms)
+// {
+// 	bind();
+// 	for (auto uni: uniforms)
+// 		set_uniform_4fv(uni.first, uni.second);
+//
+// }

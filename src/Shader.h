@@ -10,35 +10,10 @@
 #include <vector>
 #include <map>
 
+#include "Material.h"
 
 using namespace std;
 using namespace glm;
-
-
-enum type {
-	INT,
-	FLOAT,
-	VEC3,
-	IVEC3,
-	VEC4,
-	IVEC4,
-	MAT4
-};
-
-
-class Uniform
-{
-public:
-	Uniform(string name, int type, void *data)
-		: name(name), type(type), data(data) {}
-
-	void set_data(void *d) { data = d; }
-
-	string name;
-	int type;
-	void* data;
-};
-
 
 class Shader
 {
@@ -47,11 +22,13 @@ public:
 	Shader(const Shader &other);
 	~Shader();
 
-	void set_uniforms();
+// 	void set_uniforms(map<string, UniformData>&);
+	void set_uniforms(Material&);
 
+	void set_uniform_3fv(string name, vec3 data);
 	void set_uniform_4fv(string name, vec4 data);
-	void set_uniform_1f(string name, float value);
-	void set_uniform_1i(string name, int value);
+	void set_uniform_1f(string name, float data);
+	void set_uniform_1i(string name, int data);
 	void set_uniform_mat4f(string name, mat4 data);
 
 	void bind();
@@ -59,7 +36,6 @@ public:
 
 	void destroy();
 
-	vector<Uniform> uniforms;
 
 	unsigned int program;
 private:
