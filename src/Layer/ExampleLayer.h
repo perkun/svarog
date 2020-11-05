@@ -8,9 +8,9 @@
 #include "Framebuffer.h"
 #include "Material.h"
 #include "vendor/imgui/imgui.h"
-// #include "Layer.h"
+#include "Layer.h"
 // #include "Scene/Entity.h"
-// #include "Scene/Scene.h"
+#include "Scene/Scene.h"
 // #include "Event/WindowEvent.h"
 
 using namespace std;

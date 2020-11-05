@@ -4,14 +4,14 @@
 #include <algorithm>
 #include <iostream>
 #include <stdio.h>
-#include "../Mesh.h"
-#include "../Texture.h"
-#include "../Transform.h"
-#include "../Shader.h"
-#include "../Camera.h"
-#include "../Renderer.h"
-#include "../Light.h"
-#include "../vendor/entt/entt.hpp"
+#include "Mesh.h"
+#include "Texture.h"
+#include "Transform.h"
+#include "Shader.h"
+#include "Camera.h"
+#include "Renderer.h"
+#include "Light.h"
+#include "vendor/entt/entt.hpp"
 #include "SceneStatus.h"
 #include "Entity.h"
 

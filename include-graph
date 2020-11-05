@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cinclude2dot.pl -i src/,src/Event,src/Layer,src/Scene --exclude "src/vendor/*" --quotetype quote  --group > graph.dot

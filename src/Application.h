@@ -8,22 +8,17 @@
 #include <stdio.h>
 #include <string>
 
-#include "Camera.h"
-#include "Event/Event.h"
-#include "Event/KeyEvent.h"
-#include "Event/MouseEvent.h"
-#include "Event/WindowEvent.h"
-#include "LayerStack.h"
-#include "Mesh.h"
 #include "Renderer.h"
-#include "Scene/Scene.h"
-#include "Transform.h"
+#include "Event/Event.h"
+#include "LayerStack.h"
 #include "Window.h"
-#include "ImGuiLayer.h"
 
 #define BG_COLOR 41 / 256., 46 / 256., 48 / 256., 1.0
 
 using namespace std;
+
+class Layer;
+class ImGuiLayer;
 
 enum class GlfwEventMethod
 {

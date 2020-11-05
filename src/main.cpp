@@ -17,7 +17,6 @@
 
 #include "Application.h"
 #include "ExampleLayer.h"
-#include "ImGuiLayer.h"
 
 
 using namespace std;
