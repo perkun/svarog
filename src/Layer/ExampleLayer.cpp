@@ -88,6 +88,10 @@ ExampleLayer::~ExampleLayer()
 
 void ExampleLayer::on_attach()
 {
+    // Create scene
+    active_scene = new Scene();
+
+
     Window *window = Application::get_window();
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
                   window->width / (float)window->height, 0.01, 20.0);
@@ -114,8 +118,6 @@ void ExampleLayer::on_attach()
     //     Texture tex_1("../data/cyber.png");
     //     Texture tex_2("../data/horsehead.jpeg");
 
-    // Create scene
-    active_scene = new Scene();
 
     // Entities
     scene_camera = active_scene->create_entity();
@@ -271,7 +273,6 @@ void ExampleLayer::on_imgui_render()
     ImGui::SliderFloat("light pos x", &(light->direction.x), -1.0, 1.0, "%.3f");
     ImGui::SliderFloat("lightpos y",  &(light->direction.y), -1.0, 1.0, "%.3f");
     ImGui::SliderFloat("lightpos z",  &(light->direction.z), -1.0, 1.0, "%.3f");
-	active_scene->get_active_camera()->update();
 
 
     ImGui::End();

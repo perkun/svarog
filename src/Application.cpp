@@ -54,8 +54,8 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
 
     cursor_pos = vec2(width / 2.0, height / 2.0);
 
-// 	imgui_layer = new ImGuiLayer;
-// 	push_overlay(imgui_layer);
+	imgui_layer = new ImGuiLayer;
+	push_overlay(imgui_layer);
 }
 
 // ~Application()

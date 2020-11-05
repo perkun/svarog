@@ -180,23 +180,28 @@ void Scene::draw_root()
         return;
     }
 
-	auto view = registry.view<Light, Mesh>();
-	for (auto e: view)
-	{
-		Transform &tr = registry.get<Transform>(e);
-		vec3 dir = normalize(registry.get<Light>(e).direction);
-
-		tr.beta = acos(dir.z);
-		tr.alpha = atan2(dir.y, dir.x) + M_PI/2.;
-	}
+// 	auto view = registry.view<Light, Mesh>();
+// 	for (auto e: view)
+// 	{
+// 		Transform &tr = registry.get<Transform>(e);
+// 		vec3 dir = normalize(registry.get<Light>(e).direction);
+//
+// 		tr.beta = acos(dir.z);
+// 		tr.alpha = atan2(dir.y, dir.x) + M_PI/2.;
+// 	}
 
 
     // update scene material
     scene_material.uniforms_mat4["u_view_matrix"] = camera->get_view();
     scene_material.uniforms_mat4["u_perspective_matrix"] =
         camera->get_perspective();
-    scene_material.uniforms_vec3["u_light_direction"] =
-        get_active_light()->direction;
+
+// 	if (get_active_light() != NULL)
+// 		scene_material.uniforms_vec3["u_light_direction"] =
+// 			get_active_light()->direction;
+// 	else {
+// 		cout << "No light in the scene" << endl;
+// 	}
 
     // 	Transform &t = root_entity.get_component<Transform>();
     // 	cout << t.position.x << "\n";
