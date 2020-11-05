@@ -98,13 +98,13 @@ void ExampleLayer::on_attach()
 
     camera.speed = 1.;
 
-    Shader texture_shader("../src/shaders/texture_shader.vs",
-                          "../src/shaders/texture_shader.fs");
-    Shader color_shader("../src/shaders/color_shader.vs",
-                        "../src/shaders/color_shader.fs");
+    Shader texture_shader("../Sandbox/shaders/texture_shader.vs",
+                          "../Sandbox/shaders/texture_shader.fs");
+    Shader color_shader("../Sandbox/shaders/color_shader.vs",
+                        "../Sandbox/shaders/color_shader.fs");
 
-    Shader screen_shader("../src/shaders/screen_shader.vs",
-                        "../src/shaders/screen_shader.fs");
+    Shader screen_shader("../Sandbox/shaders/screen_shader.vs",
+                        "../Sandbox/shaders/screen_shader.fs");
 
     // Meshes
     Mesh metis_mesh("../data/model.obj", IndexModel::PER_VERTEX);

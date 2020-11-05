@@ -8,7 +8,7 @@
 
 #include "Application.h"
 #include "ExampleLayer.h"
-#include "MyLayer.h"
+// #include "MyLayer.h"
 
 
 using namespace std;
@@ -31,8 +31,8 @@ int main()
 	Application::get_window()->set_cursor_normal();
 
 
-// 	Application::push_layer(new ExampleLayer);
-	Application::push_layer(new MyLayer);
+	Application::push_layer(new ExampleLayer);
+// 	Application::push_layer(new MyLayer);
 
 	// RENDER LOOP
 	Application::rendering_loop(GlfwEventMethod::WAIT);

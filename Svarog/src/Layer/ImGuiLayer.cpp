@@ -26,9 +26,11 @@ void ImGuiLayer::on_attach()
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
 
-    io.Fonts->AddFontFromFileTTF("../data/DroidSans.ttf", 18.0f);
+//     io.Fonts->AddFontFromFileTTF("../data/DroidSans.ttf", 18.0f);
+    io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Inconsolata-Medium.ttf", 18.0f);
     io.FontDefault = io.Fonts->AddFontFromFileTTF(
-        "../data/DroidSans.ttf", 18.0f);
+//         "../data/DroidSans.ttf", 18.0f);
+        "/usr/share/fonts/TTF/Inconsolata-Medium.ttf", 18.0f);
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
