@@ -20,6 +20,9 @@ class Renderer
 
 	void enable_blend();
 	void disable_blend();
+
+private:
+	bool blend = false;
 };
 
 #endif /* RENDERER_H_ */

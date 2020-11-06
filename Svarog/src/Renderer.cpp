@@ -14,9 +14,21 @@ void Renderer::draw(Mesh &mesh, Shader &shader)
 {
 	shader.bind();
 	if (mesh.blend)
-		enable_blend();
+	{
+		if (!blend)
+		{
+			enable_blend();
+			blend = true;
+		}
+	}
 	else
-		disable_blend();
+	{
+		if (blend)
+		{
+			disable_blend();
+			blend = false;
+		}
+	}
 
 	glBindVertexArray(mesh.vertex_array_object);
 	glDrawElements(GL_TRIANGLES, mesh.num_triangles * 3, GL_UNSIGNED_INT, NULL);
