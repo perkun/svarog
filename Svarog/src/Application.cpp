@@ -47,6 +47,7 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+
     // 	glEnable(GL_BLEND);
     // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -239,6 +240,18 @@ void rendering_loop(GlfwEventMethod glfw_event_method)
         else if (glfw_event_method == GlfwEventMethod::WAIT)
             glfwWaitEvents();
     }
+}
+
+void enable_blend()
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+}
+
+void disable_blend()
+{
+	glDisable(GL_BLEND);
 }
 
 } // namespace Application

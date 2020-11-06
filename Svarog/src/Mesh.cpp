@@ -315,6 +315,7 @@ Mesh::Mesh(const Mesh &other)
 	}
 
 	color = other.color;
+	blend = other.blend;
 
 }
 

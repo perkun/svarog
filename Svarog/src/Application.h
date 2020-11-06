@@ -49,6 +49,9 @@ void rendering_loop(GlfwEventMethod);
 vec2 get_cursor_pos();
 void set_cursor_pos(vec2);
 
+void enable_blend();
+void disable_blend();
+
 Window* get_window();
 ImGuiLayer* get_imgui_layer();
 } // namespace Application

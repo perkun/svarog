@@ -28,7 +28,9 @@ int main(int argc, char *argv[])
     cout << "This is Sandbox app" << endl;
 
 	ArgumentHandler ah;
-	ah.addRequiredArgument("i", "input");
+	ah.addRequiredArgument("m", "model");
+	ah.addRequiredArgument("p", "plane");
+	ah.addRequiredArgument("t", "texture");
 
 	ah.parseArguments(argc, argv);
 
@@ -37,7 +39,9 @@ int main(int argc, char *argv[])
 	Application::get_window()->set_cursor_normal();
 
 	MyLayer *my_layer = new MyLayer();
-	my_layer->model_filename = ah.args["input"].to_str();
+	my_layer->model_filename = ah.args["model"].to_str();
+	my_layer->plane_filename = ah.args["plane"].to_str();
+	my_layer->texture_filename = ah.args["texture"].to_str();
 
 	Application::push_layer(my_layer);
 // 	Application::push_layer(new MyLayer);

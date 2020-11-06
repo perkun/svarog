@@ -19,8 +19,10 @@ public:
 	virtual void on_imgui_render() override;
 
 	string model_filename;
+	string plane_filename;
+	string texture_filename;
 private:
-	Entity model, scene_camera, light;
+	Entity model, plane, texture, scene_camera, light;
 
 };
 

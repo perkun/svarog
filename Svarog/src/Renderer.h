@@ -17,6 +17,9 @@ class Renderer
     void draw(Mesh &mesh, Shader &shader);
 	void clear();
 	void clear(float, float, float, float);
+
+	void enable_blend();
+	void disable_blend();
 };
 
 #endif /* RENDERER_H_ */
