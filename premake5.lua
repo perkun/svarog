@@ -8,15 +8,16 @@ workspace "Svarog"
 		"Dist"
 	}
 
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+--outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+outputdir = "%{cfg.buildcfg}"
 
 project "Sandbox"
 	location "./Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	targetdir ("bin/")
-	objdir ("build/%{prj.name}/%{cfg.buildcfg}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("build/" .. outputdir  .. "/%{prj.name}")
 	files
 	{
 		--"%{prj.name}/src/**.h",
@@ -63,8 +64,8 @@ project "Svarog"
 
 	--targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	--objdir ("build/" .. outputdir .. "/%{prj.name}")
-	targetdir ("bin/")
-	objdir ("build/%{prj.name}/%{cfg.buildcfg}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("build/" .. outputdir  .. "/%{prj.name}")
 
 	files
 	{

@@ -24,3 +24,6 @@ void main()
 	d = max(d, 0);
  	color = d * texture2D(u_texture, tex_coord);
 }
+
+
+

@@ -28,3 +28,6 @@ void main()
 	//color.z = 0.0;
  	//color = vec4(normal_world, 1.0);
 }
+
+
+

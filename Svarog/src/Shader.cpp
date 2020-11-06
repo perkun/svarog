@@ -1,5 +1,9 @@
 #include "Shader.h"
 
+Shader::Shader()
+{
+}
+
 Shader::Shader(string vertex_fn, string fragment_fn)
 {
 
@@ -14,9 +18,9 @@ Shader::Shader(string vertex_fn, string fragment_fn)
     long fsize = ftell(f);
     fseek(f, 0, SEEK_SET); /* same as rewind(f); */
 
-    char *vertex_shader = (char *)malloc(fsize + 1);
-    fread(vertex_shader, 1, fsize, f);
-    vertex_shader[fsize] = 0;
+    char *vertex_shader_source = (char *)malloc(fsize + 1);
+    fread(vertex_shader_source, 1, fsize, f);
+    vertex_shader_source[fsize] = 0;
     fclose(f);
 
     f = fopen(fragment_fn.c_str(), "rb");
@@ -30,15 +34,15 @@ Shader::Shader(string vertex_fn, string fragment_fn)
     fsize = ftell(f);
     fseek(f, 0, SEEK_SET); /* same as rewind(f); */
 
-    char *fragment_shader = (char *)malloc(fsize + 1);
-    fread(fragment_shader, 1, fsize, f);
-    fragment_shader[fsize] = 0;
+    char *fragment_shader_source = (char *)malloc(fsize + 1);
+    fread(fragment_shader_source, 1, fsize, f);
+    fragment_shader_source[fsize] = 0;
     fclose(f);
 
-    create_shader(vertex_shader, fragment_shader);
+    create_shader(vertex_shader_source, fragment_shader_source);
 
-    free(vertex_shader);
-    free(fragment_shader);
+    free(vertex_shader_source);
+    free(fragment_shader_source);
 }
 
 

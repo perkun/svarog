@@ -16,3 +16,6 @@ void main()
 	color =   d * u_color;
 
 }
+
+
+

@@ -77,8 +77,21 @@ void MyLayer::on_attach()
     Camera camera(vec3(0., -3., 0.), vec3(0., 0., 0.), radians(45.0),
                   window->width / (float)window->height, 0.01, 20.0);
 
-    Shader color_shader("../Sandbox/shaders/color_shader.vs",
-                        "../Sandbox/shaders/color_shader.fs");
+//     Shader color_shader("../../../Sandbox/shaders/color_shader.vs",
+//                         "../../../Sandbox/shaders/color_shader.fs");
+
+	#include "shaders/color_shader.vs.include"
+	#include "shaders/color_shader.fs.include"
+	color_shader_vs[color_shader_vs_len] = 0;
+	color_shader_fs[color_shader_fs_len] = 0;
+
+	Shader color_shader;
+	color_shader.create_shader((char*)((void*)color_shader_vs),
+						       (char*)((void*)color_shader_fs));
+
+
+
+
     camera.speed = 1.;
 
     Mesh model_mesh(model_filename, IndexModel::PER_VERTEX);

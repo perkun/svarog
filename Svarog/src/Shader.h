@@ -18,6 +18,7 @@ using namespace glm;
 class Shader
 {
 public:
+	Shader();
 	Shader(string vertex_fn, string fragment_fn);
 	Shader(const Shader &other);
 	~Shader();
@@ -36,13 +37,16 @@ public:
 
 	void destroy();
 
+	void create_shader(const char *vertex_shader_source,
+					   const char *fragment_shader_source);
+
+// 	void create_shader(const unsigned char *vertex_shader_source,
+// 					   const unsigned char *fragment_shader_source);
 
 	unsigned int program;
 private:
 	int get_uniform_location(string name);
 	unsigned int compile_shader(unsigned int type, const char *source);
-	void create_shader(const char *vertex_shader,
-					   const char *fragment_shader);
 
 
 	map<string, int> uniform_location_cache;

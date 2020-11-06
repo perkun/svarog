@@ -24,3 +24,5 @@ void main()
 		color = d*d * u_color;
 
 }
+
+

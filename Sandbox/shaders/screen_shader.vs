@@ -43,3 +43,6 @@ void main()
 	normal_world = normalize(normal_world);
 	gl_Position = u_perspective_matrix * view * model *  position;
 }
+
+
+

@@ -12,9 +12,9 @@ endif
 
 ifeq ($(config),debug)
   RESCOMP = windres
-  TARGETDIR = ../bin
+  TARGETDIR = ../bin/Debug/Sandbox
   TARGET = $(TARGETDIR)/Sandbox
-  OBJDIR = ../build/Sandbox/Debug
+  OBJDIR = ../build/Debug/Sandbox
   DEFINES +=
   INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
@@ -22,8 +22,8 @@ ifeq ($(config),debug)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
-  LDDEPS += ../bin/libSvarog.a
+  LIBS += ../bin/Debug/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
+  LDDEPS += ../bin/Debug/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
@@ -39,9 +39,9 @@ endif
 
 ifeq ($(config),release)
   RESCOMP = windres
-  TARGETDIR = ../bin
+  TARGETDIR = ../bin/Release/Sandbox
   TARGET = $(TARGETDIR)/Sandbox
-  OBJDIR = ../build/Sandbox/Release
+  OBJDIR = ../build/Release/Sandbox
   DEFINES +=
   INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
@@ -49,8 +49,8 @@ ifeq ($(config),release)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
-  LDDEPS += ../bin/libSvarog.a
+  LIBS += ../bin/Release/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
+  LDDEPS += ../bin/Release/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64 -s
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
@@ -66,9 +66,9 @@ endif
 
 ifeq ($(config),dist)
   RESCOMP = windres
-  TARGETDIR = ../bin
+  TARGETDIR = ../bin/Dist/Sandbox
   TARGET = $(TARGETDIR)/Sandbox
-  OBJDIR = ../build/Sandbox/Dist
+  OBJDIR = ../build/Dist/Sandbox
   DEFINES +=
   INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
@@ -76,8 +76,8 @@ ifeq ($(config),dist)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
-  LDDEPS += ../bin/libSvarog.a
+  LIBS += ../bin/Dist/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
+  LDDEPS += ../bin/Dist/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64 -s
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
