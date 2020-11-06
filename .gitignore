@@ -4,3 +4,5 @@ data/*
 compile_commands.json
 .clangd
 graph.dot
+**/Makefile
+*.make

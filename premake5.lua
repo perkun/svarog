@@ -38,7 +38,7 @@ project "Sandbox"
 	}
 
 
-	links { "glfw", "GLEW", "GL", "Svarog" }
+	links { "glfw", "GLEW", "GL", "Svarog", "cmdlineargs" }
 
 	filter "configurations:Debug"
 		-- defines...
