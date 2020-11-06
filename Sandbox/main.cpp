@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "Application.h"
-//#include "ExampleLayer.h"
 #include "MyLayer.h"
+#include "BoxLayer.h"
 #include <cmdlineargs/ArgumentHandler.h>
 
 
@@ -27,24 +27,25 @@ int main(int argc, char *argv[])
 {
     cout << "This is Sandbox app" << endl;
 
-	ArgumentHandler ah;
-	ah.addRequiredArgument("m", "model");
-	ah.addRequiredArgument("p", "plane");
-	ah.addRequiredArgument("t", "texture");
-
-	ah.parseArguments(argc, argv);
+// 	ArgumentHandler ah;
+// 	ah.addRequiredArgument("m", "model");
+// 	ah.addRequiredArgument("p", "plane");
+// 	ah.addRequiredArgument("t", "texture");
+//
+// 	ah.parseArguments(argc, argv);
 
 //     Application app;
 	Application::init(WIN_W, WIN_H, "Application", false);
 	Application::get_window()->set_cursor_normal();
 
-	MyLayer *my_layer = new MyLayer();
-	my_layer->model_filename = ah.args["model"].to_str();
-	my_layer->plane_filename = ah.args["plane"].to_str();
-	my_layer->texture_filename = ah.args["texture"].to_str();
+// 	MyLayer *my_layer = new MyLayer();
+// 	my_layer->model_filename = ah.args["model"].to_str();
+// 	my_layer->plane_filename = ah.args["plane"].to_str();
+// 	my_layer->texture_filename = ah.args["texture"].to_str();
 
-	Application::push_layer(my_layer);
+// 	Application::push_layer(my_layer);
 // 	Application::push_layer(new MyLayer);
+	Application::push_layer(new BoxLayer);
 
 	// RENDER LOOP
 	Application::rendering_loop(GlfwEventMethod::WAIT);

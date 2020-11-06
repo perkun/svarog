@@ -58,19 +58,21 @@ void EventLayer::on_event(Event &event)
 
 
 	if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
-	{
-    dispatcher.dispatch<MouseButtonPressedEvent>(bind(
-        &EventLayer::on_mouse_button_pressed_event, this, placeholders::_1));
+        {
+            dispatcher.dispatch<MouseButtonPressedEvent>(
+                bind(&EventLayer::on_mouse_button_pressed_event, this,
+                     placeholders::_1));
 
-    dispatcher.dispatch<MouseButtonReleasedEvent>(bind(
-        &EventLayer::on_mouse_button_released_event, this, placeholders::_1));
+            dispatcher.dispatch<MouseButtonReleasedEvent>(
+                bind(&EventLayer::on_mouse_button_released_event, this,
+                     placeholders::_1));
 
-    dispatcher.dispatch<MouseMovedEvent>(
-        bind(&EventLayer::on_curosr_moved_event, this, placeholders::_1));
+            dispatcher.dispatch<MouseMovedEvent>(bind(
+                &EventLayer::on_curosr_moved_event, this, placeholders::_1));
 
-    dispatcher.dispatch<MouseScrolledEvent>(
-        bind(&EventLayer::on_mouse_scrolled_event, this, placeholders::_1));
-	}
+            dispatcher.dispatch<MouseScrolledEvent>(bind(
+                &EventLayer::on_mouse_scrolled_event, this, placeholders::_1));
+        }
 }
 
 
@@ -123,6 +125,8 @@ void EventLayer::on_key_released_event(KeyReleasedEvent &event)
 
 void EventLayer::on_mouse_scrolled_event(MouseScrolledEvent &event)
 {
+	vec2 offset = event.get_offset();
+	mouse_scrolled_action(this, offset);
 }
 
 void EventLayer::on_curosr_moved_event(MouseMovedEvent &event)

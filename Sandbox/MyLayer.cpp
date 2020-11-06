@@ -65,6 +65,15 @@ MyLayer::MyLayer()
         if (trans->change_gamma)
             trans->gamma += cursor_shift.x / 300.;
     };
+
+	mouse_scrolled_action = [](EventLayer *layer, vec2 offset) {
+        Transform *trans = layer->active_scene->get_active_drawable_transform();
+        if (trans == NULL)
+            return;
+
+		trans->scale += vec3(offset.y /40.);
+
+	};
 }
 
 
@@ -132,8 +141,9 @@ void MyLayer::on_attach()
 	pt.position.y = 3.75;
 	pt.position.z = -0.3;
 	pt.scale = vec3(5.);
-    Material &plane_material = model.get_component<Material>();
-    plane_material.uniforms_vec4["u_color"] = vec4(1.0);
+
+//     Material &plane_material = model.get_component<Material>();
+//     plane_material.uniforms_vec4["u_color"] = vec4(1.0);
 
 
 

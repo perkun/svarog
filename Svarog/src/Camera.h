@@ -25,11 +25,13 @@ public:
 	bool is_moving_backwards = false;
 	bool is_moving_left = false;
 	bool is_moving_right = false;
+	bool is_rotating = false;
 
 	void move_forwards(double);
 	void move_backwards(double);
 	void move_left(double);
 	void move_right(double);
+	void rotate_about_target(vec2 cursor_shift);
 
 	void pitch(float);
 	void yaw(float);
@@ -46,11 +48,12 @@ public:
 
 	bool active = false;
 
+	vec3 front;
 private:
 	mat4 perspective;
 	mat4 view;
 
-	vec3 up, right, front;
+	vec3 up, right;
 
 
 

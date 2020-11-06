@@ -75,8 +75,7 @@ Transform* Scene::get_active_drawable_transform()
 	return NULL;
 }
 
-
-Camera* Scene::get_active_camera()
+Camera *Scene::get_active_camera()
 {
 	auto view = registry.view<Camera, SceneStatus>();
 	for (auto e: view)

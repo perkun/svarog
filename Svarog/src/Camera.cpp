@@ -72,6 +72,29 @@ void Camera::yaw(float shift_x)
 }
 
 
+void Camera::rotate_about_target(vec2 cursor_shift)
+{
+    float r = glm::length(target - position);
+    float azimuth = atan2(position.y, position.x);
+    float height = asin(position.z / r);
+
+    azimuth -= cursor_shift.x / 50. * speed;
+    height += cursor_shift.y / 50. * speed;
+
+	if (height > M_PI/2. - 0.1)
+		height = M_PI/2. - 0.1;
+	if (height < -M_PI/2. + 0.1)
+		height = -M_PI/2. + 0.1;
+
+
+	position.x = r * cos(height) * cos(azimuth);
+	position.y = r * cos(height) * sin(azimuth);
+    position.z = r * sin(height);
+
+	front = normalize(target - position);
+	update();
+}
+
 void Camera::move(double time_delta)
 {
     bool refresh = false;
