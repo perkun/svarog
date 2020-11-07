@@ -23,6 +23,8 @@ public:
 
 	bool is_moving_forwards = false;
 	bool is_moving_backwards = false;
+	bool is_panning_forwards = false;
+	bool is_panning_backwards = false;
 	bool is_moving_left = false;
 	bool is_moving_right = false;
 	bool is_rotating = false;
@@ -31,6 +33,11 @@ public:
 	void move_backwards(double);
 	void move_left(double);
 	void move_right(double);
+	void pan_forwards(double);
+	void pan_backwards(double);
+
+	void rotate_about_origin(vec2 cursor_shift, float min_height,
+			float max_height);
 	void rotate_about_target(vec2 cursor_shift);
 
 	void pitch(float);
@@ -38,8 +45,9 @@ public:
 	void move(double);
 	void update();
 
+	vec3 calculate_intersection_point(vec3 plane_point, vec3 plane_normal);
+
 	vec3 position;
-	vec3 target;
 
 	double speed = 0.6; // world space units per second
 	double rotation_speed = 0.001;  // radians / sec

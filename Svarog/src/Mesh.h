@@ -19,7 +19,6 @@ public:
 	IndexModel(string filename, int mode);
 	~IndexModel();
 
-	void load_obj(string filename, int mode);
 
 	vector<vec3> ver;
 	vector<vec2> tex;
@@ -32,6 +31,8 @@ public:
 	};
 
 private:
+	void load_obj(string filename, int mode);
+
 	void calculate_per_vertex_normals(vector<vec3> &ver,
 									  vector<uvec3> &ver_idxs,
 								 	  vector<vec3> &nor);

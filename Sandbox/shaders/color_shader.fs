@@ -14,8 +14,9 @@ void main()
 	vec2 tex_coord = v_tex_coord;
 
 
-// 	float d = dot( normal_world, vec3(0, 0, 1) );
-	float d = dot( normal_world, light_direction );
+ 	float d = dot( normal_world, vec3(0, 0, 1) );
+//	float d = dot( normal_world, light_direction );
+	d += 0.3;
 	d = max(d, 0);
 
 	//if ( u_scattering == 0)

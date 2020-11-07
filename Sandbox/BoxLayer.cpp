@@ -72,6 +72,64 @@ BoxLayer::BoxLayer()
 		cam->position += cam->front * (float)(offset.y / 5. * cam->speed);
 		cam->update();
 	};
+
+	key_pressed_map[GLFW_KEY_A] = [](EventLayer *layer) {
+		Camera *cam = layer->active_scene->get_active_camera();
+		if (cam == NULL)
+			return;
+		cam->is_moving_left = true;
+	};
+
+	key_released_map[GLFW_KEY_A] = [](EventLayer *layer) {
+		Camera *cam = layer->active_scene->get_active_camera();
+		if (cam == NULL)
+			return;
+		cam->is_moving_left = false;
+	};
+
+	key_pressed_map[GLFW_KEY_D] = [](EventLayer *layer) {
+		Camera *cam = layer->active_scene->get_active_camera();
+		if (cam == NULL)
+			return;
+		cam->is_moving_right = true;
+	};
+
+	key_released_map[GLFW_KEY_D] = [](EventLayer *layer) {
+		Camera *cam = layer->active_scene->get_active_camera();
+		if (cam == NULL)
+			return;
+		cam->is_moving_right = false;
+	};
+
+
+	key_pressed_map[GLFW_KEY_W] = [](EventLayer *layer) {
+		Camera *cam = layer->active_scene->get_active_camera();
+		if (cam == NULL)
+			return;
+		cam->is_panning_forwards = true;
+	};
+
+	key_released_map[GLFW_KEY_W] = [](EventLayer *layer) {
+		Camera *cam = layer->active_scene->get_active_camera();
+		if (cam == NULL)
+			return;
+		cam->is_panning_forwards = false;
+	};
+
+
+	key_pressed_map[GLFW_KEY_S] = [](EventLayer *layer) {
+		Camera *cam = layer->active_scene->get_active_camera();
+		if (cam == NULL)
+			return;
+		cam->is_panning_backwards = true;
+	};
+
+	key_released_map[GLFW_KEY_S] = [](EventLayer *layer) {
+		Camera *cam = layer->active_scene->get_active_camera();
+		if (cam == NULL)
+			return;
+		cam->is_panning_backwards = false;
+	};
 }
 
 
@@ -85,7 +143,8 @@ void BoxLayer::on_attach()
     Window *window = Application::get_window();
     Camera camera(vec3(0., -30., 26.), vec3(0., 0., 0.), radians(45.0),
                   window->width / (float)window->height, 0.01, 200.0);
-    camera.speed = 1.;
+    camera.speed = 8.;
+	camera.rotation_speed = 0.002;  // rads/s
 
     scene_camera = active_scene->create_entity();
     scene_camera.add_component<Camera>(camera);
@@ -156,7 +215,10 @@ void BoxLayer::on_detach()
 
 void BoxLayer::on_update(double time_delta)
 {
-// 	active_scene->get_active_camera()->move(time_delta);
+	plane.get_component<Transform>().position =
+		active_scene->get_active_camera()->calculate_intersection_point(
+			vec3(0.), vec3(0., 0., 1.));
+	active_scene->get_active_camera()->move(time_delta);
 	active_scene->draw_root();
 }
 

@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 	Application::push_layer(new BoxLayer);
 
 	// RENDER LOOP
-	Application::rendering_loop(GlfwEventMethod::WAIT);
+	Application::rendering_loop(GlfwEventMethod::POLL);
 	Application::destroy();
     return 0;
 }
