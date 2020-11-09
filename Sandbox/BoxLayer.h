@@ -6,6 +6,7 @@
 #include "EventLayer.h"
 #include "VertexArrayObject.h"
 #include "VertexLayout.h"
+#include "IndexedModel.h"
 
 using namespace std;
 

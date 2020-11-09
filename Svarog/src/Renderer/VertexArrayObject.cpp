@@ -1,12 +1,11 @@
 #include "VertexArrayObject.h"
 
 
-VertexArrayObject::VertexArrayObject(VertexLayout vl)
-{
-	vertices_layout = vl;
-
-}
-
+// VertexArrayObject::VertexArrayObject(VertexLayout vl)
+// {
+// 	vertices_layout = vl;
+// }
+//
 
 VertexArrayObject::~VertexArrayObject()
 {
@@ -26,23 +25,22 @@ VertexArrayObject::VertexArrayObject(const VertexArrayObject &other)
 
 	num_draw_elements = other.num_draw_elements;
 	created = other.created;
-	vertices_layout = other.vertices_layout;
+// 	vertices_layout = other.vertices_layout;
 }
 
-void VertexArrayObject::create()
+void VertexArrayObject::create(IndexedModel &indexed_model)
 {
-	vertices_layout.calculate_stride_and_elem_offsets();
+	indexed_model.layout.calculate_stride_and_elem_offsets();
 
-    float vertices[] = {0.5,  -0.5, -0.5, 0.5,  0.5, -0.5, -0.5, 0.5,
-                        -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5,  0.5,
-                        0.5,  0.5,  -0.5, 0.5,  0.5, -0.5, -0.5, 0.5};
+//     float vertices[] = {0.5,  -0.5, -0.5, 0.5,  0.5, -0.5, -0.5, 0.5,
+//                         -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5,  0.5,
+//                         0.5,  0.5,  -0.5, 0.5,  0.5, -0.5, -0.5, 0.5};
+//
+//     int indices[] = {0, 1, 4, 1, 5, 4, 1, 2, 5, 2, 6, 5, 3, 1, 0, 3, 2, 1,
+//                      3, 4, 7, 3, 0, 4, 7, 2, 3, 6, 2, 7, 4, 5, 7, 7, 5, 6};
+//
+	num_draw_elements = indexed_model.indices.size() * 6;
 
-    int indices[] = {0, 1, 4, 1, 5, 4, 1, 2, 5, 2, 6, 5, 3, 1, 0, 3, 2, 1,
-                     3, 4, 7, 3, 0, 4, 7, 2, 3, 6, 2, 7, 4, 5, 7, 7, 5, 6};
-
-	num_draw_elements = 12 * 3;
-
-    unsigned int buffer_index = 0;
 
     // create VAO
     glGenVertexArrays(1, &vao_id);
@@ -52,23 +50,29 @@ void VertexArrayObject::create()
     glGenBuffers(1, &vbo_id);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0],
+    glBufferData(GL_ARRAY_BUFFER,
+				 indexed_model.vertices.size() * sizeof(float),
+				 &indexed_model.vertices[0],
                  GL_STATIC_DRAW);
+
+    unsigned int buffer_index = 0;
     glEnableVertexAttribArray(buffer_index);
     // bind to current VAO
-    for (VertexLayoutElement &vle : vertices_layout.elements)
+	unsigned int location_index = 0;
+    for (VertexLayoutElement &vle : indexed_model.layout.elements)
     {
-		cout << "attrob pointer" << endl;
-        glVertexAttribPointer(buffer_index, vle.get_num_components(),
+        glVertexAttribPointer(location_index, vle.get_num_components(),
                               vle.get_gl_type(), GL_FALSE,
-                              vertices_layout.stride, (void *)vle.offset);
+                              indexed_model.layout.stride, (void *)vle.offset);
+		location_index++;
     }
 
     // indices
     glGenBuffers(1, &idxs_id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxs_id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
-                 &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+				 indexed_model.indices.size() * sizeof(unsigned int),
+                 &indexed_model.indices[0], GL_STATIC_DRAW);
 
 	created = true;
 }

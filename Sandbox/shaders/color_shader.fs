@@ -13,17 +13,17 @@ void main()
 {
 	//vec2 tex_coord = v_tex_coord;
 
-
- 	//float d = dot( normal_world, vec3(0, 0, 1) );
+	// TODO: change normal_world to sth else (eye_, view_, ...)
+ 	float d = dot( normal_world, vec3(0, 0, 1) );
 //	float d = dot( normal_world, light_direction );
-	//d += 0.3;
-	//d = max(d, 0);
+	d += 0.3;
+	d = max(d, 0);
 
 	//if ( u_scattering == 0)
 		//color = u_color;
 	//else
-//		color = d*d * u_color;
-	color = u_color;
+	color = d * u_color;
+//	color = u_color;
 
 }
 

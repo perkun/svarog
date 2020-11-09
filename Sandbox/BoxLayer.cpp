@@ -170,11 +170,9 @@ void BoxLayer::on_attach()
 	texture_shader.create_shader((char*)((void*)texture_shader_vs),
 						       (char*)((void*)texture_shader_fs));
 
-	VertexLayout ver_layout;
-	ver_layout.elements.push_back(VertexLayoutElement(VertexDataType::FLOAT3));
-
-	VertexArrayObject cube_vao(ver_layout);
-	cube_vao.create();
+	IndexedModelObj cube_indexed("../../../data/ico.obj", NormalIndexing::PER_VERTEX);
+	VertexArrayObject cube_vao;
+	cube_vao.create(cube_indexed);
 
 // 	Mesh cube_mesh("../../../data/cube.obj", IndexModel::PER_FACE);
 // 	Mesh plane_mesh("../../../data/plane.obj", IndexModel::PER_FACE);

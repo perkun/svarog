@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include "VertexLayout.h"
+#include "IndexedModel.h"
 
 using namespace std;
 
@@ -15,13 +16,14 @@ using namespace std;
 class VertexArrayObject
 {
 public:
-    VertexArrayObject(VertexLayout vl);
+//     VertexArrayObject(VertexLayout vl);
+	VertexArrayObject() {}
 	~VertexArrayObject();
 	VertexArrayObject(const VertexArrayObject &other);
 
-	void create();
+	void create(IndexedModel&);
 
-	VertexLayout vertices_layout;
+// 	VertexLayout vertices_layout;
 
 	GLuint vao_id;
 	GLuint vbo_id;
