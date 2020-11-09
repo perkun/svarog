@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Application.h"
-#include "MyLayer.h"
+// #include "MyLayer.h"
 #include "BoxLayer.h"
 #include <cmdlineargs/ArgumentHandler.h>
 

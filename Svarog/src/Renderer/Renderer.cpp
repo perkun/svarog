@@ -10,10 +10,9 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::draw(Mesh &mesh, Shader &shader)
+void Renderer::set_blend(bool mesh_blend)
 {
-	shader.bind();
-	if (mesh.blend)
+	if (mesh_blend)
 	{
 		if (!blend)
 		{
@@ -30,8 +29,15 @@ void Renderer::draw(Mesh &mesh, Shader &shader)
 		}
 	}
 
-	glBindVertexArray(mesh.vertex_array_object);
-	glDrawElements(GL_TRIANGLES, mesh.num_triangles * 3, GL_UNSIGNED_INT, NULL);
+}
+
+void Renderer::draw(VertexArrayObject &vao, Shader &shader)
+{
+	shader.bind();
+// 	set_blend(mesh.blend);
+
+	glBindVertexArray(vao.vao_id);
+	glDrawElements(GL_TRIANGLES, vao.num_draw_elements, GL_UNSIGNED_INT, NULL);
 }
 
 void Renderer::clear()

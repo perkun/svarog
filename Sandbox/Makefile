@@ -16,7 +16,7 @@ ifeq ($(config),debug)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../build/Debug/Sandbox
   DEFINES +=
-  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
+  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
@@ -43,7 +43,7 @@ ifeq ($(config),release)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../build/Release/Sandbox
   DEFINES +=
-  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
+  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
@@ -70,7 +70,7 @@ ifeq ($(config),dist)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../build/Dist/Sandbox
   DEFINES +=
-  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
+  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
@@ -93,8 +93,6 @@ endif
 
 OBJECTS := \
 	$(OBJDIR)/BoxLayer.o \
-	$(OBJDIR)/ExampleLayer.o \
-	$(OBJDIR)/MyLayer.o \
 	$(OBJDIR)/main.o \
 
 RESOURCES := \
@@ -155,12 +153,6 @@ $(OBJECTS): | $(OBJDIR)
 endif
 
 $(OBJDIR)/BoxLayer.o: BoxLayer.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/ExampleLayer.o: ExampleLayer.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/MyLayer.o: MyLayer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/main.o: main.cpp

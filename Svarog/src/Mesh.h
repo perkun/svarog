@@ -33,13 +33,9 @@ public:
 private:
 	void load_obj(string filename, int mode);
 
-	void calculate_per_vertex_normals(vector<vec3> &ver,
-									  vector<uvec3> &ver_idxs,
-								 	  vector<vec3> &nor);
+	void calculate_per_vertex_normals();
 
-	void calculate_per_face_normals(vector<vec3> &ver,
-									vector<uvec3> &ver_idxs,
-								 	vector<vec3> &nor);
+	void calculate_per_face_normals();
 
 	void produce_arrays_per_vertex(vector<vec3> &tmp_ver,
 								   vector<vec2> &tmp_tex,

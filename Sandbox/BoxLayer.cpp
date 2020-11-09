@@ -170,25 +170,32 @@ void BoxLayer::on_attach()
 	texture_shader.create_shader((char*)((void*)texture_shader_vs),
 						       (char*)((void*)texture_shader_fs));
 
-	Mesh cube_mesh("../../../data/cube.obj", IndexModel::PER_FACE);
-	Mesh plane_mesh("../../../data/plane.obj", IndexModel::PER_FACE);
-	plane_mesh.blend = true;
+	VertexLayout ver_layout;
+	ver_layout.elements.push_back(VertexLayoutElement(VertexDataType::FLOAT3));
 
-	Texture texture("../../../data/dots3.png");
+	VertexArrayObject cube_vao(ver_layout);
+	cube_vao.create();
 
-    plane = active_scene->create_entity("Plane");
-    plane.add_component<Mesh>(plane_mesh);
-    plane.add_component<SceneStatus>(false);
-    plane.add_component<Material>();
-    plane.add_component<Texture>(texture);
-    plane.add_component<Shader>(texture_shader);
-
-	Transform &pt = plane.get_component<Transform>();
-	pt.scale = vec3(24.);
-
+// 	Mesh cube_mesh("../../../data/cube.obj", IndexModel::PER_FACE);
+// 	Mesh plane_mesh("../../../data/plane.obj", IndexModel::PER_FACE);
+// 	plane_mesh.blend = true;
+//
+// 	Texture texture("../../../data/dots3.png");
+//
+//     plane = active_scene->create_entity("Plane");
+//     plane.add_component<Mesh>(plane_mesh);
+//     plane.add_component<SceneStatus>(false);
+//     plane.add_component<Material>();
+//     plane.add_component<Texture>(texture);
+//     plane.add_component<Shader>(texture_shader);
+//
+// 	Transform &pt = plane.get_component<Transform>();
+// 	pt.scale = vec3(24.);
+//
 
 	cube = active_scene->create_entity("CUBE");
-	cube.add_component<Mesh>(cube_mesh);
+
+	cube.add_component<VertexArrayObject>(cube_vao);
 	cube.add_component<Shader>(color_shader);
 	cube.add_component<Material>();
 	cube.add_component<SceneStatus>(true);
@@ -202,7 +209,7 @@ void BoxLayer::on_attach()
 	active_scene->scene_material.uniforms_vec3["u_light_direction"] = vec3(0, -1, 0);
 
 	active_scene->root_entity.add_child(&cube);
-	active_scene->root_entity.add_child(&plane);
+// 	active_scene->root_entity.add_child(&plane);
 
 }
 
@@ -215,9 +222,9 @@ void BoxLayer::on_detach()
 
 void BoxLayer::on_update(double time_delta)
 {
-	plane.get_component<Transform>().position =
-		active_scene->get_active_camera()->calculate_intersection_point(
-			vec3(0.), vec3(0., 0., 1.));
+// 	plane.get_component<Transform>().position =
+// 		active_scene->get_active_camera()->calculate_intersection_point(
+// 			vec3(0.), vec3(0., 0., 1.));
 	active_scene->get_active_camera()->move(time_delta);
 	active_scene->draw_root();
 }

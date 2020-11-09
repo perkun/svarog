@@ -202,7 +202,7 @@ void IndexModel::produce_arrays_per_face(vector<vec3> &tmp_ver,
 
 	// calculate normals if there were none
 	if (nor_idxs.size() == 0)
-		calculate_per_face_normals(ver, ver_idxs, nor);
+		calculate_per_face_normals();
 
 
 }
@@ -237,15 +237,13 @@ void IndexModel::produce_arrays_per_vertex(vector<vec3> &tmp_ver,
 
 	// calculate normals if there were none
 	if (nor_idxs.size() == 0)
-		calculate_per_vertex_normals(ver, ver_idxs, nor);
+		calculate_per_vertex_normals();
 
 
 }
 
 
-void IndexModel::calculate_per_vertex_normals(vector<vec3> &ver,
-									  		  vector<uvec3> &ver_idxs,
-								 	  		  vector<vec3> &nor)
+void IndexModel::calculate_per_vertex_normals()
 {
 	for (int i = 0; i < ver_idxs.size(); i++)
 	{
@@ -268,9 +266,7 @@ void IndexModel::calculate_per_vertex_normals(vector<vec3> &ver,
 }
 
 
-void IndexModel::calculate_per_face_normals(vector<vec3> &ver,
-									  		vector<uvec3> &ver_idxs,
-								 	  		vector<vec3> &nor)
+void IndexModel::calculate_per_face_normals()
 {
 	nor.clear();
 	nor.resize(ver_idxs.size() * 3);
@@ -316,7 +312,6 @@ Mesh::Mesh(const Mesh &other)
 
 	color = other.color;
 	blend = other.blend;
-
 }
 
 

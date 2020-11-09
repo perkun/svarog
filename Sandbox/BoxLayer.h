@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stdio.h>
 #include "EventLayer.h"
+#include "VertexArrayObject.h"
+#include "VertexLayout.h"
 
 using namespace std;
 

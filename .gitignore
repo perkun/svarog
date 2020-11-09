@@ -6,3 +6,6 @@ compile_commands.json
 graph.dot
 **/Makefile
 *.make
+*.include
+my_makefile
+imgui.ini

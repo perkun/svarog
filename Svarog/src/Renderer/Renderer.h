@@ -1,10 +1,11 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
-#include "Mesh.h"
-#include "Shader.h"
 #include <iostream>
 #include <stdio.h>
+// #include "Mesh.h"
+#include "Shader.h"
+#include "VertexArrayObject.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ class Renderer
     Renderer();
     ~Renderer();
 
-    void draw(Mesh &mesh, Shader &shader);
+    void draw(VertexArrayObject &vao, Shader &shader);
 	void clear();
 	void clear(float, float, float, float);
 
@@ -23,6 +24,7 @@ class Renderer
 
 private:
 	bool blend = false;
+	void set_blend(bool mesh_blend);
 };
 
 #endif /* RENDERER_H_ */

@@ -62,7 +62,7 @@ void Scene::on_resize(int width, int height)
 
 Transform* Scene::get_active_drawable_transform()
 {
-	auto view = registry.view<Mesh, SceneStatus>();
+	auto view = registry.view<VertexArrayObject, SceneStatus>();
 	for (auto e: view)
 	{
 		SceneStatus &ss = registry.get<SceneStatus>(e);
@@ -137,9 +137,9 @@ void Scene::draw(Entity *entity)
 		shader.set_uniforms(scene_material);
 
 
-        if (entity->has_component<Mesh>())
+        if (entity->has_component<VertexArrayObject>())
         {
-            Mesh &mesh = entity->get_component<Mesh>();
+            VertexArrayObject &mesh = entity->get_component<VertexArrayObject>();
 
 //             shader.set_uniform_mat4f("view_matrix", camera->get_view());
 //             shader.set_uniform_mat4f("perspective_matrix",
