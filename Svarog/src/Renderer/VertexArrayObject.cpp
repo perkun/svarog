@@ -7,15 +7,23 @@
 // }
 //
 
+VertexArrayObject::VertexArrayObject(IndexedModel idx_mod)
+{
+	create(idx_mod);
+}
+
+
 VertexArrayObject::~VertexArrayObject()
 {
-// 	if (created)
-// 	{
-// 		glDeleteVertexArrays(1, &vao_id);
-// 		glDeleteBuffers(1, &vbo_id);
-// 		glDeleteBuffers(1, &idxs_id);
-// 	}
+	if (created)
+	{
+		glDeleteVertexArrays(1, &vao_id);
+		glDeleteBuffers(1, &vbo_id);
+		glDeleteBuffers(1, &idxs_id);
+	}
 }
+
+
 
 // VertexArrayObject::VertexArrayObject(const VertexArrayObject &other)
 // {

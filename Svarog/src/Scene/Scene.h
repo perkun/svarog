@@ -5,7 +5,8 @@
 #include <iostream>
 #include <stdio.h>
 // #include "Mesh.h"
-#include "VertexArrayObject.h"
+// #include "VertexArrayObject.h"
+#include "Components.h"
 #include "Texture.h"
 #include "Transform.h"
 #include "Shader.h"

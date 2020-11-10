@@ -15,7 +15,7 @@ class Renderer
     Renderer();
     ~Renderer();
 
-    void draw(VertexArrayObject &vao, Shader &shader);
+    void draw(VertexArrayObject *vao, Shader *shader);
 	void clear();
 	void clear(float, float, float, float);
 

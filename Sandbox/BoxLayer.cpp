@@ -157,8 +157,8 @@ void BoxLayer::on_attach()
 	color_shader_fs[color_shader_fs_len] = 0;
 
 
-	Shader color_shader;
-	color_shader.create_shader((char*)(void*)color_shader_vs,
+	color_shader = new Shader;
+	color_shader->create_shader((char*)(void*)color_shader_vs,
 							   (char*)(void*)color_shader_fs);
 
 	#include "shaders/texture_shader.vs.include"
@@ -166,31 +166,24 @@ void BoxLayer::on_attach()
 	texture_shader_vs[texture_shader_vs_len] = 0;
 	texture_shader_fs[texture_shader_fs_len] = 0;
 //
-	Shader texture_shader;
-	texture_shader.create_shader((char*)((void*)texture_shader_vs),
+	texture_shader = new Shader;
+	texture_shader->create_shader((char*)((void*)texture_shader_vs),
 						       (char*)((void*)texture_shader_fs));
 
 
 
-	IndexedQuad quad(vec3(-12, -12, 0), vec2(24));
-	VertexArrayObject plane_vao;
-	plane_vao.create(quad);
-	plane_vao.blend = true;
+	plane_vao = new VertexArrayObject(IndexedQuad(vec3(-12, -12, 0), vec2(24)));
+	plane_vao->blend = true;
 
-	Texture texture("../../../data/dots4.png");
+	texture = new Texture("../../../data/dots4.png");
 // 	Texture tex2("../../../data/makeeva2.png");
 
     plane = active_scene->create_entity("Plane");
-    plane.add_component<VertexArrayObject>(plane_vao);
+    plane.add_component<MeshComponent>(plane_vao);
     plane.add_component<SceneStatus>(false);
     plane.add_component<Material>();
-    plane.add_component<Texture>(texture);
-    plane.add_component<Shader>(texture_shader);
-
-	Transform &pt = plane.get_component<Transform>();
-// 	pt.scale = vec3(24.);
-// 	pt.position = vec3(-12., -12., 0.);
-
+    plane.add_component<TextureComponent>(texture);
+    plane.add_component<ShaderComponent>(texture_shader);
 
 	Batch cube_batch;
 // 	IndexedCube indexed_cube(vec3(0, 0, 0), vec3(0.7));
@@ -198,16 +191,15 @@ void BoxLayer::on_attach()
 
 	srand(12313);
 	// CUBE GENERATION
-	int s = 30;
+	int s = 5;
 	for (int i = 0; i < s; i += 1)
 	for (int j = 0; j < s; j += 1)
 	for (int k = 0; k < s; k += 1)
 	{
 // 		if (rand()%2 == 0)
 // 			continue;
-
 		cube_batch.models.push_back(
-			IndexedColorCube(vec3(i-s/2, j-s/2, k-s/2), vec3(0.7),
+			IndexedColorCube(vec3(i-s/2, j-s/2, k), vec3(0.7),
 							 vec4(
 							 	normalize(vec3((rand()%100)/100.,
 							 	(rand()%100)/100.,
@@ -219,13 +211,12 @@ void BoxLayer::on_attach()
 
 	cube_batch.make_batch();
 
-	VertexArrayObject cube_vao;
-	cube_vao.create(cube_batch.batch);
-	cube_vao.blend = true;
+	cube_vao = new VertexArrayObject(cube_batch.batch);
+	cube_vao->blend = true;
 
 	cube = active_scene->create_entity("CUBE");
-	cube.add_component<VertexArrayObject>(cube_vao);
-	cube.add_component<Shader>(color_shader);
+	cube.add_component<MeshComponent>(cube_vao);
+	cube.add_component<ShaderComponent>(color_shader);
 	cube.add_component<Material>();
 	cube.add_component<SceneStatus>(true);
 
@@ -243,7 +234,11 @@ void BoxLayer::on_attach()
 
 void BoxLayer::on_detach()
 {
-
+	delete cube_vao;
+	delete plane_vao;
+	delete texture;
+	delete color_shader;
+	delete texture_shader;
 }
 
 

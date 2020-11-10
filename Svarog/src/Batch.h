@@ -16,7 +16,6 @@ public:
 	void make_batch();
 
 	vector<IndexedModel> models;
-
 	IndexedModel batch;
 };
 

@@ -37,7 +37,7 @@ Texture::Texture(string path)
 
 Texture::~Texture()
 {
-// 	destroy();
+	destroy();
 }
 
 void Texture::destroy()

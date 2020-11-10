@@ -9,6 +9,7 @@
 #include "VertexLayout.h"
 #include "Batch.h"
 #include "IndexedModel.h"
+#include "Components.h"
 
 using namespace std;
 
@@ -26,6 +27,13 @@ public:
 private:
 	Entity cube, scene_camera, plane;
 	Entity cube_array[20][20][20];
+
+	Texture *texture;
+
+	Shader *color_shader, *texture_shader;
+
+	VertexArrayObject *cube_vao;
+	VertexArrayObject *plane_vao;
 
 	double td;
 };

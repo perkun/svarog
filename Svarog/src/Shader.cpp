@@ -54,7 +54,7 @@ Shader::Shader(const Shader &other)
 
 Shader::~Shader()
 {
-// 	destroy();
+	destroy();
 }
 
 void Shader::destroy()

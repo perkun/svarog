@@ -31,13 +31,13 @@ void Renderer::set_blend(bool mesh_blend)
 
 }
 
-void Renderer::draw(VertexArrayObject &vao, Shader &shader)
+void Renderer::draw(VertexArrayObject *vao, Shader *shader)
 {
-	shader.bind();
-	set_blend(vao.blend);
+	shader->bind();
+	set_blend(vao->blend);
 
-	glBindVertexArray(vao.vao_id);
-	glDrawElements(GL_TRIANGLES, vao.num_draw_elements, GL_UNSIGNED_INT, NULL);
+	glBindVertexArray(vao->vao_id);
+	glDrawElements(GL_TRIANGLES, vao->num_draw_elements, GL_UNSIGNED_INT, NULL);
 }
 
 void Renderer::clear()
@@ -58,7 +58,6 @@ void Renderer::enable_blend()
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 }
 
 void Renderer::disable_blend()

@@ -125,36 +125,29 @@ void Scene::draw(Entity *entity)
         tr.world = pt.world * tr.local;
     }
 
-    if (entity->has_component<Shader>())
+    if (entity->has_component<ShaderComponent>())
     {
-        Shader &shader = entity->get_component<Shader>();
+        Shader *shader = entity->get_component<ShaderComponent>().shader;
 
         if (entity->has_component<Material>())
-            shader.set_uniforms(entity->get_component<Material>()); // binds shader
+            shader->set_uniforms(entity->get_component<Material>()); // binds shader
 
-		shader.set_uniform_mat4f("u_model_matrix", tr.world);  // not binding
+		shader->set_uniform_mat4f("u_model_matrix", tr.world);  // not binding
 
-		shader.set_uniforms(scene_material);
+		shader->set_uniforms(scene_material);
 
 
-        if (entity->has_component<VertexArrayObject>())
+        if (entity->has_component<MeshComponent>())
         {
-            VertexArrayObject &mesh = entity->get_component<VertexArrayObject>();
+            MeshComponent &mesh = entity->get_component<MeshComponent>();
 
-//             shader.set_uniform_mat4f("view_matrix", camera->get_view());
-//             shader.set_uniform_mat4f("perspective_matrix",
-//                                      camera->get_perspective());
-
-
-
-            if (entity->has_component<Texture>())
+            if (entity->has_component<TextureComponent>())
             {
-                Texture &t = entity->get_component<Texture>();
-                t.bind();
-                shader.set_uniform_1i("u_texture", 0);
+                entity->get_component<TextureComponent>().texture->bind();
+                shader->set_uniform_1i("u_texture", 0);
             }
 
-            renderer.draw(mesh, shader);
+            renderer.draw(mesh.vao, shader);
         }
     }
 }

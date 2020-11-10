@@ -18,6 +18,7 @@ class VertexArrayObject
 public:
 //     VertexArrayObject(VertexLayout vl);
 	VertexArrayObject() {}
+	VertexArrayObject(IndexedModel idx_mod);
 	~VertexArrayObject();
 // 	VertexArrayObject(const VertexArrayObject &other);
 
