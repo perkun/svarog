@@ -19,7 +19,7 @@ public:
 //     VertexArrayObject(VertexLayout vl);
 	VertexArrayObject() {}
 	~VertexArrayObject();
-	VertexArrayObject(const VertexArrayObject &other);
+// 	VertexArrayObject(const VertexArrayObject &other);
 
 	void create(IndexedModel&);
 
@@ -30,6 +30,9 @@ public:
 	GLuint idxs_id;
 
 	int num_draw_elements;
+	bool blend = false;
+	bool draw_type = GL_TRIANGLES;
+
 private:
 	bool created = false;
 };

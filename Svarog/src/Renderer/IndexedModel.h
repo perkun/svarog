@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <stdio.h>
-#include <vector>
+
 #include <glm/glm.hpp>
 #include "VertexLayout.h"
 
@@ -27,6 +27,43 @@ public:
 	vector<float> vertices;
 	vector<unsigned int> indices;
 };
+
+
+class IndexedQuad : public IndexedModel
+{
+public:
+	IndexedQuad();
+	IndexedQuad(vec3 position, vec2 scale);
+	~IndexedQuad() {}
+protected:
+	void create(vec3 position, vec2 scale);
+};
+
+
+class IndexedCube : public IndexedModel
+{
+public:
+	IndexedCube();
+	IndexedCube(vec3 position, vec3 scale);
+	~IndexedCube() {}
+
+protected:
+	void create(vec3 position, vec3 scale);
+};
+
+
+class IndexedColorCube : public IndexedModel
+{
+public:
+	IndexedColorCube();
+	IndexedColorCube(vec3 position, vec3 scale, vec4 color);
+	~IndexedColorCube() {}
+
+protected:
+	void create(vec3 position, vec3 scale, vec4 color);
+};
+
+
 
 
 class IndexedModelFile : public IndexedModel

@@ -1,7 +1,8 @@
 #version 330 core
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 tex_coord;
+layout(location = 2) in vec4 color;
+// layout(location = 2) in vec2 tex_coord;
 
 uniform mat4 u_model_matrix;
 uniform mat4 u_view_matrix;
@@ -11,26 +12,16 @@ uniform vec3 u_light_direction;
 out vec3 normal_world;
 out vec2 v_tex_coord;
 out vec3 light_direction;
-out float u1, u2;
-
-float frac(float x)
-{
-	return x - floor(x);
-}
+out vec4 mesh_color;
 
 void main()
 {
-	//u1 = frac( tex_coord.x );
-	//u2 = frac( tex_coord.x + 0.5 ) -0.5;
-
+	mesh_color = color;
 
 	normal_world = vec3(u_view_matrix * u_model_matrix * vec4(normal, 0.0) );
 	normal_world = normalize(normal_world);
 
 	light_direction = normalize(vec3(u_view_matrix * vec4(u_light_direction, 0.0)));
-
-
-	//v_tex_coord = tex_coord;
 
 	gl_Position = u_perspective_matrix * u_view_matrix * u_model_matrix * vec4(position, 1.0);
 }

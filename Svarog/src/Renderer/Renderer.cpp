@@ -34,7 +34,7 @@ void Renderer::set_blend(bool mesh_blend)
 void Renderer::draw(VertexArrayObject &vao, Shader &shader)
 {
 	shader.bind();
-// 	set_blend(mesh.blend);
+	set_blend(vao.blend);
 
 	glBindVertexArray(vao.vao_id);
 	glDrawElements(GL_TRIANGLES, vao.num_draw_elements, GL_UNSIGNED_INT, NULL);

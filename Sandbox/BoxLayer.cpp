@@ -170,45 +170,74 @@ void BoxLayer::on_attach()
 	texture_shader.create_shader((char*)((void*)texture_shader_vs),
 						       (char*)((void*)texture_shader_fs));
 
-	IndexedModelObj cube_indexed("../../../data/ico.obj", NormalIndexing::PER_VERTEX);
-	VertexArrayObject cube_vao;
-	cube_vao.create(cube_indexed);
 
-// 	Mesh cube_mesh("../../../data/cube.obj", IndexModel::PER_FACE);
-// 	Mesh plane_mesh("../../../data/plane.obj", IndexModel::PER_FACE);
-// 	plane_mesh.blend = true;
-//
-// 	Texture texture("../../../data/dots3.png");
-//
-//     plane = active_scene->create_entity("Plane");
-//     plane.add_component<Mesh>(plane_mesh);
-//     plane.add_component<SceneStatus>(false);
-//     plane.add_component<Material>();
-//     plane.add_component<Texture>(texture);
-//     plane.add_component<Shader>(texture_shader);
-//
-// 	Transform &pt = plane.get_component<Transform>();
+
+	IndexedQuad quad(vec3(-12, -12, 0), vec2(24));
+	VertexArrayObject plane_vao;
+	plane_vao.create(quad);
+	plane_vao.blend = true;
+
+	Texture texture("../../../data/dots4.png");
+// 	Texture tex2("../../../data/makeeva2.png");
+
+    plane = active_scene->create_entity("Plane");
+    plane.add_component<VertexArrayObject>(plane_vao);
+    plane.add_component<SceneStatus>(false);
+    plane.add_component<Material>();
+    plane.add_component<Texture>(texture);
+    plane.add_component<Shader>(texture_shader);
+
+	Transform &pt = plane.get_component<Transform>();
 // 	pt.scale = vec3(24.);
-//
+// 	pt.position = vec3(-12., -12., 0.);
+
+
+	Batch cube_batch;
+// 	IndexedCube indexed_cube(vec3(0, 0, 0), vec3(0.7));
+// 	cube_batch.models.push_back(indexed_cube);
+
+	srand(12313);
+	// CUBE GENERATION
+	int s = 30;
+	for (int i = 0; i < s; i += 1)
+	for (int j = 0; j < s; j += 1)
+	for (int k = 0; k < s; k += 1)
+	{
+// 		if (rand()%2 == 0)
+// 			continue;
+
+		cube_batch.models.push_back(
+			IndexedColorCube(vec3(i-s/2, j-s/2, k-s/2), vec3(0.7),
+							 vec4(
+							 	normalize(vec3((rand()%100)/100.,
+							 	(rand()%100)/100.,
+							 	(rand()%100)/100.)),
+							 	(rand()%100)/100. )
+							)
+		);
+	}
+
+	cube_batch.make_batch();
+
+	VertexArrayObject cube_vao;
+	cube_vao.create(cube_batch.batch);
+	cube_vao.blend = true;
 
 	cube = active_scene->create_entity("CUBE");
-
 	cube.add_component<VertexArrayObject>(cube_vao);
 	cube.add_component<Shader>(color_shader);
 	cube.add_component<Material>();
 	cube.add_component<SceneStatus>(true);
 
-	Transform &ct = cube.get_component<Transform>();
-	ct.position.z = 0.5;
-
-	Material &cm = cube.get_component<Material>();
-	cm.uniforms_vec4["u_color"] = vec4(0.6, 0.1, 0.5, 1.0 );
-
-	active_scene->scene_material.uniforms_vec3["u_light_direction"] = vec3(0, -1, 0);
+// 	Material &cm = cube.get_component<Material>();
+// 	cm.uniforms_vec4["u_color"] = vec4(0.6, 0.1, 0.5, 0.5);
+												// (rand()%80)/100. + 0.2
 
 	active_scene->root_entity.add_child(&cube);
-// 	active_scene->root_entity.add_child(&plane);
+	active_scene->root_entity.add_child(&plane);
 
+	active_scene->scene_material
+		.uniforms_vec3["u_light_direction"] = vec3(0, -1, 0);
 }
 
 
@@ -220,14 +249,19 @@ void BoxLayer::on_detach()
 
 void BoxLayer::on_update(double time_delta)
 {
-// 	plane.get_component<Transform>().position =
-// 		active_scene->get_active_camera()->calculate_intersection_point(
-// 			vec3(0.), vec3(0., 0., 1.));
+	plane.get_component<Transform>().position =
+		active_scene->get_active_camera()->calculate_intersection_point(
+			vec3(0.), vec3(0., 0., 1.));
+
 	active_scene->get_active_camera()->move(time_delta);
 	active_scene->draw_root();
+	td = time_delta;
 }
 
 void BoxLayer::on_imgui_render()
 {
+	ImGui::Begin("FPS");
+	ImGui::Text("FPS: %.3lf", 1./td);
+	ImGui::End();
 
 }

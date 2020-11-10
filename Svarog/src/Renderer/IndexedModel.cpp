@@ -1,4 +1,208 @@
 #include "IndexedModel.h"
+IndexedQuad::IndexedQuad()
+{
+	create(vec3(0.0), vec2(1.));
+}
+
+IndexedQuad::IndexedQuad(vec3 position, vec2 scale)
+{
+	create(position, scale);
+}
+
+void IndexedQuad::create(vec3 position, vec2 scale)
+{
+	float vs[] = {
+		0.0, 0.0, 0.0,    0.0, 0.0, 1.0,    0.0, 0.0,
+		1.0, 0.0, 0.0,    0.0, 0.0, 1.0,    1.0, 0.0,
+		1.0, 1.0, 0.0,    0.0, 0.0, 1.0,    1.0, 1.0,
+		0.0, 1.0, 0.0,    0.0, 0.0, 1.0,    0.0, 1.0
+	};
+
+	unsigned int fs[] = {
+		0, 1, 2,
+		0, 2, 3
+	};
+
+	int stride = 8;
+	for (int i = 0; i < 4; i++)
+	{
+		vs[i * stride + 0] *= scale.x;
+		vs[i * stride + 1] *= scale.y;
+
+		vs[i * stride + 0] += position.x;
+		vs[i * stride + 1] += position.y;
+		vs[i * stride + 2] += position.z;
+	}
+
+	vertices.assign(vs, vs + 32);
+	indices.assign(fs, fs + 6);
+
+	layout.elements.push_back(VertexDataType::FLOAT3);
+	layout.elements.push_back(VertexDataType::FLOAT3);
+	layout.elements.push_back(VertexDataType::FLOAT2);
+}
+
+
+IndexedCube::IndexedCube()
+{
+	create(vec3(0.0), vec3(1.0));
+}
+
+IndexedCube::IndexedCube(vec3 position, vec3 scale)
+{
+	create(position, scale);
+}
+
+void IndexedCube::create(vec3 position, vec3 scale)
+{
+    float vs[] = {
+        0, 1, 1, 0,  0,  1,  0.875, 0.5,
+		1, 0, 1, 0,  0,  1,  0.625, 0.75,
+        1, 1, 1, 0,  0,  1,  0.625, 0.5,
+		1, 0, 1, 0,  -1, 0,  0.625, 0.75,
+        0, 0, 0, 0,  -1, 0,  0.375, 1,
+		1, 0, 0, 0,  -1, 0,  0.375, 0.75,
+        0, 0, 1, -1, 0,  0,  0.625, 0,
+		0, 1, 0, -1, 0,  0,  0.375, 0.25,
+        0, 0, 0, -1, 0,  0,  0.375, 0,
+		1, 1, 0, 0,  0,  -1, 0.375, 0.5,
+        0, 0, 0, 0,  0,  -1, 0.125, 0.75,
+		0, 1, 0, 0,  0,  -1, 0.125, 0.5,
+        1, 1, 1, 1,  0,  0,  0.625, 0.5,
+		1, 0, 0, 1,  0,  0,  0.375, 0.75,
+        1, 1, 0, 1,  0,  0,  0.375, 0.5,
+		0, 1, 1, 0,  1,  0,  0.625, 0.25,
+        1, 1, 0, 0,  1,  0,  0.375, 0.5,
+		0, 1, 0, 0,  1,  0,  0.375, 0.25,
+        0, 1, 1, 0,  0,  1,  0.875, 0.5,
+		0, 0, 1, 0,  0,  1,  0.875, 0.75,
+        1, 0, 1, 0,  0,  1,  0.625, 0.75,
+		1, 0, 1, 0,  -1, 0,  0.625, 0.75,
+        0, 0, 1, 0,  -1, 0,  0.625, 1,
+		0, 0, 0, 0,  -1, 0,  0.375, 1,
+        0, 0, 1, -1, 0,  0,  0.625, 0,
+		0, 1, 1, -1, 0,  0,  0.625, 0.25,
+        0, 1, 0, -1, 0,  0,  0.375, 0.25,
+		1, 1, 0, 0,  0,  -1, 0.375, 0.5,
+        1, 0, 0, 0,  0,  -1, 0.375, 0.75,
+		0, 0, 0, 0,  0,  -1, 0.125, 0.75,
+        1, 1, 1, 1,  0,  0,  0.625, 0.5,
+		1, 0, 1, 1,  0,  0,  0.625, 0.75,
+        1, 0, 0, 1,  0,  0,  0.375, 0.75,
+		0, 1, 1, 0,  1,  0,  0.625, 0.25,
+        1, 1, 1, 0,  1,  0,  0.625, 0.5,
+		1, 1, 0, 0,  1,  0,  0.375, 0.5
+	};
+
+    unsigned int fs[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
+    };
+
+	int stride = 8;
+	for (int i = 0; i < 36; i++)
+	{
+		vs[i * stride + 0] *= scale.x;
+		vs[i * stride + 1] *= scale.y;
+		vs[i * stride + 2] *= scale.z;
+
+		vs[i * stride + 0] += position.x;
+		vs[i * stride + 1] += position.y;
+		vs[i * stride + 2] += position.z;
+	}
+
+	vertices.assign(vs, vs + stride * 36);
+	indices.assign(fs, fs + 36);
+
+	layout.elements.push_back(VertexDataType::FLOAT3);
+	layout.elements.push_back(VertexDataType::FLOAT3);
+	layout.elements.push_back(VertexDataType::FLOAT2);
+}
+
+
+
+IndexedColorCube::IndexedColorCube()
+{
+	create(vec3(0.), vec3(1.0), vec4(1.0));
+}
+
+IndexedColorCube::IndexedColorCube(vec3 position, vec3 scale, vec4 color)
+{
+	create(position, scale, color);
+}
+
+void IndexedColorCube::create(vec3 position, vec3 scale, vec4 color)
+{
+    float vs[] = {
+        0, 1, 1, 0,  0,  1,  1, 1, 1, 1,
+		1, 0, 1, 0,  0,  1,  1, 1, 1, 1,
+        1, 1, 1, 0,  0,  1,  1, 1, 1, 1,
+		1, 0, 1, 0,  -1, 0,  1, 1, 1, 1,
+        0, 0, 0, 0,  -1, 0,  1, 1, 1, 1,
+		1, 0, 0, 0,  -1, 0,  1, 1, 1, 1,
+        0, 0, 1, -1, 0,  0,  1, 1, 1, 1,
+		0, 1, 0, -1, 0,  0,  1, 1, 1, 1,
+        0, 0, 0, -1, 0,  0,  1, 1, 1, 1,
+		1, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
+        0, 0, 0, 0,  0,  -1, 1, 1, 1, 1,
+		0, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
+        1, 1, 1, 1,  0,  0,  1, 1, 1, 1,
+		1, 0, 0, 1,  0,  0,  1, 1, 1, 1,
+        1, 1, 0, 1,  0,  0,  1, 1, 1, 1,
+		0, 1, 1, 0,  1,  0,  1, 1, 1, 1,
+        1, 1, 0, 0,  1,  0,  1, 1, 1, 1,
+		0, 1, 0, 0,  1,  0,  1, 1, 1, 1,
+        0, 1, 1, 0,  0,  1,  1, 1, 1, 1,
+		0, 0, 1, 0,  0,  1,  1, 1, 1, 1,
+        1, 0, 1, 0,  0,  1,  1, 1, 1, 1,
+		1, 0, 1, 0,  -1, 0,  1, 1, 1, 1,
+        0, 0, 1, 0,  -1, 0,  1, 1, 1, 1,
+		0, 0, 0, 0,  -1, 0,  1, 1, 1, 1,
+        0, 0, 1, -1, 0,  0,  1, 1, 1, 1,
+		0, 1, 1, -1, 0,  0,  1, 1, 1, 1,
+        0, 1, 0, -1, 0,  0,  1, 1, 1, 1,
+		1, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
+        1, 0, 0, 0,  0,  -1, 1, 1, 1, 1,
+		0, 0, 0, 0,  0,  -1, 1, 1, 1, 1,
+        1, 1, 1, 1,  0,  0,  1, 1, 1, 1,
+		1, 0, 1, 1,  0,  0,  1, 1, 1, 1,
+        1, 0, 0, 1,  0,  0,  1, 1, 1, 1,
+		0, 1, 1, 0,  1,  0,  1, 1, 1, 1,
+        1, 1, 1, 0,  1,  0,  1, 1, 1, 1,
+		1, 1, 0, 0,  1,  0,  1, 1, 1, 1
+	};
+    unsigned int fs[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
+    };
+
+	int stride = 10;
+	for (int i = 0; i < 36; i++)
+	{
+		vs[i * stride + 0] *= scale.x;
+		vs[i * stride + 1] *= scale.y;
+		vs[i * stride + 2] *= scale.z;
+
+		vs[i * stride + 0] += position.x;
+		vs[i * stride + 1] += position.y;
+		vs[i * stride + 2] += position.z;
+
+		vs[i * stride + 6] = color.x;
+		vs[i * stride + 7] = color.y;
+		vs[i * stride + 8] = color.z;
+		vs[i * stride + 9] = color.w;
+	}
+
+	vertices.assign(vs, vs + (stride * 36));
+	indices.assign(fs, fs + 36);
+
+	layout.elements.push_back(VertexDataType::FLOAT3);
+	layout.elements.push_back(VertexDataType::FLOAT3);
+	layout.elements.push_back(VertexDataType::FLOAT4);
+
+}
+
+
 
 
 IndexedModelObj::IndexedModelObj(string filename, NormalIndexing mode)
@@ -323,7 +527,7 @@ void IndexedModelFile::prepare_vertices_and_indices()
 			for (int j = 0; j < 3; j++)
 			{
 				vertices[i * stride + j + offset] = nor[i][j];
-				cout << nor[i][j] << ", ";
+// 				cout << nor[i][j] << ", ";
 			}
 			offset += 3;
 		}
@@ -337,7 +541,7 @@ void IndexedModelFile::prepare_vertices_and_indices()
 			offset += 2;
 		}
 
-		cout  << "\n";
+// 		cout  << "\n";
 	}
 
 	indices.resize(pos_idxs.size() * 3);
@@ -346,4 +550,18 @@ void IndexedModelFile::prepare_vertices_and_indices()
 		for (int j = 0; j < 3; j++)
 			indices[i * 3 + j] = pos_idxs[i][j];
 	}
+
+
+// 	cout << "vertices:" << endl;
+// 	for (float v: vertices)
+// 		cout << v << ", ";
+// 	cout << "indices:" << endl;
+// 	for (float i: indices)
+// 		cout << i << ", ";
+// 	cout << endl;
+// 	cout << endl;
 }
+
+
+
+

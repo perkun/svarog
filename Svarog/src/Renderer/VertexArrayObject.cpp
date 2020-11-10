@@ -17,16 +17,16 @@ VertexArrayObject::~VertexArrayObject()
 // 	}
 }
 
-VertexArrayObject::VertexArrayObject(const VertexArrayObject &other)
-{
-	vao_id = other.vao_id;
-	vbo_id = other.vbo_id;
-	idxs_id = other.idxs_id;
-
-	num_draw_elements = other.num_draw_elements;
-	created = other.created;
-// 	vertices_layout = other.vertices_layout;
-}
+// VertexArrayObject::VertexArrayObject(const VertexArrayObject &other)
+// {
+// 	vao_id = other.vao_id;
+// 	vbo_id = other.vbo_id;
+// 	idxs_id = other.idxs_id;
+//
+// 	num_draw_elements = other.num_draw_elements;
+// 	created = other.created;
+// // 	vertices_layout = other.vertices_layout;
+// }
 
 void VertexArrayObject::create(IndexedModel &indexed_model)
 {
@@ -39,7 +39,7 @@ void VertexArrayObject::create(IndexedModel &indexed_model)
 //     int indices[] = {0, 1, 4, 1, 5, 4, 1, 2, 5, 2, 6, 5, 3, 1, 0, 3, 2, 1,
 //                      3, 4, 7, 3, 0, 4, 7, 2, 3, 6, 2, 7, 4, 5, 7, 7, 5, 6};
 //
-	num_draw_elements = indexed_model.indices.size() * 6;
+	num_draw_elements = indexed_model.indices.size() * 3;
 
 
     // create VAO
@@ -55,12 +55,11 @@ void VertexArrayObject::create(IndexedModel &indexed_model)
 				 &indexed_model.vertices[0],
                  GL_STATIC_DRAW);
 
-    unsigned int buffer_index = 0;
-    glEnableVertexAttribArray(buffer_index);
-    // bind to current VAO
+//     unsigned int buffer_index = 0;
 	unsigned int location_index = 0;
     for (VertexLayoutElement &vle : indexed_model.layout.elements)
     {
+    	glEnableVertexAttribArray(location_index);
         glVertexAttribPointer(location_index, vle.get_num_components(),
                               vle.get_gl_type(), GL_FALSE,
                               indexed_model.layout.stride, (void *)vle.offset);
