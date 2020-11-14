@@ -40,6 +40,11 @@ public:
 	void create_shader(const char *vertex_shader_source,
 					   const char *fragment_shader_source);
 
+	void create_shader(const char *vertex_shader_source,
+					   const char *geometry_shader_source,
+					   const char *fragment_shader_source);
+
+
 // 	void create_shader(const unsigned char *vertex_shader_source,
 // 					   const unsigned char *fragment_shader_source);
 

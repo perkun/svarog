@@ -101,12 +101,12 @@ unsigned int Shader::compile_shader(unsigned int type, const char *source)
     return id;
 }
 
-void Shader::create_shader(const char *vertex_shader,
-                           const char *fragment_shader)
+void Shader::create_shader(const char *vertex_shader_source,
+                           const char *fragment_shader_source)
 {
     program = glCreateProgram();
-    unsigned int vs = compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    unsigned int fs = compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    unsigned int vs = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
+    unsigned int fs = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
 
     glAttachShader(program, vs);
     glAttachShader(program, fs);
@@ -114,6 +114,27 @@ void Shader::create_shader(const char *vertex_shader,
     glValidateProgram(program);
 
     glDeleteShader(vs);
+    glDeleteShader(fs);
+}
+
+
+void Shader::create_shader(const char *vertex_shader_source,
+						   const char *geometry_shader_source,
+						   const char *fragment_shader_source)
+{
+    program = glCreateProgram();
+    unsigned int vs = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
+    unsigned int gs = compile_shader(GL_GEOMETRY_SHADER, geometry_shader_source);
+    unsigned int fs = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
+
+    glAttachShader(program, vs);
+    glAttachShader(program, gs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
+    glValidateProgram(program);
+
+    glDeleteShader(vs);
+    glDeleteShader(gs);
     glDeleteShader(fs);
 }
 
@@ -156,7 +177,7 @@ void Shader::set_uniform_mat4f(string name, mat4 data)
 void Shader::set_uniform_1f(string name, float data)
 {
 //     bind();
-    glUniform1i(get_uniform_location(name), data);
+    glUniform1f(get_uniform_location(name), data);
 }
 
 void Shader::set_uniform_1i(string name, int data)
@@ -190,6 +211,10 @@ void Shader::set_uniforms(Material &material)
 		set_uniform_1i(u.first, u.second);
 	}
 
+	for (auto u: material.uniforms_float)
+	{
+		set_uniform_1f(u.first, u.second);
+	}
 
 
 //     	if (uni.second.type == INT)

@@ -152,13 +152,16 @@ void BoxLayer::on_attach()
 
 
 	#include "shaders/color_shader.vs.include"
+	#include "shaders/explode.gs.include"
 	#include "shaders/color_shader.fs.include"
 	color_shader_vs[color_shader_vs_len] = 0;
+	explode_gs[explode_gs_len] = 0;
 	color_shader_fs[color_shader_fs_len] = 0;
 
 
 	color_shader = new Shader;
 	color_shader->create_shader((char*)(void*)color_shader_vs,
+							   (char*)(void*)explode_gs,
 							   (char*)(void*)color_shader_fs);
 
 	#include "shaders/texture_shader.vs.include"
@@ -191,10 +194,10 @@ void BoxLayer::on_attach()
 
 	srand(12313);
 	// CUBE GENERATION
-	int s = 5;
+	int s = 1;
+	for (int k = 0; k < s; k += 1)
 	for (int i = 0; i < s; i += 1)
 	for (int j = 0; j < s; j += 1)
-	for (int k = 0; k < s; k += 1)
 	{
 // 		if (rand()%2 == 0)
 // 			continue;
@@ -247,6 +250,8 @@ void BoxLayer::on_update(double time_delta)
 	plane.get_component<Transform>().position =
 		active_scene->get_active_camera()->calculate_intersection_point(
 			vec3(0.), vec3(0., 0., 1.));
+
+	active_scene->scene_material.uniforms_float["time"] = glfwGetTime();
 
 	active_scene->get_active_camera()->move(time_delta);
 	active_scene->draw_root();

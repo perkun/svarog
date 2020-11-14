@@ -14,9 +14,14 @@ out vec2 v_tex_coord;
 out vec3 light_direction;
 out vec4 mesh_color;
 
+// out VS_OUT {
+//     vec2 texCoords;
+// } vs_out;
+
 void main()
 {
 	mesh_color = color;
+
 
 	normal_world = vec3(u_view_matrix * u_model_matrix * vec4(normal, 0.0) );
 	normal_world = normalize(normal_world);

@@ -70,6 +70,7 @@ public:
 	map<string, vec3> uniforms_vec3;
 	map<string, mat4> uniforms_mat4;
 	map<string, int>  uniforms_int;
+	map<string, float>  uniforms_float;
 
 };
 

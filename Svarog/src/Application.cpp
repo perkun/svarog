@@ -43,8 +43,8 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
         cout << "glew init failed" << endl;
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+//     glEnable(GL_CULL_FACE);
+//     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
 
