@@ -263,5 +263,4 @@ void BoxLayer::on_imgui_render()
 	ImGui::Begin("FPS");
 	ImGui::Text("FPS: %.3lf", 1./td);
 	ImGui::End();
-
 }

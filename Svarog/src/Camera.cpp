@@ -1,25 +1,39 @@
 #include "Camera.h"
 
 
-Camera::Camera(const glm::vec3 pos, glm::vec3 target, float fov, float aspect,
-               float zNear, float zFar)
-    : position(pos), fov(fov), aspect(aspect), z_near(zNear),
-      z_far(zFar)
+
+Camera::Camera()
 {
-	up = vec3(0, 0, 1);
-
-	front = normalize(target - position);
-	right = normalize(cross(front, up));
-	up = normalize(cross(right, front));
-
-
-	update();
 }
 
 
 Camera::~Camera()
 {
 }
+
+void Camera::init(vec3 target)
+{
+	up = vec3(0, 0, 1);
+	front = normalize(target - position);
+	up = normalize(cross(right, front));
+
+	if ( length(cross(front, up)) < 0.0001)
+		up = vec3( rotate((float)(-M_PI_2), vec3(1., 0., 0.)) * vec4(up, 1.));
+		up = vec3(0., 1., 0.);
+
+	update();
+}
+
+void Camera::update()
+{
+	right = normalize(cross(front, up));
+	right.z = 0.0;
+	up = normalize(cross(right, front));
+
+	view = glm::lookAt(position, position + front, up);
+	calculate_perspective_matrix();
+}
+
 
 
 mat4 Camera::get_perspective()
@@ -44,16 +58,14 @@ void Camera::move_backwards(double time_delta)
 	position -= front * (float)(time_delta * speed);
 }
 
-
-void Camera::pan_forwards(double time_delta)
+void Camera::move_up(double time_delta)
 {
-	position += vec3(vec2(front * (float)(time_delta * speed)), 0.);
+	position += up * (float)(time_delta * speed);
 }
 
-
-void Camera::pan_backwards(double time_delta)
+void Camera::move_down(double time_delta)
 {
-	position -= vec3(vec2(front * (float)(time_delta * speed)), 0.);
+	position -= up * (float)(time_delta * speed);
 }
 
 
@@ -66,6 +78,31 @@ void Camera::move_right(double time_delta)
 {
 	position += right * (float)(time_delta * speed);
 }
+
+
+
+void Camera::pan_right(double time_delta)
+{
+	position += vec3(vec2(right * (float)(time_delta * speed)), 0.);
+}
+
+
+void Camera::pan_left(double time_delta)
+{
+	position -= vec3(vec2(right * (float)(time_delta * speed)), 0.);
+}
+
+void Camera::pan_forwards(double time_delta)
+{
+	position += vec3(vec2(front * (float)(time_delta * speed)), 0.);
+}
+
+
+void Camera::pan_backwards(double time_delta)
+{
+	position -= vec3(vec2(front * (float)(time_delta * speed)), 0.);
+}
+
 
 
 void Camera::pitch(float shift_y)
@@ -139,6 +176,18 @@ void Camera::move(double time_delta)
         refresh = true;
     }
 
+    if (is_panning_left)
+    {
+        pan_left(time_delta);
+        refresh = true;
+    }
+
+    if (is_panning_right)
+    {
+        pan_right(time_delta);
+        refresh = true;
+    }
+
     if (is_panning_forwards)
     {
         pan_forwards(time_delta);
@@ -150,6 +199,7 @@ void Camera::move(double time_delta)
         pan_backwards(time_delta);
         refresh = true;
     }
+
 
     if (is_moving_left)
     {
@@ -163,23 +213,94 @@ void Camera::move(double time_delta)
         refresh = true;
     }
 
+    if (is_moving_up)
+    {
+        move_up(time_delta);
+        refresh = true;
+    }
+
+    if (is_moving_down)
+    {
+        move_down(time_delta);
+        refresh = true;
+    }
+
     if (refresh)
     {
         update();
     }
 }
 
-
-void Camera::update()
+void Camera::calculate_perspective_matrix()
 {
-
-
-	right = normalize(cross(front, up));
-	right.z = 0.0;
-	up = normalize(cross(right, front));
-
-
-	view = glm::lookAt(position, position + front, up);
-	perspective = glm::perspective(fov, aspect, z_near, z_far);
+//     perspective = glm::perspective(fov, aspect, z_near, z_far);
 }
 
+
+// PERSPECTIVE CAMERA
+
+PerspectiveCamera::PerspectiveCamera(const glm::vec3 pos, glm::vec3 target,
+                                     float fov, float aspect, float zNear,
+                                     float zFar)
+
+{
+	this->position = pos;
+	this->fov = fov;
+	this->aspect = aspect;
+	this->view_box_z_near = zNear;
+	this->view_box_z_far = zFar;
+
+    init(target);
+}
+
+PerspectiveCamera::~PerspectiveCamera()
+{
+}
+
+void PerspectiveCamera::calculate_perspective_matrix()
+{
+    perspective = glm::perspective(fov, aspect, view_box_z_near, view_box_z_far);
+}
+
+
+// ORTHOGONAL CAMERA
+//
+
+OrthogonalCamera::OrthogonalCamera(const glm::vec3 pos, glm::vec3 target,
+                                   float size_x, float aspect,
+                                   float view_box_zNear, float view_box_zFar)
+{
+    this->position = pos;
+    this->view_box_z_near = view_box_zNear;
+    this->view_box_z_far = view_box_zFar;
+	this->aspect = aspect;
+	this->size_x = size_x;
+
+	view_box_left = -size_x / 2.0;
+	view_box_right = size_x / 2.0;
+
+	view_box_top = size_x / 2.0 / aspect;
+	view_box_bottom = -size_x / 2.0 / aspect;
+
+//     this->view_box_top = view_box_top;
+//     this->view_box_bottom = view_box_bottom;
+
+//     this->view_box_left = view_box_left;
+//     this->view_box_right = view_box_right;
+
+	aspect = (view_box_right - view_box_left) / (view_box_top - view_box_bottom);
+
+    init(target);
+}
+
+void OrthogonalCamera::calculate_perspective_matrix()
+{
+	view_box_left = -size_x / 2.0;
+	view_box_right = size_x / 2.0;
+
+	view_box_top = size_x / 2.0 / aspect;
+	view_box_bottom = -size_x / 2.0 / aspect;
+
+    perspective = glm::ortho(view_box_left, view_box_right, view_box_bottom,
+                             view_box_top, view_box_z_near, view_box_z_far);
+}

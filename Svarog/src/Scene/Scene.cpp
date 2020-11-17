@@ -23,14 +23,16 @@ Entity Scene::create_entity(string name)
 
 void Scene::on_resize(int width, int height)
 {
-	auto view = registry.view<Camera>();
-	for (auto e: view)
-	{
-		Camera &camera = registry.get<Camera>(e);
-		camera.aspect = width / (float)height;
-		camera.update();
-	}
+// 	auto view = registry.view<Camera>();
+// 	for (auto e: view)
+// 	{
+// 		Camera &camera = registry.get<Camera>(e);
+// 		camera.aspect = width / (float)height;
+// 		camera.update();
+// 	}
 
+	camera->aspect = width / (float)height;
+	camera->update();
 }
 
 
@@ -75,18 +77,6 @@ Transform* Scene::get_active_drawable_transform()
 	return NULL;
 }
 
-Camera *Scene::get_active_camera()
-{
-	auto view = registry.view<Camera, SceneStatus>();
-	for (auto e: view)
-	{
-		if (registry.get<SceneStatus>(e).active)
-		{
-			return &registry.get<Camera>(e);
-		}
-	}
-	return NULL;
-}
 
 Light* Scene::get_active_light()
 {
@@ -110,8 +100,6 @@ void Scene::draw(Entity *entity)
         if (!scene_status.render)
             return;
     }
-
-    Camera *camera = get_active_camera();
 
     // update local transform, then multiply by parent.local
     Transform &tr = entity->get_component<Transform>();
@@ -165,7 +153,6 @@ void Scene::draw_depth_first(Entity *entity)
 
 void Scene::draw_root()
 {
-    Camera *camera = get_active_camera();
     if (camera == NULL)
     {
         cout << "No active Camera set, not rendering" << endl;

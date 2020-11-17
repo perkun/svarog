@@ -126,7 +126,8 @@ void EventLayer::on_key_released_event(KeyReleasedEvent &event)
 void EventLayer::on_mouse_scrolled_event(MouseScrolledEvent &event)
 {
 	vec2 offset = event.get_offset();
-	mouse_scrolled_action(this, offset);
+	if (mouse_scrolled_action != NULL)
+		mouse_scrolled_action(this, offset);
 }
 
 void EventLayer::on_curosr_moved_event(MouseMovedEvent &event)

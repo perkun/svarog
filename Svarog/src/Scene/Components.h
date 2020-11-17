@@ -18,6 +18,7 @@ public:
 	VertexArrayObject *vao = NULL;
 };
 
+
 class TextureComponent
 {
 public:
@@ -37,5 +38,18 @@ public:
 	Shader *shader;
 
 };
+
+class SceneStatus
+{
+public:
+	SceneStatus();
+    SceneStatus(bool, bool r = true);
+	~SceneStatus();
+
+	bool active;
+	bool render = true;
+};
+
+
 
 #endif /* SCENE/COMPONENTS_H_ */

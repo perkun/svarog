@@ -14,7 +14,6 @@
 #include "Renderer.h"
 #include "Light.h"
 #include "vendor/entt/entt.hpp"
-#include "SceneStatus.h"
 #include "Entity.h"
 
 using namespace std;
@@ -36,17 +35,13 @@ public:
 	void on_resize(int, int);
 	void draw_root();
 
-// 	void set_active_entity(Entity*);
-
-	Camera* get_active_camera();
 	Light* get_active_light();
 	Transform* get_active_drawable_transform();
 
 	Material scene_material;
-// 	Entity* set_active_camera(Entity*);
-
 	Renderer renderer;
 	Entity root_entity;
+	Camera *camera;
 private:
 	Entity *active_entity;
 // 	Entity* get_active_depth_first(Entity*);
