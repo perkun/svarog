@@ -113,29 +113,25 @@ void Scene::draw(Entity *entity)
         tr.world = pt.world * tr.local;
     }
 
-    if (entity->has_component<ShaderComponent>())
+    if (entity->has_component<Material>())
     {
-        Shader *shader = entity->get_component<ShaderComponent>().shader;
+		Material &material = entity->get_component<Material>();
+		material.uniforms_mat4["u_model_matrix"] = tr.world;
 
-        if (entity->has_component<Material>())
-            shader->set_uniforms(entity->get_component<Material>()); // binds shader
+		if (entity->has_component<TextureComponent>())
+			entity->get_component<TextureComponent>().texture->bind();
 
-		shader->set_uniform_mat4f("u_model_matrix", tr.world);  // not binding
+		material.set_uniforms();  // binds and sets
 
-		shader->set_uniforms(scene_material);
+		scene_material.set_uniforms(material.shader);
 
 
         if (entity->has_component<MeshComponent>())
         {
             MeshComponent &mesh = entity->get_component<MeshComponent>();
 
-            if (entity->has_component<TextureComponent>())
-            {
-                entity->get_component<TextureComponent>().texture->bind();
-                shader->set_uniform_1i("u_texture", 0);
-            }
 
-            renderer.draw(mesh.vao, shader);
+            renderer.draw(mesh.vao, material.shader);
         }
     }
 }

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <map>
 #include <glm/glm.hpp>
+#include "Shader.h"
 
 using namespace std;
 using namespace glm;
@@ -21,25 +22,6 @@ enum UniformType {
 };
 
 
-// class UniformData
-// {
-// public:
-// 	UniformData() {}
-// 	UniformData(int type, void *data)
-// 		: type(type), data(data) {}
-//
-// 	UniformData(const UniformData &other) {
-// 		data = other.data;
-// 		type = other.type;
-// 	}
-//
-// 	void set_data(void *d) { data = d; }
-// 	void set_type(int t) { type = t; }
-//
-// 	int type;
-// 	void* data;
-// };
-
 struct UniformData
 {
 	UniformType type;
@@ -55,16 +37,17 @@ struct Uniform
 };
 
 
-class Shader;
 
 class Material
 {
 public:
-    Material();
+	Material();
+    Material(Shader*);
 	~Material();
 
 	Shader *shader;
-// 	map<string, UniformData> uniforms;
+	void set_uniforms();
+	void set_uniforms(Shader*);
 
 	map<string, vec4> uniforms_vec4;
 	map<string, vec3> uniforms_vec3;

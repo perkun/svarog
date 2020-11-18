@@ -173,9 +173,9 @@ void ShadowsLayer::on_attach()
 	color_shader = new Shader;
 	color_shader->create_shader((char*)((void*)basic_shader_vs), (char*)(void*)basic_shader_fs);
 
-//     plane_texture = new ImgTexture("../../../data/dots4.png");
-    plane_texture = new ImgTexture("../../../data/forest.jpg");
-    asteroid_texture = new ImgTexture("../../../data/surface2.jpg");
+    plane_texture = new ImgTexture("../../../data/dots4.png");
+//     plane_texture = new ImgTexture("../../../data/forest.jpg");
+    asteroid_texture = new ImgTexture("../../../data/horsehead.jpeg");
 
     plane_vao =
         new VertexArrayObject(IndexedQuad(vec3(-10., -10., 0.), vec2(20.)));
@@ -189,22 +189,22 @@ void ShadowsLayer::on_attach()
     plane = active_scene->create_entity("Plain");
     plane.add_component<MeshComponent>(plane_vao);
     plane.add_component<TextureComponent>(plane_texture);
-    plane.add_component<ShaderComponent>(shader);
     plane.add_component<SceneStatus>(false);
-    plane.add_component<Material>();
+    plane.add_component<Material>(shader);
+	plane.get_component<Material>().uniforms_int["u_texture"] = 0;
 
     asteroid = active_scene->create_entity("Aster");
     asteroid.add_component<MeshComponent>(asteroid_vao);
     asteroid.add_component<TextureComponent>(asteroid_texture);
-    asteroid.add_component<ShaderComponent>(shader);
     asteroid.add_component<SceneStatus>(true);
-    asteroid.add_component<Material>();
+    asteroid.add_component<Material>(shader);
+	asteroid.get_component<Material>().uniforms_int["u_texture"] = 0;
 
 	cube = active_scene->create_entity("Cube");
     cube.add_component<MeshComponent>(cube_vao);
-    cube.add_component<ShaderComponent>(color_shader);
     cube.add_component<SceneStatus>(true);
-    cube.add_component<Material>();
+    cube.add_component<Material>(color_shader);
+	cube.get_component<Material>().uniforms_int["u_texture"] = 0;
 
 	Material &cmt = cube.get_component<Material>();
 	cmt.uniforms_vec4["u_color"] = vec4(0.3, 0.7, 0.12, 1.);

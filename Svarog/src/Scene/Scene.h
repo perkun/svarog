@@ -15,6 +15,7 @@
 #include "Light.h"
 #include "vendor/entt/entt.hpp"
 #include "Entity.h"
+#include "Material.h"
 
 using namespace std;
 
