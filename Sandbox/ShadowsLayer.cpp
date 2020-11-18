@@ -247,10 +247,9 @@ void ShadowsLayer::on_update(double time_delta)
 
 	light_camera->update_target(vec3(0.));
 
-
-
 	active_scene->camera->move(time_delta);
 
+	// render from light perspective
 	active_scene->camera = light_camera;
 	shadow_fb->bind();
 	shadow_fb->clear();
