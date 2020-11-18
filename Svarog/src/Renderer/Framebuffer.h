@@ -23,6 +23,7 @@ class Framebuffer
     void invalidate();
 
     void bind();
+	void bind_depth_texture(unsigned int slot);
     void clear();
     void unbind();
 

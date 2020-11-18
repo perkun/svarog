@@ -40,6 +40,8 @@ public:
 
 	bool is_rotating = false;
 
+	void update_target(vec3);
+
 	void move_forwards(double);
 	void move_backwards(double);
 	void move_left(double);

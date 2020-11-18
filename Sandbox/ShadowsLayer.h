@@ -1,5 +1,5 @@
-#ifndef BOXLAYER_H_
-#define BOXLAYER_H_
+#ifndef SHADOWSLAYER_H_
+#define SHADOWSLAYER_H_
 
 #include <iostream>
 #include <stdio.h>
@@ -13,11 +13,11 @@
 
 using namespace std;
 
-class BoxLayer : public EventLayer
+class ShadowsLayer : public EventLayer
 {
 public:
-    BoxLayer();
-	~BoxLayer();
+    ShadowsLayer();
+	~ShadowsLayer();
 
 	virtual void on_attach() override;
 	virtual void on_detach() override;
@@ -25,18 +25,18 @@ public:
 	virtual void on_imgui_render() override;
 
 private:
-	Entity cube, scene_camera, plane;
-	Entity cube_array[20][20][20];
-
-	Texture *texture;
-
-	Shader *color_shader, *texture_shader;
-
-	VertexArrayObject *cube_vao;
-	VertexArrayObject *plane_vao;
-
 	double td;
+	Camera *camera, *light_camera;
+	VertexArrayObject *plane_vao, *asteroid_vao, *cube_vao;
+
+	ImgTexture *plane_texture, *asteroid_texture;
+
+	Shader *shader, *color_shader;
+
+	Entity plane, asteroid, cube;
+
+	Framebuffer *shadow_fb;
+
 };
 
-#endif /* BOXLAYER_H_ */
-
+#endif

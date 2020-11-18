@@ -82,3 +82,10 @@ void Framebuffer::resize(unsigned int width, unsigned int height)
 
     invalidate();
 }
+
+
+void Framebuffer::bind_depth_texture(unsigned int slot)
+{
+	glActiveTexture(GL_TEXTURE0 + slot);
+	glBindTexture(GL_TEXTURE_2D, depth_attachment);
+}

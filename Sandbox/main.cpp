@@ -8,7 +8,8 @@
 
 #include "Application.h"
 // #include "MyLayer.h"
-#include "BoxLayer.h"
+// #include "BoxLayer.h"
+#include "ShadowsLayer.h"
 #include <cmdlineargs/ArgumentHandler.h>
 
 
@@ -45,7 +46,8 @@ int main(int argc, char *argv[])
 
 // 	Application::push_layer(my_layer);
 // 	Application::push_layer(new MyLayer);
-	Application::push_layer(new BoxLayer);
+// 	Application::push_layer(new BoxLayer);
+	Application::push_layer(new ShadowsLayer);
 
 	// RENDER LOOP
 	Application::rendering_loop(GlfwEventMethod::POLL);

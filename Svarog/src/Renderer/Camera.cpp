@@ -13,15 +13,21 @@ Camera::~Camera()
 
 void Camera::init(vec3 target)
 {
-	up = vec3(0, 0, 1);
+	up = vec3(0., 0., 1.);
 	front = normalize(target - position);
-	up = normalize(cross(right, front));
+// 	up = normalize(cross(right, front));
 
-	if ( length(cross(front, up)) < 0.0001)
-		up = vec3( rotate((float)(-M_PI_2), vec3(1., 0., 0.)) * vec4(up, 1.));
-		up = vec3(0., 1., 0.);
+// 	if ( length(cross(front, up)) < 0.0001)
+// 		up = vec3( rotate((float)(-M_PI_2), vec3(1., 0., 0.)) * vec4(up, 1.));
+
+// 	up = vec3(0., 1., 0.);
 
 	update();
+}
+
+void Camera::update_target(vec3 new_target)
+{
+	init(new_target);
 }
 
 void Camera::update()

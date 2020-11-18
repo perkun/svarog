@@ -21,7 +21,7 @@ void main()
 	float d = dot( normal_world, vec3(0, 0, 1) );
 	d = max(d, 0);
  	//color = u_color  * d * texture2D(u_texture, v_tex_coord);
- 	color = d * texture2D(u_texture, tex_coord);
+ 	color = d * u_color;
 	//color = vec4(1.0);
 	//color.x = v_tex_coord.x;
 	//color.y = v_tex_coord.y;

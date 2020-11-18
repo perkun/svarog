@@ -22,11 +22,13 @@ ifeq ($(config),debug)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Debug/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
+  LIBS += ../bin/Debug/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio
   LDDEPS += ../bin/Debug/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
+	@echo Running prebuild commands
+	cd shaders; ./to-hex-include
   endef
   define PRELINKCMDS
   endef
@@ -49,11 +51,13 @@ ifeq ($(config),release)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Release/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
+  LIBS += ../bin/Release/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio
   LDDEPS += ../bin/Release/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64 -s
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
+	@echo Running prebuild commands
+	cd shaders; ./to-hex-include
   endef
   define PRELINKCMDS
   endef
@@ -76,11 +80,13 @@ ifeq ($(config),dist)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Dist/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs
+  LIBS += ../bin/Dist/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio
   LDDEPS += ../bin/Dist/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64 -s
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
+	@echo Running prebuild commands
+	cd shaders; ./to-hex-include
   endef
   define PRELINKCMDS
   endef
@@ -92,7 +98,7 @@ all: prebuild prelink $(TARGET)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/BoxLayer.o \
+	$(OBJDIR)/ShadowsLayer.o \
 	$(OBJDIR)/main.o \
 
 RESOURCES := \
@@ -152,7 +158,7 @@ else
 $(OBJECTS): | $(OBJDIR)
 endif
 
-$(OBJDIR)/BoxLayer.o: BoxLayer.cpp
+$(OBJDIR)/ShadowsLayer.o: ShadowsLayer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/main.o: main.cpp
