@@ -31,6 +31,20 @@ vec2 Texture::get_dimentions()
 	return vec2(width, height);
 }
 
+long Texture::get_size()
+{
+	return width * height;
+}
+
+void Texture::update_texture()
+{
+}
+
+void Texture::multiply_data(float factor)
+{
+}
+
+
 
 
 ImgTexture::ImgTexture(string path)
@@ -121,7 +135,6 @@ FitsTexture::FitsTexture(string path)
 	cout << bitpix << endl;
 
 
-	float *fits_data;
 	fits_data = (float*)malloc(sizeof(float) * data_size);
 
 	fits_read_pix(fptr, TFLOAT, fpixel, data_size, NULL, fits_data,
@@ -129,22 +142,18 @@ FitsTexture::FitsTexture(string path)
 	fits_close_file(fptr, &status);
 
 	// normalize texture
-	short max = fits_data[0];
+	max = -1E100;
 	for (int i = 0; i < data_size; i++)
-	{
 		if (fits_data[i] > max)
 			max = fits_data[i];
-	}
 
+	min = 1E100;
 	for (int i = 0; i < data_size; i++)
-	{
-		local_buffer[i * 4 + 0] = fits_data[i]/max;
-		local_buffer[i * 4 + 1] = fits_data[i]/max;
-		local_buffer[i * 4 + 2] = fits_data[i]/max;
-		local_buffer[i * 4 + 3] = 1.;
-	}
+		if (fits_data[i] < min)
+			min = fits_data[i];
 
-	delete fits_data;
+	normalize_data();
+
 
 
 	glGenTextures(1, &texture_id);
@@ -161,15 +170,53 @@ FitsTexture::FitsTexture(string path)
 
 	// send to openGL
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA,
-				 GL_FLOAT, local_buffer);
+				 GL_FLOAT, NULL);
 
 	// unbind
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	update_texture();
 }
 
 
 FitsTexture::~FitsTexture()
 {
 	delete local_buffer;
+	delete fits_data;
 	destroy();
+}
+
+
+void FitsTexture::update_texture()
+{
+
+    bind(0);
+    // 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA,
+    // 				 GL_UNSIGNED_BYTE, local_buffer);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_FLOAT,
+                    local_buffer);
+}
+
+void FitsTexture::multiply_data(float factor)
+{
+	for (int i = 0; i < width * height; i++)
+	{
+		fits_data[i] *= factor;
+	}
+
+}
+
+void FitsTexture::normalize_data()
+{
+// 	for (int i = 0; i < width * height; i++)
+// 	{
+// 		fits_data[i] = (fits_data[i] - min) / (max - min);
+// 	}
+	for (int i = 0; i < width * height; i++)
+	{
+		local_buffer[i * 4 + 0] = (fits_data[i] - min) / (max - min);
+		local_buffer[i * 4 + 1] = (fits_data[i] - min) / (max - min);
+		local_buffer[i * 4 + 2] = (fits_data[i] - min) / (max - min);
+		local_buffer[i * 4 + 3] = 1.;
+	}
 }

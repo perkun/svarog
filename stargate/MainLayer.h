@@ -26,14 +26,19 @@ public:
 	virtual void on_imgui_render() override;
 
 private:
-	Entity plane;
+	Entity plane, plane_fourier;
 
 	Texture* input_image;
-	Texture* fits_texture;
+	FitsTexture* fits_texture;
 
 	VertexArrayObject* plane_vao;
+	VertexArrayObject* plane_fourier_vao;
 
 	Shader *shader;
+
+	float brightness = 1.;
+
+	float init_min, init_max;
 };
 
 #endif /* BOXLAYER_H_ */

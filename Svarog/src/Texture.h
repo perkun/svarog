@@ -25,8 +25,12 @@ public:
 	void destroy();
 	unsigned int get_texture_id();
 
+	virtual void update_texture();
+	virtual void multiply_data(float factor);
+
 	void bind(unsigned int slot = 0);
 	vec2 get_dimentions();
+	long get_size();
 
 protected:
 	unsigned int texture_id;
@@ -52,9 +56,15 @@ public:
 	FitsTexture(string);
 	~FitsTexture();
 
-private:
-// 	short *local_buffer;
+	void update_texture() override;
+	void multiply_data(float factor) override;
+	void normalize_data();
+
 	float *local_buffer;
+	float *fits_data;
+
+	float min, max;
+private:
 };
 
 

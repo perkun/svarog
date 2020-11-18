@@ -96,7 +96,8 @@ void MainLayer::on_attach()
 
 // 	input_image = new ImgTexture("../../../data/makeeva2.png");
 // 	fits_texture = new FitsTexture("../../../data/zyla_rolling.fits");
-	fits_texture = new FitsTexture("../../../data/julia2.fits");
+// 	fits_texture = new FitsTexture("../../../data/julia2.fits");
+	fits_texture = new FitsTexture("../../../data/pst2_3.fits");
 
 	vec2 plane_scale = fits_texture->get_dimentions();
 	plane_scale /= plane_scale.y; // normalize
@@ -114,6 +115,13 @@ void MainLayer::on_attach()
     plane.add_component<SceneStatus>(true);
 
 	active_scene->root_entity.add_child(&plane);
+
+	init_min = fits_texture->min;
+	init_max = fits_texture->max;
+
+
+// 	fits_texture->multiply_data(brightness);
+// 	fits_texture->update_texture();
 }
 
 
@@ -128,10 +136,27 @@ void MainLayer::on_imgui_render()
 	Camera *cam = active_scene->camera;
 
 	ImGui::Begin("FPS");
-    ImGui::SliderFloat("pos x", &(cam->position.x), -5, 5, "%.3f");
-    ImGui::SliderFloat("pos y", &(cam->position.y), -5, 5, "%.3f");
-    ImGui::SliderFloat("pos z", &(cam->position.z), -5, 5, "%.3f");
+//     ImGui::SliderFloat("pos x", &(cam->position.x), -5, 5, "%.3f");
+//     ImGui::SliderFloat("pos y", &(cam->position.y), -5, 5, "%.3f");
+//     ImGui::SliderFloat("pos z", &(cam->position.z), -5, 5, "%.3f");
+
+
+	ImGui::DragFloat("min", &fits_texture->min, 0., init_max);
+	ImGui::DragFloat("max", &fits_texture->max, init_min, init_max);
+
+	bool clicked = false;
+	if (ImGui::Button("Update"))
+		clicked = true;
+
+	if (clicked)
+	{
+		fits_texture->normalize_data();
+		fits_texture->update_texture();
+	}
+
 	ImGui::End();
+
+// 	ImGui::ShowDemoWindow();
 
 	cam->update();
 }
