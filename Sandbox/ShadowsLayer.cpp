@@ -173,8 +173,8 @@ void ShadowsLayer::on_attach()
 	color_shader = new Shader;
 	color_shader->create_shader((char*)((void*)basic_shader_vs), (char*)(void*)basic_shader_fs);
 
-//     plane_texture = new ImgTexture("../../../data/dots4.png");
-    plane_texture = new ImgTexture("../../../data/forest.jpg");
+    plane_texture = new ImgTexture("../../../data/dots4.png");
+//     plane_texture = new ImgTexture("../../../data/forest.jpg");
     asteroid_texture = new ImgTexture("../../../data/surface2.jpg");
 
     plane_vao =
@@ -249,7 +249,7 @@ void ShadowsLayer::on_update(double time_delta)
 
 	active_scene->camera->move(time_delta);
 
-	// render from light perspective
+	// render from light's perspective
 	active_scene->camera = light_camera;
 	shadow_fb->bind();
 	shadow_fb->clear();
