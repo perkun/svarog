@@ -10,8 +10,6 @@
 #include <vector>
 #include <map>
 
-#include "Material.h"
-
 using namespace std;
 using namespace glm;
 
@@ -24,7 +22,6 @@ public:
 	~Shader();
 
 // 	void set_uniforms(map<string, UniformData>&);
-	void set_uniforms(Material&);
 
 	void set_uniform_3fv(string name, vec3 data);
 	void set_uniform_4fv(string name, vec4 data);
