@@ -26,17 +26,10 @@ public:
 
 private:
 	double td;
-	Camera *camera, *light_camera;
 	VertexArrayObject *plane_vao, *asteroid_vao, *cube_vao;
-
 	ImgTexture *plane_texture, *asteroid_texture;
-
 	Shader *shader, *color_shader;
-
-	Entity plane, asteroid, cube;
-
-	Framebuffer *shadow_fb;
-
+	Entity plane, asteroid, cube;//, scene_camera, scene_light;
 };
 
 #endif

@@ -6,6 +6,8 @@
 #include "VertexArrayObject.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "Camera.h"
+#include "Framebuffer.h"
 
 using namespace std;
 
@@ -50,6 +52,24 @@ public:
 	bool render = true;
 };
 
+
+class CameraComponent
+{
+public:
+	CameraComponent(Camera*);
+	~CameraComponent();
+
+	Camera *camera;
+};
+
+class FramebufferComponent
+{
+public:
+	FramebufferComponent(Framebuffer*);
+	~FramebufferComponent();
+
+	Framebuffer *framebuffer;
+};
 
 
 #endif /* SCENE/COMPONENTS_H_ */

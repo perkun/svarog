@@ -9,14 +9,14 @@ EventLayer::EventLayer() : Layer("EventLayer")
     fb_spec.height = Application::get_window()->height;
 
     framefuffer = new Framebuffer(fb_spec);
-	active_scene = new Scene();
+	scene = new Scene();
 
 }
 
 
 EventLayer::~EventLayer()
 {
-	delete active_scene;
+	delete scene;
 	delete framefuffer;
 }
 
@@ -100,7 +100,7 @@ void EventLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent &event)
 void EventLayer::on_window_resize_event(WindowResizeEvent &event)
 {
     ivec2 size = event.get_size();
-    active_scene->on_resize(size.x, size.y);
+    scene->on_resize(size.x, size.y);
 	framefuffer->resize(size.x, size.y);
 }
 

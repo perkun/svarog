@@ -42,3 +42,21 @@ SceneStatus::SceneStatus(bool active, bool render)
 SceneStatus::~SceneStatus()
 {
 }
+
+CameraComponent::CameraComponent(Camera *c)
+{
+	camera = c;
+}
+
+CameraComponent::~CameraComponent()
+{
+}
+
+FramebufferComponent::FramebufferComponent(Framebuffer *fb)
+{
+	framebuffer = fb;
+}
+
+FramebufferComponent::~FramebufferComponent()
+{
+}

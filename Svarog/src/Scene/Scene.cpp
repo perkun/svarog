@@ -4,11 +4,23 @@
 Scene::Scene()
 {
 	root_entity = create_entity("Root");
+// 	observer = create_entity("Observer");
 }
 
 
 Scene::~Scene()
 {
+	if (light.has_component<FramebufferComponent>())
+		delete light.get_component<FramebufferComponent>().framebuffer;
+
+	if (observer.has_component<FramebufferComponent>())
+		delete observer.get_component<FramebufferComponent>().framebuffer;
+
+	if (light.has_component<CameraComponent>())
+		delete light.get_component<CameraComponent>().camera;
+
+	if (observer.has_component<CameraComponent>())
+		delete observer.get_component<CameraComponent>().camera;
 
 }
 
@@ -31,8 +43,13 @@ void Scene::on_resize(int width, int height)
 // 		camera.update();
 // 	}
 
-	camera->aspect = width / (float)height;
-	camera->update();
+	auto view = registry.view<CameraComponent>();
+	for (auto &e: view)
+	{
+		Camera *cam = registry.get<CameraComponent>(e).camera;
+		cam->aspect = width / (float)height;
+		cam->update();
+	}
 }
 
 
@@ -78,18 +95,24 @@ Transform* Scene::get_active_drawable_transform()
 }
 
 
-Light* Scene::get_active_light()
-{
-	auto view = registry.view<Light, SceneStatus>();
-	for (auto e: view)
-	{
-// 		if (registry.get<SceneStatus>(e).active)
-// 		{
-			return &registry.get<Light>(e);
-// 		}
-	}
-	return NULL;
-}
+// Light* Scene::get_active_light()
+// {
+// 	auto view = registry.view<Light, SceneStatus>();
+// 	for (auto e: view)
+// 	{
+// // 		if (registry.get<SceneStatus>(e).active)
+// // 		{
+// 			return &registry.get<Light>(e);
+// // 		}
+// 	}
+// 	return NULL;
+// }
+
+// Entity Scene::get_active_camera()
+// {
+//
+// }
+
 
 
 void Scene::draw(Entity *entity)
@@ -138,51 +161,58 @@ void Scene::draw(Entity *entity)
 
 void Scene::draw_depth_first(Entity *entity)
 {
-// 	Transform &t = entity.get_component<Transform>();
-// 	cout << t.position.x << "\n";
-
 	draw(entity);
 	for (Entity *child: entity->children)
 		draw_depth_first(child);
 }
 
 
-void Scene::draw_root()
+void Scene::draw_root(POV perspective)
 {
-    if (camera == NULL)
+    // scene materials from observer:
+	ASSERT(observer.has_component<Transform>())
+	ASSERT(light.has_component<Transform>())
+
+    Transform &sct = observer.get_component<Transform>();
+    Transform &slt = light.get_component<Transform>();
+
+    scene_material.uniforms_vec3["u_light_position"] = slt.position;
+
+    scene_material.uniforms_mat4["u_light_view_matrix"] = slt.get_view();
+
+    scene_material.uniforms_mat4["u_light_perspective_matrix"] =
+        light.get_component<CameraComponent>().camera->get_perspective();
+
+
+	ASSERT(light.has_component<FramebufferComponent>())
+    Framebuffer *shadow_fb =
+        light.get_component<FramebufferComponent>().framebuffer;
+
+    if (perspective == POV::LIGHT)
     {
-        cout << "No active Camera set, not rendering" << endl;
-        return;
+        shadow_fb->bind();
+        shadow_fb->clear();
+
+        scene_material.uniforms_mat4["u_view_matrix"] = slt.get_view();
+        scene_material.uniforms_mat4["u_perspective_matrix"] =
+            light.get_component<CameraComponent>().camera->get_perspective();
+
+        draw_depth_first(&root_entity);
+
+        shadow_fb->unbind();
     }
+    else if (perspective == POV::OBSERVER)
+    {
+        scene_material.uniforms_mat4["u_view_matrix"] = sct.get_view();
+        scene_material.uniforms_mat4["u_perspective_matrix"] =
+            observer.get_component<CameraComponent>().camera->get_perspective();
 
+        // TODO: get rid of opengl stuff
+        glViewport(0, 0, Application::get_window()->width,
+                   Application::get_window()->height);
 
-    scene_material.uniforms_mat4["u_view_matrix"] = camera->get_view();
-    scene_material.uniforms_mat4["u_perspective_matrix"] =
-        									 camera->get_perspective();
+        shadow_fb->bind_depth_texture(1);
 
-
-
-// 	auto view = registry.view<Light, Mesh>();
-// 	for (auto e: view)
-// 	{
-// 		Transform &tr = registry.get<Transform>(e);
-// 		vec3 dir = normalize(registry.get<Light>(e).direction);
-//
-// 		tr.beta = acos(dir.z);
-// 		tr.alpha = atan2(dir.y, dir.x) + M_PI/2.;
-// 	}
-
-
-    // update scene material
-
-// 	if (get_active_light() != NULL)
-// 		scene_material.uniforms_vec3["u_light_direction"] =
-// 			get_active_light()->direction;
-// 	else {
-// 		cout << "No light in the scene" << endl;
-// 	}
-
-    // 	Transform &t = root_entity.get_component<Transform>();
-    // 	cout << t.position.x << "\n";
-    draw_depth_first(&root_entity);
+        draw_depth_first(&root_entity);
+    }
 }

@@ -142,10 +142,12 @@ project "Svarog"
 	filter "configurations:Debug"
 		-- defines...
 		symbols "On"
+		defines "SV_DEBUG"
 
 	filter "configurations:Release"
 		-- defines...
-		optimize "on"
+		optimize "On"
+		defines "SV_RELEASE"
 
 	filter "configurations:Dist"
 		-- defines...
