@@ -32,7 +32,7 @@ public:
 	void draw(Entity*);
 	void draw_depth_first(Entity*);
 
-	void on_update();
+// 	void on_update();
 	void on_resize(int, int);
 	void draw_root();
 

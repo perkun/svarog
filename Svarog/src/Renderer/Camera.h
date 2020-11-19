@@ -82,7 +82,6 @@ protected:
 	float view_box_z_near, view_box_z_far;
 
 private:
-// 	void calculate_perspective_matrix();
 	virtual void calculate_perspective_matrix();
 
 };

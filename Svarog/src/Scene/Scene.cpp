@@ -155,6 +155,13 @@ void Scene::draw_root()
         return;
     }
 
+
+    scene_material.uniforms_mat4["u_view_matrix"] = camera->get_view();
+    scene_material.uniforms_mat4["u_perspective_matrix"] =
+        									 camera->get_perspective();
+
+
+
 // 	auto view = registry.view<Light, Mesh>();
 // 	for (auto e: view)
 // 	{
@@ -167,9 +174,6 @@ void Scene::draw_root()
 
 
     // update scene material
-    scene_material.uniforms_mat4["u_view_matrix"] = camera->get_view();
-    scene_material.uniforms_mat4["u_perspective_matrix"] =
-        camera->get_perspective();
 
 // 	if (get_active_light() != NULL)
 // 		scene_material.uniforms_vec3["u_light_direction"] =
