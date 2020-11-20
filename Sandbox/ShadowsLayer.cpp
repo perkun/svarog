@@ -3,121 +3,6 @@
 
 ShadowsLayer::ShadowsLayer() : SceneLayer()
 {
-//     mouse_button_pressed_map[GLFW_MOUSE_BUTTON_1] = [](EventLayer *layer) {
-//         layer->scene->observer.get_component<Transform>().is_rotating =
-//             true;
-//     };
-    //
-    //     mouse_button_pressed_map[GLFW_MOUSE_BUTTON_2] = [](EventLayer *layer)
-    //     {
-    // 		Transform *trans =
-    // layer->scene->get_active_drawable_transform(); 		if (trans == NULL)
-    // 			return;
-    // 		trans->change_beta = true;
-    // 	};
-    // //
-    //     mouse_button_pressed_map[GLFW_MOUSE_BUTTON_3] = [](EventLayer *layer)
-    //     {
-    // 		Transform *trans =
-    // layer->scene->get_active_drawable_transform(); 		if (trans == NULL)
-    // 			return;
-    // 		trans->change_gamma = true;
-    // 	};
-    //
-//     mouse_button_released_map[GLFW_MOUSE_BUTTON_1] = [](EventLayer *layer) {
-//         layer->scene->observer.get_component<Transform>().is_rotating =
-//             false;
-// 	};
-//
-//     mouse_button_released_map[GLFW_MOUSE_BUTTON_2] = [](EventLayer *layer) {
-// 		Transform *trans = layer->scene->get_active_drawable_transform();
-// 		if (trans == NULL)
-// 			return;
-// 		trans->change_beta = false;
-// 	};
-// //
-//     mouse_button_released_map[GLFW_MOUSE_BUTTON_3] = [](EventLayer *layer) {
-// 		Transform *trans = layer->scene->get_active_drawable_transform();
-// 		if (trans == NULL)
-// 			return;
-// 		trans->change_gamma = false;
-// 	};
-//
-//
-//     mouse_cursor_action = [](EventLayer *layer, vec2 cursor_shift) {
-//         Transform &tr = layer->scene->observer.get_component<Transform>();
-// 			if (tr.is_rotating)
-//             tr.rotate_about_target(cursor_shift);
-//     };
-//
-//     mouse_scrolled_action = [](EventLayer *layer, vec2 offset) {
-//         Camera *cam = layer->scene->camera;
-//         if (cam == NULL)
-//             return;
-//
-//         cam->position += cam->front * (float)(offset.y / 5. * cam->speed);
-//         cam->update();
-//         Transform &tr = layer->scene->observer.get_component<Transform>();
-// 		tr.position += tr.front * (float)(offset.y / 5. * tr.speed);
-//     };
-
-    // 	key_pressed_map[GLFW_KEY_A] = [](EventLayer *layer) {
-    // 		Camera *cam = layer->scene->camera;
-    // 		if (cam == NULL)
-    // 			return;
-    // 		cam->is_moving_left = true;
-    // 	};
-    //
-    // 	key_released_map[GLFW_KEY_A] = [](EventLayer *layer) {
-    // 		Camera *cam = layer->scene->camera;
-    // 		if (cam == NULL)
-    // 			return;
-    // 		cam->is_moving_left = false;
-    // 	};
-    //
-    // 	key_pressed_map[GLFW_KEY_D] = [](EventLayer *layer) {
-    // 		Camera *cam = layer->scene->camera;
-    // 		if (cam == NULL)
-    // 			return;
-    // 		cam->is_moving_right = true;
-    // 	};
-    //
-    // 	key_released_map[GLFW_KEY_D] = [](EventLayer *layer) {
-    // 		Camera *cam = layer->scene->camera;
-    // 		if (cam == NULL)
-    // 			return;
-    // 		cam->is_moving_right = false;
-    // 	};
-    //
-    //
-    // 	key_pressed_map[GLFW_KEY_W] = [](EventLayer *layer) {
-    // 		Camera *cam = layer->scene->camera;
-    // 		if (cam == NULL)
-    // 			return;
-    // 		cam->is_panning_forwards = true;
-    // 	};
-    //
-    // 	key_released_map[GLFW_KEY_W] = [](EventLayer *layer) {
-    // 		Camera *cam = layer->scene->camera;
-    // 		if (cam == NULL)
-    // 			return;
-    // 		cam->is_panning_forwards = false;
-    // 	};
-    //
-    //
-    // 	key_pressed_map[GLFW_KEY_S] = [](EventLayer *layer) {
-    // 		Camera *cam = layer->scene->camera;
-    // 		if (cam == NULL)
-    // 			return;
-    // 		cam->is_panning_backwards = true;
-    // 	};
-    //
-    // 	key_released_map[GLFW_KEY_S] = [](EventLayer *layer) {
-    // 		Camera *cam = layer->scene->camera;
-    // 		if (cam == NULL)
-    // 			return;
-    // 		cam->is_panning_backwards = false;
-    // 	};
 }
 
 
@@ -133,13 +18,13 @@ void ShadowsLayer::on_attach()
     // 	#include "shaders/shadow.vs.include"
     // 	#include "shaders/shadow.fs.include"
 
-#include "shaders/tex_sha.vs.include"
-#include "shaders/tex_sha.fs.include"
-    tex_sha_vs[tex_sha_vs_len] = 0;
-    tex_sha_fs[tex_sha_fs_len] = 0;
+	#include "shaders/tex_sha.vs.include"
+	#include "shaders/tex_sha.fs.include"
+	tex_sha_vs[tex_sha_vs_len] = 0;
+	tex_sha_fs[tex_sha_fs_len] = 0;
 
-#include "shaders/basic_shader.vs.include"
-#include "shaders/basic_shader.fs.include"
+	#include "shaders/basic_shader.vs.include"
+	#include "shaders/basic_shader.fs.include"
     basic_shader_vs[basic_shader_vs_len] = 0;
     basic_shader_fs[basic_shader_fs_len] = 0;
 

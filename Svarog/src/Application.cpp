@@ -1,6 +1,5 @@
 #include "Application.h"
 #include "ImGuiLayer.h"
-#include "CameraController.h"
 
 namespace Application
 {
