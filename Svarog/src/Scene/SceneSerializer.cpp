@@ -145,7 +145,7 @@ bool SceneSerializer::deserialize(const string filepath)
             string name;
             auto tagComponent = entity["TagComponent"];
             if (tagComponent)
-                name = tagComponent["Tag"].as<string>();
+                name = tagComponent["tag"].as<string>();
 //
 			cout << "Ent name: " <<  name << endl;
         }
