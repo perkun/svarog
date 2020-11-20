@@ -44,7 +44,7 @@ protected:
 	map<int, function<void(EventLayer*)> > key_released_map;
 	map<int, function<void(EventLayer*)> > mouse_button_pressed_map;
 	map<int, function<void(EventLayer*)> > mouse_button_released_map;
-
+//
 	function<void(EventLayer*, vec2 cursor_shift)> mouse_cursor_action = NULL;
 	function<void(EventLayer*, vec2 offset)> mouse_scrolled_action = NULL;
 };

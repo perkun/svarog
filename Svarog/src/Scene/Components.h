@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Framebuffer.h"
+#include "ScriptableEntity.h"
 
 using namespace std;
 
@@ -71,5 +72,24 @@ public:
 	Framebuffer *framebuffer;
 };
 
+class NativeScriptComponent
+{
+public:
+    ScriptableEntity *instance = NULL;
+
+    ScriptableEntity *(*instantiate_script)();
+    void (*destroy_script)(NativeScriptComponent *);
+
+    template <typename T> void bind()
+    {
+        instantiate_script = []() {
+            return static_cast<ScriptableEntity *>(new T());
+        };
+        destroy_script = [](NativeScriptComponent *nsc) {
+            delete nsc->instance;
+            nsc->instance = NULL;
+        };
+    }
+};
 
 #endif /* SCENE/COMPONENTS_H_ */

@@ -53,31 +53,6 @@ void Scene::on_resize(int width, int height)
 }
 
 
-// Entity* Scene::get_active_depth_first(Entity *entity)
-// {
-// 	Entity *tmp = NULL;
-//
-// 	if (entity->active)
-// 		tmp = entity;
-// 	else
-// 		for (Entity *child: entity->children)
-// 			tmp = get_active_depth_first(child);
-//
-// 	return tmp;
-// }
-
-// Entity* Scene::get_active_entity()
-// {
-// 	// TODO: search for active only when updated
-// 	active_entity = get_active_depth_first(&root_entity);
-// 	return active_entity;
-// }
-//
-
-// void Scene::set_active_entity(Entity *entity)
-// {
-// 	active_entity = entity;
-// }
 
 Transform* Scene::get_active_drawable_transform()
 {
@@ -167,8 +142,22 @@ void Scene::draw_depth_first(Entity *entity)
 }
 
 
-void Scene::draw_root(POV perspective)
+void Scene::draw_root(POV perspective, double time_delta)
 {
+	//update scripts
+	registry.view<NativeScriptComponent>().each([=](auto entity, auto&nsc)
+	{
+		if (!nsc.instance) // instanciate script
+		{
+			nsc.instance = nsc.instantiate_script();
+			nsc.instance->entity = Entity(entity, &(this->registry));
+			nsc.instance->on_create();
+		}
+		nsc.instance->on_update(time_delta);
+
+	});
+
+
     // scene materials from observer:
 	ASSERT(observer.has_component<Transform>())
 	ASSERT(light.has_component<Transform>())

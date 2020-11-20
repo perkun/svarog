@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "ImGuiLayer.h"
+#include "CameraController.h"
 
 namespace Application
 {
@@ -8,12 +9,30 @@ namespace Application
 Window *window = NULL;
 LayerStack layer_stack;
 ImGuiLayer *imgui_layer;
-vec2 cursor_pos;
+
+vec2 cursor_pos, cursor_shift;
+float mouse_scroll_offset;
+
+
+float get_mouse_scroll_offset()
+{
+	return mouse_scroll_offset;
+}
+
+void set_mouse_scroll_offset(float new_mso)
+{
+	mouse_scroll_offset = new_mso;
+}
 
 
 vec2 get_cursor_pos()
 {
 	return cursor_pos;
+}
+
+vec2 get_cursor_shift()
+{
+	return cursor_shift;
 }
 
 void set_cursor_pos(vec2 cp)
@@ -107,16 +126,18 @@ void on_event(Event &event)
     // 	dispatcher.dispatch<MouseButtonReleasedEvent>(
     // 		bind(&on_mouse_button_released_event, this, placeholders::_1));
     //
-    // 	dispatcher.dispatch<MouseMovedEvent>(
-    // 		bind(&on_curosr_moved_event, this, placeholders::_1));
-    //
-    // 	dispatcher.dispatch<MouseScrolledEvent>(
-    // 		bind(&on_mouse_scrolled_event, this, placeholders::_1));
+//     dispatcher.dispatch<MouseMovedEvent>(
+//     	bind(&on_curosr_moved_event, placeholders::_1));
+
+
+// 	dispatcher.dispatch<MouseScrolledEvent>(
+// 		bind(&on_mouse_scrolled_event, placeholders::_1));
 
     dispatcher.dispatch<WindowResizeEvent>(
         bind(&on_window_resize_event, placeholders::_1));
     // 		bind(&on_window_resize_event, this, placeholders::_1));
 
+	// propagate events to layers
     for (auto it = layer_stack.rbegin(); it != layer_stack.rend(); ++it)
     {
         if (event.handled)
@@ -134,26 +155,27 @@ void on_window_resize_event(WindowResizeEvent &event)
     glViewport(0., 0., size.x, size.y);
 }
 
-// void on_mouse_scrolled_event(MouseScrolledEvent& event)
-// {
-// // 	cout << event.get_offset().y << endl;
+void on_mouse_scrolled_event(MouseScrolledEvent& event)
+{
+// 	cout << event.get_offset().y << endl;
+	mouse_scroll_offset = event.get_offset().y;
 // 	if (mouse_scrolled_action != NULL)
 // 		mouse_scrolled_action(this, event.get_offset());
-// }
-//
-// void on_curosr_moved_event(MouseMovedEvent& event)
-// {
-// // 	cout << "on_curosr_moved_event    ";
-// // 	event.print_type();
-// 	vec2 cursor_shift, old_cursor_pos = cursor_pos;
-//
-// 	cursor_pos = event.get_cursor_pos();
-// 	cursor_shift = cursor_pos - old_cursor_pos;
-//
+}
+
+void on_curosr_moved_event(MouseMovedEvent& event)
+{
+// 	cout << "on_curosr_moved_event    ";
+// 	event.print_type();
+	vec2 old_cursor_pos = cursor_pos;
+
+	cursor_pos = event.get_cursor_pos();
+	cursor_shift = cursor_pos - old_cursor_pos;
+
 // 	if (mouse_cursor_action != NULL)
 // 		mouse_cursor_action(this, cursor_shift);
 //
-// }
+}
 //
 //
 // void on_mouse_button_released_event(MouseButtonReleasedEvent &event)

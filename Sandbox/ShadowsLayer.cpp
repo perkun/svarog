@@ -1,13 +1,12 @@
 #include "ShadowsLayer.h"
 
 
-
-ShadowsLayer::ShadowsLayer()
+ShadowsLayer::ShadowsLayer() : SceneLayer()
 {
-    mouse_button_pressed_map[GLFW_MOUSE_BUTTON_1] = [](EventLayer *layer) {
-        layer->scene->observer.get_component<Transform>().is_rotating =
-            true;
-    };
+//     mouse_button_pressed_map[GLFW_MOUSE_BUTTON_1] = [](EventLayer *layer) {
+//         layer->scene->observer.get_component<Transform>().is_rotating =
+//             true;
+//     };
     //
     //     mouse_button_pressed_map[GLFW_MOUSE_BUTTON_2] = [](EventLayer *layer)
     //     {
@@ -25,10 +24,10 @@ ShadowsLayer::ShadowsLayer()
     // 		trans->change_gamma = true;
     // 	};
     //
-    mouse_button_released_map[GLFW_MOUSE_BUTTON_1] = [](EventLayer *layer) {
-        layer->scene->observer.get_component<Transform>().is_rotating =
-            false;
-	};
+//     mouse_button_released_map[GLFW_MOUSE_BUTTON_1] = [](EventLayer *layer) {
+//         layer->scene->observer.get_component<Transform>().is_rotating =
+//             false;
+// 	};
 //
 //     mouse_button_released_map[GLFW_MOUSE_BUTTON_2] = [](EventLayer *layer) {
 // 		Transform *trans = layer->scene->get_active_drawable_transform();
@@ -45,22 +44,22 @@ ShadowsLayer::ShadowsLayer()
 // 	};
 //
 //
-    mouse_cursor_action = [](EventLayer *layer, vec2 cursor_shift) {
-        Transform &tr = layer->scene->observer.get_component<Transform>();
-		if (tr.is_rotating)
-            tr.rotate_about_target(cursor_shift);
-    };
-
-    mouse_scrolled_action = [](EventLayer *layer, vec2 offset) {
+//     mouse_cursor_action = [](EventLayer *layer, vec2 cursor_shift) {
+//         Transform &tr = layer->scene->observer.get_component<Transform>();
+// 			if (tr.is_rotating)
+//             tr.rotate_about_target(cursor_shift);
+//     };
+//
+//     mouse_scrolled_action = [](EventLayer *layer, vec2 offset) {
 //         Camera *cam = layer->scene->camera;
 //         if (cam == NULL)
 //             return;
 //
 //         cam->position += cam->front * (float)(offset.y / 5. * cam->speed);
 //         cam->update();
-        Transform &tr = layer->scene->observer.get_component<Transform>();
-		tr.position += tr.front * (float)(offset.y / 5. * tr.speed);
-    };
+//         Transform &tr = layer->scene->observer.get_component<Transform>();
+// 		tr.position += tr.front * (float)(offset.y / 5. * tr.speed);
+//     };
 
     // 	key_pressed_map[GLFW_KEY_A] = [](EventLayer *layer) {
     // 		Camera *cam = layer->scene->camera;
@@ -169,12 +168,19 @@ void ShadowsLayer::on_attach()
     scene->observer = scene->create_entity("Camera");
     scene->observer.add_component<CameraComponent>(new PerspectiveCamera(
         radians(45.0), window->width / (float)window->height, 0.01, 200.0));
+	scene->observer.add_component<NativeScriptComponent>().bind<CameraController>();
+
 	Transform &sot = scene->observer.get_component<Transform>();
 	sot.position = vec3(0., -30., 26.);
     sot.update_target(vec3(0., 0., 0.));
     sot.speed = 8.;
 
     scene->light = scene->create_entity("Light");
+    scene->light.add_component<MeshComponent>(cube_vao);
+    scene->light.add_component<SceneStatus>(true);
+    scene->light.add_component<Material>(color_shader)
+		.uniforms_vec4["u_color"] = vec4(0.3, 0.7, 0.12, 1.);
+
     scene->light.add_component<CameraComponent>(
         new OrthogonalCamera(20., 1., 0.01, 50.));
 
@@ -204,16 +210,9 @@ void ShadowsLayer::on_attach()
     tr.scale = vec3(5.);
     tr.position.z = 3.;
 
-    cube = scene->create_entity("Cube");
-    cube.add_component<MeshComponent>(cube_vao);
-    cube.add_component<SceneStatus>(true);
-    Material &cmt = cube.add_component<Material>(color_shader);
-    cmt.uniforms_vec4["u_color"] = vec4(0.3, 0.7, 0.12, 1.);
-
-
     scene->root_entity.add_child(&asteroid);
     scene->root_entity.add_child(&plane);
-    scene->root_entity.add_child(&cube);
+    scene->root_entity.add_child(&scene->light);
 
     // depth texture on slot 1
     scene->scene_material.uniforms_int["u_depth_map"] = 1;
@@ -227,15 +226,17 @@ void ShadowsLayer::on_update(double time_delta)
 
     Transform &slt = scene->light.get_component<Transform>();
     slt.update_target(vec3(0.));
-    //
-    cube.get_component<Transform>().position = slt.position;
+
 
     // From Light Perspective ////////
-    scene->draw_root(POV::LIGHT);
+    scene->draw_root(POV::LIGHT, time_delta);
 
     // From normal Camera /////////
-    scene->draw_root(POV::OBSERVER);
+    scene->draw_root(POV::OBSERVER, time_delta);
     td = time_delta;
+
+	// TODO: it's a hack, think of sth better...
+	Application::set_mouse_scroll_offset(0.);
 }
 
 void ShadowsLayer::on_imgui_render()

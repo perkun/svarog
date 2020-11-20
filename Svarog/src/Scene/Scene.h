@@ -28,6 +28,7 @@ enum class POV
 class Scene
 {
 	friend class Entity;
+	friend class SceneLayer;
 public:
     Scene();
 	~Scene();
@@ -38,7 +39,7 @@ public:
 	void draw_depth_first(Entity*);
 
 	void on_resize(int, int);
-	void draw_root(POV);
+	void draw_root(POV, double);  // equivalent of on_update()
 
 	Transform* get_active_drawable_transform();
 
@@ -49,8 +50,6 @@ public:
 	Entity observer;
 	Entity light;
 private:
-	Entity *active_entity;
-// 	Entity* get_active_depth_first(Entity*);
 
 	entt::registry registry;
 };

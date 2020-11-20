@@ -41,13 +41,19 @@ void pop_layer(Layer *);
 void pop_overlay(Layer *);
 
 void on_event(Event &);
-void on_window_resize_event(WindowResizeEvent &);
-void on_key_released_event(KeyReleasedEvent &);
+void on_window_resize_event(WindowResizeEvent&);
+void on_key_released_event(KeyReleasedEvent&);
+void on_curosr_moved_event(MouseMovedEvent&);
+void on_mouse_scrolled_event(MouseScrolledEvent&);
 
 void rendering_loop(GlfwEventMethod);
 
 vec2 get_cursor_pos();
 void set_cursor_pos(vec2);
+vec2 get_cursor_shift();
+
+void set_mouse_scroll_offset(float);
+float get_mouse_scroll_offset();
 
 void enable_blend();
 void disable_blend();

@@ -10,7 +10,6 @@ EventLayer::EventLayer() : Layer("EventLayer")
 
     framefuffer = new Framebuffer(fb_spec);
 	scene = new Scene();
-
 }
 
 
@@ -52,27 +51,35 @@ void EventLayer::on_event(Event &event)
 
     dispatcher.dispatch<KeyPressedEvent>(
         bind(&EventLayer::on_key_pressed_event, this, placeholders::_1));
-
+//
     dispatcher.dispatch<KeyReleasedEvent>(
         bind(&EventLayer::on_key_released_event, this, placeholders::_1));
-
-
+//
+//
 	if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
         {
             dispatcher.dispatch<MouseButtonPressedEvent>(
                 bind(&EventLayer::on_mouse_button_pressed_event, this,
                      placeholders::_1));
-
+//
             dispatcher.dispatch<MouseButtonReleasedEvent>(
                 bind(&EventLayer::on_mouse_button_released_event, this,
                      placeholders::_1));
-
+//
             dispatcher.dispatch<MouseMovedEvent>(bind(
                 &EventLayer::on_curosr_moved_event, this, placeholders::_1));
-
+//
             dispatcher.dispatch<MouseScrolledEvent>(bind(
                 &EventLayer::on_mouse_scrolled_event, this, placeholders::_1));
         }
+}
+
+
+void EventLayer::on_window_resize_event(WindowResizeEvent &event)
+{
+    ivec2 size = event.get_size();
+    scene->on_resize(size.x, size.y);
+	framefuffer->resize(size.x, size.y);
 }
 
 
@@ -93,15 +100,6 @@ void EventLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent &event)
     if (mouse_button_pressed_map.find(button_code) !=
         mouse_button_pressed_map.end())
         mouse_button_pressed_map[button_code](this);
-}
-
-
-
-void EventLayer::on_window_resize_event(WindowResizeEvent &event)
-{
-    ivec2 size = event.get_size();
-    scene->on_resize(size.x, size.y);
-	framefuffer->resize(size.x, size.y);
 }
 
 
@@ -143,4 +141,3 @@ void EventLayer::on_curosr_moved_event(MouseMovedEvent &event)
 	if (mouse_cursor_action != NULL)
 		mouse_cursor_action(this, cursor_shift);
 }
-
