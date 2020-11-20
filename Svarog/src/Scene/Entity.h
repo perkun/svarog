@@ -7,13 +7,6 @@
 
 using namespace std;
 
-struct Tag
-{
-    Tag(string tag) : tag(tag)
-    {
-    }
-    string tag;
-};
 
 class Entity
 {

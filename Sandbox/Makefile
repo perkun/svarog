@@ -22,7 +22,7 @@ ifeq ($(config),debug)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Debug/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio
+  LIBS += ../bin/Debug/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio -lyaml-cpp
   LDDEPS += ../bin/Debug/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
@@ -51,7 +51,7 @@ ifeq ($(config),release)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Release/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio
+  LIBS += ../bin/Release/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio -lyaml-cpp
   LDDEPS += ../bin/Release/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64 -s
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
@@ -80,7 +80,7 @@ ifeq ($(config),dist)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Dist/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio
+  LIBS += ../bin/Dist/Svarog/libSvarog.a -lglfw -lGLEW -lGL -lcmdlineargs -lcfitsio -lyaml-cpp
   LDDEPS += ../bin/Dist/Svarog/libSvarog.a
   ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64 -s
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)

@@ -87,7 +87,7 @@ project "Sandbox"
 	prebuildcommands { "cd shaders; ./to-hex-include" }
 	--prebuildcommands { "cd ./%{prj.name}/shaders; ./to-hex-include" }
 
-	links { "glfw", "GLEW", "GL", "Svarog", "cmdlineargs", "cfitsio" }
+	links { "glfw", "GLEW", "GL", "Svarog", "cmdlineargs", "cfitsio", "yaml-cpp" }
 
 	filter "configurations:Debug"
 		-- defines...
@@ -137,7 +137,7 @@ project "Svarog"
 	}
 
 
-	links { "glfw", "GLEW", "GL", "cfitsio" }
+	links { "glfw", "GLEW", "GL", "cfitsio", "yaml-cpp" }
 
 	filter "configurations:Debug"
 		-- defines...

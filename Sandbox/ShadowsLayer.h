@@ -13,6 +13,7 @@
 #include "Input.h"
 #include "ScriptableEntity.h"
 #include "CameraController.h"
+#include "SceneSerializer.h"
 
 using namespace std;
 

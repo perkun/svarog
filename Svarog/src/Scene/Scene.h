@@ -19,6 +19,7 @@
 
 using namespace std;
 
+class SceneSerializer;
 
 enum class POV
 {
@@ -29,6 +30,7 @@ class Scene
 {
 	friend class Entity;
 	friend class SceneLayer;
+	friend class SceneSerializer;
 public:
     Scene();
 	~Scene();
@@ -39,7 +41,8 @@ public:
 	void draw_depth_first(Entity*);
 
 	void on_resize(int, int);
-	void draw_root(POV, double);  // equivalent of on_update()
+	void on_update(double);
+
 
 	Transform* get_active_drawable_transform();
 
@@ -50,7 +53,7 @@ public:
 	Entity observer;
 	Entity light;
 private:
-
+	void draw_root(POV, double);  // equivalent of on_update()
 	entt::registry registry;
 };
 

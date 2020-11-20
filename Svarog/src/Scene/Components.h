@@ -12,6 +12,17 @@
 
 using namespace std;
 
+
+struct TagComponent
+{
+    TagComponent(string tag) : tag(tag)
+    {
+    }
+    string tag;
+};
+
+
+
 class MeshComponent
 {
 public:

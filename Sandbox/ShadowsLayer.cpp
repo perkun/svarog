@@ -112,22 +112,57 @@ void ShadowsLayer::on_update(double time_delta)
     Transform &slt = scene->light.get_component<Transform>();
     slt.update_target(vec3(0.));
 
+	scene->on_update(time_delta);
 
-    // From Light Perspective ////////
-    scene->draw_root(POV::LIGHT, time_delta);
 
-    // From normal Camera /////////
-    scene->draw_root(POV::OBSERVER, time_delta);
+
     td = time_delta;
-
-	// TODO: it's a hack, think of sth better...
-	Application::set_mouse_scroll_offset(0.);
 }
 
 void ShadowsLayer::on_imgui_render()
 {
     Transform &ptr = plane.get_component<Transform>();
     Transform &atr = asteroid.get_component<Transform>();
+
+
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Save scene"))
+            {
+                cout << "saving scene" << endl;
+                SceneSerializer scene_serializer(scene);
+
+                char filename[1024];
+                FILE *f = popen(
+                    "zenity --file-selection --save --confirm-overwrite", "r");
+                fscanf(f, "%s", filename);
+
+                scene_serializer.serialize(filename);
+            }
+
+			if (ImGui::MenuItem("Load scene"))
+			{
+                cout << "loading scene" << endl;
+                SceneSerializer scene_serializer(scene);
+
+                char filename[1024];
+                FILE *f = popen("zenity --file-selection", "r");
+                fscanf(f, "%s", filename);
+
+                scene_serializer.deserialize(filename);
+
+			}
+
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+
+
+
 
     ImGui::Begin("FPS");
     ImGui::Text("FPS: %.3lf", 1. / td);

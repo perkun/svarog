@@ -28,7 +28,7 @@ Entity Scene::create_entity(string name)
 {
 	Entity entity(registry.create(), &registry);
 	entity.add_component<Transform>(Transform());
-	entity.add_component<Tag>(Tag(name));
+	entity.add_component<TagComponent>(name);
 	return entity;
 }
 
@@ -144,19 +144,6 @@ void Scene::draw_depth_first(Entity *entity)
 
 void Scene::draw_root(POV perspective, double time_delta)
 {
-	//update scripts
-	registry.view<NativeScriptComponent>().each([=](auto entity, auto&nsc)
-	{
-		if (!nsc.instance) // instanciate script
-		{
-			nsc.instance = nsc.instantiate_script();
-			nsc.instance->entity = Entity(entity, &(this->registry));
-			nsc.instance->on_create();
-		}
-		nsc.instance->on_update(time_delta);
-
-	});
-
 
     // scene materials from observer:
 	ASSERT(observer.has_component<Transform>())
@@ -204,4 +191,27 @@ void Scene::draw_root(POV perspective, double time_delta)
 
         draw_depth_first(&root_entity);
     }
+}
+
+void Scene::on_update(double time_delta)
+{
+	//update scripts
+	registry.view<NativeScriptComponent>().each([=](auto entity, auto&nsc)
+	{
+		if (!nsc.instance)
+		{   // instanciate script
+			nsc.instance = nsc.instantiate_script();
+			nsc.instance->entity = Entity(entity, &(this->registry));
+			nsc.instance->on_create();
+		}
+		nsc.instance->on_update(time_delta);
+
+	});
+
+    // From Light Perspective ////////
+    draw_root(POV::LIGHT, time_delta);
+
+    // From normal Camera /////////
+    draw_root(POV::OBSERVER, time_delta);
+
 }
