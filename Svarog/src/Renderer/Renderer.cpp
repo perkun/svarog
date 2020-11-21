@@ -1,16 +1,39 @@
 #include "Renderer.h"
 
 
-Renderer::Renderer()
+namespace Renderer {
+
+
+// private:
+bool blend = false;
+// vec4 clear_color = vec4(0., 0., 0., 1.);
+////
+
+
+void init()
 {
+    glEnable(GL_DEPTH_TEST);
+//     glEnable(GL_CULL_FACE);
+//     glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
+
+    // 	glEnable(GL_BLEND);
+    // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-
-Renderer::~Renderer()
+void enable_blend()
 {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Renderer::set_blend(bool mesh_blend)
+void disable_blend()
+{
+	glDisable(GL_BLEND);
+}
+
+void set_blend(bool mesh_blend)
 {
 	if (mesh_blend)
 	{
@@ -31,7 +54,7 @@ void Renderer::set_blend(bool mesh_blend)
 
 }
 
-void Renderer::draw(VertexArrayObject *vao, Shader *shader)
+void draw(VertexArrayObject *vao, Shader *shader)
 {
 	shader->bind();
 	set_blend(vao->blend);
@@ -40,27 +63,23 @@ void Renderer::draw(VertexArrayObject *vao, Shader *shader)
 	glDrawElements(GL_TRIANGLES, vao->num_draw_elements, GL_UNSIGNED_INT, NULL);
 }
 
-void Renderer::clear()
+void clear()
 {
+// 	glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 
-void Renderer::clear(float r, float g, float b, float a)
+void clear(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b ,a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-
-
-void Renderer::enable_blend()
+void set_viewport(int x, int y, int size_x,
+                  int size_y)
 {
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glViewport(x, y, size_x, size_y);
 }
 
-void Renderer::disable_blend()
-{
-	glDisable(GL_BLEND);
-}
+} // namespace Renderer

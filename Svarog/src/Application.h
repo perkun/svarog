@@ -13,7 +13,6 @@
 #include "LayerStack.h"
 #include "Window.h"
 
-#define BG_COLOR 41 / 256., 46 / 256., 48 / 256., 1.0
 
 using namespace std;
 

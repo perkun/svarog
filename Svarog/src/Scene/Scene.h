@@ -47,7 +47,6 @@ public:
 	Transform* get_active_drawable_transform();
 
 	Material scene_material;
-	Renderer renderer;
 	Entity root_entity;
 
 	Entity observer;

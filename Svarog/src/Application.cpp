@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "ImGuiLayer.h"
 
+#define BG_COLOR 41 / 256., 46 / 256., 48 / 256., 1.0
+
 namespace Application
 {
 
@@ -8,9 +10,9 @@ namespace Application
 Window *window = NULL;
 LayerStack layer_stack;
 ImGuiLayer *imgui_layer;
-
 vec2 cursor_pos, cursor_shift;
 float mouse_scroll_offset;
+////
 
 
 float get_mouse_scroll_offset()
@@ -60,14 +62,6 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
     if (err != GLEW_OK)
         cout << "glew init failed" << endl;
 
-    glEnable(GL_DEPTH_TEST);
-//     glEnable(GL_CULL_FACE);
-//     glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-
-
-    // 	glEnable(GL_BLEND);
-    // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //     scene_graph_root = new SceneNode();
 
@@ -75,6 +69,9 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
 
 	imgui_layer = new ImGuiLayer;
 	push_overlay(imgui_layer);
+
+	Renderer::init();
+	Renderer::clear(BG_COLOR);
 }
 
 // ~Application()
@@ -148,10 +145,10 @@ void on_event(Event &event)
 
 void on_window_resize_event(WindowResizeEvent &event)
 {
-    ivec2 size = event.get_size();
+    const ivec2 &size = event.get_size();
 	window->width = size.x;
 	window->height = size.y;
-    glViewport(0., 0., size.x, size.y);
+    Renderer::set_viewport(0., 0., size.x, size.y);
 }
 
 void on_mouse_scrolled_event(MouseScrolledEvent& event)
@@ -224,8 +221,6 @@ void on_key_released_event(KeyReleasedEvent &event)
 
 void rendering_loop(GlfwEventMethod glfw_event_method)
 {
-    Renderer renderer;
-
     double time = glfwGetTime();
     double previous_time;
     double time_delta;
@@ -238,7 +233,7 @@ void rendering_loop(GlfwEventMethod glfw_event_method)
         time_delta = time - previous_time;
 
         // RENDER STUFF
-        renderer.clear(BG_COLOR);
+        Renderer::clear();
 
 
         for (Layer *layer : layer_stack)
@@ -263,17 +258,6 @@ void rendering_loop(GlfwEventMethod glfw_event_method)
     }
 }
 
-void enable_blend()
-{
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-}
-
-void disable_blend()
-{
-	glDisable(GL_BLEND);
-}
 
 } // namespace Application
 

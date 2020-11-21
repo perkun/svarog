@@ -127,9 +127,7 @@ void Scene::draw(Entity *entity)
         if (entity->has_component<MeshComponent>())
         {
             MeshComponent &mesh = entity->get_component<MeshComponent>();
-
-
-            renderer.draw(mesh.vao, material.shader);
+            Renderer::draw(mesh.vao, material.shader);
         }
     }
 }
@@ -183,9 +181,8 @@ void Scene::draw_root(POV perspective, double time_delta)
         scene_material.uniforms_mat4["u_perspective_matrix"] =
             observer.get_component<CameraComponent>().camera->get_perspective();
 
-        // TODO: get rid of opengl stuff
-        glViewport(0, 0, Application::get_window()->width,
-                   Application::get_window()->height);
+		Renderer::set_viewport(0, 0, Application::get_window()->width,
+                   			   Application::get_window()->height);
 
         shadow_fb->bind_depth_texture(1);
 
