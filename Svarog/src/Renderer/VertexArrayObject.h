@@ -32,7 +32,7 @@ public:
 
 	int num_draw_elements;
 	bool blend = false;
-	bool draw_type = GL_TRIANGLES;
+	unsigned int draw_type = GL_TRIANGLES;
 
 private:
 	bool created = false;

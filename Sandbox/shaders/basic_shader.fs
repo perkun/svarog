@@ -2,15 +2,15 @@
 layout(location = 0) out vec4 color;
 
 in vec3 normal_world;
-in vec2 v_tex_coord;
-in float u1, u2;
+// in vec2 v_tex_coord;
+// in float u1, u2;
 
 uniform sampler2D u_texture;
 uniform vec4 u_color;
 
 void main()
 {
-	vec2 tex_coord = v_tex_coord;
+// 	vec2 tex_coord = v_tex_coord;
 	// fix texture seam
 // 	if ( fwidth(u1) <= fwidth(u2) )
 // 		tex_coord.x = u1;

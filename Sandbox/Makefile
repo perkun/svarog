@@ -16,7 +16,7 @@ ifeq ($(config),debug)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../build/Debug/Sandbox
   DEFINES +=
-  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
+  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/Compute -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
@@ -45,7 +45,7 @@ ifeq ($(config),release)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../build/Release/Sandbox
   DEFINES +=
-  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
+  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/Compute -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
@@ -74,7 +74,7 @@ ifeq ($(config),dist)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../build/Dist/Sandbox
   DEFINES +=
-  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
+  INCLUDES += -I. -I../Svarog/src -I../Svarog/src/Layer -I../Svarog/src/Event -I../Svarog/src/Scene -I../Svarog/src/Renderer -I../Svarog/src/Compute -I../Svarog/src/vendor/imgui -I../Svarog/src/vendor/imgui/backends -I../Svarog/src/vendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2

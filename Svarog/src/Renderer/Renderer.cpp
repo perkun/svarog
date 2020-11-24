@@ -17,6 +17,7 @@ void init()
 //     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+    glPointSize(10.0f);
 
     // 	glEnable(GL_BLEND);
     // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -59,8 +60,17 @@ void draw(VertexArrayObject *vao, Shader *shader)
 	shader->bind();
 	set_blend(vao->blend);
 
+// 	if (vao->draw_type == GL_POINTS)
+// 	{
+// 		glBegin(GL_POINTS);
+// 			for (auto p: vao->vertices)
+// 				glVertex3f(
+// 						glEnd();
+// 		return;
+// 	}
+
 	glBindVertexArray(vao->vao_id);
-	glDrawElements(GL_TRIANGLES, vao->num_draw_elements, GL_UNSIGNED_INT, NULL);
+	glDrawElements(vao->draw_type, vao->num_draw_elements, GL_UNSIGNED_INT, NULL);
 }
 
 void clear()

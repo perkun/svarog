@@ -1,4 +1,5 @@
 #include "ShadowsLayer.h"
+#include "Components.h"
 
 
 ShadowsLayer::ShadowsLayer() : SceneLayer()
@@ -52,11 +53,11 @@ void ShadowsLayer::on_attach()
 
     scene->observer = scene->create_entity("Camera");
     scene->observer.add_component<CameraComponent>(new PerspectiveCamera(
-        radians(45.0), window->width / (float)window->height, 0.01, 200.0));
+        radians(45.0), window->width / (float)window->height, 0.01, 500.0));
 	scene->observer.add_component<NativeScriptComponent>().bind<CameraController>();
 
 	Transform &sot = scene->observer.get_component<Transform>();
-	sot.position = vec3(0., -30., 26.);
+	sot.position = vec3(0., -50., 50.);
     sot.update_target(vec3(0., 0., 0.));
     sot.speed = 8.;
 
@@ -67,7 +68,7 @@ void ShadowsLayer::on_attach()
 		.uniforms_vec4["u_color"] = vec4(0.3, 0.7, 0.12, 1.);
 
     scene->light.add_component<CameraComponent>(
-        new OrthogonalCamera(20., 1., 0.01, 50.));
+        new OrthogonalCamera(100., 1., 0.01, 100.));
 
     FramebufferSpecification fb_spec;
     fb_spec.width = 1024;
@@ -76,7 +77,7 @@ void ShadowsLayer::on_attach()
         new Framebuffer(fb_spec));
 
     Transform &slt = scene->light.get_component<Transform>();
-	slt.position = vec3(-10., -10., 10.);
+	slt.position = vec3(-30., -30., 30.);
     slt.update_target(vec3(0., 0., 0.));
 
     plane = scene->create_entity("Plain");
@@ -95,16 +96,114 @@ void ShadowsLayer::on_attach()
     tr.scale = vec3(5.);
     tr.position.z = 3.;
 
-    scene->root_entity.add_child(&asteroid);
-    scene->root_entity.add_child(&plane);
+
+	// create volumetric data for marchcubes
+	data = new short int[dim_x * dim_y * dim_z];
+	int r = 4;
+	int x0 = dim_x/2, y0 = dim_y/2, z0 = dim_z/2;
+
+
+	PerlinNoise pn;
+
+	for (int k = 0; k < dim_z; k++)
+		for (int j = 0; j < dim_y; j++)
+			for (int i = 0; i < dim_x; i++)
+			{
+				double x = (double)i/((double)dim_x);
+				double y = (double)j/((double)dim_y);
+				double z = (double)k/((double)dim_z);
+
+				double noise = pn.noise(5*x, 5*y, 5*z);
+
+				data[k*dim_y*dim_x + j*dim_x + i] = floor(noise * 255);
+
+// 				float len = (i-x0)*(i-x0) + (j-y0)*(j-y0) + (k-z0)*(k-z0);
+// 				if ( abs(len - r*r) < 1.5 )
+// // 				if (i > 5 && i < 9 && j > 5 && j < 9)
+// 					data[k*dim_y*dim_x + j*dim_x + i] = 200;
+// 				else
+// 					data[k*dim_y*dim_x + j*dim_x + i] = 0;
+			}
+
+	MarchingCubes marching_cubes;
+	space_vao = new VertexArrayObject(marching_cubes.polygonise_space(
+		data, dim_x, dim_y, dim_z, mc_isolevel));
+
+
+	space = scene->create_entity("Space");
+	space.add_component<MeshComponent>(space_vao);
+    space.add_component<Material>(color_shader).uniforms_vec4["u_color"] =
+		vec4(0.5, 0.3, 0.2, 1.);
+;
+// 	space.get_component<Transform>().position = vec3(-10, 0, 0);
+
+
+
+// 	Batch cube_batch;
+//
+// 	pts.layout.elements.push_back(VertexDataType::FLOAT3);
+// 	int count = 0;
+// 	for (int k = 0; k < dim_z; k++)
+// 		for (int j = 0; j < dim_y; j++)
+// 			for (int i = 0; i < dim_x; i++)
+// 			{
+// 				if (data[k*dim_y*dim_x + j*dim_x + i] != 0)
+// 				{
+// 					cube_batch.models.push_back(
+// 						IndexedCube(vec3(i,j,k), vec3(0.9) ));
+//
+// // 					pts.vertices.push_back(i);
+// // 					pts.vertices.push_back(j);
+// // 					pts.vertices.push_back(k);
+// // //
+// // 					pts.indices.push_back(count);
+// // 					pts.indices.push_back(count + 1);
+// // 					pts.indices.push_back(count + 2);
+// // 					count += 3;
+// 				}
+// 			}
+//
+// 	cube_batch.make_batch();
+// 	cout << cube_batch.models.size() << endl;
+//
+// 	points_vao = new VertexArrayObject(cube_batch.batch);
+// // 	points_vao = new VertexArrayObject(pts);
+// // 	points_vao->draw_type = GL_POINTS;
+// // 	points_vao->num_draw_elements = pts.vertices.size();
+// //
+// 	points = scene->create_entity("points");
+// 	points.add_component<MeshComponent>(points_vao);
+//     points.add_component<Material>(color_shader).uniforms_vec4["u_color"] =
+// 		vec4(0.4, 0.1, 0.6, 1.);
+// 	points.get_component<Transform>().position = vec3(0, 0, 0);
+
+
+//     scene->root_entity.add_child(&asteroid);
+    scene->root_entity.add_child(&space);
+//     scene->root_entity.add_child(&plane);
+//     scene->root_entity.add_child(&points);
     scene->root_entity.add_child(&scene->light);
+
 
     // depth texture on slot 1
     scene->scene_material.uniforms_int["u_depth_map"] = 1;
+
+
 }
 
 void ShadowsLayer::on_update(double time_delta)
 {
+	if (previous_iso != mc_isolevel)
+	{
+		MarchingCubes marching_cubes;
+//
+		delete space_vao;
+		space_vao = new VertexArrayObject(marching_cubes.polygonise_space(
+					data, dim_x, dim_y, dim_z, mc_isolevel));
+		space.replace_component<MeshComponent>(space_vao);
+	}
+	previous_iso = mc_isolevel;
+
     plane.get_component<Transform>().position =
         scene->observer.get_component<Transform>()
             .calculate_intersection_point(vec3(0.), vec3(0., 0., 1.));
@@ -113,8 +212,6 @@ void ShadowsLayer::on_update(double time_delta)
     slt.update_target(vec3(0.));
 
 	scene->on_update(time_delta);
-
-
 
     td = time_delta;
 }
@@ -131,28 +228,18 @@ void ShadowsLayer::on_imgui_render()
         {
             if (ImGui::MenuItem("Save scene"))
             {
-                cout << "saving scene" << endl;
                 SceneSerializer scene_serializer(scene);
-
-                char filename[1024];
-                FILE *f = popen(
-                    "zenity --file-selection --save --confirm-overwrite", "r");
-                fscanf(f, "%s", filename);
-
+				string filename = FileDialog::save_file("*.scene");
                 scene_serializer.serialize(filename);
+                cout << "saving scene" << endl;
             }
 
 			if (ImGui::MenuItem("Load scene"))
 			{
-                cout << "loading scene" << endl;
                 SceneSerializer scene_serializer(scene);
-
-                char filename[1024];
-                FILE *f = popen("zenity --file-selection", "r");
-                fscanf(f, "%s", filename);
-
+				string filename = FileDialog::open_file("*.scene");
                 scene_serializer.deserialize(filename);
-
+                cout << "loading scene" << endl;
 			}
 
             ImGui::EndMenu();
@@ -202,6 +289,22 @@ void ShadowsLayer::on_imgui_render()
     ImGui::DragFloat("c pos y", &sct.position.y, 0.2);
     ImGui::DragFloat("c pos z", &sct.position.z, 0.2);
 
+
+    ImGui::Separator();
+    ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+
+
+	ImGui::DragInt("isolevel", &mc_isolevel, 1., 0, 255);
+	if (ImGui::Button("Update isolevel"))
+	{
+		MarchingCubes marching_cubes;
+//
+		delete space_vao;
+		space_vao = new VertexArrayObject(marching_cubes.polygonise_space(
+					data, dim_x, dim_y, dim_z, mc_isolevel));
+		space.replace_component<MeshComponent>(space_vao);
+	}
+
     ImGui::End();
 
 
@@ -217,6 +320,8 @@ void ShadowsLayer::on_imgui_render()
 void ShadowsLayer::on_detach()
 {
 
+// 	delete points_vao;
+	delete space_vao;
 	delete plane_vao;
 	delete asteroid_vao;
 	delete cube_vao;
@@ -226,5 +331,7 @@ void ShadowsLayer::on_detach()
 
 	delete shader;
 	delete color_shader;
+
+	delete data;
 }
 
