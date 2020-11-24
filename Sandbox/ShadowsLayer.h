@@ -42,7 +42,7 @@ private:
 	double td;
 	VertexArrayObject *plane_vao, *asteroid_vao, *cube_vao, *space_vao, *points_vao;
 	ImgTexture *plane_texture, *asteroid_texture;
-	Shader *shader, *color_shader;
+	Shader *shader, *color_shader, *basic_shader;
 	Entity plane, asteroid, space, points; //, scene_camera, scene_light;
 };
 

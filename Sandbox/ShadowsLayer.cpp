@@ -29,12 +29,22 @@ void ShadowsLayer::on_attach()
     basic_shader_vs[basic_shader_vs_len] = 0;
     basic_shader_fs[basic_shader_fs_len] = 0;
 
+	#include "shaders/color_shader.vs.include"
+	#include "shaders/color_shader.fs.include"
+    color_shader_vs[color_shader_vs_len] = 0;
+    color_shader_fs[color_shader_fs_len] = 0;
+
+
     shader = new Shader;
     shader->create_shader((char *)((void *)tex_sha_vs),
                           (char *)((void *)tex_sha_fs));
 
     color_shader = new Shader;
-    color_shader->create_shader((char *)((void *)basic_shader_vs),
+    color_shader->create_shader((char *)((void *)color_shader_vs),
+                                (char *)(void *) color_shader_fs);
+
+    basic_shader = new Shader;
+    basic_shader->create_shader((char *)((void *)basic_shader_vs),
                                 (char *)(void *)basic_shader_fs);
 
     plane_texture = new ImgTexture("../../../data/dots4.png");
@@ -64,7 +74,7 @@ void ShadowsLayer::on_attach()
     scene->light = scene->create_entity("Light");
     scene->light.add_component<MeshComponent>(cube_vao);
     scene->light.add_component<SceneStatus>(true);
-    scene->light.add_component<Material>(color_shader)
+    scene->light.add_component<Material>(basic_shader)
 		.uniforms_vec4["u_color"] = vec4(0.3, 0.7, 0.12, 1.);
 
     scene->light.add_component<CameraComponent>(
@@ -132,56 +142,48 @@ void ShadowsLayer::on_attach()
 
 	space = scene->create_entity("Space");
 	space.add_component<MeshComponent>(space_vao);
-    space.add_component<Material>(color_shader).uniforms_vec4["u_color"] =
+    space.add_component<Material>(basic_shader).uniforms_vec4["u_color"] =
 		vec4(0.5, 0.3, 0.2, 1.);
 ;
 // 	space.get_component<Transform>().position = vec3(-10, 0, 0);
 
 
 
-// 	Batch cube_batch;
+	Batch cube_batch;
 //
-// 	pts.layout.elements.push_back(VertexDataType::FLOAT3);
-// 	int count = 0;
-// 	for (int k = 0; k < dim_z; k++)
-// 		for (int j = 0; j < dim_y; j++)
-// 			for (int i = 0; i < dim_x; i++)
-// 			{
-// 				if (data[k*dim_y*dim_x + j*dim_x + i] != 0)
-// 				{
-// 					cube_batch.models.push_back(
-// 						IndexedCube(vec3(i,j,k), vec3(0.9) ));
+	pts.layout.elements.push_back(VertexDataType::FLOAT3);
+	int count = 0;
+	for (int k = 0; k < dim_z; k++)
+		for (int j = 0; j < dim_y; j++)
+			for (int i = 0; i < dim_x; i++)
+			{
+				if (data[k*dim_y*dim_x + j*dim_x + i] != 0)
+				{
+					cube_batch.models.push_back(
+						IndexedColorCube(vec3(i - 15, j - 15, k - 15), vec3(1.),
+						vec4(1., 1., 1., data[k*dim_y*dim_x + j*dim_x + i]/1024.)));
+				}
+			}
+
+	cube_batch.make_batch();
+	cout << cube_batch.models.size() << endl;
+
+	points_vao = new VertexArrayObject(cube_batch.batch);
+	points_vao->blend = true;
+// 	points_vao = new VertexArrayObject(pts);
+// 	points_vao->draw_type = GL_POINTS;
+// 	points_vao->num_draw_elements = pts.vertices.size();
 //
-// // 					pts.vertices.push_back(i);
-// // 					pts.vertices.push_back(j);
-// // 					pts.vertices.push_back(k);
-// // //
-// // 					pts.indices.push_back(count);
-// // 					pts.indices.push_back(count + 1);
-// // 					pts.indices.push_back(count + 2);
-// // 					count += 3;
-// 				}
-// 			}
-//
-// 	cube_batch.make_batch();
-// 	cout << cube_batch.models.size() << endl;
-//
-// 	points_vao = new VertexArrayObject(cube_batch.batch);
-// // 	points_vao = new VertexArrayObject(pts);
-// // 	points_vao->draw_type = GL_POINTS;
-// // 	points_vao->num_draw_elements = pts.vertices.size();
-// //
-// 	points = scene->create_entity("points");
-// 	points.add_component<MeshComponent>(points_vao);
-//     points.add_component<Material>(color_shader).uniforms_vec4["u_color"] =
-// 		vec4(0.4, 0.1, 0.6, 1.);
-// 	points.get_component<Transform>().position = vec3(0, 0, 0);
+	points = scene->create_entity("points");
+	points.add_component<MeshComponent>(points_vao);
+    points.add_component<Material>(color_shader);
+	points.get_component<Transform>().position = vec3(0, 0, 0);
 
 
 //     scene->root_entity.add_child(&asteroid);
     scene->root_entity.add_child(&space);
 //     scene->root_entity.add_child(&plane);
-//     scene->root_entity.add_child(&points);
+    scene->root_entity.add_child(&points);
     scene->root_entity.add_child(&scene->light);
 
 
@@ -330,6 +332,7 @@ void ShadowsLayer::on_detach()
 	delete asteroid_texture;
 
 	delete shader;
+	delete basic_shader;
 	delete color_shader;
 
 	delete data;
