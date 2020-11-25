@@ -102,13 +102,18 @@ void DynamicVertexArrayObject::update_buffer(const IndexedModel &idx_mod)
 	if (idx_mod.vertices.size() < 3)
 		return;
 
-    glBindVertexArray(vao_id);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 //     glBufferSubData(GL_ARRAY_BUFFER, 0, idx_mod.vertices.size() * sizeof(float),
 //                     &idx_mod.vertices[0]);
     glBufferData(GL_ARRAY_BUFFER,
 				 idx_mod.vertices.size() * sizeof(float),
 				 &idx_mod.vertices[0],
                  usage);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxs_id);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+				 idx_mod.indices.size() * sizeof(unsigned int),
+                 &idx_mod.indices[0], usage);
 
 	num_draw_elements = idx_mod.indices.size() * 3;
 }

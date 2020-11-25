@@ -104,7 +104,7 @@ void ShadowsLayer::on_attach()
 
     // create volumetric data for marchcubes
 
-	vol_data = new VolumetricData<int>(60, 30, 30);
+	vol_data = new VolumetricData<int>(30, 30, 30);
 	vol_data->fill_with_perlin_noise(size_factor, seed);
 
     space_vao =
@@ -119,9 +119,9 @@ void ShadowsLayer::on_attach()
     // 	space.get_component<Transform>().position = vec3(-10, 0, 0);
 
 //     scene->root_entity.add_child(&asteroid);
-    scene->root_entity.add_child(&space);
     //     scene->root_entity.add_child(&plane);
     scene->root_entity.add_child(&scene->light);
+    scene->root_entity.add_child(&space);
 
     // depth texture on slot 1
     scene->scene_material.uniforms_int["u_depth_map"] = 1;
@@ -139,7 +139,6 @@ void ShadowsLayer::on_update(double time_delta)
 	if (previous_size_factor != size_factor)
 	{
 		vol_data->fill_with_perlin_noise(size_factor, seed);
-
         space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
             vol_data, mc_isolevel));
 	}
@@ -226,14 +225,9 @@ void ShadowsLayer::on_imgui_render()
     ImGui::Separator();
     ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
-    ImGui::DragInt("size factor", &size_factor, 1, 1, 30);
+    ImGui::DragFloat("size factor", &size_factor, 0.1, 1, 30);
     ImGui::DragInt("isolevel", &mc_isolevel, 1., 0, 255);
 
-    if (ImGui::Button("Update isolevel"))
-    {
-        space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
-            vol_data, mc_isolevel));
-    }
 
 	ImGui::InputInt("Seed", &seed);
     if (ImGui::Button("Update seed"))

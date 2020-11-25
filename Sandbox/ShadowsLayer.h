@@ -39,8 +39,8 @@ private:
 	int mc_isolevel  = 128;
 	int previous_iso = 128;
 
-	int size_factor = 2;
-	int previous_size_factor = 2;
+	float size_factor = 2;
+	float previous_size_factor = 2;
 	int seed = 0;
 
 	double td;
