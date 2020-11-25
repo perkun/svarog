@@ -1,7 +1,25 @@
 #include "Texture.h"
 
-Texture::Texture()
+Texture::Texture(int w, int h) : width(w), height(h)
 {
+	glGenTextures(1, &texture_id);
+	glActiveTexture(GL_TEXTURE0);			// uwaga na numerki!
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+
+	// those 4 need to be specified!
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	// send to openGL
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA,
+				 GL_UNSIGNED_BYTE, NULL);
+
+	// unbind
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::~Texture()
@@ -12,6 +30,21 @@ Texture::~Texture()
 void Texture::destroy()
 {
 	glDeleteTextures(1, &texture_id);
+}
+
+void Texture::update()
+{
+	bind();
+// 	void glTexSubImage2D(	GLenum target,
+// 			GLint level,
+// 			GLint xoffset,
+// 			GLint yoffset,
+// 			GLsizei width,
+// 			GLsizei height,
+// 			GLenum format,
+// 			GLenum type,
+// 			const void * data);
+
 }
 
 void Texture::bind(unsigned int slot)

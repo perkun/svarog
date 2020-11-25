@@ -19,11 +19,13 @@ using namespace glm;
 class Texture
 {
 public:
-    Texture();
+    Texture(int w, int h);
 	~Texture();
 
 	void destroy();
 	unsigned int get_texture_id();
+
+	void update();
 
 	virtual void update_texture();
 	virtual void multiply_data(float factor);
@@ -33,9 +35,12 @@ public:
 	long get_size();
 
 protected:
+	Texture() {}
+
 	unsigned int texture_id;
 	string filepath;
 	int width, height, bpp;
+
 };
 
 
