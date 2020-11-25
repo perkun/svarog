@@ -15,8 +15,9 @@
 #include "CameraController.h"
 #include "SceneSerializer.h"
 #include "Utils/FileDialog.h"
-#include "MarchingCubes.h"
-#include "PerlinNoise.h"
+#include "Compute/MarchingCubes.h"
+#include "Compute/PerlinNoise.h"
+#include "Compute/VolumetricData.h"
 
 using namespace std;
 
@@ -33,14 +34,18 @@ public:
 
 private:
 	IndexedModel pts;
+	VolumetricData<int> *vol_data;
 
-	short int *data;
-	unsigned int dim_x = 30, dim_y = 30, dim_z = 30;
 	int mc_isolevel  = 128;
 	int previous_iso = 128;
 
+	int size_factor = 2;
+	int previous_size_factor = 2;
+	int seed = 0;
+
 	double td;
-	VertexArrayObject *plane_vao, *asteroid_vao, *cube_vao, *space_vao, *points_vao;
+	DynamicVertexArrayObject *space_vao;
+	VertexArrayObject *plane_vao, *asteroid_vao, *cube_vao,  *points_vao;
 	ImgTexture *plane_texture, *asteroid_texture;
 	Shader *shader, *color_shader, *basic_shader;
 	Entity plane, asteroid, space, points; //, scene_camera, scene_light;

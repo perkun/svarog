@@ -36,6 +36,23 @@ public:
 
 private:
 	bool created = false;
+	int usage = GL_STATIC_DRAW;
+};
+
+
+class DynamicVertexArrayObject : public VertexArrayObject
+{
+public:
+	DynamicVertexArrayObject();
+	DynamicVertexArrayObject(IndexedModel idx_mod);
+	~DynamicVertexArrayObject();
+
+	void update_buffer(const IndexedModel &idx_mod);
+private:
+// 	size_t initial_size;
+	bool created = false;
+	int usage = GL_DYNAMIC_DRAW;
+
 };
 
 #endif /* RENDERER/VERTEXARRAYOBJECT_H_ */

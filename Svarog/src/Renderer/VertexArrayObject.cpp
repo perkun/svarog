@@ -39,16 +39,7 @@ VertexArrayObject::~VertexArrayObject()
 void VertexArrayObject::create(IndexedModel &indexed_model)
 {
 	indexed_model.layout.calculate_stride_and_elem_offsets();
-
-//     float vertices[] = {0.5,  -0.5, -0.5, 0.5,  0.5, -0.5, -0.5, 0.5,
-//                         -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5,  0.5,
-//                         0.5,  0.5,  -0.5, 0.5,  0.5, -0.5, -0.5, 0.5};
-//
-//     int indices[] = {0, 1, 4, 1, 5, 4, 1, 2, 5, 2, 6, 5, 3, 1, 0, 3, 2, 1,
-//                      3, 4, 7, 3, 0, 4, 7, 2, 3, 6, 2, 7, 4, 5, 7, 7, 5, 6};
-//
 	num_draw_elements = indexed_model.indices.size() * 3;
-
 
     // create VAO
     glGenVertexArrays(1, &vao_id);
@@ -58,10 +49,11 @@ void VertexArrayObject::create(IndexedModel &indexed_model)
     glGenBuffers(1, &vbo_id);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+
     glBufferData(GL_ARRAY_BUFFER,
 				 indexed_model.vertices.size() * sizeof(float),
 				 &indexed_model.vertices[0],
-                 GL_STATIC_DRAW);
+                 usage);
 
 //     unsigned int buffer_index = 0;
 	unsigned int location_index = 0;
@@ -82,4 +74,41 @@ void VertexArrayObject::create(IndexedModel &indexed_model)
                  &indexed_model.indices[0], GL_STATIC_DRAW);
 
 	created = true;
+}
+
+
+
+
+
+DynamicVertexArrayObject::DynamicVertexArrayObject(IndexedModel idx_mod)
+{
+	create(idx_mod);
+// 	initial_size = idx_mod.vertices.size() * sizeof(float);
+}
+
+
+DynamicVertexArrayObject::~DynamicVertexArrayObject()
+{
+	if (created)
+	{
+		glDeleteVertexArrays(1, &vao_id);
+		glDeleteBuffers(1, &vbo_id);
+		glDeleteBuffers(1, &idxs_id);
+	}
+}
+
+void DynamicVertexArrayObject::update_buffer(const IndexedModel &idx_mod)
+{
+	if (idx_mod.vertices.size() < 3)
+		return;
+
+    glBindVertexArray(vao_id);
+//     glBufferSubData(GL_ARRAY_BUFFER, 0, idx_mod.vertices.size() * sizeof(float),
+//                     &idx_mod.vertices[0]);
+    glBufferData(GL_ARRAY_BUFFER,
+				 idx_mod.vertices.size() * sizeof(float),
+				 &idx_mod.vertices[0],
+                 usage);
+
+	num_draw_elements = idx_mod.indices.size() * 3;
 }

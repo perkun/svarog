@@ -1,118 +1,29 @@
 #include "MarchingCubes.h"
 
-IndexedModel MarchingCubes::polygonise_space(short int *data,
-                                             unsigned int d_x,
-                                             unsigned int d_y,
-                                             unsigned int d_z,
-                                             short int isolevel)
+namespace MarchingCubes {
+
+/*-------------------------------------------------------------------------
+   Return the point between two points in the same ratio as
+   isolevel is between valp1 and valp2
+*/
+XYZ VertexInterp(double isolevel, XYZ p1, XYZ p2, double valp1,
+                                double valp2)
 {
-	dim_x = d_x;
-	dim_y = d_y;
-	dim_z = d_z;
+    double mu;
+    XYZ p;
 
-    IndexedModel model;
+    if (ABS(isolevel - valp1) < 0.00001)
+        return (p1);
+    if (ABS(isolevel - valp2) < 0.00001)
+        return (p2);
+    if (ABS(valp1 - valp2) < 0.00001)
+        return (p1);
+    mu = (isolevel - valp1) / (valp2 - valp1);
+    p.x = p1.x + mu * (p2.x - p1.x);
+    p.y = p1.y + mu * (p2.y - p1.y);
+    p.z = p1.z + mu * (p2.z - p1.z);
 
-    int i, j, k, l, n, c;
-    GRIDCELL grid;
-    TRIANGLE triangles[10];
-    TRIANGLE *tri = NULL;
-    int ntri = 0;
-    FILE *fptr, *fptr2;
-
-	// data layout: data[z][y][x] -> data(xyz) = data[z*dim_y + y*dim_x + x]
-
-    // Polygonise the grid
-    fprintf(stderr, "Polygonising data ...\n");
-    for (i = 0; i < dim_x - 1; i++)
-    {
-//         if (i % (dim_x / 10) == 0)
-//             fprintf(stderr, "   Slice %d of %d\n", i, dim_x);
-        for (j = 0; j < dim_y - 1; j++)
-        {
-            for (k = 0; k < dim_z - 1; k++)
-            {
-				// i, j, k => x, y, z
-                grid.p[0].x = i;
-                grid.p[0].y = j;
-                grid.p[0].z = k;
-                grid.val[0] = data[index(i,j,k)];
-                grid.p[1].x = i + 1;
-                grid.p[1].y = j;
-                grid.p[1].z = k;
-                grid.val[1] = data[index(i+1, j, k)];
-                grid.p[2].x = i + 1;
-                grid.p[2].y = j + 1;
-                grid.p[2].z = k;
-                grid.val[2] = data[index(i+1, j+1, k)];
-                grid.p[3].x = i;
-                grid.p[3].y = j + 1;
-                grid.p[3].z = k;
-                grid.val[3] = data[index(i, j+1, k)];
-                grid.p[4].x = i;
-                grid.p[4].y = j;
-                grid.p[4].z = k + 1;
-                grid.val[4] = data[index(i, j, k+1)];
-                grid.p[5].x = i + 1;
-                grid.p[5].y = j;
-                grid.p[5].z = k + 1;
-                grid.val[5] = data[index(i+1, j, k+1)];
-                grid.p[6].x = i + 1;
-                grid.p[6].y = j + 1;
-                grid.p[6].z = k + 1;
-                grid.val[6] = data[index(i+1, j+1, k+1)];
-                grid.p[7].x = i;
-                grid.p[7].y = j + 1;
-                grid.p[7].z = k + 1;
-                grid.val[7] = data[index(i, j+1, k+1)];
-
-                n = PolygoniseCube(grid, isolevel, triangles);
-                tri = (TRIANGLE *)realloc(tri, (ntri + n) * sizeof(TRIANGLE));
-                for (l = 0; l < n; l++)
-                    tri[ntri + l] = triangles[l];
-                ntri += n;
-            }
-        }
-    }
-    fprintf(stderr, "Total of %d triangles\n", ntri);
-
-	model.vertices.reserve(ntri * 3 * (3 + 3));
-	model.indices.reserve(ntri * 3);
-    for (i = 0; i < ntri; i++)
-    {
-        for (k = 0; k < 3; k++)
-        {
-			model.vertices.push_back(tri[i].p[k].x - dim_x / 2.);
-			model.vertices.push_back(tri[i].p[k].y - dim_y / 2.);
-			model.vertices.push_back(tri[i].p[k].z - dim_z / 2.);
-			// normal
-			model.vertices.push_back(tri[i].n[k].x);
-			model.vertices.push_back(tri[i].n[k].y);
-			model.vertices.push_back(tri[i].n[k].z);
-
-			// color (white for now)
-// 			model.vertices.push_back(1.);
-// 			model.vertices.push_back(1.);
-// 			model.vertices.push_back(1.);
-// 			model.vertices.push_back(1.);
-
-//             fprintf(outf, "v %lf %lf %lf\n",
-//                     // zamieniona os x z osia z
-//                     tri[i].p[k].z - NX / 2.,
-// 					tri[i].p[k].y - NY / 2.,
-//                     tri[i].p[k].x - NZ / 2.);
-        }
-        // zamieniona os x z osia z
-//         fprintf(outf, "f %d %d %d\n", (i * 3) + 1, (i * 3) + 3, (i * 3) + 2);
-		model.indices.push_back((i * 3) + 0);
-		model.indices.push_back((i * 3) + 2);
-		model.indices.push_back((i * 3) + 1);
-    }
-
-
-	model.layout.elements.push_back(VertexDataType::FLOAT3);
-	model.layout.elements.push_back(VertexDataType::FLOAT3);
-
-    return model;
+    return (p);
 }
 
 /*-------------------------------------------------------------------------
@@ -123,33 +34,32 @@ IndexedModel MarchingCubes::polygonise_space(short int *data,
    0 will be returned if the grid cell is either totally above
    of totally below the isolevel.
 */
-int MarchingCubes::PolygoniseCube(GRIDCELL g, double iso, TRIANGLE *tri)
+int PolygoniseCube(GRIDCELL g, double iso, TRIANGLE *tri)
 {
     int i, ntri = 0;
     int cubeindex;
     XYZ vertlist[12];
     /*
-       int edgeTable[256].  It corresponds to the 2^8 possible combinations of
-       of the eight (n) vertices either existing inside or outside (2^n) of the
-       surface.  A vertex is inside of a surface if the value at that vertex is
-       less than that of the surface you are scanning for.  The table index is
-       constructed bitwise with bit 0 corresponding to vertex 0, bit 1 to vert
-       1.. bit 7 to vert 7.  The value in the table tells you which edges of
-       the table are intersected by the surface.  Once again bit 0 corresponds
-       to edge 0 and so on, up to edge 12.
+       int edgeTable[256].  It corresponds to the 2^8 possible combinations
+       of of the eight (n) vertices either existing inside or outside (2^n)
+       of the surface.  A vertex is inside of a surface if the value at that
+       vertex is less than that of the surface you are scanning for.  The
+       table index is constructed bitwise with bit 0 corresponding to vertex
+       0, bit 1 to vert 1.. bit 7 to vert 7.  The value in the table tells
+       you which edges of the table are intersected by the surface.  Once
+       again bit 0 corresponds to edge 0 and so on, up to edge 12.
        Constructing the table simply consisted of having a program run thru
-       the 256 cases and setting the edge bit if the vertices at either end of
-       the edge had different values (one is inside while the other is out).
-       The purpose of the table is to speed up the scanning process.  Only the
-       edges whose bit's are set contain vertices of the surface.
+       the 256 cases and setting the edge bit if the vertices at either end
+       of the edge had different values (one is inside while the other is
+       out). The purpose of the table is to speed up the scanning process.
+       Only the edges whose bit's are set contain vertices of the surface.
        Vertex 0 is on the bottom face, back edge, left side.
        The progression of vertices is clockwise around the bottom face
        and then clockwise around the top face of the cube.  Edge 0 goes from
-       vertex 0 to vertex 1, Edge 1 is from 2->3 and so on around clockwise to
-       vertex 0 again. Then Edge 4 to 7 make up the top face, 4->5, 5->6, 6->7
-       and 7->4.  Edge 8 thru 11 are the vertical edges from vert 0->4, 1->5,
-       2->6, and 3->7.
-           4--------5     *---4----*
+       vertex 0 to vertex 1, Edge 1 is from 2->3 and so on around clockwise
+       to vertex 0 again. Then Edge 4 to 7 make up the top face, 4->5, 5->6,
+       6->7 and 7->4.  Edge 8 thru 11 are the vertical edges from vert 0->4,
+       1->5, 2->6, and 3->7. 4--------5     *---4----*
           /|       /|    /|       /|
          / |      / |   7 |      5 |
         /  |     /  |  /  8     /  9
@@ -161,8 +71,8 @@ int MarchingCubes::PolygoniseCube(GRIDCELL g, double iso, TRIANGLE *tri)
        |/       |/    |/       |/
        3--------2     *---2----*
     */
-        // int edgeTable[256]={
-        int edgeTable[256] = {
+    // int edgeTable[256]={
+    int edgeTable[256] = {
         0x0,   0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905,
         0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00, 0x190, 0x99,  0x393, 0x29a,
         0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93,
@@ -191,27 +101,26 @@ int MarchingCubes::PolygoniseCube(GRIDCELL g, double iso, TRIANGLE *tri)
         0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0};
 
     /*
-       int triTable[256][16] also corresponds to the 256 possible combinations
-       of vertices.
-       The [16] dimension of the table is again the list of edges of the cube
-       which are intersected by the surface.  This time however, the edges are
-       enumerated in the order of the vertices making up the triangle mesh of
-       the surface.  Each edge contains one vertex that is on the surface.
-       Each triple of edges listed in the table contains the vertices of one
-       triangle on the mesh.  The are 16 entries because it has been shown that
-       there are at most 5 triangles in a cube and each "edge triple" list is
-       terminated with the value -1.
-       For example triTable[3] contains
-       {1, 8, 3, 9, 8, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-       This corresponds to the case of a cube whose vertex 0 and 1 are inside
-       of the surface and the rest of the verts are outside (00000001 bitwise
-       OR'ed with 00000010 makes 00000011 == 3).  Therefore, this cube is
-       intersected by the surface roughly in the form of a plane which cuts
-       edges 8,9,1 and 3.  This quadrilateral can be constructed from two
-       triangles: one which is made of the intersection vertices found on edges
-       1,8, and 3; the other is formed from the vertices on edges 9,8, and 1.
-       Remember, each intersected edge contains only one surface vertex.  The
-       vertex triples are listed in counter clockwise order for proper facing.
+       int triTable[256][16] also corresponds to the 256 possible
+       combinations of vertices. The [16] dimension of the table is again
+       the list of edges of the cube which are intersected by the surface.
+       This time however, the edges are enumerated in the order of the
+       vertices making up the triangle mesh of the surface.  Each edge
+       contains one vertex that is on the surface. Each triple of edges
+       listed in the table contains the vertices of one triangle on the
+       mesh.  The are 16 entries because it has been shown that there are at
+       most 5 triangles in a cube and each "edge triple" list is terminated
+       with the value -1. For example triTable[3] contains {1, 8, 3, 9, 8,
+       1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1} This corresponds to the
+       case of a cube whose vertex 0 and 1 are inside of the surface and the
+       rest of the verts are outside (00000001 bitwise OR'ed with 00000010
+       makes 00000011 == 3).  Therefore, this cube is intersected by the
+       surface roughly in the form of a plane which cuts edges 8,9,1 and 3.
+       This quadrilateral can be constructed from two triangles: one which
+       is made of the intersection vertices found on edges 1,8, and 3; the
+       other is formed from the vertices on edges 9,8, and 1. Remember, each
+       intersected edge contains only one surface vertex.  The vertex
+       triples are listed in counter clockwise order for proper facing.
     */
     int triTable[256][16] = {
         {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -554,58 +463,37 @@ int MarchingCubes::PolygoniseCube(GRIDCELL g, double iso, TRIANGLE *tri)
         tri[ntri].p[1] = vertlist[triTable[cubeindex][i + 1]];
         tri[ntri].p[2] = vertlist[triTable[cubeindex][i + 2]];
 
-		// TODO: add normals
-		vec3 p0, p1, p2;
-		p0.x = tri[ntri].p[0].x;
-		p0.y = tri[ntri].p[0].y;
-		p0.z = tri[ntri].p[0].z;
+        // TODO: add normals
+        vec3 p0, p1, p2;
+        p0.x = tri[ntri].p[0].x;
+        p0.y = tri[ntri].p[0].y;
+        p0.z = tri[ntri].p[0].z;
 
-		p1.x = tri[ntri].p[1].x;
-		p1.y = tri[ntri].p[1].y;
-		p1.z = tri[ntri].p[1].z;
+        p1.x = tri[ntri].p[1].x;
+        p1.y = tri[ntri].p[1].y;
+        p1.z = tri[ntri].p[1].z;
 
-		p2.x = tri[ntri].p[2].x;
-		p2.y = tri[ntri].p[2].y;
-		p2.z = tri[ntri].p[2].z;
+        p2.x = tri[ntri].p[2].x;
+        p2.y = tri[ntri].p[2].y;
+        p2.z = tri[ntri].p[2].z;
 
-		vec3 v1 =  p0 - p1;
-		vec3 v2 =  p0 - p2;
+        vec3 v1 = p0 - p1;
+        vec3 v2 = p0 - p2;
 
-		vec3 normal = normalize(cross(v1, v2));
-		XYZ nrl;
-		nrl.x = normal.x;
-		nrl.y = normal.y;
-		nrl.z = normal.z;
+        vec3 normal = normalize(cross(v1, v2));
+        XYZ nrl;
+        nrl.x = normal.x;
+        nrl.y = normal.y;
+        nrl.z = normal.z;
 
-		tri[ntri].n[0] = nrl;
-		tri[ntri].n[1] = nrl;
-		tri[ntri].n[2] = nrl;
+        tri[ntri].n[0] = nrl;
+        tri[ntri].n[1] = nrl;
+        tri[ntri].n[2] = nrl;
         ntri++;
     }
 
     return (ntri);
 }
 
-/*-------------------------------------------------------------------------
-   Return the point between two points in the same ratio as
-   isolevel is between valp1 and valp2
-*/
-XYZ MarchingCubes::VertexInterp(double isolevel, XYZ p1, XYZ p2, double valp1,
-                                double valp2)
-{
-    double mu;
-    XYZ p;
-
-    if (ABS(isolevel - valp1) < 0.00001)
-        return (p1);
-    if (ABS(isolevel - valp2) < 0.00001)
-        return (p2);
-    if (ABS(valp1 - valp2) < 0.00001)
-        return (p1);
-    mu = (isolevel - valp1) / (valp2 - valp1);
-    p.x = p1.x + mu * (p2.x - p1.x);
-    p.y = p1.y + mu * (p2.y - p1.y);
-    p.z = p1.z + mu * (p2.z - p1.z);
-
-    return (p);
 }
+

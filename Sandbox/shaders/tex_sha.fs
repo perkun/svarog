@@ -49,6 +49,7 @@ void main()
 	d = clamp(d, 0., 1.);
  	color = texture2D(u_texture, tex_coord);
 	color = vec4(d * clamp(shadow_factor, 0.5, 1.) * vec3(color), color.w);
+// 	color = vec4(d * shadow_factor * vec3(color), color.w);
 }
 
 
