@@ -84,7 +84,7 @@ void ShadowsLayer::on_attach()
     plane_vao->blend = true;
 
     asteroid_vao = new VertexArrayObject(
-        IndexedModelObj("../../../data/sphere_cc.obj", NormalIndexing::PER_VERTEX));
+        IndexedModelObj("../../../data/model.obj", NormalIndexing::PER_VERTEX));
 
     cube_vao = new VertexArrayObject(IndexedCube());
 
@@ -137,13 +137,13 @@ void ShadowsLayer::on_attach()
 
     // create volumetric data for marchcubes
 
-	vol_data = new VolumetricData<int>(100, 100, 100);
-	vol_data->fill_with_perlin_noise(size_factor, seed);
+	vol_data = new VolumetricData<float>(100, 100, 100);
+	vol_data->fill_with_perlin_noise(size_factor, 1.0, true, seed);
 
 	perlin_tex->update(vol_data->data);
 
     space_vao =
-        new DynamicVertexArrayObject(MarchingCubes::polygonise_space<int>(
+        new DynamicVertexArrayObject(MarchingCubes::polygonise_space<float>(
             vol_data, mc_isolevel));
 
     space = scene->create_entity("Space");
@@ -167,14 +167,14 @@ void ShadowsLayer::on_update(double time_delta)
 {
     if (previous_iso != mc_isolevel)
     {
-        space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
-            vol_data, mc_isolevel));
+//         space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
+//             vol_data, mc_isolevel));
     }
     previous_iso = mc_isolevel;
 
 	if (previous_size_factor != size_factor)
 	{
-		vol_data->fill_with_perlin_noise(size_factor, seed);
+		vol_data->fill_with_perlin_noise(size_factor, 1.0, true, seed);
 //         space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
 //             vol_data, mc_isolevel));
 
@@ -276,10 +276,11 @@ void ShadowsLayer::on_imgui_render()
 	ImGui::InputInt("Seed", &seed);
     if (ImGui::Button("Update seed"))
     {
-		vol_data->fill_with_perlin_noise(size_factor, seed);
+		vol_data->fill_with_perlin_noise(size_factor, 1.0, true, seed);
 
-        space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
+        space_vao->update_buffer(MarchingCubes::polygonise_space<float>(
             vol_data, mc_isolevel));
+		perlin_tex->update(vol_data->data);
     }
 
     ImGui::End();

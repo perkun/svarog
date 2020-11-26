@@ -22,7 +22,7 @@ public:
 		delete data;
 	}
 
-	void fill_with_perlin_noise(double size_factor, int seed);
+	void fill_with_perlin_noise(double size_factor, T max_val, bool cylindrical_projection, int seed);
 
 	T* get_data() {
 		return data;
@@ -36,7 +36,7 @@ public:
 };
 
 template<typename T>
-void VolumetricData<T>::fill_with_perlin_noise(double size_factor, int seed)
+void VolumetricData<T>::fill_with_perlin_noise(double size_factor, T max_val, bool cylindrical_projection,  int seed)
 {
     PerlinNoise pn(seed);
 
@@ -49,10 +49,21 @@ void VolumetricData<T>::fill_with_perlin_noise(double size_factor, int seed)
                 double y = (double)j / ((double)dim_y);
                 double z = (double)k / ((double)dim_z);
 
-                double noise = pn.noise(size_factor * x, size_factor * y, size_factor * z);
+				if (cylindrical_projection)
+				{
+					x -= 0.5;
+					x = x * cos( (y-0.5) * M_PI );
+					x += 0.5;
+				}
+
+				x *= size_factor * 2.;
+				y *= size_factor;
+				z *= size_factor;
+
+                double noise = pn.noise(x,  y,  z);
 // 				cout << floor(noise * 255) << "  ";
 
-                data[k * dim_y * dim_x + j * dim_x + i] = floor(noise * 255);
+                data[k * dim_y * dim_x + j * dim_x + i] = (T)(noise * max_val);
 			}
 // 			cout << endl;
 		}

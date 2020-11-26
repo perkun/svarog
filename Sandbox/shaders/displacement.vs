@@ -34,7 +34,7 @@ void main()
 // 	else
 // 		v_tex_coord.x = u2;
 
-	float displacement = texture(u_texture, vec3(tex_coord, u_texture_z)).r;
+	float displacement = texture(u_texture, vec3(tex_coord.x, tex_coord.y, u_texture_z)).r;
 
 	vec3 pos = position + normalize(position) * displacement * u_displacement_factor;
 

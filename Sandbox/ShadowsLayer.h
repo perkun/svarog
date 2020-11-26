@@ -13,7 +13,7 @@
 #include "Input.h"
 #include "ScriptableEntity.h"
 #include "CameraController.h"
-#include "CameraControllerFPP.h"
+// #include "CameraControllerFPP.h"
 #include "SceneSerializer.h"
 #include "Utils/FileDialog.h"
 #include "Compute/MarchingCubes.h"
@@ -70,7 +70,7 @@ public:
 private:
 	FloatData2D *perlin_data;
 	IndexedModel pts;
-	VolumetricData<int> *vol_data;
+	VolumetricData<float> *vol_data;
 
 	int mc_isolevel  = 128;
 	int previous_iso = 128;
