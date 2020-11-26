@@ -12,10 +12,12 @@ using namespace std;
 
 class CameraController : public ScriptableEntity
 {
-    public:
+public:
     ~CameraController() { }
 
-    protected:
+protected:
+    vec2 cursor_pos;
+
     virtual void on_create() override
     {
     }
@@ -54,7 +56,6 @@ class CameraController : public ScriptableEntity
     void on_mouse_scrolled_event(MouseScrolledEvent &e)
     {
 		Transform &ot = get_component<Transform>();
-
         ot.position += ot.front * (float)(e.get_offset().y / 5. * ot.speed);
     }
 
@@ -63,15 +64,12 @@ class CameraController : public ScriptableEntity
         if (Input::is_imgui_window_hovered())
             return;
 
-        vec2 old_cursor_pos = cursor_pos;
-        cursor_pos = e.get_cursor_pos();
-        vec2 cursor_shift = cursor_pos - old_cursor_pos;
-
+		vec2 cursor_shift = e.get_cursor_pos() - cursor_pos;
         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_1))
             get_component<Transform>().rotate_about_target(cursor_shift);
+		cursor_pos= e.get_cursor_pos();
     }
 
-    vec2 cursor_pos;
 };
 
 #endif /* CAMERACONTROLLER_H_ */

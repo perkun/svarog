@@ -32,6 +32,19 @@ void ShadowsLayer::on_attach()
     color_shader_vs[color_shader_vs_len] = 0;
     color_shader_fs[color_shader_fs_len] = 0;
 
+#include "shaders/displacement.vs.include"
+#include "shaders/normals.gs.include"
+#include "shaders/displacement.fs.include"
+    displacement_vs[displacement_vs_len] = 0;
+    normals_gs[normals_gs_len] = 0;
+    displacement_fs[displacement_fs_len] = 0;
+
+	displacement_shader = new Shader;
+	displacement_shader->create_shader((char *)((void *)displacement_vs),
+									   (char *)((void *)normals_gs),
+                          			   (char *)((void *)displacement_fs));
+
+
     shader = new Shader;
     shader->create_shader((char *)((void *)tex_sha_vs),
                           (char *)((void *)tex_sha_fs));
@@ -48,12 +61,30 @@ void ShadowsLayer::on_attach()
     //     plane_texture = new ImgTexture("../../../data/forest.jpg");
     asteroid_texture = new ImgTexture("../../../data/surface2.jpg");
 
+
+
+	// perlin noise texture
+	TextureSpec pts;
+	pts.target = GL_TEXTURE_3D;
+	pts.internal_format = GL_RED;
+	pts.width = 100;
+	pts.height = 100;
+	pts.depth = 100;
+	pts.format = GL_RED;
+	pts.type = GL_FLOAT;
+
+	perlin_tex = new Texture(pts);
+// 	perlin_data = new FloatData2D(512, 512);
+// 	perlin_data->perlin_noise(size_factor);
+
+
+
     plane_vao =
         new VertexArrayObject(IndexedQuad(vec3(-10., -10., 0.), vec2(20.)));
     plane_vao->blend = true;
 
     asteroid_vao = new VertexArrayObject(
-        IndexedModelObj("../../../data/model.obj", NormalIndexing::PER_FACE));
+        IndexedModelObj("../../../data/sphere_cc.obj", NormalIndexing::PER_VERTEX));
 
     cube_vao = new VertexArrayObject(IndexedCube());
 
@@ -92,11 +123,13 @@ void ShadowsLayer::on_attach()
     plane.add_component<SceneStatus>(false);
     plane.add_component<Material>(shader);
 
+
     asteroid = scene->create_entity("Aster");
     asteroid.add_component<MeshComponent>(asteroid_vao);
-    asteroid.add_component<TextureComponent>(asteroid_texture);
+    asteroid.add_component<TextureComponent>(perlin_tex);
     asteroid.add_component<SceneStatus>(true);
-    asteroid.add_component<Material>(shader);
+    asteroid.add_component<Material>(displacement_shader).uniforms_float["u_displacement_factor"] = 3.0;
+	asteroid.get_component<Material>().uniforms_float["u_texture_z"] = 0.5;
 
     Transform &tr = asteroid.get_component<Transform>();
     tr.scale = vec3(5.);
@@ -104,8 +137,10 @@ void ShadowsLayer::on_attach()
 
     // create volumetric data for marchcubes
 
-	vol_data = new VolumetricData<int>(30, 30, 30);
+	vol_data = new VolumetricData<int>(100, 100, 100);
 	vol_data->fill_with_perlin_noise(size_factor, seed);
+
+	perlin_tex->update(vol_data->data);
 
     space_vao =
         new DynamicVertexArrayObject(MarchingCubes::polygonise_space<int>(
@@ -118,13 +153,14 @@ void ShadowsLayer::on_attach()
 
     // 	space.get_component<Transform>().position = vec3(-10, 0, 0);
 
-//     scene->root_entity.add_child(&asteroid);
-    //     scene->root_entity.add_child(&plane);
+    scene->root_entity.add_child(&asteroid);
     scene->root_entity.add_child(&scene->light);
-    scene->root_entity.add_child(&space);
+//     scene->root_entity.add_child(&space);
+//     scene->root_entity.add_child(&plane);
 
     // depth texture on slot 1
     scene->scene_material.uniforms_int["u_depth_map"] = 1;
+
 }
 
 void ShadowsLayer::on_update(double time_delta)
@@ -139,8 +175,12 @@ void ShadowsLayer::on_update(double time_delta)
 	if (previous_size_factor != size_factor)
 	{
 		vol_data->fill_with_perlin_noise(size_factor, seed);
-        space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
-            vol_data, mc_isolevel));
+//         space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
+//             vol_data, mc_isolevel));
+
+		perlin_tex->update(vol_data->data);
+// 		perlin_data->perlin_noise(size_factor);
+// 		perlin_tex->update(perlin_data->data);
 	}
 	previous_size_factor = size_factor;
 
@@ -228,6 +268,10 @@ void ShadowsLayer::on_imgui_render()
     ImGui::DragFloat("size factor", &size_factor, 0.1, 1, 30);
     ImGui::DragInt("isolevel", &mc_isolevel, 1., 0, 255);
 
+    ImGui::DragFloat("displacement factor", &asteroid.get_component<Material>().uniforms_float["u_displacement_factor"], 0.01, 0.01, 10.);
+
+
+	ImGui::DragFloat("tex z", &asteroid.get_component<Material>().uniforms_float["u_texture_z"], 0.01, 0., 1.);
 
 	ImGui::InputInt("Seed", &seed);
     if (ImGui::Button("Update seed"))
@@ -240,12 +284,13 @@ void ShadowsLayer::on_imgui_render()
 
     ImGui::End();
 
-    //     ImGui::Begin("depth map");
-    // //     long int tex_id = shadow_fb->get_color_attachment_id();
-    //     long int tex_id = shadow_fb->get_depth_attachment_id();
-    //     ImGui::Image((void *)tex_id, ImVec2(256, 256), ImVec2(0, 1),
-    //                  ImVec2(1, 0));
-    //     ImGui::End();
+//     ImGui::Begin("depth map");
+// //     long int tex_id = shadow_fb->get_color_attachment_id();
+//     long int tex_id = perlin_tex->get_texture_id();
+//     ImGui::Image((void *)tex_id, ImVec2(perlin_data->width, perlin_data->height),
+// 			ImVec2(0, 1),
+//                  ImVec2(1, 0));
+//     ImGui::End();
 }
 
 void ShadowsLayer::on_detach()
@@ -263,6 +308,9 @@ void ShadowsLayer::on_detach()
     delete shader;
     delete basic_shader;
     delete color_shader;
+	delete displacement_shader;
 
     delete vol_data;
+	delete perlin_tex;
+	delete perlin_data;
 }

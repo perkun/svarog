@@ -13,33 +13,46 @@
 using namespace std;
 using namespace glm;
 
+struct TextureSpec
+{
+	int target = GL_TEXTURE_2D;
+	int level = 0;
+	int internal_format = GL_RGBA32F;
+	int width = 1;
+	int height = 1;
+	int depth = 1;
+	int border = 0;
+	int format = GL_RGBA;
+	int type = GL_UNSIGNED_BYTE;
+};
 
 
 
 class Texture
 {
 public:
-    Texture(int w, int h);
+    Texture(TextureSpec ts);
 	~Texture();
 
 	void destroy();
 	unsigned int get_texture_id();
 
-	void update();
+	void update(void *data, int xoffset = 0, int yoffset= 0);
 
-	virtual void update_texture();
+	virtual void update(int xoffset = 0, int yoffset = 0);
 	virtual void multiply_data(float factor);
 
 	void bind(unsigned int slot = 0);
 	vec2 get_dimentions();
 	long get_size();
-
 protected:
 	Texture() {}
 
 	unsigned int texture_id;
 	string filepath;
 	int width, height, bpp;
+
+	TextureSpec specs;
 
 };
 
@@ -61,7 +74,7 @@ public:
 	FitsTexture(string);
 	~FitsTexture();
 
-	void update_texture() override;
+	void update(int xoffset = 0, int yoffset = 0) override;
 	void multiply_data(float factor) override;
 	void normalize_data();
 

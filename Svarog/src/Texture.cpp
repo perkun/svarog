@@ -1,25 +1,29 @@
 #include "Texture.h"
 
-Texture::Texture(int w, int h) : width(w), height(h)
+Texture::Texture(TextureSpec ts) : specs(ts)
 {
-	glGenTextures(1, &texture_id);
-	glActiveTexture(GL_TEXTURE0);			// uwaga na numerki!
-	glBindTexture(GL_TEXTURE_2D, texture_id);
+    glGenTextures(1, &texture_id);
+    glActiveTexture(GL_TEXTURE0); // uwaga na numerki!
+    glBindTexture(specs.target, texture_id);
 
-	// those 4 need to be specified!
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // those 4 need to be specified!
+    glTexParameteri(specs.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(specs.target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(specs.target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(specs.target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    // 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	// send to openGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA,
-				 GL_UNSIGNED_BYTE, NULL);
+    // send to openGL
+	if (specs.target == GL_TEXTURE_2D)
+		glTexImage2D(specs.target, specs.level, specs.internal_format, specs.width,
+				specs.height, specs.border, specs.format, specs.type, NULL);
+	else if (specs.target == GL_TEXTURE_3D)
+		glTexImage3D(specs.target, specs.level, specs.internal_format, specs.width,
+				specs.height, specs.depth, specs.border, specs.format, specs.type, NULL);
 
-	// unbind
-	glBindTexture(GL_TEXTURE_2D, 0);
+    // unbind
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::~Texture()
@@ -30,27 +34,28 @@ Texture::~Texture()
 void Texture::destroy()
 {
 	glDeleteTextures(1, &texture_id);
+
 }
 
-void Texture::update()
+void Texture::update(int xoffset, int yoffset)
 {
-	bind();
-// 	void glTexSubImage2D(	GLenum target,
-// 			GLint level,
-// 			GLint xoffset,
-// 			GLint yoffset,
-// 			GLsizei width,
-// 			GLsizei height,
-// 			GLenum format,
-// 			GLenum type,
-// 			const void * data);
+}
 
+void Texture::update(void *data, int xoffset, int yoffset)
+{
+    bind();
+	if (specs.target == GL_TEXTURE_2D)
+		glTexSubImage2D(specs.target, specs.level, xoffset, yoffset, specs.width,
+						specs.height, specs.format, specs.type, data);
+	else if (specs.target == GL_TEXTURE_3D)
+		glTexImage3D(specs.target, specs.level, specs.internal_format, specs.width,
+				specs.height, specs.depth, specs.border, specs.format, specs.type, data);
 }
 
 void Texture::bind(unsigned int slot)
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
+	glBindTexture(specs.target, texture_id);
 }
 
 unsigned int Texture::get_texture_id()
@@ -69,9 +74,6 @@ long Texture::get_size()
 	return width * height;
 }
 
-void Texture::update_texture()
-{
-}
 
 void Texture::multiply_data(float factor)
 {
@@ -208,7 +210,7 @@ FitsTexture::FitsTexture(string path)
 	// unbind
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	update_texture();
+	update();
 }
 
 
@@ -220,7 +222,7 @@ FitsTexture::~FitsTexture()
 }
 
 
-void FitsTexture::update_texture()
+void FitsTexture::update(int xoffset, int yoffset)
 {
 
     bind(0);

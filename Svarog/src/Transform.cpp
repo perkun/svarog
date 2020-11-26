@@ -178,7 +178,7 @@ void Transform::rotate_about_target(vec2 cursor_shift)
 	vec3 intersection_point = calculate_intersection_point(vec3(0.), vec3(0., 0., 1.));
 	position = position - intersection_point;
 
-	rotate_about_origin(cursor_shift, 0.2, M_PI_2 - 0.2);
+	rotate_about_origin(cursor_shift, -M_PI_2 + 0.2, M_PI_2 - 0.2);
 
 	position = position + intersection_point;
 

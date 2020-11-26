@@ -30,7 +30,7 @@ public:
 
 	unsigned int dim_x, dim_y, dim_z;
 
-private:
+// private:
 	T *data;
 
 };
