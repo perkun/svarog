@@ -12,10 +12,7 @@ ShadowsLayer::~ShadowsLayer()
 
 void ShadowsLayer::on_attach()
 {
-    scene = new Scene;
     Window *window = Application::get_window();
-    // 	#include "shaders/shadow.vs.include"
-    // 	#include "shaders/shadow.fs.include"
 
 #include "shaders/tex_sha.vs.include"
 #include "shaders/tex_sha.fs.include"
@@ -74,9 +71,21 @@ void ShadowsLayer::on_attach()
 	pts.type = GL_FLOAT;
 
 	perlin_tex = new Texture(pts);
-// 	perlin_data = new FloatData2D(512, 512);
-// 	perlin_data->perlin_noise(size_factor);
 
+
+	pts.target = GL_TEXTURE_2D;
+	pts.internal_format = GL_RED;
+	pts.width = 512;
+	pts.height = 512;
+	pts.format = GL_RED;
+	pts.type = GL_FLOAT;
+
+	perlin_tex_flat = new Texture(pts);
+
+	perlin_data = new SurfaceData<float>(512, 512);
+	perlin_data->fill_with_perlin_noise(size_factor, 1.0);
+
+	perlin_tex_flat->update(perlin_data->data);
 
 
     plane_vao =
@@ -175,10 +184,12 @@ void ShadowsLayer::on_update(double time_delta)
 	if (previous_size_factor != size_factor)
 	{
 		vol_data->fill_with_perlin_noise(size_factor, 1.0, true, seed);
+		perlin_data->fill_with_perlin_noise(size_factor, 1.0);
 //         space_vao->update_buffer(MarchingCubes::polygonise_space<int>(
 //             vol_data, mc_isolevel));
 
 		perlin_tex->update(vol_data->data);
+		perlin_tex_flat->update(perlin_data->data);
 // 		perlin_data->perlin_noise(size_factor);
 // 		perlin_tex->update(perlin_data->data);
 	}
@@ -282,16 +293,13 @@ void ShadowsLayer::on_imgui_render()
             vol_data, mc_isolevel));
 		perlin_tex->update(vol_data->data);
     }
-
     ImGui::End();
 
-//     ImGui::Begin("depth map");
-// //     long int tex_id = shadow_fb->get_color_attachment_id();
-//     long int tex_id = perlin_tex->get_texture_id();
-//     ImGui::Image((void *)tex_id, ImVec2(perlin_data->width, perlin_data->height),
-// 			ImVec2(0, 1),
-//                  ImVec2(1, 0));
-//     ImGui::End();
+    ImGui::Begin("depth map");
+//     long int tex_id = shadow_fb->get_color_attachment_id();
+	long int tex_id = perlin_tex_flat->get_texture_id();
+    ImGui::Image((void *)tex_id, ImVec2(512, 512), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::End();
 }
 
 void ShadowsLayer::on_detach()

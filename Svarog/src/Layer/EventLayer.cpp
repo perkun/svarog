@@ -8,7 +8,7 @@ EventLayer::EventLayer() : Layer("EventLayer")
     fb_spec.width = Application::get_window()->width;
     fb_spec.height = Application::get_window()->height;
 
-    framefuffer = new Framebuffer(fb_spec);
+    framebuffer = new Framebuffer(fb_spec);
 	scene = new Scene();
 }
 
@@ -16,7 +16,7 @@ EventLayer::EventLayer() : Layer("EventLayer")
 EventLayer::~EventLayer()
 {
 	delete scene;
-	delete framefuffer;
+	delete framebuffer;
 }
 
 
@@ -79,7 +79,7 @@ void EventLayer::on_window_resize_event(WindowResizeEvent &event)
 {
     ivec2 size = event.get_size();
     scene->on_resize(size.x, size.y);
-	framefuffer->resize(size.x, size.y);
+	framebuffer->resize(size.x, size.y);
 }
 
 

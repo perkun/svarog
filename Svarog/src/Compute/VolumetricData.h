@@ -22,7 +22,7 @@ public:
 		delete data;
 	}
 
-	void fill_with_perlin_noise(double size_factor, T max_val, bool cylindrical_projection, int seed);
+	void fill_with_perlin_noise(double size_factor, T max_val, bool cylindrical_projection = false, int seed = 0);
 
 	T* get_data() {
 		return data;
@@ -39,6 +39,7 @@ template<typename T>
 void VolumetricData<T>::fill_with_perlin_noise(double size_factor, T max_val, bool cylindrical_projection,  int seed)
 {
     PerlinNoise pn(seed);
+//     PerlinNoise pn;
 
     for (unsigned int k = 0; k < dim_z; k++)
         for (unsigned int j = 0; j < dim_y; j++)

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
-#include <fitsio.h>
 // #include <GL/glew.h>
 #include <GL/gl.h>
 #include <glm/glm.hpp>
@@ -31,13 +30,16 @@ struct TextureSpec
 class Texture
 {
 public:
-    Texture(TextureSpec ts);
+    Texture(TextureSpec &ts);
 	~Texture();
 
 	void destroy();
 	unsigned int get_texture_id();
 
 	void update(void *data, int xoffset = 0, int yoffset= 0);
+
+	template <typename T>
+	void update(T *data_r, T *data_g, T *data_b, int xoffset = 0, int yoffset = 0);
 
 	virtual void update(int xoffset = 0, int yoffset = 0);
 	virtual void multiply_data(float factor);
@@ -56,6 +58,30 @@ protected:
 
 };
 
+template <typename T>
+void Texture::update(T *data_r, T *data_g, T *data_b, int xoffset, int yoffset)
+{
+	T data[specs.width * specs.height * 3];
+
+	for (int i = 0; i < specs.width * specs.height; i++)
+	{
+		data[i * 3 + 0] = data_r[i];
+		data[i * 3 + 1] = data_g[i];
+		data[i * 3 + 2] = data_b[i];
+	}
+
+    bind();
+	if (specs.target == GL_TEXTURE_2D)
+		glTexSubImage2D(specs.target, specs.level, xoffset, yoffset, specs.width,
+						specs.height, specs.format, specs.type, &data[0]);
+// 	else if (specs.target == GL_TEXTURE_3D)
+// 		glTexImage3D(specs.target, specs.level, specs.internal_format, specs.width,
+// 				specs.height, specs.depth, specs.border, specs.format, specs.type, &data[0]);
+
+}
+
+
+
 
 class ImgTexture : public Texture
 {
@@ -68,22 +94,22 @@ private:
 };
 
 
-class FitsTexture : public Texture
-{
-public:
-	FitsTexture(string);
-	~FitsTexture();
-
-	void update(int xoffset = 0, int yoffset = 0) override;
-	void multiply_data(float factor) override;
-	void normalize_data();
-
-	float *local_buffer;
-	float *fits_data;
-
-	float min, max;
-private:
-};
+// class FitsTexture : public Texture
+// {
+// public:
+// 	FitsTexture(string);
+// 	~FitsTexture();
+//
+// 	void update(int xoffset = 0, int yoffset = 0) override;
+// 	void multiply_data(float factor) override;
+// 	void normalize_data();
+//
+// 	float *local_buffer;
+// 	float *fits_data;
+//
+// 	float min, max;
+// private:
+// };
 
 
 

@@ -30,7 +30,7 @@ public:
 	virtual void on_imgui_render() override;
 
 	Scene *scene;
-	Framebuffer *framefuffer;
+	Framebuffer *framebuffer;
 protected:
 	void on_window_resize_event(WindowResizeEvent&);
 	void on_key_pressed_event(KeyPressedEvent&);
