@@ -40,27 +40,39 @@ void MainLayer::on_update(double time_delta)
 
 void MainLayer::on_imgui_render()
 {
+	ImGui::DockSpaceOverViewport();
+
 	ImGui::Begin("Fits");
-
-	long int tex_id = frame_tex->get_texture_id();
-	ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);   // No tint
-    ImGui::Image((void *)tex_id, ImVec2(frame.width, frame.height), ImVec2(0, 1), ImVec2(1, 0), tint_col);
-
-	float step = (frame.get_max() - frame.get_min())/100.;
-	if (ImGui::DragFloat("max", &frame_max, step, frame.get_min(), 10000.))
 	{
-		frame.set_max(frame_max);
-		frame_tex->update<float>(frame.data, frame.data, frame.data);
+		long int tex_id = frame_tex->get_texture_id();
+		ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);   // No tint
+		ImGui::Image((void *)tex_id, ImVec2(frame.width, frame.height),
+					  ImVec2(0, 1), ImVec2(1, 0), tint_col);
+
+		float step = (frame.get_max() - frame.get_min())/100.;
+		if (ImGui::DragFloat("max", &frame_max, step, frame.get_min(), 10000.))
+		{
+			frame.set_max(frame_max);
+			frame_tex->update<float>(frame.data, frame.data, frame.data);
+		}
+
+		if (ImGui::DragFloat("min", &frame_min, step, 0., frame.get_max()))
+		{
+			frame.set_min(frame_min);
+			frame_tex->update<float>(frame.data, frame.data, frame.data);
+		}
 	}
-
-	if (ImGui::DragFloat("min", &frame_min, step, 0., frame.get_max()))
-	{
-		frame.set_min(frame_min);
-		frame_tex->update<float>(frame.data, frame.data, frame.data);
-	}
-
-
 	ImGui::End();
+
+
+	ImGui::Begin("Dupa cycyki");
+	{
+		ImGui::Text("adawdadawdadawd adw ad awd awd awd awd");
+	}
+	ImGui::End();
+
+// 	ImGui::ShowDemoWindow();
+
 }
 
 void MainLayer::on_detach()
