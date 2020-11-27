@@ -11,6 +11,7 @@
 #include "Batch.h"
 #include "IndexedModel.h"
 #include "Components.h"
+#include "Compute/SurfaceData.h"
 
 using namespace std;
 
@@ -26,19 +27,12 @@ public:
 	virtual void on_imgui_render() override;
 
 private:
-	Entity plane, plane_fourier;
+	SurfaceData<float> frame;
 
-	Texture* input_image;
-	FitsTexture* fits_texture;
+	Texture *frame_tex;
 
-	VertexArrayObject* plane_vao;
-	VertexArrayObject* plane_fourier_vao;
+	float frame_max, frame_min;
 
-	Shader *shader;
-
-	float brightness = 1.;
-
-	float init_min, init_max;
 };
 
 #endif /* BOXLAYER_H_ */
