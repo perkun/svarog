@@ -60,15 +60,6 @@ void draw(VertexArrayObject *vao, Shader *shader)
 	shader->bind();
 	set_blend(vao->blend);
 
-// 	if (vao->draw_type == GL_POINTS)
-// 	{
-// 		glBegin(GL_POINTS);
-// 			for (auto p: vao->vertices)
-// 				glVertex3f(
-// 						glEnd();
-// 		return;
-// 	}
-
 	glBindVertexArray(vao->vao_id);
 	glDrawElements(vao->draw_type, vao->num_draw_elements, GL_UNSIGNED_INT, NULL);
 }
@@ -90,6 +81,12 @@ void set_viewport(int x, int y, int size_x,
                   int size_y)
 {
 	glViewport(x, y, size_x, size_y);
+}
+
+
+void bind_default_framebuffer()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 } // namespace Renderer

@@ -16,6 +16,7 @@ namespace Renderer
 	void clear();
 	void clear(float, float, float, float);
 	void set_viewport(int, int, int, int);
+	void bind_default_framebuffer();
 
 	void enable_blend();
 	void disable_blend();

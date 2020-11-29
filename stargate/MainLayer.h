@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fitsio.h>
-#include "EventLayer.h"
+#include "SceneLayer.h"
 #include "VertexArrayObject.h"
 #include "VertexLayout.h"
 #include "Batch.h"
@@ -15,7 +15,7 @@
 
 using namespace std;
 
-class MainLayer : public EventLayer
+class MainLayer : public SceneLayer
 {
 public:
     MainLayer();

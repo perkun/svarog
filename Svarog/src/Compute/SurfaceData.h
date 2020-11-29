@@ -24,10 +24,9 @@ public:
 	~SurfaceData()
 	{
 		if (data_created)
-		{
 			delete data;
+		if (orig_data_created)
 			delete orig_data;
-		}
 	}
 
 	void fill_with_perlin_noise(double size_factor, T max_val, bool cylindrical_projection = false, int seed = 0);
@@ -46,6 +45,7 @@ public:
 private:
 	T *orig_data;
 	bool data_created = false;
+	bool orig_data_created = false;
 	T min, max;
 };
 
@@ -74,13 +74,14 @@ void SurfaceData<T>::load_fits(string filename, int f_type)
 	height = axis_dim[1];
 
 	if (data_created)
-	{
 		delete data;
+	if (orig_data_created)
 		delete orig_data;
-	}
 
 	data = new T[width * height];
 	orig_data = new T[width * height];
+	data_created = true;
+	orig_data_created = true;
 
 	fits_read_pix(fptr, f_type, fpixel, width * height, NULL, orig_data,
 				  &anynul, &status);

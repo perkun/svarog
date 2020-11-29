@@ -40,11 +40,11 @@ public:
 	void draw(Entity*);
 	void draw_depth_first(Entity*);
 
-	void on_resize(int, int);
+	void on_resize(float, float);
 	void on_update(double);
 
-
-	Transform* get_active_drawable_transform();
+	bool render_to_framebuffer = false;
+	Framebuffer *framebuffer = NULL;
 
 	Material scene_material;
 	Entity root_entity;

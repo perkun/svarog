@@ -27,8 +27,8 @@ protected:
 
     virtual void on_update(double time_delta) override
     {
-        if (Input::is_imgui_window_hovered())
-            return;
+//         if (Input::is_imgui_window_hovered())
+//             return;
 
         Transform &ot = get_component<Transform>();
 
@@ -61,11 +61,11 @@ protected:
 
     void on_cursor_moved_event(MouseMovedEvent &e)
     {
-        if (Input::is_imgui_window_hovered())
-            return;
+//         if (Input::is_imgui_window_hovered())
+//             return;
 
 		vec2 cursor_shift = e.get_cursor_pos() - cursor_pos;
-        if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_1))
+        if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_3))
             get_component<Transform>().rotate_about_target(cursor_shift);
 		cursor_pos= e.get_cursor_pos();
     }

@@ -22,6 +22,9 @@ Scene::~Scene()
 	if (observer.has_component<CameraComponent>())
 		delete observer.get_component<CameraComponent>().camera;
 
+	if (framebuffer != NULL)
+		delete framebuffer;
+
 }
 
 Entity Scene::create_entity(string name)
@@ -33,15 +36,8 @@ Entity Scene::create_entity(string name)
 }
 
 
-void Scene::on_resize(int width, int height)
+void Scene::on_resize(float width, float height)
 {
-// 	auto view = registry.view<Camera>();
-// 	for (auto e: view)
-// 	{
-// 		Camera &camera = registry.get<Camera>(e);
-// 		camera.aspect = width / (float)height;
-// 		camera.update();
-// 	}
 
 	auto view = registry.view<CameraComponent>();
 	for (auto &e: view)
@@ -53,40 +49,6 @@ void Scene::on_resize(int width, int height)
 }
 
 
-
-Transform* Scene::get_active_drawable_transform()
-{
-	auto view = registry.view<VertexArrayObject, SceneStatus>();
-	for (auto e: view)
-	{
-		SceneStatus &ss = registry.get<SceneStatus>(e);
-		if (ss.active)
-		{
-			return &registry.get<Transform>(e);
-
-		}
-	}
-	return NULL;
-}
-
-
-// Light* Scene::get_active_light()
-// {
-// 	auto view = registry.view<Light, SceneStatus>();
-// 	for (auto e: view)
-// 	{
-// // 		if (registry.get<SceneStatus>(e).active)
-// // 		{
-// 			return &registry.get<Light>(e);
-// // 		}
-// 	}
-// 	return NULL;
-// }
-
-// Entity Scene::get_active_camera()
-// {
-//
-// }
 
 
 
@@ -184,9 +146,21 @@ void Scene::draw_root(POV perspective, double time_delta)
 		Renderer::set_viewport(0, 0, Application::get_window()->width,
                    			   Application::get_window()->height);
 
+		if (render_to_framebuffer)
+		{
+			ASSERT(framebuffer != NULL)
+			framebuffer->bind();
+			framebuffer->clear();
+		}
+		else
+			Renderer::bind_default_framebuffer();
+
         shadow_fb->bind_depth_texture(1);
 
         draw_depth_first(&root_entity);
+
+		if (render_to_framebuffer)
+			framebuffer->unbind();
     }
 }
 

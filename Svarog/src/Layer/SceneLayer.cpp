@@ -2,19 +2,12 @@
 
 SceneLayer::SceneLayer() : Layer("SceneLayer")
 {
-    // FRAMEBUFFER
-    FramebufferSpecification fb_spec;
-    fb_spec.width = Application::get_window()->width;
-    fb_spec.height = Application::get_window()->height;
-
-    framefuffer = new Framebuffer(fb_spec);
     scene = new Scene();
 }
 
 SceneLayer::~SceneLayer()
 {
     delete scene;
-    delete framefuffer;
 }
 
 void SceneLayer::on_attach()
@@ -61,7 +54,8 @@ void SceneLayer::on_event(Event &event)
 void SceneLayer::on_window_resize_event(WindowResizeEvent &event)
 {
     ivec2 size = event.get_size();
-    scene->on_resize(size.x, size.y);
-	framefuffer->resize(size.x, size.y);
+
+	if (!scene->render_to_framebuffer)
+		scene->on_resize(size.x, size.y);
 }
 

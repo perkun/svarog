@@ -35,6 +35,7 @@ public:
 	virtual void on_imgui_render() override;
 
 private:
+	vec2 viewport_panel_size;
 	SurfaceData<float> *perlin_data;
 	IndexedModel pts;
 	VolumetricData<float> *vol_data;

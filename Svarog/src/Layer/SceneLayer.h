@@ -6,7 +6,6 @@
 #include "Layer.h"
 #include "Event.h"
 #include "Scene.h"
-#include "Framebuffer.h"
 #include "imgui.h"
 
 using namespace std;
@@ -24,7 +23,6 @@ public:
 	virtual void on_imgui_render() override;
 
 	Scene *scene;
-	Framebuffer *framefuffer;
 protected:
 	void on_window_resize_event(WindowResizeEvent&);
 // 	void on_mouse_scrolled_event(MouseScrolledEvent&);

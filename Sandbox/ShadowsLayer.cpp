@@ -1,6 +1,4 @@
 #include "ShadowsLayer.h"
-#include "Components.h"
-#include "VertexArrayObject.h"
 
 ShadowsLayer::ShadowsLayer() : SceneLayer()
 {
@@ -170,6 +168,13 @@ void ShadowsLayer::on_attach()
     // depth texture on slot 1
     scene->scene_material.uniforms_int["u_depth_map"] = 1;
 
+
+    // SCENE FRAMEBUFFER
+    fb_spec.width = Application::get_window()->width;
+    fb_spec.height = Application::get_window()->height;
+
+    scene->framebuffer = new Framebuffer(fb_spec);
+	scene->render_to_framebuffer = true;
 }
 
 void ShadowsLayer::on_update(double time_delta)
@@ -209,6 +214,8 @@ void ShadowsLayer::on_update(double time_delta)
 
 void ShadowsLayer::on_imgui_render()
 {
+	ImGui::DockSpaceOverViewport();
+
     Transform &ptr = plane.get_component<Transform>();
     Transform &atr = asteroid.get_component<Transform>();
 
@@ -295,11 +302,28 @@ void ShadowsLayer::on_imgui_render()
     }
     ImGui::End();
 
-    ImGui::Begin("depth map");
-//     long int tex_id = shadow_fb->get_color_attachment_id();
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
+    ImGui::Begin("Perlin noise");
+	ImVec2 vps = ImGui::GetContentRegionAvail();
 	long int tex_id = perlin_tex_flat->get_texture_id();
-    ImGui::Image((void *)tex_id, ImVec2(512, 512), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.x), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
+
+
+    ImGui::Begin("Scene");
+	vps = ImGui::GetContentRegionAvail();
+	if (vps.x != viewport_panel_size.x || vps.y != viewport_panel_size.y)
+	{
+		viewport_panel_size.x = vps.x;
+		viewport_panel_size.y = vps.y;
+		scene->on_resize(viewport_panel_size.x, viewport_panel_size.y);
+		scene->framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+	}
+// 	tex_id = scene->light.get_component<FramebufferComponent>().framebuffer->get_color_attachment_id();
+	tex_id = scene->framebuffer->get_color_attachment_id();
+    ImGui::Image((void *)tex_id, ImVec2(viewport_panel_size.x, viewport_panel_size.y), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::End();
+	ImGui::PopStyleVar();
 }
 
 void ShadowsLayer::on_detach()
