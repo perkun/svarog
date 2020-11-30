@@ -113,9 +113,7 @@ void Scene::draw_root(POV perspective, double time_delta)
     Transform &slt = light.get_component<Transform>();
 
     scene_material.uniforms_vec3["u_light_position"] = slt.position;
-
     scene_material.uniforms_mat4["u_light_view_matrix"] = slt.get_view();
-
     scene_material.uniforms_mat4["u_light_perspective_matrix"] =
         light.get_component<CameraComponent>().camera->get_perspective();
 
@@ -156,6 +154,7 @@ void Scene::draw_root(POV perspective, double time_delta)
 			Renderer::bind_default_framebuffer();
 
         shadow_fb->bind_depth_texture(1);
+		framebuffer->bind_color_texture(2);
 
         draw_depth_first(&root_entity);
 

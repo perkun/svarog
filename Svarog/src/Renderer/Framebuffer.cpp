@@ -147,3 +147,10 @@ void Framebuffer::bind_depth_texture(unsigned int slot)
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, depth_attachment);
 }
+
+
+void Framebuffer::bind_color_texture(unsigned int slot)
+{
+	glActiveTexture(GL_TEXTURE0 + slot);
+	glBindTexture(GL_TEXTURE_2D, color_attachment);
+}

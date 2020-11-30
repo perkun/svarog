@@ -31,6 +31,7 @@ class Framebuffer
 
     void bind();
 	void bind_depth_texture(unsigned int slot);
+	void bind_color_texture(unsigned int slot);
     void clear();
     void unbind();
 

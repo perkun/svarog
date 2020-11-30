@@ -178,8 +178,8 @@ void ShadowsLayer::on_attach()
 	fb_spec.flags = 0;
 	fb_spec.flags = fb_spec.flags | COLOR_ATTACHMENT | DEPTH_ATTACHMENT;
 
-//     scene->framebuffer = new Framebuffer(fb_spec);
-// 	scene->render_to_framebuffer = true;
+    scene->framebuffer = new Framebuffer(fb_spec);
+	scene->render_to_framebuffer = true;
 }
 
 void ShadowsLayer::on_update(double time_delta)
