@@ -8,16 +8,23 @@
 
 using namespace std;
 
-struct FramebufferSpecification
+enum FbFlag {
+	COLOR_ATTACHMENT = 0b1,
+	MULTISAMPLING = 0b10,
+	DEPTH_ATTACHMENT = 0b100,
+};
+
+struct FramebufferSpec
 {
     unsigned int width;
     unsigned int height;
+	char flags = 0b0;
 };
 
 class Framebuffer
 {
     public:
-    Framebuffer(FramebufferSpecification spec);
+    Framebuffer(FramebufferSpec spec);
     ~Framebuffer();
 
     void invalidate();
@@ -38,7 +45,7 @@ class Framebuffer
         return depth_attachment;
     }
 
-    virtual const FramebufferSpecification &GetSpecification() const
+    virtual const FramebufferSpec &GetSpecification() const
     {
         return specification;
     }
@@ -46,7 +53,7 @@ class Framebuffer
     private:
     unsigned int id = 0;
     unsigned int color_attachment = 0, depth_attachment = 0;
-    FramebufferSpecification specification;
+    FramebufferSpec specification;
 };
 
 #endif /* FRAMEBUFFER_H_ */

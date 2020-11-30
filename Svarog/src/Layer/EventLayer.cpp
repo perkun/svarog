@@ -4,9 +4,10 @@
 EventLayer::EventLayer() : Layer("EventLayer")
 {
     // FRAMEBUFFER
-    FramebufferSpecification fb_spec;
+    FramebufferSpec fb_spec;
     fb_spec.width = Application::get_window()->width;
     fb_spec.height = Application::get_window()->height;
+	fb_spec.flags |= COLOR_ATTACHMENT;
 
     framebuffer = new Framebuffer(fb_spec);
 	scene = new Scene();

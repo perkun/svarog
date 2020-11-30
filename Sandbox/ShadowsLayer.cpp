@@ -115,9 +115,10 @@ void ShadowsLayer::on_attach()
     scene->light.add_component<CameraComponent>(
         new OrthogonalCamera(100., 1., 0.01, 100.));
 
-    FramebufferSpecification fb_spec;
+    FramebufferSpec fb_spec;
     fb_spec.width = 1024;
     fb_spec.height = 1024;
+	fb_spec.flags |= DEPTH_ATTACHMENT;
     scene->light.add_component<FramebufferComponent>(new Framebuffer(fb_spec));
 
     Transform &slt = scene->light.get_component<Transform>();
@@ -135,6 +136,8 @@ void ShadowsLayer::on_attach()
     asteroid.add_component<MeshComponent>(asteroid_vao);
     asteroid.add_component<TextureComponent>(perlin_tex);
     asteroid.add_component<SceneStatus>(true);
+// 	asteroid.add_component<Material>(shader);
+// 	asteroid.add_component<TextureComponent>(asteroid_texture);
     asteroid.add_component<Material>(displacement_shader).uniforms_float["u_displacement_factor"] = 3.0;
 	asteroid.get_component<Material>().uniforms_float["u_texture_z"] = 0.5;
 
@@ -172,9 +175,11 @@ void ShadowsLayer::on_attach()
     // SCENE FRAMEBUFFER
     fb_spec.width = Application::get_window()->width;
     fb_spec.height = Application::get_window()->height;
+	fb_spec.flags = 0;
+	fb_spec.flags = fb_spec.flags | COLOR_ATTACHMENT | DEPTH_ATTACHMENT;
 
-    scene->framebuffer = new Framebuffer(fb_spec);
-	scene->render_to_framebuffer = true;
+//     scene->framebuffer = new Framebuffer(fb_spec);
+// 	scene->render_to_framebuffer = true;
 }
 
 void ShadowsLayer::on_update(double time_delta)
@@ -310,19 +315,24 @@ void ShadowsLayer::on_imgui_render()
     ImGui::End();
 
 
-    ImGui::Begin("Scene");
-	vps = ImGui::GetContentRegionAvail();
-	if (vps.x != viewport_panel_size.x || vps.y != viewport_panel_size.y)
+	if (scene->render_to_framebuffer)
 	{
-		viewport_panel_size.x = vps.x;
-		viewport_panel_size.y = vps.y;
-		scene->on_resize(viewport_panel_size.x, viewport_panel_size.y);
-		scene->framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+		ImGui::Begin("Scene");
+		vps = ImGui::GetContentRegionAvail();
+		if (vps.x != viewport_panel_size.x || vps.y != viewport_panel_size.y)
+		{
+			viewport_panel_size.x = vps.x;
+			viewport_panel_size.y = vps.y;
+			scene->on_resize(viewport_panel_size.x, viewport_panel_size.y);
+			//
+			ASSERT(scene->framebuffer != NULL)
+				scene->framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+		}
+		// 	tex_id = scene->light.get_component<FramebufferComponent>().framebuffer->get_color_attachment_id();
+		tex_id = scene->framebuffer->get_color_attachment_id();
+		ImGui::Image((void *)tex_id, ImVec2(viewport_panel_size.x, viewport_panel_size.y), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::End();
 	}
-// 	tex_id = scene->light.get_component<FramebufferComponent>().framebuffer->get_color_attachment_id();
-	tex_id = scene->framebuffer->get_color_attachment_id();
-    ImGui::Image((void *)tex_id, ImVec2(viewport_panel_size.x, viewport_panel_size.y), ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::End();
 	ImGui::PopStyleVar();
 }
 

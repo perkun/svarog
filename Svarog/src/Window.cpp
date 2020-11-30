@@ -11,6 +11,9 @@ Window::Window(int w, int h, string title, bool fullscreen, bool visible)
 	height = h;
 	this->title = title;
 
+
+	glfwWindowHint(GLFW_SAMPLES, 4);
+
 	// create window
 	if (visible)
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
