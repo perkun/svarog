@@ -1,4 +1,6 @@
 #include "IndexedModel.h"
+#include "Core.h"
+#include "Log.h"
 IndexedQuad::IndexedQuad()
 {
 	create(vec3(0.0), vec2(1.));
@@ -492,7 +494,9 @@ void IndexedModelFile::calculate_per_face_normals()
 
 void IndexedModelFile::prepare_vertices_and_indices()
 {
-	cout << pos.size() << " " << nor.size() << " " << tex.size() << "\n";
+// 	cout << pos.size() << " " << nor.size() << " " << tex.size() << "\n";
+	INFO("Model info: pos size = {}, nor size = {}, tex size = {}.", pos.size(),
+		nor.size(), tex.size());
 	layout.elements.push_back(VertexDataType::FLOAT3);
 
 	unsigned int vertices_size = pos.size() * 3;

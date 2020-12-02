@@ -32,7 +32,11 @@ void MainLayer::on_attach()
 	basic_shader = new Shader();
 	basic_shader->create_shader((char*)(void*)basic_vs, (char*)(void*)basic_fs);
 
-	cube_vao = new VertexArrayObject(IndexedCube(vec3(-0.5, -0.5, -0.5), vec3(1.)));
+	if (arg_handler.isSpecified("model"))
+		model_vao = new VertexArrayObject(IndexedModelObj(
+			arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
+	else
+		model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5, -0.5, -0.5), vec3(1.)));
 
 	auto window = Application::get_window();
 
@@ -50,7 +54,7 @@ void MainLayer::on_attach()
 
 	model = scene->create_entity("Main model");
 	model.add_component<Material>(basic_shader);
-	model.add_component<MeshComponent>(cube_vao);
+	model.add_component<MeshComponent>(model_vao);
 	model.add_component<NativeScriptComponent>().bind<ModelController>();
 
 	scene->root_entity.add_child(&model);
@@ -70,6 +74,7 @@ void MainLayer::on_update(double time_delta)
 void MainLayer::on_imgui_render()
 {
 	ImGui::DockSpaceOverViewport();
+	menu_bar();
 	scene_window();
 	orbital_parameters_panel();
 
@@ -81,7 +86,62 @@ void MainLayer::on_imgui_render()
 void MainLayer::on_detach()
 {
 	delete basic_shader;
-	delete cube_vao;
+	delete model_vao;
+	if (texture != NULL)
+		delete texture;
+}
+
+void MainLayer::menu_bar()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+// 			if (ImGui::MenuItem("Save scene"))
+// 			{
+// 				SceneSerializer scene_serializer(scene);
+// 				string filename = FileDialog::save_file("*.scene");
+// 				scene_serializer.serialize(filename);
+// 				cout << "saving scene" << endl;
+// 			}
+//
+// 			if (ImGui::MenuItem("Load scene"))
+// 			{
+// 				SceneSerializer scene_serializer(scene);
+// 				string filename = FileDialog::open_file("*.scene");
+// 				scene_serializer.deserialize(filename);
+// 				cout << "loading scene" << endl;
+// 			}
+
+			if (ImGui::MenuItem("Load model"))
+			{
+				string filename = FileDialog::open_file("*");
+				INFO("Loading model {}", filename);
+				delete model_vao;
+				model_vao = new VertexArrayObject(IndexedModelObj(filename,
+												  NormalIndexing::PER_FACE));
+				model.replace_component<MeshComponent>(model_vao);
+			}
+
+			if (ImGui::MenuItem("Load texture"))
+			{
+				string filename = FileDialog::open_file("*");
+				INFO("Loading texture {}", filename);
+				if (texture != NULL)
+					delete texture;
+				texture = new ImgTexture(filename);
+
+				if (model.has_component<TextureComponent>())
+					model.replace_component<TextureComponent>(texture);
+				else
+					model.add_component<TextureComponent>(texture);
+			}
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+
 }
 
 
@@ -109,8 +169,35 @@ void MainLayer::scene_window()
 
 void MainLayer::orbital_parameters_panel()
 {
+	Transform &t = model.get_component<Transform>();
+	vec3 position = t.position;
+	position /= 10.0;
 	ImGui::Begin("Orbital Parameters");
 
+	ImGui::Text("Model Position");
+	if (ImGui::InputFloat("pos x", &position.x)) t.position.x = position.x * 10;
+	if (ImGui::InputFloat("pos y", &position.y)) t.position.y = position.y * 10;
+	if (ImGui::InputFloat("pos z", &position.z)) t.position.z = position.z * 10;
+
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+
+	Transform &ot = scene->observer.get_component<Transform>();
+	position = ot.position;
+	position /= 10.0;
+	ImGui::Text("Observer Position");
+	if (ImGui::InputFloat("obs pos x", &position.x)) ot.position.x = position.x * 10;
+	if (ImGui::InputFloat("obs pos y", &position.y)) ot.position.y = position.y * 10;
+	if (ImGui::InputFloat("obs pos z", &position.z)) ot.position.z = position.z * 10;
+
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+
+	ImGui::Text("Angles");
+	float a = t.alpha / M_PI * 180., b = t.beta / M_PI * 180., g = t.gamma / M_PI * 180.;
+	if (ImGui::DragFloat("alpha", &a, 1.0, 0., 360.)) t.alpha = a / 180. * M_PI;
+	if (ImGui::DragFloat("beta", &b , 1.0, 0., 180.)) t.beta = b / 180. * M_PI;
+	if (ImGui::DragFloat("gamma", &g, 1.0, 0., 360.)) t.gamma = g / 180. * M_PI;
+
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
 	ImGui::End();
 }

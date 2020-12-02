@@ -26,15 +26,12 @@ Entity Scene::create_entity(string name)
 
 void Scene::on_resize(float width, float height)
 {
-// 	if (!render_to_framebuffer)
+	auto view = registry.view<CameraComponent>();
+	for (auto &e: view)
 	{
-		auto view = registry.view<CameraComponent>();
-		for (auto &e: view)
-		{
-			Camera *cam = registry.get<CameraComponent>(e).camera;
-			cam->aspect = width / (float)height;
-			cam->update();
-		}
+		Camera *cam = registry.get<CameraComponent>(e).camera;
+		cam->aspect = width / (float)height;
+		cam->update();
 	}
 }
 

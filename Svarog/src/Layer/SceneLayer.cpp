@@ -55,6 +55,7 @@ void SceneLayer::on_window_resize_event(WindowResizeEvent &event)
 {
     ivec2 size = event.get_size();
 
-	scene->on_resize(size.x, size.y);
+	if (! (scene->flags & RENDER_TO_FRAMEBUFFER))
+		scene->on_resize(size.x, size.y);
 }
 

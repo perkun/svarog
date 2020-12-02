@@ -30,6 +30,7 @@ public:
 	// GUI functions
 	void scene_window();
 	void orbital_parameters_panel();
+	void menu_bar();
 
 private:
 	vec2 viewport_panel_size;
@@ -37,7 +38,8 @@ private:
 
 	Shader *basic_shader;
 
-	VertexArrayObject *cube_vao;
+	VertexArrayObject *model_vao;
+	Texture *texture = NULL;
 
 	Entity model;
 
