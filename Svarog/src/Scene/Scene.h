@@ -26,6 +26,13 @@ enum class POV
 	OBSERVER, LIGHT
 };
 
+
+enum class SceneFlags {
+	RENDER_TO_FRAMEBUFFER = 0b0,
+	SHADOW_MAP = 0b10
+};
+
+
 class Scene
 {
 	friend class Entity;
@@ -42,6 +49,8 @@ public:
 
 	void on_resize(float, float);
 	void on_update(double);
+
+	char flags = 0;
 
 	bool render_to_framebuffer = false;
 	Framebuffer *framebuffer = NULL;

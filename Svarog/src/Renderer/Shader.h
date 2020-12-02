@@ -49,10 +49,7 @@ public:
 private:
 	int get_uniform_location(string name);
 	unsigned int compile_shader(unsigned int type, const char *source);
-
-
 	map<string, int> uniform_location_cache;
-
 };
 
 #endif /* SHADER_H_ */
