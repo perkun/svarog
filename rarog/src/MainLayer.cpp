@@ -115,7 +115,7 @@ void MainLayer::menu_bar()
 
 			if (ImGui::MenuItem("Load model"))
 			{
-				string filename = FileDialog::open_file("*");
+				string filename = FileDialog::open_file("*.obj *.shp");
 				INFO("Loading model {}", filename);
 				delete model_vao;
 				model_vao = new VertexArrayObject(IndexedModelObj(filename,
@@ -125,7 +125,7 @@ void MainLayer::menu_bar()
 
 			if (ImGui::MenuItem("Load texture"))
 			{
-				string filename = FileDialog::open_file("*");
+				string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
 				INFO("Loading texture {}", filename);
 				if (texture != NULL)
 					delete texture;
