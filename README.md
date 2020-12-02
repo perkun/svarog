@@ -1,24 +1,24 @@
-# svarog
-Rendering Engine
+# Svarog
+
+Svarog is a Application Engine.
+
+The name "Svarog" comes from the slavic god of fire and god of the sun and
+blacksmithing, equated with Hephaistos and Helios in Russian chronicles.
 
 ## TODO:
 
 * scene w EventLayer musi być pointerem?
 * ogarnąć observera i światła w Scene i Sherderach
-*
 
 
-## Viewer
+
+## Rarog
+
+In Slavic mythology, the Raróg (Russian: Рарог) is a fire demon, often depicted
+as a fiery falcon.
 
 ## TODO:
 
-* wymyślić nazwę:
-	* (Simple) Asteroid Viewer
-	* Perkun, Perperuna
-	* Thunder
-	* Sun Light
-	* Asteroid Room
-	* Astro View
 
 ### Features:
 

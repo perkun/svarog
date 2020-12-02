@@ -130,19 +130,27 @@ void Transform::pan_backwards(double time_delta)
 
 
 
-void Transform::pitch(float shift_y)
+void Transform::pitch(float shift)
 {
-	front = vec3(rotate(-(float)(rotation_speed * shift_y), right) * vec4(front, 1.0));
+	// rotate up/down obout right vector
+	front = vec3(rotate(-(float)(rotation_speed * shift), right) * vec4(front, 1.0));
 	update();
 }
 
 
-void Transform::yaw(float shift_x)
+void Transform::yaw(float shift)
 {
-
-	front = vec3(rotate(-(float)(rotation_speed * shift_x), up) * vec4(front, 1.0));
+	// rotate left/right obout up vector
+	front = vec3(rotate(-(float)(rotation_speed * shift), up) * vec4(front, 1.0));
 	update();
 
+}
+
+void Transform::roll(float shift)
+{
+	// rotate about front vector
+	right = vec3(rotate(-(float)(rotation_speed * shift), front) * vec4(right, 1.0));
+	up = normalize(cross(right, front));
 }
 
 void Transform::rotate_about_origin(vec2 cursor_shift,

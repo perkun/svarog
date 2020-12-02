@@ -180,8 +180,6 @@ void ShadowsLayer::on_attach()
 
     scene->framebuffer = new Framebuffer(fb_spec);
 	scene->render_to_framebuffer = true;
-
-	scene->observer = scene->light;
 }
 
 void ShadowsLayer::on_update(double time_delta)

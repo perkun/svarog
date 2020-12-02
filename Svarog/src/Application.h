@@ -8,10 +8,12 @@
 #include <stdio.h>
 #include <string>
 
+#include "Core.h"
 #include "Renderer.h"
 #include "Event/Event.h"
 #include "LayerStack.h"
 #include "Window.h"
+#include "Log.h"
 
 
 using namespace std;

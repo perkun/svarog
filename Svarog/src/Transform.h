@@ -56,6 +56,7 @@ public:
 
 	void pitch(float);
 	void yaw(float);
+	void roll(float);
 
 	void move(double);
 	void update();

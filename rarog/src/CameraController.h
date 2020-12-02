@@ -1,12 +1,12 @@
 #ifndef CAMERACONTROLLER_H_
 #define CAMERACONTROLLER_H_
 
-#include <iostream>
-#include <stdio.h>
 #include "Event.h"
 #include "Input.h"
 #include "ScriptableEntity.h"
 #include "Transform.h"
+#include <iostream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -49,14 +49,14 @@ protected:
         dispatcher.dispatch<MouseMovedEvent>(bind(
             &CameraController::on_cursor_moved_event, this, placeholders::_1));
 
-        dispatcher.dispatch<MouseScrolledEvent>(bind(
-            &CameraController::on_mouse_scrolled_event, this, placeholders::_1));
+//         dispatcher.dispatch<MouseScrolledEvent>(bind(
+//             &CameraController::on_mouse_scrolled_event, this, placeholders::_1));
     }
 
     void on_mouse_scrolled_event(MouseScrolledEvent &e)
     {
-// 		Transform &ot = get_component<Transform>();
-//         ot.position += ot.front * (float)(e.get_offset().y / 5. * ot.speed);
+		Transform &ot = get_component<Transform>();
+        ot.position += ot.front * (float)(e.get_offset().y / 5. * ot.speed);
     }
 
     void on_cursor_moved_event(MouseMovedEvent &e)

@@ -23,8 +23,8 @@ struct FramebufferSpec
 
 class Framebuffer
 {
-    public:
-    Framebuffer(FramebufferSpec spec);
+public:
+    Framebuffer(unsigned int w, unsigned int h, char f);
     ~Framebuffer();
 
     void invalidate();
@@ -46,10 +46,10 @@ class Framebuffer
         return depth_attachment;
     }
 
-    virtual const FramebufferSpec &GetSpecification() const
-    {
-        return specification;
-    }
+//     virtual const FramebufferSpec &GetSpecification() const
+//     {
+//         return specification;
+//     }
 
     private:
     unsigned int id = 0;

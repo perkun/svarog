@@ -72,6 +72,12 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
 
 	Renderer::init();
 	Renderer::clear(BG_COLOR);
+
+	// Logging
+	Log::init();
+
+	CORE_TRACE("Application initialized");
+
 }
 
 // ~Application()
@@ -256,6 +262,8 @@ void rendering_loop(GlfwEventMethod glfw_event_method)
         else if (glfw_event_method == GlfwEventMethod::WAIT)
             glfwWaitEvents();
     }
+
+	CORE_TRACE("ENDING RENDERING LOOP");
 }
 
 

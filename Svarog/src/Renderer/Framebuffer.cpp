@@ -2,10 +2,21 @@
 
 static const uint32_t s_MaxFramebufferSize = 8192;
 
-Framebuffer::Framebuffer(FramebufferSpec spec) : specification(spec)
+// Framebuffer::Framebuffer(FramebufferSpec spec) : specification(spec)
+// {
+//     invalidate();
+// }
+
+Framebuffer::Framebuffer(unsigned int w, unsigned int h, char f)
 {
+	specification.width = w;
+	specification.height = h;
+
+	specification.flags |= f;
+
     invalidate();
 }
+
 
 Framebuffer::~Framebuffer()
 {

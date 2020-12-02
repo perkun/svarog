@@ -27,10 +27,11 @@ enum class POV
 };
 
 
-enum class SceneFlags {
-	RENDER_TO_FRAMEBUFFER = 0b0,
+enum  SceneFlags {
+	RENDER_TO_FRAMEBUFFER = 0b1,
 	SHADOW_MAP = 0b10
 };
+
 
 
 class Scene
@@ -52,7 +53,6 @@ public:
 
 	char flags = 0;
 
-	bool render_to_framebuffer = false;
 	Framebuffer *framebuffer = NULL;
 
 	Material scene_material;
@@ -60,8 +60,10 @@ public:
 
 	Entity observer;
 	Entity light;
+
 private:
-	void draw_root(POV, double);  // equivalent of on_update()
+// 	void draw_root(POV, double);  // equivalent of on_update()
+	void draw_root();  // equivalent of on_update()
 	entt::registry registry;
 };
 
