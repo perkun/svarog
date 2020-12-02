@@ -70,10 +70,11 @@ void MainLayer::on_update(double time_delta)
 void MainLayer::on_imgui_render()
 {
 	ImGui::DockSpaceOverViewport();
-
-
-
 	scene_window();
+	orbital_parameters_panel();
+
+	ImGui::ShowDemoWindow();
+
 }
 
 
@@ -104,4 +105,12 @@ void MainLayer::scene_window()
 	ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+
+void MainLayer::orbital_parameters_panel()
+{
+	ImGui::Begin("Orbital Parameters");
+
+
+	ImGui::End();
 }

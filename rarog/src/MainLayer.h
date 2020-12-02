@@ -29,6 +29,7 @@ public:
 
 	// GUI functions
 	void scene_window();
+	void orbital_parameters_panel();
 
 private:
 	vec2 viewport_panel_size;

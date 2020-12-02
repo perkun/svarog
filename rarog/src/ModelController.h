@@ -55,8 +55,10 @@ public:
         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_1))
 		{
 			Transform &t = get_component<Transform>();
-			t.alpha += t.rotation_speed * (cursor_shift.x);
-            t.beta += t.rotation_speed * (cursor_shift.y);
+// 			t.alpha += t.rotation_speed * (cursor_shift.x);
+//             t.beta += t.rotation_speed * (cursor_shift.y);
+			t.gamma += cursor_shift.x * t.rotation_speed;
+			t.beta +=  cursor_shift.y * t.rotation_speed;
 		}
 
 		cursor_pos= e.get_cursor_pos();

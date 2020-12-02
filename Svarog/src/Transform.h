@@ -22,19 +22,19 @@ public:
 	mat4 get_view();
 
 ////////
-	bool is_moving_forwards = false;
-	bool is_moving_backwards = false;
-	bool is_moving_up = false;
-	bool is_moving_down = false;
-	bool is_moving_left = false;
-	bool is_moving_right = false;
-
-	bool is_panning_right = false;
-	bool is_panning_left = false;
-	bool is_panning_forwards = false;
-	bool is_panning_backwards = false;
-
-	bool is_rotating = false;
+// 	bool is_moving_forwards = false;
+// 	bool is_moving_backwards = false;
+// 	bool is_moving_up = false;
+// 	bool is_moving_down = false;
+// 	bool is_moving_left = false;
+// 	bool is_moving_right = false;
+//
+// 	bool is_panning_right = false;
+// 	bool is_panning_left = false;
+// 	bool is_panning_forwards = false;
+// 	bool is_panning_backwards = false;
+//
+// 	bool is_rotating = false;
 
 	void update_target(vec3);
 
@@ -58,37 +58,34 @@ public:
 	void yaw(float);
 	void roll(float);
 
-	void move(double);
+// 	void move(double);
 	void update();
 
 	vec3 calculate_intersection_point(vec3 plane_point, vec3 plane_normal);
 
-// 	vec3 position;
-// 	vec3 front;
+	void set_rotation_alpha_beta_gamma();
+
 
 	double speed = 0.6; // world space units per second
-	double rotation_speed = 0.001;  // radians / sec
+	double rotation_speed = 0.002;  // radians / sec
 ///////
-
-
-
-
 
 	mat4 local;
 	mat4 world;
 	mat4 view;
+
+	float pitch_angle = 0, yaw_angle = 0, roll_angle = 0;
+
+// 	mat4 rotation = mat4(1.0);
 
 	vec3 up, front, right;
 
 	float alpha, beta, gamma;
 	vec3 scale, position;
 
-	bool change_alpha = false;
-	bool change_beta = false;
-	bool change_gamma = false;
-
 private:
 	mat4 get_rotation_matrix_313();
+	mat4 get_rotation_matrix();
 };
 
 

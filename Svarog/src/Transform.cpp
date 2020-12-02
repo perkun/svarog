@@ -16,8 +16,14 @@ Transform::~Transform() {}
 void Transform::update_local()
 {
 	local =
+// 	 	 glm::translate(position) * get_rotation_matrix() * glm::scale(scale);
 	 	 glm::translate(position) * get_rotation_matrix_313() * glm::scale(scale);
 }
+
+// void Transform::set_rotation_alpha_beta_gamma()
+// {
+// 	rotation = get_rotation_matrix_313();
+// }
 
 
 mat4 Transform::get_local_tansform()
@@ -32,15 +38,39 @@ mat4 Transform::get_world_tansform()
 	return world;
 }
 
+mat4 Transform::get_rotation_matrix()
+{
+	// roll
+// 	mat4 roll_mat(1.0);
+	mat4 roll_mat = rotate(-(float)(roll_angle), vec3(0., 1., 0.));
+// 	right = vec3(roll_mat * vec4(right, 1.0));
+// 	up = normalize(cross(right, front));
+
+	// pitch
+// 	mat4 pitch_mat(1.0);
+	mat4 pitch_mat = rotate(-(float)(pitch_angle), vec3(1., 0., 0.));
+
+	// yaw
+// 	mat4 yaw_mat(1.0);
+	mat4 yaw_mat = rotate(-(float)(yaw_angle), vec3(0., 0., 1.));
+
+
+	front = vec3(yaw_mat * pitch_mat * roll_mat * vec4(front, 1.0));
+	right = vec3(yaw_mat * pitch_mat * roll_mat * vec4(right, 1.0));
+	up = vec3(yaw_mat * pitch_mat * roll_mat * vec4(up, 1.0));
+
+	return yaw_mat * pitch_mat * roll_mat;
+}
+
 mat4 Transform::get_rotation_matrix_313()
 {
 	/**
 	 * zwróci macierz obrotu o kąty Eulera 313 (ZXZ)
 	 */
 	return
-		glm::rotate(alpha, glm::vec3(0.0, 0.0, 1.0)) *
-		glm::rotate(beta, glm::vec3(1.0, 0.0, 0.0)) *
-		glm::rotate(gamma, glm::vec3(0.0, 0.0, 1.0));
+		rotate(alpha, vec3(0.0, 0.0, 1.0)) *
+		rotate(beta,  vec3(1.0, 0.0, 0.0)) *
+		rotate(gamma, vec3(0.0, 0.0, 1.0));
 }
 
 
@@ -133,7 +163,11 @@ void Transform::pan_backwards(double time_delta)
 void Transform::pitch(float shift)
 {
 	// rotate up/down obout right vector
-	front = vec3(rotate(-(float)(rotation_speed * shift), right) * vec4(front, 1.0));
+	pitch_angle += shift * rotation_speed;
+	mat4 tmp_rot = rotate(-(float)(rotation_speed * shift), right);
+// // 	rotation = tmp_rot * rotation;
+//
+	front = vec3(tmp_rot * vec4(front, 1.0));
 	update();
 }
 
@@ -141,7 +175,11 @@ void Transform::pitch(float shift)
 void Transform::yaw(float shift)
 {
 	// rotate left/right obout up vector
-	front = vec3(rotate(-(float)(rotation_speed * shift), up) * vec4(front, 1.0));
+	yaw_angle += shift * rotation_speed;
+	mat4 tmp_rot = rotate(-(float)(rotation_speed * shift), up);
+// // 	rotation = tmp_rot * rotation;
+//
+	front = vec3(tmp_rot * vec4(front, 1.0));
 	update();
 
 }
@@ -149,6 +187,7 @@ void Transform::yaw(float shift)
 void Transform::roll(float shift)
 {
 	// rotate about front vector
+	roll_angle += roll_angle * rotation_speed;
 	right = vec3(rotate(-(float)(rotation_speed * shift), front) * vec4(right, 1.0));
 	up = normalize(cross(right, front));
 }
@@ -193,73 +232,73 @@ void Transform::rotate_about_target(vec2 cursor_shift)
 	update();
 }
 
-void Transform::move(double time_delta)
-{
-    bool refresh = false;
-
-    if (is_moving_forwards)
-    {
-        move_forwards(time_delta);
-        refresh = true;
-    }
-
-    if (is_moving_backwards)
-    {
-        move_backwards(time_delta);
-        refresh = true;
-    }
-
-    if (is_panning_left)
-    {
-        pan_left(time_delta);
-        refresh = true;
-    }
-
-    if (is_panning_right)
-    {
-        pan_right(time_delta);
-        refresh = true;
-    }
-
-    if (is_panning_forwards)
-    {
-        pan_forwards(time_delta);
-        refresh = true;
-    }
-
-    if (is_panning_backwards)
-    {
-        pan_backwards(time_delta);
-        refresh = true;
-    }
-
-
-    if (is_moving_left)
-    {
-        move_left(time_delta);
-        refresh = true;
-    }
-
-    if (is_moving_right)
-    {
-        move_right(time_delta);
-        refresh = true;
-    }
-
-    if (is_moving_up)
-    {
-        move_up(time_delta);
-        refresh = true;
-    }
-
-    if (is_moving_down)
-    {
-        move_down(time_delta);
-        refresh = true;
-    }
-
-    if (refresh)
-    {
-        update();
-    }
-}
+// void Transform::move(double time_delta)
+// {
+//     bool refresh = false;
+//
+//     if (is_moving_forwards)
+//     {
+//         move_forwards(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (is_moving_backwards)
+//     {
+//         move_backwards(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (is_panning_left)
+//     {
+//         pan_left(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (is_panning_right)
+//     {
+//         pan_right(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (is_panning_forwards)
+//     {
+//         pan_forwards(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (is_panning_backwards)
+//     {
+//         pan_backwards(time_delta);
+//         refresh = true;
+//     }
+//
+//
+//     if (is_moving_left)
+//     {
+//         move_left(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (is_moving_right)
+//     {
+//         move_right(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (is_moving_up)
+//     {
+//         move_up(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (is_moving_down)
+//     {
+//         move_down(time_delta);
+//         refresh = true;
+//     }
+//
+//     if (refresh)
+//     {
+//         update();
+//     }
+// }
