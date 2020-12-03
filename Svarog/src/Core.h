@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "Log.h"
 
 #ifdef SV_DEBUG
 

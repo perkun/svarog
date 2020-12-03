@@ -24,6 +24,8 @@ MainLayer::~MainLayer()
 
 void MainLayer::on_attach()
 {
+	vec3 init_model_pos(0., 5., 0.);
+
 	#include "../shaders/basic.vs.include"
 	#include "../shaders/basic.fs.include"
     basic_vs[basic_vs_len] = 0;
@@ -36,7 +38,7 @@ void MainLayer::on_attach()
 		model_vao = new VertexArrayObject(IndexedModelObj(
 			arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
 	else
-		model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5, -0.5, -0.5), vec3(1.)));
+		model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5), vec3(1.)));
 
 	auto window = Application::get_window();
 
@@ -46,18 +48,23 @@ void MainLayer::on_attach()
     scene->observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
     Transform &sot = scene->observer.get_component<Transform>();
-    sot.position = vec3(0., -10., 5.);
-    sot.update_target(vec3(0., 0., 0.));
+    sot.position = vec3(0., -5., 5.);
+    sot.update_target(init_model_pos);
     sot.speed = 8.;
 
-// 	scene->light = scene->create_entity("Light");
+	scene->light = scene->create_entity("Light");
+	scene->light.add_component<MeshComponent>(new VertexArrayObject(
+			IndexedCube(vec3(-0.25), vec3(0.5))));
+	scene->light.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 0;
 
 	model = scene->create_entity("Main model");
-	model.add_component<Material>(basic_shader);
+	model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 1;
 	model.add_component<MeshComponent>(model_vao);
 	model.add_component<NativeScriptComponent>().bind<ModelController>();
+	model.get_component<Transform>().position = init_model_pos;
 
 	scene->root_entity.add_child(&model);
+	scene->root_entity.add_child(&scene->light);
 
 	scene->framebuffer = new Framebuffer(window->width, window->height,
 										 COLOR_ATTACHMENT | DEPTH_ATTACHMENT);

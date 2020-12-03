@@ -9,6 +9,7 @@
 #include <glm/gtx/transform.hpp>
 #include <vector>
 #include <map>
+#include "Core.h"
 
 using namespace std;
 using namespace glm;

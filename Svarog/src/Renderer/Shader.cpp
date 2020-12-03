@@ -146,8 +146,10 @@ int Shader::get_uniform_location(string name)
 
     int location;
     location = glGetUniformLocation(program, name.c_str());
-    if (location == -1)
-        cout << "The name \"" << name << "\" does not exist in shader!" << endl;
+//     if (location == -1)
+// 	{
+// 		WARN("The name {} does not exist in shader", name);
+// 	}
 
     uniform_location_cache[name] = location;
 
