@@ -26,6 +26,26 @@ public:
 	VertexLayout layout;
 	vector<float> vertices;
 	vector<unsigned int> indices;
+
+	unsigned int draw_type = GL_TRIANGLES;
+};
+
+class IndexedIcoSphere : public IndexedModel
+{
+public:
+	IndexedIcoSphere();
+	IndexedIcoSphere(vec3 position, vec3 scale);
+	~IndexedIcoSphere() {}
+protected:
+	void create(vec3, vec3);
+};
+
+
+class IndexedLine : public IndexedModel
+{
+public:
+	IndexedLine(vec3 start, vec3 stop, vec4 color);
+
 };
 
 

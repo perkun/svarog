@@ -1,22 +1,20 @@
 #include "MainLayer.h"
 
-
 MainLayer::MainLayer(int argc, char *argv[])
 {
-	arg_handler.addArgument("m", "model", "", "path to OBJ model");
+    arg_handler.addArgument("m", "model", "", "path to OBJ model");
 
-	arg_handler.parseArguments(argc, argv);
+    arg_handler.parseArguments(argc, argv);
 
-	if (!arg_handler.isSpecified("model"))
-	{
-		cout << "Model file not specified." << endl;
-// 		cout << "type rarog --help to se help" << endl;
-// 		exit(1);
-	}
+    if (!arg_handler.isSpecified("model"))
+    {
+        cout << "Model file not specified." << endl;
+        // 		cout << "type rarog --help to se help" << endl;
+        // 		exit(1);
+    }
 
-	TRACE("MainLayer constructed");
+    TRACE("MainLayer constructed");
 }
-
 
 MainLayer::~MainLayer()
 {
@@ -24,25 +22,42 @@ MainLayer::~MainLayer()
 
 void MainLayer::on_attach()
 {
-	vec3 init_model_pos(0., 5., 0.);
+    vec3 init_model_pos(0., 5., 0.);
 
-	#include "../shaders/basic.vs.include"
-	#include "../shaders/basic.fs.include"
+#include "../shaders/basic.vs.include"
+#include "../shaders/basic.fs.include"
     basic_vs[basic_vs_len] = 0;
     basic_fs[basic_fs_len] = 0;
 
-	basic_shader = new Shader();
-	basic_shader->create_shader((char*)(void*)basic_vs, (char*)(void*)basic_fs);
+#include "../shaders/color.fs.include"
+    color_fs[color_fs_len] = 0;
 
-	if (arg_handler.isSpecified("model"))
-		model_vao = new VertexArrayObject(IndexedModelObj(
-			arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
-	else
-		model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5), vec3(1.)));
+#include "../shaders/vert_col.vs.include"
+#include "../shaders/vert_col.fs.include"
+    vert_col_vs[vert_col_vs_len] = 0;
+    vert_col_fs[vert_col_fs_len] = 0;
 
-	auto window = Application::get_window();
+    basic_shader = new Shader();
+    basic_shader->create_shader((char *)(void *)basic_vs,
+                                (char *)(void *)basic_fs);
 
-	scene->observer = scene->create_entity("Observer");
+    color_shader = new Shader();
+    color_shader->create_shader((char *)(void *)basic_vs,
+                                (char *)(void *)color_fs);
+
+    line_shader = new Shader();
+    line_shader->create_shader((char *)(void *)vert_col_vs,
+                               (char *)(void *)vert_col_fs);
+
+    if (arg_handler.isSpecified("model"))
+        model_vao = new VertexArrayObject(IndexedModelObj(
+            arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
+    else
+        model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5), vec3(1.)));
+
+    auto window = Application::get_window();
+
+    scene->observer = scene->create_entity("Observer");
     scene->observer.add_component<CameraComponent>(new PerspectiveCamera(
         radians(45.0), window->width / (float)window->height, 0.01, 500.0));
     scene->observer.add_component<NativeScriptComponent>()
@@ -52,187 +67,301 @@ void MainLayer::on_attach()
     sot.update_target(init_model_pos);
     sot.speed = 8.;
 
-	scene->light = scene->create_entity("Light");
-	scene->light.add_component<MeshComponent>(new VertexArrayObject(
-			IndexedCube(vec3(-0.25), vec3(0.5))));
-	scene->light.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 0;
+    scene->light = scene->create_entity("Light");
+    scene->light.add_component<MeshComponent>(
+        new VertexArrayObject(IndexedIcoSphere(vec3(0.), vec3(0.5))));
+    scene->light.add_component<Material>(color_shader)
+        .uniforms_vec4["u_color"] =
+        vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
 
-	model = scene->create_entity("Main model");
-	model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 1;
-	model.add_component<MeshComponent>(model_vao);
-	model.add_component<NativeScriptComponent>().bind<ModelController>();
-	model.get_component<Transform>().position = init_model_pos;
+    model = scene->create_entity("Main model");
+    model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] =
+        1;
+    model.add_component<MeshComponent>(model_vao);
+    model.add_component<NativeScriptComponent>().bind<ModelController>();
+    model.get_component<Transform>().position = init_model_pos;
 
-	scene->root_entity.add_child(&model);
-	scene->root_entity.add_child(&scene->light);
+    x_line = scene->create_entity("x line");
+    x_line.add_component<MeshComponent>(new VertexArrayObject(
+        IndexedLine(vec3(-50., 0., 0.), vec3(50., 0., 0.),
+			vec4(245./256, 74./256, 29./256, 0.5)), true));
+    x_line.add_component<Material>(line_shader);
 
-	scene->framebuffer = new Framebuffer(window->width, window->height,
-										 COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
+    y_line = scene->create_entity("x line");
+    y_line.add_component<MeshComponent>(new VertexArrayObject(
+        IndexedLine(vec3(0., -50., 0.), vec3(0., 50., 0.),
+			vec4(28./256, 157./256, 51./256, 0.5)), true));
+    y_line.add_component<Material>(line_shader);
 
-	scene->flags |= RENDER_TO_FRAMEBUFFER;
+	Renderer::set_line_width(2.);
+
+    scene->root_entity.add_child(&model);
+    scene->root_entity.add_child(&x_line);
+    scene->root_entity.add_child(&y_line);
+    scene->root_entity.add_child(&scene->light);
+
+    scene->framebuffer = new Framebuffer(window->width, window->height,
+                                         COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
+
+    scene->flags |= RENDER_TO_FRAMEBUFFER;
 }
 
 void MainLayer::on_update(double time_delta)
 {
-	scene->on_update(time_delta);
-
+    scene->on_update(time_delta);
 }
 
 void MainLayer::on_imgui_render()
 {
-	ImGui::DockSpaceOverViewport();
-	menu_bar();
-	scene_window();
-	orbital_parameters_panel();
+    ImGui::DockSpaceOverViewport();
+    menu_bar();
+    scene_window();
+    orbital_parameters_panel();
 
-	ImGui::ShowDemoWindow();
+	if (show_overlay_options)
+		overlay_options();
 
+    if (show_imgui_demo)
+        ImGui::ShowDemoWindow();
 }
-
 
 void MainLayer::on_detach()
 {
-	delete basic_shader;
-	delete model_vao;
-	if (texture != NULL)
-		delete texture;
-}
+    delete basic_shader;
+    delete color_shader;
+    delete line_shader;
+    delete model_vao;
 
+    if (texture != NULL)
+        delete texture;
+}
 
 void MainLayer::load_model()
 {
-	string filename = FileDialog::open_file("*.obj *.shp");
-	INFO("Loading model {}", filename);
-	delete model_vao;
-	model_vao = new VertexArrayObject(IndexedModelObj(filename,
-				NormalIndexing::PER_FACE));
-	model.replace_component<MeshComponent>(model_vao);
+    string filename = FileDialog::open_file("*.obj *.shp");
+    INFO("Loading model {}", filename);
+    delete model_vao;
+    model_vao = new VertexArrayObject(
+        IndexedModelObj(filename, NormalIndexing::PER_FACE));
+    model.replace_component<MeshComponent>(model_vao);
 }
-
 
 void MainLayer::load_texture()
 {
-	string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
-	INFO("Loading texture {}", filename);
-	if (texture != NULL)
-		delete texture;
-	texture = new ImgTexture(filename);
+    string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
+    INFO("Loading texture {}", filename);
+    if (texture != NULL)
+        delete texture;
+    texture = new ImgTexture(filename);
 
-	if (model.has_component<TextureComponent>())
-		model.replace_component<TextureComponent>(texture);
-	else
-		model.add_component<TextureComponent>(texture);
+    if (model.has_component<TextureComponent>())
+        model.replace_component<TextureComponent>(texture);
+    else
+        model.add_component<TextureComponent>(texture);
 
-	model.get_component<Material>().uniforms_int["u_has_texture"] = 1;
+    model.get_component<Material>().uniforms_int["u_has_texture"] = 1;
 }
 
 void MainLayer::remove_texture()
 {
-	model.get_component<Material>().uniforms_int["u_has_texture"] = 0;
-	if (texture != NULL)
-		delete texture;
-	texture = NULL;
+    model.get_component<Material>().uniforms_int["u_has_texture"] = 0;
+    if (texture != NULL)
+        delete texture;
+    texture = NULL;
 }
+
 
 void MainLayer::menu_bar()
 {
-	if (ImGui::BeginMainMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-// 			if (ImGui::MenuItem("Save scene"))
-// 			{
-// 				SceneSerializer scene_serializer(scene);
-// 				string filename = FileDialog::save_file("*.scene");
-// 				scene_serializer.serialize(filename);
-// 				cout << "saving scene" << endl;
-// 			}
-//
-// 			if (ImGui::MenuItem("Load scene"))
-// 			{
-// 				SceneSerializer scene_serializer(scene);
-// 				string filename = FileDialog::open_file("*.scene");
-// 				scene_serializer.deserialize(filename);
-// 				cout << "loading scene" << endl;
-// 			}
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            // 			if (ImGui::MenuItem("Save scene"))
+            // 			{
+            // 				SceneSerializer scene_serializer(scene);
+            // 				string filename =
+            // FileDialog::save_file("*.scene");
+            // 				scene_serializer.serialize(filename);
+            // 				cout << "saving scene" << endl;
+            // 			}
+            //
+            // 			if (ImGui::MenuItem("Load scene"))
+            // 			{
+            // 				SceneSerializer scene_serializer(scene);
+            // 				string filename =
+            // FileDialog::open_file("*.scene");
+            // 				scene_serializer.deserialize(filename);
+            // 				cout << "loading scene" << endl;
+            // 			}
 
-			if (ImGui::MenuItem("Load model"))
-			{
-				load_model();
-			}
+            if (ImGui::MenuItem("Load model"))
+                load_model();
 
-			if (ImGui::MenuItem("Load texture"))
-			{
-				load_texture();
-			}
+            if (ImGui::MenuItem("Load texture"))
+                load_texture();
 
-			if (ImGui::MenuItem("Remove texture"))
-			{
-				remove_texture();
-			}
+            if (ImGui::MenuItem("Remove texture"))
+                remove_texture();
 
+            ImGui::Separator();
 
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-	}
+            if (ImGui::MenuItem("Quit", "Q"))
+                Application::stop();
 
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::MenuItem("ImGui Demo", NULL, &show_imgui_demo);
+            ImGui::MenuItem("Overlay Options", NULL, &show_overlay_options);
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Options"))
+        {
+            if (ImGui::BeginMenu("BG Color"))
+            {
+                float color[3];
+                vec4 app_color = Application::get_bg_color();
+                color[0] = app_color.r;
+                color[1] = app_color.g;
+                color[2] = app_color.b;
+
+                ImGui::ColorPicker3("BG Color", color);
+
+                app_color.r = color[0];
+                app_color.g = color[1];
+                app_color.b = color[2];
+
+                Application::set_bg_color(app_color);
+
+                ImVec4 default_bg(41 / 256., 46 / 256., 48 / 256., 1.0);
+                ImGui::Text("Set default color");
+                if (ImGui::ColorButton("Default color", default_bg,
+                                       ImGuiColorEditFlags_NoPicker |
+                                           ImGuiColorEditFlags_AlphaPreviewHalf,
+                                       ImVec2(60, 40)))
+                {
+                    app_color.r = default_bg.x;
+                    app_color.g = default_bg.y;
+                    app_color.b = default_bg.z;
+                    Application::set_bg_color(app_color);
+                }
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
 }
-
 
 void MainLayer::scene_window()
 {
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
-	ImGui::Begin("Scene");
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
+    ImGui::Begin("Scene");
 
-	ImVec2 vps = ImGui::GetContentRegionAvail();
-	if (vps.x != viewport_panel_size.x || vps.y != viewport_panel_size.y)
+    ImVec2 vps = ImGui::GetContentRegionAvail();
+    if (vps.x != viewport_panel_size.x || vps.y != viewport_panel_size.y)
+    {
+        viewport_panel_size.x = vps.x;
+        viewport_panel_size.y = vps.y;
+        scene->on_resize(viewport_panel_size.x, viewport_panel_size.y);
+
+        ASSERT(scene->framebuffer != NULL, "Framebuffer is NULL");
+        scene->framebuffer->resize(viewport_panel_size.x,
+                                   viewport_panel_size.y);
+    }
+
+    long int tex_id = scene->framebuffer->get_color_attachment_id();
+    ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::End();
+    ImGui::PopStyleVar();
+}
+
+
+void MainLayer::overlay_options()
+{
+
+    ImGui::Begin("Overlay Options");
+	if (ImGui::Checkbox("show axes", &show_axes))
 	{
-		viewport_panel_size.x = vps.x;
-		viewport_panel_size.y = vps.y;
-		scene->on_resize(viewport_panel_size.x, viewport_panel_size.y);
+		x_line.detatch();
+		y_line.detatch();
 
-		ASSERT(scene->framebuffer != NULL, "Framebuffer is NULL");
-		scene->framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+		if (show_axes)
+		{
+			scene->root_entity.add_child(&x_line);
+			scene->root_entity.add_child(&y_line);
+		}
 	}
 
-	long int tex_id = scene->framebuffer->get_color_attachment_id();
-	ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1), ImVec2(1, 0));
-	ImGui::End();
-	ImGui::PopStyleVar();
+    ImGui::End();
 }
+
 
 void MainLayer::orbital_parameters_panel()
 {
-	Transform &t = model.get_component<Transform>();
-	vec3 position = t.position;
-	position /= 10.0;
-	ImGui::Begin("Orbital Parameters");
+    Transform &t = model.get_component<Transform>();
+    vec3 position = t.position;
+    position /= 10.0;
+    ImGui::Begin("Orbital Parameters");
 
-	ImGui::Text("Model Position");
-	if (ImGui::InputFloat("pos x", &position.x)) t.position.x = position.x * 10;
-	if (ImGui::InputFloat("pos y", &position.y)) t.position.y = position.y * 10;
-	if (ImGui::InputFloat("pos z", &position.z)) t.position.z = position.z * 10;
+    ImGui::Text("Model Position");
+    if (ImGui::InputFloat("pos x", &position.x))
+        t.position.x = position.x * 10;
+    if (ImGui::InputFloat("pos y", &position.y))
+        t.position.y = position.y * 10;
+    if (ImGui::InputFloat("pos z", &position.z))
+        t.position.z = position.z * 10;
 
-	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
 
-	Transform &ot = scene->observer.get_component<Transform>();
-	position = ot.position;
-	position /= 10.0;
-	ImGui::Text("Observer Position");
-	if (ImGui::InputFloat("obs pos x", &position.x)) ot.position.x = position.x * 10;
-	if (ImGui::InputFloat("obs pos y", &position.y)) ot.position.y = position.y * 10;
-	if (ImGui::InputFloat("obs pos z", &position.z)) ot.position.z = position.z * 10;
+    Transform &ot = scene->observer.get_component<Transform>();
+    position = ot.position;
+    position /= 10.0;
+    ImGui::Text("Observer Position");
+    if (ImGui::InputFloat("obs pos x", &position.x))
+        ot.position.x = position.x * 10;
+    if (ImGui::InputFloat("obs pos y", &position.y))
+        ot.position.y = position.y * 10;
+    if (ImGui::InputFloat("obs pos z", &position.z))
+        ot.position.z = position.z * 10;
 
-	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
 
-	ImGui::Text("Angles");
-	float a = t.alpha / M_PI * 180., b = t.beta / M_PI * 180., g = t.gamma / M_PI * 180.;
-	if (ImGui::DragFloat("alpha", &a, 1.0, 0., 360.)) t.alpha = a / 180. * M_PI;
-	if (ImGui::DragFloat("beta", &b , 1.0, 0., 180.)) t.beta = b / 180. * M_PI;
-	if (ImGui::DragFloat("gamma", &g, 1.0, 0., 360.)) t.gamma = g / 180. * M_PI;
+    ImGui::Text("Angles");
+    float a = t.alpha / M_PI * 180., b = t.beta / M_PI * 180.,
+          g = t.gamma / M_PI * 180.;
+    if (ImGui::DragFloat("alpha", &a, 1.0, 0., 360.))
+        t.alpha = a / 180. * M_PI;
+    if (ImGui::DragFloat("beta", &b, 1.0, 0., 180.))
+        t.beta = b / 180. * M_PI;
+    if (ImGui::DragFloat("gamma", &g, 1.0, 0., 360.))
+        t.gamma = g / 180. * M_PI;
 
-	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
 
-	ImGui::End();
+    ImGui::Text("Scale");
+
+    float scale = model.get_component<Transform>().scale.x;
+    if (ImGui::DragFloat("scale", &scale, 0.01, 0.01, 20.))
+        model.get_component<Transform>().scale = vec3(scale);
+
+    ImGui::End();
 }

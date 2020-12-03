@@ -17,6 +17,7 @@
 
 
 using namespace std;
+using namespace glm;
 
 class Layer;
 class ImGuiLayer;
@@ -47,7 +48,8 @@ void on_key_released_event(KeyReleasedEvent&);
 void on_curosr_moved_event(MouseMovedEvent&);
 void on_mouse_scrolled_event(MouseScrolledEvent&);
 
-void rendering_loop(GlfwEventMethod);
+void run(GlfwEventMethod);
+void stop();
 
 vec2 get_cursor_pos();
 void set_cursor_pos(vec2);
@@ -58,6 +60,9 @@ float get_mouse_scroll_offset();
 
 void enable_blend();
 void disable_blend();
+
+vec4 get_bg_color();
+void set_bg_color(vec4);
 
 Window* get_window();
 ImGuiLayer* get_imgui_layer();

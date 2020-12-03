@@ -49,8 +49,8 @@ protected:
         dispatcher.dispatch<MouseMovedEvent>(bind(
             &CameraController::on_cursor_moved_event, this, placeholders::_1));
 
-//         dispatcher.dispatch<MouseScrolledEvent>(bind(
-//             &CameraController::on_mouse_scrolled_event, this, placeholders::_1));
+        dispatcher.dispatch<MouseScrolledEvent>(bind(
+            &CameraController::on_mouse_scrolled_event, this, placeholders::_1));
     }
 
     void on_mouse_scrolled_event(MouseScrolledEvent &e)

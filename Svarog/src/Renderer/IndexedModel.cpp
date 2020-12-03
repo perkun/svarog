@@ -1,571 +1,892 @@
 #include "IndexedModel.h"
 #include "Core.h"
 #include "Log.h"
+
+// v 0.0 0.0 0.0 v 1.0 0.0 0.0 v 0.0 0.0 0.0 f 1 2 3
+
+IndexedLine::IndexedLine(vec3 start, vec3 stop, vec4 color)
+{
+	draw_type = GL_LINES;
+
+	float vs[] = {start.x, start.y, start.z, color.x, color.y, color.z, color.w,
+				  stop.x, stop.y, stop.z, color.x, color.y, color.z, color.w,
+				  start.x, start.y, start.z, color.x, color.y, color.z, color.w
+	};
+
+	unsigned int fs[] = {0, 1, 2};
+
+	int stride = 7;
+    vertices.assign(vs, vs + stride * 3);
+    indices.assign(fs, fs + 3);
+
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT4);
+}
+
+
 IndexedQuad::IndexedQuad()
 {
-	create(vec3(0.0), vec2(1.));
+    create(vec3(0.0), vec2(1.));
 }
 
 IndexedQuad::IndexedQuad(vec3 position, vec2 scale)
 {
-	create(position, scale);
+    create(position, scale);
 }
 
 void IndexedQuad::create(vec3 position, vec2 scale)
 {
-	float vs[] = {
-		0.0, 0.0, 0.0,    0.0, 0.0, 1.0,    0.0, 0.0,
-		1.0, 0.0, 0.0,    0.0, 0.0, 1.0,    1.0, 0.0,
-		1.0, 1.0, 0.0,    0.0, 0.0, 1.0,    1.0, 1.0,
-		0.0, 1.0, 0.0,    0.0, 0.0, 1.0,    0.0, 1.0
-	};
+    float vs[] = {0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                  0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+                  1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0};
 
-	unsigned int fs[] = {
-		0, 1, 2,
-		0, 2, 3
-	};
+    unsigned int fs[] = {0, 1, 2, 0, 2, 3};
 
-	int stride = 8;
-	for (int i = 0; i < 4; i++)
-	{
-		vs[i * stride + 0] *= scale.x;
-		vs[i * stride + 1] *= scale.y;
+    int stride = 8;
+    for (int i = 0; i < 4; i++)
+    {
+        vs[i * stride + 0] *= scale.x;
+        vs[i * stride + 1] *= scale.y;
 
-		vs[i * stride + 0] += position.x;
-		vs[i * stride + 1] += position.y;
-		vs[i * stride + 2] += position.z;
-	}
+        vs[i * stride + 0] += position.x;
+        vs[i * stride + 1] += position.y;
+        vs[i * stride + 2] += position.z;
+    }
 
-	vertices.assign(vs, vs + 32);
-	indices.assign(fs, fs + 6);
+    vertices.assign(vs, vs + 32);
+    indices.assign(fs, fs + 6);
 
-	layout.elements.push_back(VertexDataType::FLOAT3);
-	layout.elements.push_back(VertexDataType::FLOAT3);
-	layout.elements.push_back(VertexDataType::FLOAT2);
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT2);
 }
-
 
 IndexedCube::IndexedCube()
 {
-	create(vec3(0.0), vec3(1.0));
+    create(vec3(0.0), vec3(1.0));
 }
 
 IndexedCube::IndexedCube(vec3 position, vec3 scale)
 {
-	create(position, scale);
+    create(position, scale);
 }
 
 void IndexedCube::create(vec3 position, vec3 scale)
 {
     float vs[] = {
-        0, 1, 1, 0,  0,  1,  0.875, 0.5,
-		1, 0, 1, 0,  0,  1,  0.625, 0.75,
-        1, 1, 1, 0,  0,  1,  0.625, 0.5,
-		1, 0, 1, 0,  -1, 0,  0.625, 0.75,
-        0, 0, 0, 0,  -1, 0,  0.375, 1,
-		1, 0, 0, 0,  -1, 0,  0.375, 0.75,
-        0, 0, 1, -1, 0,  0,  0.625, 0,
-		0, 1, 0, -1, 0,  0,  0.375, 0.25,
-        0, 0, 0, -1, 0,  0,  0.375, 0,
-		1, 1, 0, 0,  0,  -1, 0.375, 0.5,
-        0, 0, 0, 0,  0,  -1, 0.125, 0.75,
-		0, 1, 0, 0,  0,  -1, 0.125, 0.5,
-        1, 1, 1, 1,  0,  0,  0.625, 0.5,
-		1, 0, 0, 1,  0,  0,  0.375, 0.75,
-        1, 1, 0, 1,  0,  0,  0.375, 0.5,
-		0, 1, 1, 0,  1,  0,  0.625, 0.25,
-        1, 1, 0, 0,  1,  0,  0.375, 0.5,
-		0, 1, 0, 0,  1,  0,  0.375, 0.25,
-        0, 1, 1, 0,  0,  1,  0.875, 0.5,
-		0, 0, 1, 0,  0,  1,  0.875, 0.75,
-        1, 0, 1, 0,  0,  1,  0.625, 0.75,
-		1, 0, 1, 0,  -1, 0,  0.625, 0.75,
-        0, 0, 1, 0,  -1, 0,  0.625, 1,
-		0, 0, 0, 0,  -1, 0,  0.375, 1,
-        0, 0, 1, -1, 0,  0,  0.625, 0,
-		0, 1, 1, -1, 0,  0,  0.625, 0.25,
-        0, 1, 0, -1, 0,  0,  0.375, 0.25,
-		1, 1, 0, 0,  0,  -1, 0.375, 0.5,
-        1, 0, 0, 0,  0,  -1, 0.375, 0.75,
-		0, 0, 0, 0,  0,  -1, 0.125, 0.75,
-        1, 1, 1, 1,  0,  0,  0.625, 0.5,
-		1, 0, 1, 1,  0,  0,  0.625, 0.75,
-        1, 0, 0, 1,  0,  0,  0.375, 0.75,
-		0, 1, 1, 0,  1,  0,  0.625, 0.25,
-        1, 1, 1, 0,  1,  0,  0.625, 0.5,
-		1, 1, 0, 0,  1,  0,  0.375, 0.5
-	};
+        0, 1, 1, 0,  0,  1,  0.875, 0.5,  1, 0, 1, 0,  0,  1,  0.625, 0.75,
+        1, 1, 1, 0,  0,  1,  0.625, 0.5,  1, 0, 1, 0,  -1, 0,  0.625, 0.75,
+        0, 0, 0, 0,  -1, 0,  0.375, 1,    1, 0, 0, 0,  -1, 0,  0.375, 0.75,
+        0, 0, 1, -1, 0,  0,  0.625, 0,    0, 1, 0, -1, 0,  0,  0.375, 0.25,
+        0, 0, 0, -1, 0,  0,  0.375, 0,    1, 1, 0, 0,  0,  -1, 0.375, 0.5,
+        0, 0, 0, 0,  0,  -1, 0.125, 0.75, 0, 1, 0, 0,  0,  -1, 0.125, 0.5,
+        1, 1, 1, 1,  0,  0,  0.625, 0.5,  1, 0, 0, 1,  0,  0,  0.375, 0.75,
+        1, 1, 0, 1,  0,  0,  0.375, 0.5,  0, 1, 1, 0,  1,  0,  0.625, 0.25,
+        1, 1, 0, 0,  1,  0,  0.375, 0.5,  0, 1, 0, 0,  1,  0,  0.375, 0.25,
+        0, 1, 1, 0,  0,  1,  0.875, 0.5,  0, 0, 1, 0,  0,  1,  0.875, 0.75,
+        1, 0, 1, 0,  0,  1,  0.625, 0.75, 1, 0, 1, 0,  -1, 0,  0.625, 0.75,
+        0, 0, 1, 0,  -1, 0,  0.625, 1,    0, 0, 0, 0,  -1, 0,  0.375, 1,
+        0, 0, 1, -1, 0,  0,  0.625, 0,    0, 1, 1, -1, 0,  0,  0.625, 0.25,
+        0, 1, 0, -1, 0,  0,  0.375, 0.25, 1, 1, 0, 0,  0,  -1, 0.375, 0.5,
+        1, 0, 0, 0,  0,  -1, 0.375, 0.75, 0, 0, 0, 0,  0,  -1, 0.125, 0.75,
+        1, 1, 1, 1,  0,  0,  0.625, 0.5,  1, 0, 1, 1,  0,  0,  0.625, 0.75,
+        1, 0, 0, 1,  0,  0,  0.375, 0.75, 0, 1, 1, 0,  1,  0,  0.625, 0.25,
+        1, 1, 1, 0,  1,  0,  0.625, 0.5,  1, 1, 0, 0,  1,  0,  0.375, 0.5};
 
-    unsigned int fs[] = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
-    };
+    unsigned int fs[] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,
+                         12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                         24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35};
 
-	int stride = 8;
-	for (int i = 0; i < 36; i++)
-	{
-		vs[i * stride + 0] *= scale.x;
-		vs[i * stride + 1] *= scale.y;
-		vs[i * stride + 2] *= scale.z;
+    int stride = 8;
+    for (int i = 0; i < 36; i++)
+    {
+        vs[i * stride + 0] *= scale.x;
+        vs[i * stride + 1] *= scale.y;
+        vs[i * stride + 2] *= scale.z;
 
-		vs[i * stride + 0] += position.x;
-		vs[i * stride + 1] += position.y;
-		vs[i * stride + 2] += position.z;
-	}
+        vs[i * stride + 0] += position.x;
+        vs[i * stride + 1] += position.y;
+        vs[i * stride + 2] += position.z;
+    }
 
-	vertices.assign(vs, vs + stride * 36);
-	indices.assign(fs, fs + 36);
+    vertices.assign(vs, vs + stride * 36);
+    indices.assign(fs, fs + 36);
 
-	layout.elements.push_back(VertexDataType::FLOAT3);
-	layout.elements.push_back(VertexDataType::FLOAT3);
-	layout.elements.push_back(VertexDataType::FLOAT2);
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT2);
 }
-
-
 
 IndexedColorCube::IndexedColorCube()
 {
-	create(vec3(0.), vec3(1.0), vec4(1.0));
+    create(vec3(0.), vec3(1.0), vec4(1.0));
 }
 
 IndexedColorCube::IndexedColorCube(vec3 position, vec3 scale, vec4 color)
 {
-	create(position, scale, color);
+    create(position, scale, color);
 }
 
 void IndexedColorCube::create(vec3 position, vec3 scale, vec4 color)
 {
     float vs[] = {
-        0, 1, 1, 0,  0,  1,  1, 1, 1, 1,
-		1, 0, 1, 0,  0,  1,  1, 1, 1, 1,
-        1, 1, 1, 0,  0,  1,  1, 1, 1, 1,
-		1, 0, 1, 0,  -1, 0,  1, 1, 1, 1,
-        0, 0, 0, 0,  -1, 0,  1, 1, 1, 1,
-		1, 0, 0, 0,  -1, 0,  1, 1, 1, 1,
-        0, 0, 1, -1, 0,  0,  1, 1, 1, 1,
-		0, 1, 0, -1, 0,  0,  1, 1, 1, 1,
-        0, 0, 0, -1, 0,  0,  1, 1, 1, 1,
-		1, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
-        0, 0, 0, 0,  0,  -1, 1, 1, 1, 1,
-		0, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
-        1, 1, 1, 1,  0,  0,  1, 1, 1, 1,
-		1, 0, 0, 1,  0,  0,  1, 1, 1, 1,
-        1, 1, 0, 1,  0,  0,  1, 1, 1, 1,
-		0, 1, 1, 0,  1,  0,  1, 1, 1, 1,
-        1, 1, 0, 0,  1,  0,  1, 1, 1, 1,
-		0, 1, 0, 0,  1,  0,  1, 1, 1, 1,
-        0, 1, 1, 0,  0,  1,  1, 1, 1, 1,
-		0, 0, 1, 0,  0,  1,  1, 1, 1, 1,
-        1, 0, 1, 0,  0,  1,  1, 1, 1, 1,
-		1, 0, 1, 0,  -1, 0,  1, 1, 1, 1,
-        0, 0, 1, 0,  -1, 0,  1, 1, 1, 1,
-		0, 0, 0, 0,  -1, 0,  1, 1, 1, 1,
-        0, 0, 1, -1, 0,  0,  1, 1, 1, 1,
-		0, 1, 1, -1, 0,  0,  1, 1, 1, 1,
-        0, 1, 0, -1, 0,  0,  1, 1, 1, 1,
-		1, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
-        1, 0, 0, 0,  0,  -1, 1, 1, 1, 1,
-		0, 0, 0, 0,  0,  -1, 1, 1, 1, 1,
-        1, 1, 1, 1,  0,  0,  1, 1, 1, 1,
-		1, 0, 1, 1,  0,  0,  1, 1, 1, 1,
-        1, 0, 0, 1,  0,  0,  1, 1, 1, 1,
-		0, 1, 1, 0,  1,  0,  1, 1, 1, 1,
-        1, 1, 1, 0,  1,  0,  1, 1, 1, 1,
-		1, 1, 0, 0,  1,  0,  1, 1, 1, 1
-	};
-    unsigned int fs[] = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
-    };
+        0, 1, 1, 0,  0,  1,  1, 1, 1, 1, 1, 0, 1, 0,  0,  1,  1, 1, 1, 1,
+        1, 1, 1, 0,  0,  1,  1, 1, 1, 1, 1, 0, 1, 0,  -1, 0,  1, 1, 1, 1,
+        0, 0, 0, 0,  -1, 0,  1, 1, 1, 1, 1, 0, 0, 0,  -1, 0,  1, 1, 1, 1,
+        0, 0, 1, -1, 0,  0,  1, 1, 1, 1, 0, 1, 0, -1, 0,  0,  1, 1, 1, 1,
+        0, 0, 0, -1, 0,  0,  1, 1, 1, 1, 1, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
+        0, 0, 0, 0,  0,  -1, 1, 1, 1, 1, 0, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
+        1, 1, 1, 1,  0,  0,  1, 1, 1, 1, 1, 0, 0, 1,  0,  0,  1, 1, 1, 1,
+        1, 1, 0, 1,  0,  0,  1, 1, 1, 1, 0, 1, 1, 0,  1,  0,  1, 1, 1, 1,
+        1, 1, 0, 0,  1,  0,  1, 1, 1, 1, 0, 1, 0, 0,  1,  0,  1, 1, 1, 1,
+        0, 1, 1, 0,  0,  1,  1, 1, 1, 1, 0, 0, 1, 0,  0,  1,  1, 1, 1, 1,
+        1, 0, 1, 0,  0,  1,  1, 1, 1, 1, 1, 0, 1, 0,  -1, 0,  1, 1, 1, 1,
+        0, 0, 1, 0,  -1, 0,  1, 1, 1, 1, 0, 0, 0, 0,  -1, 0,  1, 1, 1, 1,
+        0, 0, 1, -1, 0,  0,  1, 1, 1, 1, 0, 1, 1, -1, 0,  0,  1, 1, 1, 1,
+        0, 1, 0, -1, 0,  0,  1, 1, 1, 1, 1, 1, 0, 0,  0,  -1, 1, 1, 1, 1,
+        1, 0, 0, 0,  0,  -1, 1, 1, 1, 1, 0, 0, 0, 0,  0,  -1, 1, 1, 1, 1,
+        1, 1, 1, 1,  0,  0,  1, 1, 1, 1, 1, 0, 1, 1,  0,  0,  1, 1, 1, 1,
+        1, 0, 0, 1,  0,  0,  1, 1, 1, 1, 0, 1, 1, 0,  1,  0,  1, 1, 1, 1,
+        1, 1, 1, 0,  1,  0,  1, 1, 1, 1, 1, 1, 0, 0,  1,  0,  1, 1, 1, 1};
+    unsigned int fs[] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,
+                         12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                         24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35};
 
-	int stride = 10;
-	for (int i = 0; i < 36; i++)
-	{
-		vs[i * stride + 0] *= scale.x;
-		vs[i * stride + 1] *= scale.y;
-		vs[i * stride + 2] *= scale.z;
+    int stride = 10;
+    for (int i = 0; i < 36; i++)
+    {
+        vs[i * stride + 0] *= scale.x;
+        vs[i * stride + 1] *= scale.y;
+        vs[i * stride + 2] *= scale.z;
 
-		vs[i * stride + 0] += position.x;
-		vs[i * stride + 1] += position.y;
-		vs[i * stride + 2] += position.z;
+        vs[i * stride + 0] += position.x;
+        vs[i * stride + 1] += position.y;
+        vs[i * stride + 2] += position.z;
 
-		vs[i * stride + 6] = color.x;
-		vs[i * stride + 7] = color.y;
-		vs[i * stride + 8] = color.z;
-		vs[i * stride + 9] = color.w;
-	}
+        vs[i * stride + 6] = color.x;
+        vs[i * stride + 7] = color.y;
+        vs[i * stride + 8] = color.z;
+        vs[i * stride + 9] = color.w;
+    }
 
-	vertices.assign(vs, vs + (stride * 36));
-	indices.assign(fs, fs + 36);
+    vertices.assign(vs, vs + (stride * 36));
+    indices.assign(fs, fs + 36);
 
-	layout.elements.push_back(VertexDataType::FLOAT3);
-	layout.elements.push_back(VertexDataType::FLOAT3);
-	layout.elements.push_back(VertexDataType::FLOAT4);
-
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT4);
 }
-
-
-
 
 IndexedModelObj::IndexedModelObj(string filename, NormalIndexing mode)
 {
-	load(filename, mode);
+    load(filename, mode);
 }
 
 void IndexedModelObj::load(string filename, NormalIndexing mode)
 {
-	FILE *f = fopen(filename.c_str(), "r");
-	if (f == NULL)
-	{
-		perror("File not found");
-		return;
-	}
+    FILE *f = fopen(filename.c_str(), "r");
+    if (f == NULL)
+    {
+        perror("File not found");
+        return;
+    }
 
-	int num_v = 0, num_f = 0, num_vn = 0, num_vt = 0;
-	char line[100];
+    int num_v = 0, num_f = 0, num_vn = 0, num_vt = 0;
+    char line[100];
 
-	// get number of elements to allocate memmory
-	while (fgets(line, 99, f) != NULL)
-	{
-		if (line[0] == 'v')
-		{
-			if (line[1] == ' ')
-				num_v++;
-			else if (line[1] == 'n')
-				num_vn++;
-			else if (line[1] == 't')
-				num_vt++;
-		}
-		else if (line[0] == 'f')
-		{
-			num_f++;
-		}
-	}
+    // get number of elements to allocate memmory
+    while (fgets(line, 99, f) != NULL)
+    {
+        if (line[0] == 'v')
+        {
+            if (line[1] == ' ')
+                num_v++;
+            else if (line[1] == 'n')
+                num_vn++;
+            else if (line[1] == 't')
+                num_vt++;
+        }
+        else if (line[0] == 'f')
+        {
+            num_f++;
+        }
+    }
 
-	fseek(f, 0, SEEK_SET);  //na poczatek pliku
+    fseek(f, 0, SEEK_SET); // na poczatek pliku
 
-	vector<vec3> tmp_pos;
-	tmp_pos.reserve(num_v);
+    vector<vec3> tmp_pos;
+    tmp_pos.reserve(num_v);
 
-	vector<vec2> tmp_tex;
-	tmp_tex.reserve(num_vt);
+    vector<vec2> tmp_tex;
+    tmp_tex.reserve(num_vt);
 
-	vector<vec3> tmp_nor;
-	tmp_nor.reserve(num_vn);
+    vector<vec3> tmp_nor;
+    tmp_nor.reserve(num_vn);
 
-	pos_idxs.reserve(num_f);
+    pos_idxs.reserve(num_f);
 
-	vector<uvec3> tex_idxs;
-	tex_idxs.reserve(num_f);
+    vector<uvec3> tex_idxs;
+    tex_idxs.reserve(num_f);
 
-	vector<uvec3> nor_idxs;
-	nor_idxs.reserve(num_f);
+    vector<uvec3> nor_idxs;
+    nor_idxs.reserve(num_f);
 
+    vec2 tmpv2f;
+    vec3 tmpvf;
+    int f1, f2, f3, n1, n2, n3, t1, t2, t3;
+    while (fgets(line, 99, f) != NULL)
+    {
+        if (line[0] == 'v')
+        {
+            if (line[1] == ' ')
+            {
 
-	vec2 tmpv2f;
-	vec3 tmpvf;
-	int f1, f2, f3, n1, n2, n3, t1, t2, t3;
-	while (fgets(line, 99, f) != NULL)
-	{
-		if (line[0] == 'v')
-		{
-			if (line[1] == ' ')
-			{
+                int num_matched =
+                    sscanf(line, "%*s %f %f %f", &tmpvf.x, &tmpvf.y, &tmpvf.z);
 
-				int num_matched = sscanf(line, "%*s %f %f %f",
-										 &tmpvf.x, &tmpvf.y, &tmpvf.z);
+                tmp_pos.push_back(tmpvf);
 
-				tmp_pos.push_back(tmpvf);
+                if (num_matched != 3)
 
-				if (num_matched != 3)
+                {
+                    cout << "problem reading vertex position" << endl;
+                    return;
+                }
+            }
+            else if (line[1] == 'n')
+            {
+                int num_matched =
+                    sscanf(line, "%*s %f %f %f", &tmpvf.x, &tmpvf.y, &tmpvf.z);
 
-				{
-					cout << "problem reading vertex position" << endl;
-					return;
-				}
+                tmp_nor.push_back(tmpvf);
 
-			}
-			else if (line[1] == 'n')
-			{
-				int num_matched = sscanf(line, "%*s %f %f %f",
-										 &tmpvf.x, &tmpvf.y, &tmpvf.z);
+                if (num_matched != 3)
 
-				tmp_nor.push_back(tmpvf);
+                {
+                    cout << "problem reading normal coords" << endl;
+                    return;
+                }
+            }
+            else if (line[1] == 't')
+            {
+                int num_matched =
+                    sscanf(line, "%*s %f %f", &tmpv2f.x, &tmpv2f.y);
 
-				if (num_matched != 3)
+                tmp_tex.push_back(tmpv2f);
 
-				{
-					cout << "problem reading normal coords" << endl;
-					return;
-				}
-			}
-			else if (line[1] == 't')
-			{
-				int num_matched = sscanf(line, "%*s %f %f",
-										 &tmpv2f.x, &tmpv2f.y);
+                if (num_matched != 2)
 
-				tmp_tex.push_back(tmpv2f);
+                {
+                    cout << "problem reading texture coords" << endl;
+                    return;
+                }
+            }
+        }
+        else if (line[0] == 'f')
+        {
+            if (sscanf(line, "%*s %d %d %d", &f1, &f2, &f3) == 3)
+            {
+                pos_idxs.push_back(vec3(f1 - 1, f2 - 1, f3 - 1));
+            }
+            else if (sscanf(line, "%*s %d/%d %d/%d %d/%d", &f1, &t1, &f2, &t2,
+                            &f3, &t3) == 6)
+            {
+                pos_idxs.push_back(ivec3(f1 - 1, f2 - 1, f3 - 1));
+                tex_idxs.push_back(ivec3(t1 - 1, t2 - 1, t3 - 1));
+            }
+            else if (sscanf(line, "%*s %d/%d/%d %d/%d/%d %d/%d/%d", &f1, &t1,
+                            &n1, &f2, &t2, &n2, &f3, &t3, &n3) == 9)
+            {
+                pos_idxs.push_back(vec3(f1 - 1, f2 - 1, f3 - 1));
+                tex_idxs.push_back(ivec3(t1 - 1, t2 - 1, t3 - 1));
+                nor_idxs.push_back(ivec3(n1 - 1, n2 - 1, n3 - 1));
+            }
+            else if (sscanf(line, "%*s %d//%d %d//%d %d//%d", &f1, &n1, &f2,
+                            &n2, &f3, &n3) == 6)
+            {
+                pos_idxs.push_back(vec3(f1 - 1, f2 - 1, f3 - 1));
+                nor_idxs.push_back(ivec3(n1 - 1, n2 - 1, n3 - 1));
+            }
+            else
+                cout << "problem reading indices" << endl;
+        }
+    }
 
-				if (num_matched != 2)
+    fclose(f);
 
-				{
-					cout << "problem reading texture coords" << endl;
-					return;
-				}
-			}
-		}
-		else if (line[0] == 'f')
-		{
-			if (sscanf(line, "%*s %d %d %d", &f1, &f2, &f3) == 3)
-			{
-				pos_idxs.push_back(vec3(f1-1, f2-1, f3-1));
-			}
-			else if (sscanf(line, "%*s %d/%d %d/%d %d/%d",
-						    &f1, &t1, &f2, &t2, &f3, &t3) == 6)
-			{
-				pos_idxs.push_back(ivec3(f1-1, f2-1, f3-1));
-				tex_idxs.push_back(ivec3(t1-1, t2-1, t3-1));
+    // 	cout << tex_idxs.size() << endl;
 
-			}
-			else if (sscanf(line, "%*s %d/%d/%d %d/%d/%d %d/%d/%d",
-						    &f1, &t1, &n1, &f2, &t2, &n2, &f3, &t3, &n3) == 9)
-			{
-				pos_idxs.push_back(vec3(f1-1, f2-1, f3-1));
-				tex_idxs.push_back(ivec3(t1-1, t2-1, t3-1));
-				nor_idxs.push_back(ivec3(n1-1, n2-1, n3-1));
+    if (mode == NormalIndexing::PER_VERTEX)
+        produce_arrays_per_vertex(tmp_pos, tmp_tex, tmp_nor, pos_idxs, tex_idxs,
+                                  nor_idxs);
+    if (mode == NormalIndexing::PER_FACE)
+        produce_arrays_per_face(tmp_pos, tmp_tex, tmp_nor, pos_idxs, tex_idxs,
+                                nor_idxs);
 
-			}
-			else if (sscanf(line, "%*s %d//%d %d//%d %d//%d",
-						    &f1, &n1, &f2, &n2, &f3, &n3) == 6)
-			{
-				pos_idxs.push_back(vec3(f1-1, f2-1, f3-1));
-				nor_idxs.push_back(ivec3(n1-1, n2-1, n3-1));
-			}
-			else
-				cout << "problem reading indices" << endl;
-
-		}
-	}
-
-	fclose(f);
-
-// 	cout << tex_idxs.size() << endl;
-
-	if (mode == NormalIndexing::PER_VERTEX)
-		produce_arrays_per_vertex(tmp_pos, tmp_tex, tmp_nor,
-								  pos_idxs, tex_idxs, nor_idxs);
-	if (mode == NormalIndexing::PER_FACE)
-		produce_arrays_per_face(tmp_pos, tmp_tex, tmp_nor,
-								pos_idxs, tex_idxs, nor_idxs);
-
-	prepare_vertices_and_indices();
+    prepare_vertices_and_indices();
 }
 
-void IndexedModelFile::produce_arrays_per_face(vector<vec3> &tmp_pos,
-								   		 vector<vec2> &tmp_tex,
-								   		 vector<vec3> &tmp_nor,
-								   		 vector<uvec3> &pos_idxs,
-								   		 vector<uvec3> &tex_idxs,
-								   		 vector<uvec3> &nor_idxs)
+void IndexedModelFile::produce_arrays_per_face(
+    vector<vec3> &tmp_pos, vector<vec2> &tmp_tex, vector<vec3> &tmp_nor,
+    vector<uvec3> &pos_idxs, vector<uvec3> &tex_idxs, vector<uvec3> &nor_idxs)
 {
-	pos.reserve(pos_idxs.size() * 3);
-	tex.reserve(pos_idxs.size() * 3);
-	nor.reserve(pos_idxs.size() * 3);
+    pos.reserve(pos_idxs.size() * 3);
+    tex.reserve(pos_idxs.size() * 3);
+    nor.reserve(pos_idxs.size() * 3);
 
-	vector<uvec3> tmp_pos_idxs;
-	tmp_pos_idxs.reserve(pos_idxs.size());
+    vector<uvec3> tmp_pos_idxs;
+    tmp_pos_idxs.reserve(pos_idxs.size());
 
-	unsigned int face_id = 0;
-	for (int i = 0; i < pos_idxs.size(); i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			if (i < pos_idxs.size())
-				pos.push_back( tmp_pos[pos_idxs[i][j]] );
+    unsigned int face_id = 0;
+    for (int i = 0; i < pos_idxs.size(); i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (i < pos_idxs.size())
+                pos.push_back(tmp_pos[pos_idxs[i][j]]);
 
-			if (i < tex_idxs.size())
-				tex.push_back( tmp_tex[tex_idxs[i][j]] );
+            if (i < tex_idxs.size())
+                tex.push_back(tmp_tex[tex_idxs[i][j]]);
 
-			if (i < nor_idxs.size())
-				nor.push_back( tmp_nor[nor_idxs[i][j]] );
-		}
-		tmp_pos_idxs.push_back(uvec3(face_id, face_id+1, face_id+2));
-		face_id += 3;
-	}
+            if (i < nor_idxs.size())
+                nor.push_back(tmp_nor[nor_idxs[i][j]]);
+        }
+        tmp_pos_idxs.push_back(uvec3(face_id, face_id + 1, face_id + 2));
+        face_id += 3;
+    }
 
+    pos_idxs.clear();
+    pos_idxs.resize(tmp_pos_idxs.size());
+    for (int i = 0; i < tmp_pos_idxs.size(); i++)
+    {
+        pos_idxs[i] = tmp_pos_idxs[i];
+    }
 
-	pos_idxs.clear();
-	pos_idxs.resize(tmp_pos_idxs.size());
-	for (int i = 0; i < tmp_pos_idxs.size(); i++)
-	{
-		pos_idxs[i] = tmp_pos_idxs[i];
-	}
-
-	// calculate normals if there were none
-	if (nor_idxs.size() == 0)
-		calculate_per_face_normals();
-
-
+    // calculate normals if there were none
+    if (nor_idxs.size() == 0)
+        calculate_per_face_normals();
 }
 
-
-void IndexedModelFile::produce_arrays_per_vertex(vector<vec3> &tmp_pos,
-								   				 vector<vec2> &tmp_tex,
-								   				 vector<vec3> &tmp_nor,
-								   				 vector<uvec3> &pos_idxs,
-								   				 vector<uvec3> &tex_idxs,
-								   				 vector<uvec3> &nor_idxs)
+void IndexedModelFile::produce_arrays_per_vertex(
+    vector<vec3> &tmp_pos, vector<vec2> &tmp_tex, vector<vec3> &tmp_nor,
+    vector<uvec3> &pos_idxs, vector<uvec3> &tex_idxs, vector<uvec3> &nor_idxs)
 {
-	pos.resize(tmp_pos.size(), vec3(0));
-	tex.resize(tmp_pos.size(), vec2(0));
-	nor.resize(tmp_pos.size(), vec3(0));
+    pos.resize(tmp_pos.size(), vec3(0));
+    tex.resize(tmp_pos.size(), vec2(0));
+    nor.resize(tmp_pos.size(), vec3(0));
 
-	for (int i = 0; i < pos_idxs.size(); i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			if (i < pos_idxs.size())
-				pos[pos_idxs[i][j]] = tmp_pos[pos_idxs[i][j]];
+    for (int i = 0; i < pos_idxs.size(); i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (i < pos_idxs.size())
+                pos[pos_idxs[i][j]] = tmp_pos[pos_idxs[i][j]];
 
-			if (i < tex_idxs.size())
-				tex[pos_idxs[i][j]] = tmp_tex[tex_idxs[i][j]];
+            if (i < tex_idxs.size())
+                tex[pos_idxs[i][j]] = tmp_tex[tex_idxs[i][j]];
 
-			if (i < nor_idxs.size())
-				nor[pos_idxs[i][j]] = tmp_nor[nor_idxs[i][j]];
-		}
-	}
+            if (i < nor_idxs.size())
+                nor[pos_idxs[i][j]] = tmp_nor[nor_idxs[i][j]];
+        }
+    }
 
-
-	// calculate normals if there were none
-	if (nor_idxs.size() == 0)
-		calculate_per_vertex_normals();
-
-
+    // calculate normals if there were none
+    if (nor_idxs.size() == 0)
+        calculate_per_vertex_normals();
 }
-
 
 void IndexedModelFile::calculate_per_vertex_normals()
 {
-	for (int i = 0; i < pos_idxs.size(); i++)
-	{
-		int i0 = pos_idxs[i].x;
-		int i1 = pos_idxs[i].y;
-		int i2 = pos_idxs[i].z;
+    for (int i = 0; i < pos_idxs.size(); i++)
+    {
+        int i0 = pos_idxs[i].x;
+        int i1 = pos_idxs[i].y;
+        int i2 = pos_idxs[i].z;
 
-		vec3 v1 = pos[i0] - pos[i1];
-		vec3 v2 = pos[i0] - pos[i2];
+        vec3 v1 = pos[i0] - pos[i1];
+        vec3 v2 = pos[i0] - pos[i2];
 
-		vec3 normal = normalize(cross(v1, v2));
+        vec3 normal = normalize(cross(v1, v2));
 
-		nor[pos_idxs[i].x] += normal;
-		nor[pos_idxs[i].y] += normal;
-		nor[pos_idxs[i].z] += normal;
-	}
+        nor[pos_idxs[i].x] += normal;
+        nor[pos_idxs[i].y] += normal;
+        nor[pos_idxs[i].z] += normal;
+    }
 
-	for (int i = 0; i < nor.size(); i++)
-		nor[i] = normalize(nor[i]);
+    for (int i = 0; i < nor.size(); i++)
+        nor[i] = normalize(nor[i]);
 }
-
 
 void IndexedModelFile::calculate_per_face_normals()
 {
-	nor.clear();
-	nor.resize(pos_idxs.size() * 3);
+    nor.clear();
+    nor.resize(pos_idxs.size() * 3);
 
-	for (int i = 0; i < pos_idxs.size(); i++)
-	{
-		int i0 = pos_idxs[i].x;
-		int i1 = pos_idxs[i].y;
-		int i2 = pos_idxs[i].z;
+    for (int i = 0; i < pos_idxs.size(); i++)
+    {
+        int i0 = pos_idxs[i].x;
+        int i1 = pos_idxs[i].y;
+        int i2 = pos_idxs[i].z;
 
-		vec3 v1 = pos[i0] - pos[i1];
-		vec3 v2 = pos[i0] - pos[i2];
+        vec3 v1 = pos[i0] - pos[i1];
+        vec3 v2 = pos[i0] - pos[i2];
 
-		vec3 normal = normalize(cross(v1, v2));
+        vec3 normal = normalize(cross(v1, v2));
 
-		nor[pos_idxs[i].x] = normal;
-		nor[pos_idxs[i].y] = normal;
-		nor[pos_idxs[i].z] = normal;
-	}
+        nor[pos_idxs[i].x] = normal;
+        nor[pos_idxs[i].y] = normal;
+        nor[pos_idxs[i].z] = normal;
+    }
 
-// 	for (int i = 0; i < nor.size(); i++)
-// 		nor[i] = normalize(nor[i]);
+    // 	for (int i = 0; i < nor.size(); i++)
+    // 		nor[i] = normalize(nor[i]);
 }
 
 void IndexedModelFile::prepare_vertices_and_indices()
 {
-// 	cout << pos.size() << " " << nor.size() << " " << tex.size() << "\n";
-	INFO("Model info: pos size = {}, nor size = {}, tex size = {}.", pos.size(),
-		nor.size(), tex.size());
-	layout.elements.push_back(VertexDataType::FLOAT3);
+    // 	cout << pos.size() << " " << nor.size() << " " << tex.size() <<
+    // "\n";
+    INFO("Model info: pos size = {}, nor size = {}, tex size = {}.", pos.size(),
+         nor.size(), tex.size());
+    layout.elements.push_back(VertexDataType::FLOAT3);
 
-	unsigned int vertices_size = pos.size() * 3;
-	unsigned int stride = 3;
+    unsigned int vertices_size = pos.size() * 3;
+    unsigned int stride = 3;
 
-	if (nor.size() > 0)
-	{
-		layout.elements.push_back(VertexDataType::FLOAT3);
-		vertices_size += nor.size() * 3;
-		stride += 3;
-	}
-	if (tex.size() > 0)
-	{
-		layout.elements.push_back(VertexDataType::FLOAT2);
-		vertices_size += tex.size() * 2;
-		stride += 2;
-	}
+    if (nor.size() > 0)
+    {
+        layout.elements.push_back(VertexDataType::FLOAT3);
+        vertices_size += nor.size() * 3;
+        stride += 3;
+    }
+    if (tex.size() > 0)
+    {
+        layout.elements.push_back(VertexDataType::FLOAT2);
+        vertices_size += tex.size() * 2;
+        stride += 2;
+    }
 
-	vertices.resize(vertices_size);
+    vertices.resize(vertices_size);
 
-	for (unsigned int i = 0; i < pos.size(); i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			vertices[i * stride + j] = pos[i][j];
-		}
+    for (unsigned int i = 0; i < pos.size(); i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            vertices[i * stride + j] = pos[i][j];
+        }
 
-		unsigned int offset = 3;
+        unsigned int offset = 3;
 
-		if (nor.size() > 0)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				vertices[i * stride + j + offset] = nor[i][j];
-// 				cout << nor[i][j] << ", ";
-			}
-			offset += 3;
-		}
-//
-		if (tex.size() > 0)
-		{
-			for (int j = 0; j < 2; j++)
-			{
-				vertices[i * stride + j + offset] = tex[i][j];
-			}
-			offset += 2;
-		}
+        if (nor.size() > 0)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                vertices[i * stride + j + offset] = nor[i][j];
+                // 				cout << nor[i][j] << ", ";
+            }
+            offset += 3;
+        }
+        //
+        if (tex.size() > 0)
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                vertices[i * stride + j + offset] = tex[i][j];
+            }
+            offset += 2;
+        }
 
-// 		cout  << "\n";
-	}
+        // 		cout  << "\n";
+    }
 
-	indices.resize(pos_idxs.size() * 3);
-	for (unsigned int i = 0; i < pos_idxs.size(); i++)
-	{
-		for (int j = 0; j < 3; j++)
-			indices[i * 3 + j] = pos_idxs[i][j];
-	}
+    indices.resize(pos_idxs.size() * 3);
+    for (unsigned int i = 0; i < pos_idxs.size(); i++)
+    {
+        for (int j = 0; j < 3; j++)
+            indices[i * 3 + j] = pos_idxs[i][j];
+    }
 
-
-// 	cout << "vertices:" << endl;
-// 	for (float v: vertices)
-// 		cout << v << ", ";
-// 	cout << "indices:" << endl;
-// 	for (float i: indices)
-// 		cout << i << ", ";
-// 	cout << endl;
-// 	cout << endl;
+    // 	cout << "vertices:" << endl;
+    // 	for (float v: vertices)
+    // 		cout << v << ", ";
+    // 	cout << "indices:" << endl;
+    // 	for (float i: indices)
+    // 		cout << i << ", ";
+    // 	cout << endl;
+    // 	cout << endl;
 }
 
+IndexedIcoSphere::IndexedIcoSphere()
+{
+    create(vec3(0.), vec3(1.));
+}
 
+IndexedIcoSphere::IndexedIcoSphere(vec3 position, vec3 scale)
+{
+    create(position, scale);
+}
 
+void IndexedIcoSphere::create(vec3 position, vec3 scale)
+{
 
+    float vs[] = {
+        0,         -1,        0,         0.1024,    -0.9435,   0.3151,
+        0.818181,  0,         0.425323,  -0.850654, 0.309011,  0.1024,
+        -0.9435,   0.3151,    0.772726,  0.078731,  -0.162456, -0.850654,
+        0.499995,  0.1024,    -0.9435,   0.3151,    0.863635,  0.078731,
+        0.723607,  -0.44722,  0.525725,  0.7002,    -0.6617,   0.268,
+        0.727272,  0.157461,  0.425323,  -0.850654, 0.309011,  0.7002,
+        -0.6617,   0.268,     0.681818,  0.078731,  0.850648,  -0.525736,
+        0,         0.7002,    -0.6617,   0.268,     0.636363,  0.157461,
+        0,         -1,        0,         -0.268,    -0.9435,   0.1947,
+        0.090909,  0,         -0.162456, -0.850654, 0.499995,  -0.268,
+        -0.9435,   0.1947,    0.045454,  0.078731,  -0.52573,  -0.850652,
+        0,         -0.268,    -0.9435,   0.1947,    0.136363,  0.078731,
+        0,         -1,        0,         -0.268,    -0.9435,   -0.1947,
+        0.272727,  0,         -0.52573,  -0.850652, 0,         -0.268,
+        -0.9435,   -0.1947,   0.227273,  0.078731,  -0.162456, -0.850654,
+        -0.499995, -0.268,    -0.9435,   -0.1947,   0.318182,  0.078731,
+        0,         -1,        0,         0.1024,    -0.9435,   -0.3151,
+        0.454545,  0,         -0.162456, -0.850654, -0.499995, 0.1024,
+        -0.9435,   -0.3151,   0.40909,   0.078731,  0.425323,  -0.850654,
+        -0.309011, 0.1024,    -0.9435,   -0.3151,   0.5,       0.078731,
+        0.723607,  -0.44722,  0.525725,  0.905,     -0.3304,   0.268,
+        0.727272,  0.157461,  0.850648,  -0.525736, 0,         0.905,
+        -0.3304,   0.268,     0.636363,  0.157461,  0.951058,  0,
+        0.309013,  0.905,     -0.3304,   0.268,     0.681818,  0.236191,
+        -0.276388, -0.44722,  0.850649,  0.0247,    -0.3304,   0.9435,
+        0.90909,   0.157461,  0.262869,  -0.525738, 0.809012,  0.0247,
+        -0.3304,   0.9435,    0.818181,  0.157461,  0,         0,
+        1,         0.0247,    -0.3304,   0.9435,    0.863635,  0.236191,
+        -0.894426, -0.447216, 0,         -0.8897,   -0.3304,   0.3151,
+        0.181818,  0.157461,  -0.688189, -0.525736, 0.499997,  -0.8897,
+        -0.3304,   0.3151,    0.090909,  0.157461,  -0.951058, 0,
+        0.309013,  -0.8897,   -0.3304,   0.3151,    0.136363,  0.236191,
+        -0.276388, -0.44722,  -0.850649, -0.5746,   -0.3304,   -0.7488,
+        0.363636,  0.157461,  -0.688189, -0.525736, -0.499997, -0.5746,
+        -0.3304,   -0.7488,   0.272727,  0.157461,  -0.587786, 0,
+        -0.809017, -0.5746,   -0.3304,   -0.7488,   0.318182,  0.236191,
+        0.723607,  -0.44722,  -0.525725, 0.5346,    -0.3304,   -0.7779,
+        0.545454,  0.157461,  0.262869,  -0.525738, -0.809012, 0.5346,
+        -0.3304,   -0.7779,   0.454545,  0.157461,  0.587786,  0,
+        -0.809017, 0.5346,    -0.3304,   -0.7779,   0.5,       0.236191,
+        0.723607,  -0.44722,  0.525725,  0.8026,    -0.1256,   0.5831,
+        0.727272,  0.157461,  0.951058,  0,         0.309013,  0.8026,
+        -0.1256,   0.5831,    0.681818,  0.236191,  0.587786,  0,
+        0.809017,  0.8026,    -0.1256,   0.5831,    0.772726,  0.236191,
+        -0.276388, -0.44722,  0.850649,  -0.3066,   -0.1256,   0.9435,
+        0.90909,   0.157461,  0,         0,         1,         -0.3066,
+        -0.1256,   0.9435,    0.863635,  0.236191,  -0.587786, 0,
+        0.809017,  -0.3066,   -0.1256,   0.9435,    0.954545,  0.236191,
+        -0.894426, -0.447216, 0,         -0.9921,   -0.1256,   0,
+        0.181818,  0.157461,  -0.951058, 0,         0.309013,  -0.9921,
+        -0.1256,   0,         0.136363,  0.236191,  -0.951058, 0,
+        -0.309013, -0.9921,   -0.1256,   0,         0.227273,  0.236191,
+        -0.276388, -0.44722,  -0.850649, -0.3066,   -0.1256,   -0.9435,
+        0.363636,  0.157461,  -0.587786, 0,         -0.809017, -0.3066,
+        -0.1256,   -0.9435,   0.318182,  0.236191,  0,         0,
+        -1,        -0.3066,   -0.1256,   -0.9435,   0.40909,   0.236191,
+        0.723607,  -0.44722,  -0.525725, 0.8026,    -0.1256,   -0.5831,
+        0.545454,  0.157461,  0.587786,  0,         -0.809017, 0.8026,
+        -0.1256,   -0.5831,   0.5,       0.236191,  0.951058,  0,
+        -0.309013, 0.8026,    -0.1256,   -0.5831,   0.590909,  0.236191,
+        0.276388,  0.44722,   0.850649,  0.4089,    0.6617,    0.6284,
+        0.818181,  0.314921,  0.688189,  0.525736,  0.499997,  0.4089,
+        0.6617,    0.6284,    0.727272,  0.314921,  0.162456,  0.850654,
+        0.499995,  0.4089,    0.6617,    0.6284,    0.772726,  0.393651,
+        -0.723607, 0.44722,   0.525725,  -0.4713,   0.6617,    0.5831,
+        1,         0.314921,  -0.262869, 0.525738,  0.809012,  -0.4713,
+        0.6617,    0.5831,    0.909091,  0.314921,  -0.425323, 0.850654,
+        0.309011,  -0.4713,   0.6617,    0.5831,    0.954545,  0.393651,
+        -0.723607, 0.44722,   -0.525725, -0.7002,   0.6617,    -0.268,
+        0.272727,  0.314921,  -0.850648, 0.525736,  0,         -0.7002,
+        0.6617,    -0.268,    0.181818,  0.314921,  -0.425323, 0.850654,
+        -0.309011, -0.7002,   0.6617,    -0.268,    0.227273,  0.393651,
+        0.276388,  0.44722,   -0.850649, 0.0385,    0.6617,    -0.7488,
+        0.454545,  0.314921,  -0.262869, 0.525738,  -0.809012, 0.0385,
+        0.6617,    -0.7488,   0.363636,  0.314921,  0.162456,  0.850654,
+        -0.499995, 0.0385,    0.6617,    -0.7488,   0.40909,   0.393651,
+        0.894426,  0.447216,  0,         0.724,     0.6617,    -0.1947,
+        0.636363,  0.314921,  0.688189,  0.525736,  -0.499997, 0.724,
+        0.6617,    -0.1947,   0.545454,  0.314921,  0.52573,   0.850652,
+        0,         0.724,     0.6617,    -0.1947,   0.590909,  0.393651,
+        0.52573,   0.850652,  0,         0.268,     0.9435,    -0.1947,
+        0.590909,  0.393651,  0.162456,  0.850654,  -0.499995, 0.268,
+        0.9435,    -0.1947,   0.5,       0.393651,  0,         1,
+        0,         0.268,     0.9435,    -0.1947,   0.545454,  0.472382,
+        0.52573,   0.850652,  0,         0.4911,    0.7947,    -0.3568,
+        0.590909,  0.393651,  0.688189,  0.525736,  -0.499997, 0.4911,
+        0.7947,    -0.3568,   0.545454,  0.314921,  0.162456,  0.850654,
+        -0.499995, 0.4911,    0.7947,    -0.3568,   0.5,       0.393651,
+        0.688189,  0.525736,  -0.499997, 0.4089,    0.6617,    -0.6284,
+        0.545454,  0.314921,  0.276388,  0.44722,   -0.850649, 0.4089,
+        0.6617,    -0.6284,   0.454545,  0.314921,  0.162456,  0.850654,
+        -0.499995, 0.4089,    0.6617,    -0.6284,   0.5,       0.393651,
+        0.162456,  0.850654,  -0.499995, -0.1024,   0.9435,    -0.3151,
+        0.40909,   0.393651,  -0.425323, 0.850654,  -0.309011, -0.1024,
+        0.9435,    -0.3151,   0.318182,  0.393651,  0,         1,
+        0,         -0.1024,   0.9435,    -0.3151,   0.363636,  0.472382,
+        0.162456,  0.850654,  -0.499995, -0.1876,   0.7947,    -0.5773,
+        0.40909,   0.393651,  -0.262869, 0.525738,  -0.809012, -0.1876,
+        0.7947,    -0.5773,   0.363636,  0.314921,  -0.425323, 0.850654,
+        -0.309011, -0.1876,   0.7947,    -0.5773,   0.318182,  0.393651,
+        -0.262869, 0.525738,  -0.809012, -0.4713,   0.6617,    -0.5831,
+        0.363636,  0.314921,  -0.723607, 0.44722,   -0.525725, -0.4713,
+        0.6617,    -0.5831,   0.272727,  0.314921,  -0.425323, 0.850654,
+        -0.309011, -0.4713,   0.6617,    -0.5831,   0.318182,  0.393651,
+        -0.425323, 0.850654,  -0.309011, -0.3313,   0.9435,    0,
+        0.227273,  0.393651,  -0.425323, 0.850654,  0.309011,  -0.3313,
+        0.9435,    0,         0.136363,  0.393651,  0,         1,
+        0,         -0.3313,   0.9435,    0,         0.181818,  0.472382,
+        -0.425323, 0.850654,  -0.309011, -0.6071,   0.7947,    0,
+        0.227273,  0.393651,  -0.850648, 0.525736,  0,         -0.6071,
+        0.7947,    0,         0.181818,  0.314921,  -0.425323, 0.850654,
+        0.309011,  -0.6071,   0.7947,    0,         0.136363,  0.393651,
+        -0.850648, 0.525736,  0,         -0.7002,   0.6617,    0.268,
+        0.181818,  0.314921,  -0.723607, 0.44722,   0.525725,  -0.7002,
+        0.6617,    0.268,     0.090909,  0.314921,  -0.425323, 0.850654,
+        0.309011,  -0.7002,   0.6617,    0.268,     0.136363,  0.393651,
+        -0.425323, 0.850654,  0.309011,  -0.1024,   0.9435,    0.3151,
+        0.954545,  0.393651,  0.162456,  0.850654,  0.499995,  -0.1024,
+        0.9435,    0.3151,    0.863635,  0.393651,  0,         1,
+        0,         -0.1024,   0.9435,    0.3151,    0.90909,   0.472382,
+        -0.425323, 0.850654,  0.309011,  -0.1876,   0.7947,    0.5773,
+        0.954545,  0.393651,  -0.262869, 0.525738,  0.809012,  -0.1876,
+        0.7947,    0.5773,    0.909091,  0.314921,  0.162456,  0.850654,
+        0.499995,  -0.1876,   0.7947,    0.5773,    0.863635,  0.393651,
+        -0.262869, 0.525738,  0.809012,  0.0385,    0.6617,    0.7488,
+        0.909091,  0.314921,  0.276388,  0.44722,   0.850649,  0.0385,
+        0.6617,    0.7488,    0.818181,  0.314921,  0.162456,  0.850654,
+        0.499995,  0.0385,    0.6617,    0.7488,    0.863635,  0.393651,
+        0.162456,  0.850654,  0.499995,  0.268,     0.9435,    0.1947,
+        0.772726,  0.393651,  0.52573,   0.850652,  0,         0.268,
+        0.9435,    0.1947,    0.681818,  0.393651,  0,         1,
+        0,         0.268,     0.9435,    0.1947,    0.727272,  0.472382,
+        0.162456,  0.850654,  0.499995,  0.4911,    0.7947,    0.3568,
+        0.772726,  0.393651,  0.688189,  0.525736,  0.499997,  0.4911,
+        0.7947,    0.3568,    0.727272,  0.314921,  0.52573,   0.850652,
+        0,         0.4911,    0.7947,    0.3568,    0.681818,  0.393651,
+        0.688189,  0.525736,  0.499997,  0.724,     0.6617,    0.1947,
+        0.727272,  0.314921,  0.894426,  0.447216,  0,         0.724,
+        0.6617,    0.1947,    0.636363,  0.314921,  0.52573,   0.850652,
+        0,         0.724,     0.6617,    0.1947,    0.681818,  0.393651,
+        0.951058,  0,         -0.309013, 0.8897,    0.3304,    -0.3151,
+        0.590909,  0.236191,  0.688189,  0.525736,  -0.499997, 0.8897,
+        0.3304,    -0.3151,   0.545454,  0.314921,  0.894426,  0.447216,
+        0,         0.8897,    0.3304,    -0.3151,   0.636363,  0.314921,
+        0.951058,  0,         -0.309013, 0.7947,    0.1876,    -0.5773,
+        0.590909,  0.236191,  0.587786,  0,         -0.809017, 0.7947,
+        0.1876,    -0.5773,   0.5,       0.236191,  0.688189,  0.525736,
+        -0.499997, 0.7947,    0.1876,    -0.5773,   0.545454,  0.314921,
+        0.587786,  0,         -0.809017, 0.5746,    0.3304,    -0.7488,
+        0.5,       0.236191,  0.276388,  0.44722,   -0.850649, 0.5746,
+        0.3304,    -0.7488,   0.454545,  0.314921,  0.688189,  0.525736,
+        -0.499997, 0.5746,    0.3304,    -0.7488,   0.545454,  0.314921,
+        0,         0,         -1,        -0.0247,   0.3304,    -0.9435,
+        0.40909,   0.236191,  -0.262869, 0.525738,  -0.809012, -0.0247,
+        0.3304,    -0.9435,   0.363636,  0.314921,  0.276388,  0.44722,
+        -0.850649, -0.0247,   0.3304,    -0.9435,   0.454545,  0.314921,
+        0,         0,         -1,        -0.3035,   0.1876,    -0.9342,
+        0.40909,   0.236191,  -0.587786, 0,         -0.809017, -0.3035,
+        0.1876,    -0.9342,   0.318182,  0.236191,  -0.262869, 0.525738,
+        -0.809012, -0.3035,   0.1876,    -0.9342,   0.363636,  0.314921,
+        -0.587786, 0,         -0.809017, -0.5346,   0.3304,    -0.7779,
+        0.318182,  0.236191,  -0.723607, 0.44722,   -0.525725, -0.5346,
+        0.3304,    -0.7779,   0.272727,  0.314921,  -0.262869, 0.525738,
+        -0.809012, -0.5346,   0.3304,    -0.7779,   0.363636,  0.314921,
+        -0.951058, 0,         -0.309013, -0.905,    0.3304,    -0.268,
+        0.227273,  0.236191,  -0.850648, 0.525736,  0,         -0.905,
+        0.3304,    -0.268,    0.181818,  0.314921,  -0.723607, 0.44722,
+        -0.525725, -0.905,    0.3304,    -0.268,    0.272727,  0.314921,
+        -0.951058, 0,         -0.309013, -0.9822,   0.1876,    0,
+        0.227273,  0.236191,  -0.951058, 0,         0.309013,  -0.9822,
+        0.1876,    0,         0.136363,  0.236191,  -0.850648, 0.525736,
+        0,         -0.9822,   0.1876,    0,         0.181818,  0.314921,
+        -0.951058, 0,         0.309013,  -0.905,    0.3304,    0.268,
+        0.136363,  0.236191,  -0.723607, 0.44722,   0.525725,  -0.905,
+        0.3304,    0.268,     0.090909,  0.314921,  -0.850648, 0.525736,
+        0,         -0.905,    0.3304,    0.268,     0.181818,  0.314921,
+        -0.587786, 0,         0.809017,  -0.5346,   0.3304,    0.7779,
+        0.954545,  0.236191,  -0.262869, 0.525738,  0.809012,  -0.5346,
+        0.3304,    0.7779,    0.909091,  0.314921,  -0.723607, 0.44722,
+        0.525725,  -0.5346,   0.3304,    0.7779,    1,         0.314921,
+        -0.587786, 0,         0.809017,  -0.3035,   0.1876,    0.9342,
+        0.954545,  0.236191,  0,         0,         1,         -0.3035,
+        0.1876,    0.9342,    0.863635,  0.236191,  -0.262869, 0.525738,
+        0.809012,  -0.3035,   0.1876,    0.9342,    0.909091,  0.314921,
+        0,         0,         1,         -0.0247,   0.3304,    0.9435,
+        0.863635,  0.236191,  0.276388,  0.44722,   0.850649,  -0.0247,
+        0.3304,    0.9435,    0.818181,  0.314921,  -0.262869, 0.525738,
+        0.809012,  -0.0247,   0.3304,    0.9435,    0.909091,  0.314921,
+        0.587786,  0,         0.809017,  0.5746,    0.3304,    0.7488,
+        0.772726,  0.236191,  0.688189,  0.525736,  0.499997,  0.5746,
+        0.3304,    0.7488,    0.727272,  0.314921,  0.276388,  0.44722,
+        0.850649,  0.5746,    0.3304,    0.7488,    0.818181,  0.314921,
+        0.587786,  0,         0.809017,  0.7947,    0.1876,    0.5773,
+        0.772726,  0.236191,  0.951058,  0,         0.309013,  0.7947,
+        0.1876,    0.5773,    0.681818,  0.236191,  0.688189,  0.525736,
+        0.499997,  0.7947,    0.1876,    0.5773,    0.727272,  0.314921,
+        0.951058,  0,         0.309013,  0.8897,    0.3304,    0.3151,
+        0.681818,  0.236191,  0.894426,  0.447216,  0,         0.8897,
+        0.3304,    0.3151,    0.636363,  0.314921,  0.688189,  0.525736,
+        0.499997,  0.8897,    0.3304,    0.3151,    0.727272,  0.314921,
+        0.587786,  0,         -0.809017, 0.3066,    0.1256,    -0.9435,
+        0.5,       0.236191,  0,         0,         -1,        0.3066,
+        0.1256,    -0.9435,   0.40909,   0.236191,  0.276388,  0.44722,
+        -0.850649, 0.3066,    0.1256,    -0.9435,   0.454545,  0.314921,
+        0.587786,  0,         -0.809017, 0.3035,    -0.1876,   -0.9342,
+        0.5,       0.236191,  0.262869,  -0.525738, -0.809012, 0.3035,
+        -0.1876,   -0.9342,   0.454545,  0.157461,  0,         0,
+        -1,        0.3035,    -0.1876,   -0.9342,   0.40909,   0.236191,
+        0.262869,  -0.525738, -0.809012, 0.0247,    -0.3304,   -0.9435,
+        0.454545,  0.157461,  -0.276388, -0.44722,  -0.850649, 0.0247,
+        -0.3304,   -0.9435,   0.363636,  0.157461,  0,         0,
+        -1,        0.0247,    -0.3304,   -0.9435,   0.40909,   0.236191,
+        -0.587786, 0,         -0.809017, -0.8026,   0.1256,    -0.5831,
+        0.318182,  0.236191,  -0.951058, 0,         -0.309013, -0.8026,
+        0.1256,    -0.5831,   0.227273,  0.236191,  -0.723607, 0.44722,
+        -0.525725, -0.8026,   0.1256,    -0.5831,   0.272727,  0.314921,
+        -0.587786, 0,         -0.809017, -0.7947,   -0.1876,   -0.5773,
+        0.318182,  0.236191,  -0.688189, -0.525736, -0.499997, -0.7947,
+        -0.1876,   -0.5773,   0.272727,  0.157461,  -0.951058, 0,
+        -0.309013, -0.7947,   -0.1876,   -0.5773,   0.227273,  0.236191,
+        -0.688189, -0.525736, -0.499997, -0.8897,   -0.3304,   -0.3151,
+        0.272727,  0.157461,  -0.894426, -0.447216, 0,         -0.8897,
+        -0.3304,   -0.3151,   0.181818,  0.157461,  -0.951058, 0,
+        -0.309013, -0.8897,   -0.3304,   -0.3151,   0.227273,  0.236191,
+        -0.951058, 0,         0.309013,  -0.8026,   0.1256,    0.5831,
+        0.136363,  0.236191,  -0.587786, 0,         0.809017,  -0.8026,
+        0.1256,    0.5831,    0.045454,  0.236191,  -0.723607, 0.44722,
+        0.525725,  -0.8026,   0.1256,    0.5831,    0.090909,  0.314921,
+        -0.951058, 0,         0.309013,  -0.7947,   -0.1876,   0.5773,
+        0.136363,  0.236191,  -0.688189, -0.525736, 0.499997,  -0.7947,
+        -0.1876,   0.5773,    0.090909,  0.157461,  -0.587786, 0,
+        0.809017,  -0.7947,   -0.1876,   0.5773,    0.045454,  0.236191,
+        -0.688189, -0.525736, 0.499997,  -0.5746,   -0.3304,   0.7488,
+        0.090909,  0.157461,  -0.276388, -0.44722,  0.850649,  -0.5746,
+        -0.3304,   0.7488,    0,         0.157461,  -0.587786, 0,
+        0.809017,  -0.5746,   -0.3304,   0.7488,    0.045454,  0.236191,
+        0,         0,         1,         0.3066,    0.1256,    0.9435,
+        0.863635,  0.236191,  0.587786,  0,         0.809017,  0.3066,
+        0.1256,    0.9435,    0.772726,  0.236191,  0.276388,  0.44722,
+        0.850649,  0.3066,    0.1256,    0.9435,    0.818181,  0.314921,
+        0,         0,         1,         0.3035,    -0.1876,   0.9342,
+        0.863635,  0.236191,  0.262869,  -0.525738, 0.809012,  0.3035,
+        -0.1876,   0.9342,    0.818181,  0.157461,  0.587786,  0,
+        0.809017,  0.3035,    -0.1876,   0.9342,    0.772726,  0.236191,
+        0.262869,  -0.525738, 0.809012,  0.5346,    -0.3304,   0.7779,
+        0.818181,  0.157461,  0.723607,  -0.44722,  0.525725,  0.5346,
+        -0.3304,   0.7779,    0.727272,  0.157461,  0.587786,  0,
+        0.809017,  0.5346,    -0.3304,   0.7779,    0.772726,  0.236191,
+        0.951058,  0,         0.309013,  0.9921,    0.1256,    0,
+        0.681818,  0.236191,  0.951058,  0,         -0.309013, 0.9921,
+        0.1256,    0,         0.590909,  0.236191,  0.894426,  0.447216,
+        0,         0.9921,    0.1256,    0,         0.636363,  0.314921,
+        0.951058,  0,         0.309013,  0.9822,    -0.1876,   0,
+        0.681818,  0.236191,  0.850648,  -0.525736, 0,         0.9822,
+        -0.1876,   0,         0.636363,  0.157461,  0.951058,  0,
+        -0.309013, 0.9822,    -0.1876,   0,         0.590909,  0.236191,
+        0.850648,  -0.525736, 0,         0.905,     -0.3304,   -0.268,
+        0.636363,  0.157461,  0.723607,  -0.44722,  -0.525725, 0.905,
+        -0.3304,   -0.268,    0.545454,  0.157461,  0.951058,  0,
+        -0.309013, 0.905,     -0.3304,   -0.268,    0.590909,  0.236191,
+        0.425323,  -0.850654, -0.309011, 0.4713,    -0.6617,   -0.5831,
+        0.5,       0.078731,  0.262869,  -0.525738, -0.809012, 0.4713,
+        -0.6617,   -0.5831,   0.454545,  0.157461,  0.723607,  -0.44722,
+        -0.525725, 0.4713,    -0.6617,   -0.5831,   0.545454,  0.157461,
+        0.425323,  -0.850654, -0.309011, 0.1876,    -0.7947,   -0.5773,
+        0.5,       0.078731,  -0.162456, -0.850654, -0.499995, 0.1876,
+        -0.7947,   -0.5773,   0.40909,   0.078731,  0.262869,  -0.525738,
+        -0.809012, 0.1876,    -0.7947,   -0.5773,   0.454545,  0.157461,
+        -0.162456, -0.850654, -0.499995, -0.0385,   -0.6617,   -0.7488,
+        0.40909,   0.078731,  -0.276388, -0.44722,  -0.850649, -0.0385,
+        -0.6617,   -0.7488,   0.363636,  0.157461,  0.262869,  -0.525738,
+        -0.809012, -0.0385,   -0.6617,   -0.7488,   0.454545,  0.157461,
+        -0.162456, -0.850654, -0.499995, -0.4089,   -0.6617,   -0.6284,
+        0.318182,  0.078731,  -0.688189, -0.525736, -0.499997, -0.4089,
+        -0.6617,   -0.6284,   0.272727,  0.157461,  -0.276388, -0.44722,
+        -0.850649, -0.4089,   -0.6617,   -0.6284,   0.363636,  0.157461,
+        -0.162456, -0.850654, -0.499995, -0.4911,   -0.7947,   -0.3568,
+        0.318182,  0.078731,  -0.52573,  -0.850652, 0,         -0.4911,
+        -0.7947,   -0.3568,   0.227273,  0.078731,  -0.688189, -0.525736,
+        -0.499997, -0.4911,   -0.7947,   -0.3568,   0.272727,  0.157461,
+        -0.52573,  -0.850652, 0,         -0.724,    -0.6617,   -0.1947,
+        0.227273,  0.078731,  -0.894426, -0.447216, 0,         -0.724,
+        -0.6617,   -0.1947,   0.181818,  0.157461,  -0.688189, -0.525736,
+        -0.499997, -0.724,    -0.6617,   -0.1947,   0.272727,  0.157461,
+        -0.52573,  -0.850652, 0,         -0.724,    -0.6617,   0.1947,
+        0.136363,  0.078731,  -0.688189, -0.525736, 0.499997,  -0.724,
+        -0.6617,   0.1947,    0.090909,  0.157461,  -0.894426, -0.447216,
+        0,         -0.724,    -0.6617,   0.1947,    0.181818,  0.157461,
+        -0.52573,  -0.850652, 0,         -0.4911,   -0.7947,   0.3568,
+        0.136363,  0.078731,  -0.162456, -0.850654, 0.499995,  -0.4911,
+        -0.7947,   0.3568,    0.045454,  0.078731,  -0.688189, -0.525736,
+        0.499997,  -0.4911,   -0.7947,   0.3568,    0.090909,  0.157461,
+        -0.162456, -0.850654, 0.499995,  -0.4089,   -0.6617,   0.6284,
+        0.045454,  0.078731,  -0.276388, -0.44722,  0.850649,  -0.4089,
+        -0.6617,   0.6284,    0,         0.157461,  -0.688189, -0.525736,
+        0.499997,  -0.4089,   -0.6617,   0.6284,    0.090909,  0.157461,
+        0.850648,  -0.525736, 0,         0.7002,    -0.6617,   -0.268,
+        0.636363,  0.157461,  0.425323,  -0.850654, -0.309011, 0.7002,
+        -0.6617,   -0.268,    0.590909,  0.078731,  0.723607,  -0.44722,
+        -0.525725, 0.7002,    -0.6617,   -0.268,    0.545454,  0.157461,
+        0.850648,  -0.525736, 0,         0.6071,    -0.7947,   0,
+        0.636363,  0.157461,  0.425323,  -0.850654, 0.309011,  0.6071,
+        -0.7947,   0,         0.681818,  0.078731,  0.425323,  -0.850654,
+        -0.309011, 0.6071,    -0.7947,   0,         0.590909,  0.078731,
+        0.425323,  -0.850654, 0.309011,  0.3313,    -0.9435,   0,
+        0.681818,  0.078731,  0,         -1,        0,         0.3313,
+        -0.9435,   0,         0.636363,  0,         0.425323,  -0.850654,
+        -0.309011, 0.3313,    -0.9435,   0,         0.590909,  0.078731,
+        -0.162456, -0.850654, 0.499995,  -0.0385,   -0.6617,   0.7488,
+        0.863635,  0.078731,  0.262869,  -0.525738, 0.809012,  -0.0385,
+        -0.6617,   0.7488,    0.818181,  0.157461,  -0.276388, -0.44722,
+        0.850649,  -0.0385,   -0.6617,   0.7488,    0.90909,   0.157461,
+        -0.162456, -0.850654, 0.499995,  0.1876,    -0.7947,   0.5773,
+        0.863635,  0.078731,  0.425323,  -0.850654, 0.309011,  0.1876,
+        -0.7947,   0.5773,    0.772726,  0.078731,  0.262869,  -0.525738,
+        0.809012,  0.1876,    -0.7947,   0.5773,    0.818181,  0.157461,
+        0.425323,  -0.850654, 0.309011,  0.4713,    -0.6617,   0.5831,
+        0.772726,  0.078731,  0.723607,  -0.44722,  0.525725,  0.4713,
+        -0.6617,   0.5831,    0.727272,  0.157461,  0.262869,  -0.525738,
+        0.809012,  0.4713,    -0.6617,   0.5831,    0.818181,  0.157461};
+
+    unsigned int fs[] = {0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,
+                13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,
+                26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
+                39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,
+                52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,
+                65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,
+                78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,
+                91,  92,  93,  94,  95,  96,  97,  98,  99,  100, 101, 102, 103,
+                104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+                117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+                130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142,
+                143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155,
+                156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
+                169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
+                182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194,
+                195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207,
+                208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
+                221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233,
+                234, 235, 236, 237, 238, 239};
+
+    int stride = 8;
+    for (int i = 0; i < 240; i++) // fs size
+    {
+        vs[i * stride + 0] *= scale.x;
+        vs[i * stride + 1] *= scale.y;
+        vs[i * stride + 2] *= scale.z;
+
+        vs[i * stride + 0] += position.x;
+        vs[i * stride + 1] += position.y;
+        vs[i * stride + 2] += position.z;
+    }
+
+    vertices.assign(vs, vs + stride * 240);
+    indices.assign(fs, fs + 240);
+
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT3);
+    layout.elements.push_back(VertexDataType::FLOAT2);
+};

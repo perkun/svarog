@@ -36,8 +36,8 @@ public:
         dispatcher.dispatch<MouseMovedEvent>(bind(
             &ModelController::on_cursor_moved_event, this, placeholders::_1));
 
-        dispatcher.dispatch<MouseScrolledEvent>(bind(
-            &ModelController::on_mouse_scrolled_event, this, placeholders::_1));
+//         dispatcher.dispatch<MouseScrolledEvent>(bind(
+//             &ModelController::on_mouse_scrolled_event, this, placeholders::_1));
     }
 
     void on_mouse_scrolled_event(MouseScrolledEvent &e)

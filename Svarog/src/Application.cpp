@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "ImGuiLayer.h"
 
-#define BG_COLOR 41 / 256., 46 / 256., 48 / 256., 1.0
+// #define BG_COLOR 41 / 256., 46 / 256., 48 / 256., 1.0
 
 namespace Application
 {
@@ -12,7 +12,23 @@ LayerStack layer_stack;
 ImGuiLayer *imgui_layer;
 vec2 cursor_pos, cursor_shift;
 float mouse_scroll_offset;
+
+vec4 bg_color(41 / 256., 46 / 256., 48 / 256., 1.0);
+
+bool should_run = true;
 ////
+
+
+vec4 get_bg_color()
+{
+	return bg_color;
+}
+
+void set_bg_color(vec4 new_color)
+{
+	bg_color = new_color;
+	Renderer::clear(new_color);
+}
 
 
 float get_mouse_scroll_offset()
@@ -71,7 +87,7 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
 	push_overlay(imgui_layer);
 
 	Renderer::init();
-	Renderer::clear(BG_COLOR);
+	Renderer::clear(bg_color);
 
 	// Logging
 	Log::init();
@@ -207,7 +223,11 @@ void on_key_released_event(KeyReleasedEvent &event)
     int key_code = event.get_key_code();
 
     if (key_code == GLFW_KEY_Q)
-        glfwSetWindowShouldClose(window->winptr, GLFW_TRUE);
+	{
+//         glfwSetWindowShouldClose(window->winptr, GLFW_TRUE);
+         stop();
+
+	}
 }
 //
 // void on_key_pressed_event(KeyPressedEvent &event)
@@ -225,13 +245,19 @@ void on_key_released_event(KeyReleasedEvent &event)
 //
 // }
 
-void rendering_loop(GlfwEventMethod glfw_event_method)
+void stop()
+{
+	should_run = false;
+}
+
+void run(GlfwEventMethod glfw_event_method)
 {
     double time = glfwGetTime();
     double previous_time;
     double time_delta;
 
-    while (!glfwWindowShouldClose(window->winptr))
+//     while (!glfwWindowShouldClose(window->winptr))
+    while (should_run)
     {
 
         previous_time = time;

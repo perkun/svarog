@@ -24,6 +24,12 @@ void init()
     // 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+
+void set_line_width(float width)
+{
+	glLineWidth(width);
+}
+
 void enable_blend()
 {
     glEnable(GL_BLEND);
@@ -75,6 +81,12 @@ void clear()
 void clear(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b ,a);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void clear(vec4 color)
+{
+	glClearColor(color.r, color.g, color.b ,color.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

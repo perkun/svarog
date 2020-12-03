@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	Application::push_layer(new MainLayer(argc, argv));
 
 	// RENDER LOOP
-	Application::rendering_loop(GlfwEventMethod::POLL);
+	Application::run(GlfwEventMethod::POLL);
 	Application::destroy();
     return 0;
 }

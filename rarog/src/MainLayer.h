@@ -29,6 +29,7 @@ public:
 
 	// GUI functions
 	void scene_window();
+	void overlay_options();
 	void orbital_parameters_panel();
 	void menu_bar();
 
@@ -36,16 +37,20 @@ public:
 	void load_texture();
 	void remove_texture();
 
+	bool show_imgui_demo = false;
+	bool show_overlay_options = false;
+	bool show_axes = true;
+
 private:
 	vec2 viewport_panel_size;
 	ArgumentHandler arg_handler;
 
-	Shader *basic_shader;
+	Shader *basic_shader, *color_shader, *line_shader;;
 
 	VertexArrayObject *model_vao;
 	Texture *texture = NULL;
 
-	Entity model;
+	Entity model, x_line, y_line, z_line;
 
 
 
