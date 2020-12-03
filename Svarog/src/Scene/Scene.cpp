@@ -13,6 +13,11 @@ Scene::~Scene()
 	if (framebuffer != NULL)
 		delete framebuffer;
 
+	auto view = registry.view<MeshComponent>();
+	for (auto &e: view)
+	{
+		delete registry.get<MeshComponent>(e).vao;
+	}
 }
 
 Entity Scene::create_entity(string name)

@@ -48,7 +48,6 @@ void MainLayer::on_attach()
     line_shader = new Shader();
     line_shader->create_shader((char *)(void *)vert_col_vs,
                                (char *)(void *)vert_col_fs);
-
     if (arg_handler.isSpecified("model"))
         model_vao = new VertexArrayObject(IndexedModelObj(
             arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
@@ -130,7 +129,7 @@ void MainLayer::on_detach()
     delete basic_shader;
     delete color_shader;
     delete line_shader;
-    delete model_vao;
+//     delete model_vao;
 
     if (texture != NULL)
         delete texture;
