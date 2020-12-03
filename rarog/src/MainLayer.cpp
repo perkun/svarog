@@ -98,6 +98,42 @@ void MainLayer::on_detach()
 		delete texture;
 }
 
+
+void MainLayer::load_model()
+{
+	string filename = FileDialog::open_file("*.obj *.shp");
+	INFO("Loading model {}", filename);
+	delete model_vao;
+	model_vao = new VertexArrayObject(IndexedModelObj(filename,
+				NormalIndexing::PER_FACE));
+	model.replace_component<MeshComponent>(model_vao);
+}
+
+
+void MainLayer::load_texture()
+{
+	string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
+	INFO("Loading texture {}", filename);
+	if (texture != NULL)
+		delete texture;
+	texture = new ImgTexture(filename);
+
+	if (model.has_component<TextureComponent>())
+		model.replace_component<TextureComponent>(texture);
+	else
+		model.add_component<TextureComponent>(texture);
+
+	model.get_component<Material>().uniforms_int["u_has_texture"] = 1;
+}
+
+void MainLayer::remove_texture()
+{
+	model.get_component<Material>().uniforms_int["u_has_texture"] = 0;
+	if (texture != NULL)
+		delete texture;
+	texture = NULL;
+}
+
 void MainLayer::menu_bar()
 {
 	if (ImGui::BeginMainMenuBar())
@@ -122,27 +158,19 @@ void MainLayer::menu_bar()
 
 			if (ImGui::MenuItem("Load model"))
 			{
-				string filename = FileDialog::open_file("*.obj *.shp");
-				INFO("Loading model {}", filename);
-				delete model_vao;
-				model_vao = new VertexArrayObject(IndexedModelObj(filename,
-												  NormalIndexing::PER_FACE));
-				model.replace_component<MeshComponent>(model_vao);
+				load_model();
 			}
 
 			if (ImGui::MenuItem("Load texture"))
 			{
-				string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
-				INFO("Loading texture {}", filename);
-				if (texture != NULL)
-					delete texture;
-				texture = new ImgTexture(filename);
-
-				if (model.has_component<TextureComponent>())
-					model.replace_component<TextureComponent>(texture);
-				else
-					model.add_component<TextureComponent>(texture);
+				load_texture();
 			}
+
+			if (ImGui::MenuItem("Remove texture"))
+			{
+				remove_texture();
+			}
+
 
 			ImGui::EndMenu();
 		}

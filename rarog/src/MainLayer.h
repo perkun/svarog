@@ -32,6 +32,10 @@ public:
 	void orbital_parameters_panel();
 	void menu_bar();
 
+	void load_model();
+	void load_texture();
+	void remove_texture();
+
 private:
 	vec2 viewport_panel_size;
 	ArgumentHandler arg_handler;

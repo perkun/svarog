@@ -90,10 +90,9 @@ unsigned int Shader::compile_shader(unsigned int type, const char *source)
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
         char *message = (char *)alloca(length * sizeof(char));
         glGetShaderInfoLog(id, length, &length, message);
-        cout << "Failed to compile "
-             << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!"
-             << endl;
-        cout << message << endl;
+        ERROR("Failed to compile {} shader",
+              (type == GL_VERTEX_SHADER ? "vertex" : "fragment"));
+        ERROR(message);
         glDeleteShader(id);
         return 0;
     }
@@ -146,10 +145,10 @@ int Shader::get_uniform_location(string name)
 
     int location;
     location = glGetUniformLocation(program, name.c_str());
-//     if (location == -1)
-// 	{
-// 		WARN("The name {} does not exist in shader", name);
-// 	}
+    if (location == -1)
+	{
+		WARN("The name {} does not exist in shader", name);
+	}
 
     uniform_location_cache[name] = location;
 
