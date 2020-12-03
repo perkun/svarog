@@ -30,16 +30,16 @@ protected:
 //         if (Input::is_imgui_window_hovered())
 //             return;
 
-        Transform &ot = get_component<Transform>();
-
-        if (Input::is_key_pressed(GLFW_KEY_W))
-            ot.pan_forwards(time_delta);
-        if (Input::is_key_pressed(GLFW_KEY_S))
-            ot.pan_backwards(time_delta);
-        if (Input::is_key_pressed(GLFW_KEY_A))
-            ot.pan_left(time_delta);
-        if (Input::is_key_pressed(GLFW_KEY_D))
-            ot.pan_right(time_delta);
+//         Transform &ot = get_component<Transform>();
+//
+//         if (Input::is_key_pressed(GLFW_KEY_W))
+//             ot.pan_forwards(time_delta);
+//         if (Input::is_key_pressed(GLFW_KEY_S))
+//             ot.pan_backwards(time_delta);
+//         if (Input::is_key_pressed(GLFW_KEY_A))
+//             ot.pan_left(time_delta);
+//         if (Input::is_key_pressed(GLFW_KEY_D))
+//             ot.pan_right(time_delta);
     }
 
     virtual void on_event(Event &e) override
@@ -65,8 +65,16 @@ protected:
 //             return;
 
 		vec2 cursor_shift = e.get_cursor_pos() - cursor_pos;
+
         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_3))
             get_component<Transform>().rotate_about_target(cursor_shift);
+
+        if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_2))
+		{
+            get_component<Transform>().pan_forwards(cursor_shift.y/600.);
+            get_component<Transform>().pan_left(cursor_shift.x/600.);
+		}
+
 		cursor_pos= e.get_cursor_pos();
     }
 

@@ -117,8 +117,8 @@ void MainLayer::on_imgui_render()
     scene_window();
     orbital_parameters_panel();
 
-	if (show_overlay_options)
-		overlay_options();
+	if (show_scene_options)
+		scene_options();
 
     if (show_imgui_demo)
         ImGui::ShowDemoWindow();
@@ -129,7 +129,6 @@ void MainLayer::on_detach()
     delete basic_shader;
     delete color_shader;
     delete line_shader;
-//     delete model_vao;
 
     if (texture != NULL)
         delete texture;
@@ -138,10 +137,26 @@ void MainLayer::on_detach()
 void MainLayer::load_model()
 {
     string filename = FileDialog::open_file("*.obj *.shp");
-    INFO("Loading model {}", filename);
-    delete model_vao;
-    model_vao = new VertexArrayObject(
-        IndexedModelObj(filename, NormalIndexing::PER_FACE));
+
+	size_t dot_pos = filename.rfind(".");
+	TRACE("dot_pos {}", dot_pos);
+	if (filename.compare(dot_pos, 4, ".obj") == 0)
+	{
+		INFO("Loading OBJ model {}", filename);
+		delete model_vao;
+
+		model_vao = new VertexArrayObject(
+				IndexedModelObj(filename, NormalIndexing::PER_FACE));
+	}
+	else if (filename.compare(dot_pos, 4, ".shp") == 0)
+	{
+		INFO("Loading SHP model {}", filename);
+		delete model_vao;
+
+		model_vao = new VertexArrayObject(
+				IndexedModelShp(filename, NormalIndexing::PER_FACE));
+	}
+
     model.replace_component<MeshComponent>(model_vao);
 }
 
@@ -214,7 +229,7 @@ void MainLayer::menu_bar()
         if (ImGui::BeginMenu("View"))
         {
             ImGui::MenuItem("ImGui Demo", NULL, &show_imgui_demo);
-            ImGui::MenuItem("Overlay Options", NULL, &show_overlay_options);
+            ImGui::MenuItem("Scene Options", NULL, &show_scene_options);
 
             ImGui::EndMenu();
         }
@@ -285,10 +300,10 @@ void MainLayer::scene_window()
 }
 
 
-void MainLayer::overlay_options()
+void MainLayer::scene_options()
 {
 
-    ImGui::Begin("Overlay Options");
+    ImGui::Begin("Scene Options");
 	if (ImGui::Checkbox("show axes", &show_axes))
 	{
 		x_line.detatch();

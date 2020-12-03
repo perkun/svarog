@@ -29,7 +29,7 @@ public:
 
 	// GUI functions
 	void scene_window();
-	void overlay_options();
+	void scene_options();
 	void orbital_parameters_panel();
 	void menu_bar();
 
@@ -38,7 +38,7 @@ public:
 	void remove_texture();
 
 	bool show_imgui_demo = false;
-	bool show_overlay_options = false;
+	bool show_scene_options = false;
 	bool show_axes = true;
 
 private:

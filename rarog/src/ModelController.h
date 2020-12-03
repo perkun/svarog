@@ -52,7 +52,8 @@ public:
 //             return;
 
 		vec2 cursor_shift = e.get_cursor_pos() - cursor_pos;
-        if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_1))
+        if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_1)
+			&& Input::is_key_pressed(GLFW_KEY_LEFT_CONTROL))
 		{
 			Transform &t = get_component<Transform>();
 // 			t.alpha += t.rotation_speed * (cursor_shift.x);

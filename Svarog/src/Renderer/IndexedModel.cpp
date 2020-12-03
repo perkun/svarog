@@ -177,6 +177,69 @@ void IndexedColorCube::create(vec3 position, vec3 scale, vec4 color)
     layout.elements.push_back(VertexDataType::FLOAT4);
 }
 
+IndexedModelShp::IndexedModelShp(string filename, NormalIndexing mode)
+{
+	load(filename, mode);
+}
+
+void IndexedModelShp::load(string filename, NormalIndexing mode)
+{
+    FILE *f = fopen(filename.c_str(), "r");
+    if (f == NULL)
+    {
+        perror("File not found");
+        return;
+    }
+
+	int num_v = 0, num_f = 0;
+
+    char line[100];
+	fscanf(f, "%d %d", &num_v, &num_f);
+
+    vector<vec3> tmp_pos;
+    tmp_pos.reserve(num_v);
+
+    vector<vec2> tmp_tex;
+    tmp_tex.reserve(num_v);
+
+    vector<vec3> tmp_nor;
+    tmp_nor.reserve(num_v);
+
+    pos_idxs.reserve(num_f);
+
+    vector<uvec3> tex_idxs;
+    tex_idxs.reserve(num_f);
+
+    vector<uvec3> nor_idxs;
+    nor_idxs.reserve(num_f);
+
+
+	for (int i = 0; i < num_v; i++)
+	{
+		double x, y, z;
+		fscanf(f, "%lf %lf %lf", &x, &y, &z);
+		tmp_pos.emplace_back(x, y, z);
+	}
+
+	for (int i = 0; i < num_f; i++)
+	{
+		int x, y, z;
+		fscanf(f, "%d %d %d", &x, &y, &z);
+		pos_idxs.emplace_back(x-1, y-1, z-1);
+	}
+
+    fclose(f);
+
+    if (mode == NormalIndexing::PER_VERTEX)
+        produce_arrays_per_vertex(tmp_pos, tmp_tex, tmp_nor, pos_idxs, tex_idxs,
+                                  nor_idxs);
+    if (mode == NormalIndexing::PER_FACE)
+        produce_arrays_per_face(tmp_pos, tmp_tex, tmp_nor, pos_idxs, tex_idxs,
+                                nor_idxs);
+
+    prepare_vertices_and_indices();
+}
+
 IndexedModelObj::IndexedModelObj(string filename, NormalIndexing mode)
 {
     load(filename, mode);
@@ -314,8 +377,6 @@ void IndexedModelObj::load(string filename, NormalIndexing mode)
 
     fclose(f);
 
-    // 	cout << tex_idxs.size() << endl;
-
     if (mode == NormalIndexing::PER_VERTEX)
         produce_arrays_per_vertex(tmp_pos, tmp_tex, tmp_nor, pos_idxs, tex_idxs,
                                   nor_idxs);
@@ -365,6 +426,8 @@ void IndexedModelFile::produce_arrays_per_face(
     // calculate normals if there were none
     if (nor_idxs.size() == 0)
         calculate_per_face_normals();
+    if (nor_idxs.size() == 0)
+        calculate_texture_coords();
 }
 
 void IndexedModelFile::produce_arrays_per_vertex(
@@ -393,6 +456,31 @@ void IndexedModelFile::produce_arrays_per_vertex(
     // calculate normals if there were none
     if (nor_idxs.size() == 0)
         calculate_per_vertex_normals();
+    if (nor_idxs.size() == 0)
+        calculate_texture_coords();
+}
+
+void IndexedModelFile::calculate_texture_coords()
+{
+	//     for (int i = 0; i < pos_idxs.size(); i++)
+	tex.reserve(pos.size());
+	for (vec3 point: pos)
+	{
+
+		double r = length(point);
+		double alpha = atan2(point.y, point.x);
+		double beta = acos(point.z / r);
+
+		// alpha (azymut) do zakresu [0,2pi)
+		if (alpha < 0)
+			alpha += 2*M_PI;
+
+		// do zakresu [0,1)
+		alpha /= 2*M_PI;
+		beta = 1. - beta/M_PI;
+
+		tex.emplace_back( dvec2(alpha, beta) );
+	}
 }
 
 void IndexedModelFile::calculate_per_vertex_normals()

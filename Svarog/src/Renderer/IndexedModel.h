@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include <glm/glm.hpp>
+#include "Core.h"
 #include "VertexLayout.h"
 
 
@@ -110,6 +111,7 @@ protected:
 
 	void calculate_per_vertex_normals();
 	void calculate_per_face_normals();
+	void calculate_texture_coords();
 
 	void prepare_vertices_and_indices();
 
@@ -128,6 +130,17 @@ public:
 	~IndexedModelObj() {}
 
 	IndexedModelObj(string filename, NormalIndexing mode);
+	virtual void load(string filename, NormalIndexing mode) override;
+};
+
+
+class IndexedModelShp : public IndexedModelFile
+{
+public:
+	IndexedModelShp() {}
+	~IndexedModelShp() {}
+
+	IndexedModelShp(string filename, NormalIndexing mode);
 	virtual void load(string filename, NormalIndexing mode) override;
 };
 
