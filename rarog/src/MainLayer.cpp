@@ -186,6 +186,10 @@ void MainLayer::remove_texture()
 
 void MainLayer::menu_bar()
 {
+	ImGuiIO &io = ImGui::GetIO();
+	auto bold_font = io.Fonts->Fonts[0];
+
+	ImGui::PushFont(bold_font);
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -272,6 +276,7 @@ void MainLayer::menu_bar()
 
         ImGui::EndMainMenuBar();
     }
+	ImGui::PopFont();
 }
 
 void MainLayer::scene_window()

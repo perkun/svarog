@@ -38,7 +38,7 @@ public:
 	void remove_texture();
 
 	bool show_imgui_demo = false;
-	bool show_scene_options = false;
+	bool show_scene_options = true;
 	bool show_axes = true;
 
 private:

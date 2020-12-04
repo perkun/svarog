@@ -22,6 +22,8 @@ public:
 	void begin();
 	void end();
 
+	void set_dark_theme_colors();
+
 };
 
 #endif /* IMGUILAYER_H_ */
