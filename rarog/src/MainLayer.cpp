@@ -99,15 +99,14 @@ void MainLayer::on_attach()
     scene->root_entity.add_child(&y_line);
     scene->root_entity.add_child(&scene->light);
 
-    scene->framebuffer = new Framebuffer(window->width, window->height,
-                                         COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 
-    scene->flags |= RENDER_TO_FRAMEBUFFER;
+	scene->enable_render_to_framebuffer();
 }
 
 void MainLayer::on_update(double time_delta)
 {
     scene->on_update(time_delta);
+
 }
 
 void MainLayer::on_imgui_render()
@@ -277,6 +276,9 @@ void MainLayer::menu_bar()
 
 void MainLayer::scene_window()
 {
+	if (!(scene->flags & RENDER_TO_FRAMEBUFFER))
+		return;
+
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
     ImGui::Begin("Scene");
 
@@ -286,10 +288,6 @@ void MainLayer::scene_window()
         viewport_panel_size.x = vps.x;
         viewport_panel_size.y = vps.y;
         scene->on_resize(viewport_panel_size.x, viewport_panel_size.y);
-
-        ASSERT(scene->framebuffer != NULL, "Framebuffer is NULL");
-        scene->framebuffer->resize(viewport_panel_size.x,
-                                   viewport_panel_size.y);
     }
 
     long int tex_id = scene->framebuffer->get_color_attachment_id();

@@ -50,11 +50,11 @@ public:
 //     {
 //         return specification;
 //     }
-
-    private:
     unsigned int id = 0;
-    unsigned int color_attachment = 0, depth_attachment = 0;
     FramebufferSpec specification;
+
+private:
+    unsigned int color_attachment = 0, depth_attachment = 0;
 };
 
 #endif /* FRAMEBUFFER_H_ */

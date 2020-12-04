@@ -38,6 +38,29 @@ void Scene::on_resize(float width, float height)
 		cam->aspect = width / (float)height;
 		cam->update();
 	}
+
+	if (flags & RENDER_TO_FRAMEBUFFER)
+	{
+        ASSERT(ms_framebuffer != NULL, "Multisampling Framebuffer is NULL");
+        ASSERT(framebuffer != NULL, "Framebuffer is NULL");
+        ms_framebuffer->resize(width, height);
+        framebuffer->resize(width, height);
+		Renderer::bind_default_framebuffer();
+	}
+
+}
+
+void Scene::enable_render_to_framebuffer()
+{
+    flags |= RENDER_TO_FRAMEBUFFER;
+
+    auto window = Application::get_window();
+
+    ms_framebuffer = new Framebuffer(window->width, window->height,
+                       COLOR_ATTACHMENT | DEPTH_ATTACHMENT | MULTISAMPLING);
+
+	framebuffer = new Framebuffer(window->width, window->height,
+                       COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 }
 
 
@@ -171,8 +194,8 @@ void Scene::draw_root()
 	{
 		CORE_ASSERT(framebuffer != NULL, "Framebuffer is NULL");
 
-		framebuffer->bind();
-		framebuffer->clear();
+		ms_framebuffer->bind();
+		ms_framebuffer->clear();
 	}
 	else
     	Renderer::bind_default_framebuffer();
@@ -181,7 +204,18 @@ void Scene::draw_root()
 
 
 	if (flags & RENDER_TO_FRAMEBUFFER)
-    	Renderer::bind_default_framebuffer();
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, ms_framebuffer->id);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer->id);
+		glBlitFramebuffer(0, 0,
+				framebuffer->specification.width,
+				framebuffer->specification.height,
+				0, 0,
+				framebuffer->specification.width,
+				framebuffer->specification.height,
+				GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		Renderer::bind_default_framebuffer();
+	}
 }
 
 void Scene::on_update(double time_delta)

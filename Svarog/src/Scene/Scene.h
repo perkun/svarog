@@ -51,9 +51,13 @@ public:
 	void on_resize(float, float);
 	void on_update(double);
 
+	void enable_render_to_framebuffer();
+
 	char flags = 0;
 
 	Framebuffer *framebuffer = NULL;
+	Framebuffer *ms_framebuffer = NULL;
+
 
 	Material scene_material;
 	Entity root_entity;

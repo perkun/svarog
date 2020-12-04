@@ -51,9 +51,6 @@ private:
 	Texture *texture = NULL;
 
 	Entity model, x_line, y_line, z_line;
-
-
-
 };
 
 #endif /* MAINLAYER_H_ */
