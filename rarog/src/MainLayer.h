@@ -10,8 +10,6 @@
 
 #include "CameraController.h"
 #include "ModelController.h"
-// #include "CameraControllerFPP.h"
-
 
 
 using namespace std;
@@ -36,6 +34,8 @@ public:
 	void load_model();
 	void load_texture();
 	void remove_texture();
+
+	IndexedModel create_grid(float size, float sep, float alpha);
 
 	bool show_imgui_demo = false;
 	bool show_scene_options = true;

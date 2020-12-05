@@ -94,17 +94,20 @@ project "rarog"
 
 	prebuildcommands { "cd shaders; ./to-hex-include" }
 
-	links { "glfw", "GLEW", "GL", "Svarog", "cmdlineargs", "cfitsio", "yaml-cpp", "spdlog", "pthread"  }
+	links { "glfw", "GLEW", "GL", "cmdlineargs", "cfitsio",
+			"yaml-cpp",  "spdlog",  "pthread", "Svarog"  }
 
 	filter "configurations:Debug"
 		-- defines...
 		symbols "On"
 		defines "SV_DEBUG"
+		defines "SPDLOG_COMPILED_LIB"
 
 	filter "configurations:Release"
 		-- defines...
 		optimize "on"
 		defines "SV_RELEASE"
+		defines "SPDLOG_COMPILED_LIB"
 
 	filter "configurations:Dist"
 		-- defines...
@@ -199,7 +202,7 @@ project "Svarog"
 	}
 
 
-	links { "glfw", "GLEW", "GL", "cfitsio", "yaml-cpp", "spdlog", "pthread" }
+	links { "glfw", "GLEW", "GL", "cfitsio", "yaml-cpp", "pthread", "spdlog" }
 
 	filter "configurations:Debug"
 		-- defines...

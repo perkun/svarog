@@ -24,16 +24,30 @@ void MainLayer::on_attach()
 {
     vec3 init_model_pos(0., 5., 0.);
 
-#include "../shaders/basic.vs.include"
-#include "../shaders/basic.fs.include"
+    if (arg_handler.isSpecified("model"))
+	{
+		string filename = arg_handler.args["model"].to_str();
+		if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
+			model_vao = new VertexArrayObject(IndexedModelObj(
+				filename, NormalIndexing::PER_FACE));
+		else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
+			model_vao = new VertexArrayObject(IndexedModelShp(
+				filename, NormalIndexing::PER_FACE));
+	}
+    else
+        model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5), vec3(1.)));
+
+
+	#include "../shaders/basic.vs.include"
+	#include "../shaders/basic.fs.include"
     basic_vs[basic_vs_len] = 0;
     basic_fs[basic_fs_len] = 0;
 
-#include "../shaders/color.fs.include"
+	#include "../shaders/color.fs.include"
     color_fs[color_fs_len] = 0;
 
-#include "../shaders/vert_col.vs.include"
-#include "../shaders/vert_col.fs.include"
+	#include "../shaders/vert_col.vs.include"
+	#include "../shaders/vert_col.fs.include"
     vert_col_vs[vert_col_vs_len] = 0;
     vert_col_fs[vert_col_fs_len] = 0;
 
@@ -48,19 +62,14 @@ void MainLayer::on_attach()
     line_shader = new Shader();
     line_shader->create_shader((char *)(void *)vert_col_vs,
                                (char *)(void *)vert_col_fs);
-    if (arg_handler.isSpecified("model"))
-	{
-		if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
-			model_vao = new VertexArrayObject(IndexedModelObj(
-				arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
-		else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
-			model_vao = new VertexArrayObject(IndexedModelShp(
-				arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
-	}
-    else
-        model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5), vec3(1.)));
 
     auto window = Application::get_window();
+
+
+	grid = scene->create_entity("grid");
+	grid.add_component<Material>(line_shader);
+	grid.add_component<MeshComponent>(new VertexArrayObject(
+		create_grid(100., 5., 0.2), true));
 
     scene->observer = scene->create_entity("Observer");
     scene->observer.add_component<CameraComponent>(new PerspectiveCamera(
@@ -84,30 +93,6 @@ void MainLayer::on_attach()
     model.add_component<MeshComponent>(model_vao);
     model.add_component<NativeScriptComponent>().bind<ModelController>();
     model.get_component<Transform>().position = init_model_pos;
-
-
-	Batch grid_batch;
-	for (float i = -50; i <= 50; i += 5)
-	{
-		if (i == 0) continue;
-		grid_batch.push_back(
-			IndexedLine(vec3(-50., i, 0.), vec3(50., i, 0.),
-				vec4(0.3, 0.3, 0.3, 0.5)));
-		grid_batch.push_back(
-			IndexedLine(vec3(i, -50., 0.), vec3(i, 50., 0.),
-				vec4(0.3, 0.3, 0.3, 0.5)));
-	}
-	grid_batch.push_back(IndexedLine(vec3(-50., 0., 0.), vec3(50., 0., 0.),
-			vec4(245./256, 74./256, 29./256, 0.5)));
-	grid_batch.push_back(IndexedLine(vec3(0., -50., 0.), vec3(0., 50., 0.),
-			vec4(28./256, 157./256, 51./256, 0.5)));
-
-	grid = scene->create_entity("grid");
-	grid.add_component<Material>(line_shader);
-	grid.add_component<MeshComponent>(new VertexArrayObject(grid_batch.indexed_model, true));
-// 	grid.add_component<MeshComponent>(new VertexArrayObject(
-// 					IndexedLine(vec3(10., -50., 0.), vec3(10., 50., 0.),
-// 					vec4(0.3, 0.3, 0.3, 0.5)), true));
 
 
 	Renderer::set_line_width(2.);
@@ -162,7 +147,7 @@ void MainLayer::load_model()
 		model_vao = new VertexArrayObject(
 				IndexedModelObj(filename, NormalIndexing::PER_FACE));
 	}
-	else if (filename.compare(dot_pos, 4, ".shp") == 0)
+	else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
 	{
 		INFO("Loading SHP model {}", filename);
 		delete model_vao;
@@ -172,7 +157,7 @@ void MainLayer::load_model()
 	}
 	else
 	{
-		WARNING("Wrong model file extension");
+		WARN("Wrong model file extension");
 		return;
 	}
 
@@ -396,4 +381,32 @@ void MainLayer::orbital_parameters_panel()
         model.get_component<Transform>().scale = vec3(scale);
 
     ImGui::End();
+}
+
+
+IndexedModel MainLayer::create_grid(float size, float sep, float alpha)
+{
+	Batch grid_batch;
+
+	for (float i = -size; i <= size; i += sep)
+	{
+		if (i == 0.) continue;
+
+		grid_batch.push_back(
+			IndexedLine(vec3(-size, i, 0.),
+						vec3(size, i, 0.),
+						vec4(0.3, 0.3, 0.3, alpha) ) );
+
+		grid_batch.push_back(
+			IndexedLine(vec3(i, -size, 0.),
+						vec3(i, size, 0.),
+						vec4(0.3, 0.3, 0.3, alpha) ) );
+	}
+
+	grid_batch.push_back(IndexedLine(vec3(-size, 0., 0.), vec3(size, 0., 0.),
+			vec4(245./256, 74./256, 29./256, alpha)));
+	grid_batch.push_back(IndexedLine(vec3(0., -size, 0.), vec3(0., size, 0.),
+			vec4(28./256, 157./256, 51./256, alpha)));
+
+	return grid_batch.indexed_model;
 }
