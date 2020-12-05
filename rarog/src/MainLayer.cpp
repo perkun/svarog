@@ -49,8 +49,14 @@ void MainLayer::on_attach()
     line_shader->create_shader((char *)(void *)vert_col_vs,
                                (char *)(void *)vert_col_fs);
     if (arg_handler.isSpecified("model"))
-        model_vao = new VertexArrayObject(IndexedModelObj(
-            arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
+	{
+		if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
+			model_vao = new VertexArrayObject(IndexedModelObj(
+				arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
+		else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
+			model_vao = new VertexArrayObject(IndexedModelShp(
+				arg_handler.args["model"].to_str(), NormalIndexing::PER_FACE));
+	}
     else
         model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5), vec3(1.)));
 
@@ -148,9 +154,7 @@ void MainLayer::load_model()
 {
     string filename = FileDialog::open_file("*.obj *.shp");
 
-	size_t dot_pos = filename.rfind(".");
-	TRACE("dot_pos {}", dot_pos);
-	if (filename.compare(dot_pos, 4, ".obj") == 0)
+	if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
 	{
 		INFO("Loading OBJ model {}", filename);
 		delete model_vao;
@@ -165,6 +169,11 @@ void MainLayer::load_model()
 
 		model_vao = new VertexArrayObject(
 				IndexedModelShp(filename, NormalIndexing::PER_FACE));
+	}
+	else
+	{
+		WARNING("Wrong model file extension");
+		return;
 	}
 
     model.replace_component<MeshComponent>(model_vao);
