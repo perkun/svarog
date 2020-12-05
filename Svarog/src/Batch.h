@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include "IndexedModel.h"
+#include "Core.h"
 
 using namespace std;
 
@@ -13,10 +14,11 @@ public:
     Batch();
 	~Batch();
 
-	void make_batch();
+	void push_back(const IndexedModel &model);
 
-	vector<IndexedModel> models;
-	IndexedModel batch;
+	IndexedModel indexed_model;;
+private:
+	int faces_shift = 0;
 };
 
 #endif /* BATCH_H_ */

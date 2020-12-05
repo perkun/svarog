@@ -39,7 +39,7 @@ public:
 
 	bool show_imgui_demo = false;
 	bool show_scene_options = true;
-	bool show_axes = true;
+	bool show_grid = true;
 
 private:
 	vec2 viewport_panel_size;
@@ -50,7 +50,7 @@ private:
 	VertexArrayObject *model_vao;
 	Texture *texture = NULL;
 
-	Entity model, x_line, y_line, z_line;
+	Entity model, grid;
 };
 
 #endif /* MAINLAYER_H_ */

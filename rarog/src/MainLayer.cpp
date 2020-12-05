@@ -62,7 +62,7 @@ void MainLayer::on_attach()
     scene->observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
     Transform &sot = scene->observer.get_component<Transform>();
-    sot.position = vec3(0., -5., 5.);
+    sot.position = vec3(6.3, -3., 5.12);
     sot.update_target(init_model_pos);
     sot.speed = 8.;
 
@@ -74,29 +74,40 @@ void MainLayer::on_attach()
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
 
     model = scene->create_entity("Main model");
-    model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] =
-        1;
+    model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 0;
     model.add_component<MeshComponent>(model_vao);
     model.add_component<NativeScriptComponent>().bind<ModelController>();
     model.get_component<Transform>().position = init_model_pos;
 
-    x_line = scene->create_entity("x line");
-    x_line.add_component<MeshComponent>(new VertexArrayObject(
-        IndexedLine(vec3(-50., 0., 0.), vec3(50., 0., 0.),
-			vec4(245./256, 74./256, 29./256, 0.5)), true));
-    x_line.add_component<Material>(line_shader);
 
-    y_line = scene->create_entity("x line");
-    y_line.add_component<MeshComponent>(new VertexArrayObject(
-        IndexedLine(vec3(0., -50., 0.), vec3(0., 50., 0.),
-			vec4(28./256, 157./256, 51./256, 0.5)), true));
-    y_line.add_component<Material>(line_shader);
+	Batch grid_batch;
+	for (float i = -50; i <= 50; i += 5)
+	{
+		if (i == 0) continue;
+		grid_batch.push_back(
+			IndexedLine(vec3(-50., i, 0.), vec3(50., i, 0.),
+				vec4(0.3, 0.3, 0.3, 0.5)));
+		grid_batch.push_back(
+			IndexedLine(vec3(i, -50., 0.), vec3(i, 50., 0.),
+				vec4(0.3, 0.3, 0.3, 0.5)));
+	}
+	grid_batch.push_back(IndexedLine(vec3(-50., 0., 0.), vec3(50., 0., 0.),
+			vec4(245./256, 74./256, 29./256, 0.5)));
+	grid_batch.push_back(IndexedLine(vec3(0., -50., 0.), vec3(0., 50., 0.),
+			vec4(28./256, 157./256, 51./256, 0.5)));
+
+	grid = scene->create_entity("grid");
+	grid.add_component<Material>(line_shader);
+	grid.add_component<MeshComponent>(new VertexArrayObject(grid_batch.indexed_model, true));
+// 	grid.add_component<MeshComponent>(new VertexArrayObject(
+// 					IndexedLine(vec3(10., -50., 0.), vec3(10., 50., 0.),
+// 					vec4(0.3, 0.3, 0.3, 0.5)), true));
+
 
 	Renderer::set_line_width(2.);
 
     scene->root_entity.add_child(&model);
-    scene->root_entity.add_child(&x_line);
-    scene->root_entity.add_child(&y_line);
+    scene->root_entity.add_child(&grid);
     scene->root_entity.add_child(&scene->light);
 
 
@@ -307,16 +318,11 @@ void MainLayer::scene_options()
 {
 
     ImGui::Begin("Scene Options");
-	if (ImGui::Checkbox("show axes", &show_axes))
+	if (ImGui::Checkbox("show grid", &show_grid))
 	{
-		x_line.detatch();
-		y_line.detatch();
-
-		if (show_axes)
-		{
-			scene->root_entity.add_child(&x_line);
-			scene->root_entity.add_child(&y_line);
-		}
+		grid.detatch();
+		if (show_grid)
+			scene->root_entity.add_child(&grid);
 	}
 
     ImGui::End();

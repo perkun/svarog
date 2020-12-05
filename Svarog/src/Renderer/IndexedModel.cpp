@@ -9,15 +9,15 @@ IndexedLine::IndexedLine(vec3 start, vec3 stop, vec4 color)
 	draw_type = GL_LINES;
 
 	float vs[] = {start.x, start.y, start.z, color.x, color.y, color.z, color.w,
-				  stop.x, stop.y, stop.z, color.x, color.y, color.z, color.w,
-				  start.x, start.y, start.z, color.x, color.y, color.z, color.w
+				  stop.x, stop.y, stop.z, color.x, color.y, color.z, color.w
+// 				  start.x, start.y, start.z, color.x, color.y, color.z, color.w
 	};
 
-	unsigned int fs[] = {0, 1, 2};
+	unsigned int fs[] = {0, 1};
 
 	int stride = 7;
-    vertices.assign(vs, vs + stride * 3);
-    indices.assign(fs, fs + 3);
+    vertices.assign(vs, vs + stride * 2);
+    indices.assign(fs, fs + 2);
 
     layout.elements.push_back(VertexDataType::FLOAT3);
     layout.elements.push_back(VertexDataType::FLOAT4);
