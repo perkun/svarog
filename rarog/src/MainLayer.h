@@ -3,15 +3,10 @@
 
 #include <cmdlineargs/ArgumentHandler.h>
 
-// #include "Svarog.h"
-#include "CameraController.h"
-#include "ModelController.h"
-
 #include "SceneLayer.h"
 #include "Scene.h"
 #include "Utils/FileDialog.h"
 #include "Batch.h"
-
 
 
 using namespace std;

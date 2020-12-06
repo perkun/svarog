@@ -1,7 +1,5 @@
 #include "svpch.h"
 #include "IndexedModel.h"
-#include "Core.h"
-#include "Log.h"
 
 // v 0.0 0.0 0.0 v 1.0 0.0 0.0 v 0.0 0.0 0.0 f 1 2 3
 

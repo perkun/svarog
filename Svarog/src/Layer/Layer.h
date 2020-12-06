@@ -1,6 +1,6 @@
-#include "Event/Event.h"
-
 using namespace std;
+
+class Event;
 
 class Layer
 {

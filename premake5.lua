@@ -78,7 +78,7 @@ project "rarog"
 		--"%{prj.name}/**.cpp"
 	}
 
-	--pchheader "svpch.h"
+	pchheader "svpch.h"
 
 	includedirs
 	{

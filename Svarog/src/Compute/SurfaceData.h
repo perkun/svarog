@@ -1,7 +1,6 @@
 #ifndef SURFACEDATA_H_
 #define SURFACEDATA_H_
 
-#include "svpch.h"
 #include <fitsio.h>
 #include "PerlinNoise.h"
 

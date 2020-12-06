@@ -1,9 +1,6 @@
 #ifndef FRAMEBUFFER_H_
 #define FRAMEBUFFER_H_
 
-#include <GL/glew.h>
-#include <GL/gl.h>
-
 using namespace std;
 
 enum FbFlag {

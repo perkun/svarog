@@ -1,19 +1,21 @@
 #include "svpch.h"
 #include "MainLayer.h"
+#include "CameraController.h"
+#include "ModelController.h"
 
 MainLayer::MainLayer(int argc, char *argv[])
 {
     arg_handler.addArgument("m", "model", "", "path to OBJ model");
-
+//
     arg_handler.parseArguments(argc, argv);
-
+//
     if (!arg_handler.isSpecified("model"))
     {
         cout << "Model file not specified." << endl;
         // 		cout << "type rarog --help to se help" << endl;
         // 		exit(1);
     }
-
+//
     TRACE("MainLayer constructed");
 }
 

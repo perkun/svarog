@@ -1,7 +1,6 @@
 #ifndef TEXTURE_H_
 #define TEXTURE_H_
 
-#include <GL/gl.h>
 #include "vendor/stb_image/stb_image.h"
 
 using namespace std;

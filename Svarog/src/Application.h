@@ -1,7 +1,6 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
-#include <GL/glew.h>
 
 #include "Core.h"
 #include "Renderer.h"

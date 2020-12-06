@@ -1,13 +1,14 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 
-#include <GLFW/glfw3.h>
 #include "Event/Event.h"
 #include "Event/KeyEvent.h"
 #include "Event/MouseEvent.h"
 #include "Event/WindowEvent.h"
 
 using namespace std;
+
+class GLFWwindow;
 
 class Window
 {

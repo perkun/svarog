@@ -1,7 +1,6 @@
 #ifndef VERTEXLAYOUT_H_
 #define VERTEXLAYOUT_H_
 
-#include <GL/gl.h>
 
 using namespace std;
 

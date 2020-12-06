@@ -1,8 +1,6 @@
 #ifndef VERTEXARRAYOBJECT_H_
 #define VERTEXARRAYOBJECT_H_
 
-#include <GL/glew.h>
-#include <GL/gl.h>
 #include "VertexLayout.h"
 #include "IndexedModel.h"
 

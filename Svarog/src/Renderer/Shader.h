@@ -1,7 +1,6 @@
 #ifndef SHADER_H_
 #define SHADER_H_
 
-#include <GL/glew.h>
 #include "Core.h"
 
 using namespace std;
