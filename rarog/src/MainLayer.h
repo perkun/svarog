@@ -7,6 +7,7 @@
 #include "Scene.h"
 #include "Utils/FileDialog.h"
 #include "Batch.h"
+// #include "Svarog.h"
 
 
 using namespace std;
