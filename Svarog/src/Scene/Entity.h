@@ -2,8 +2,6 @@
 #define ENTITY_H_
 
 #include "../vendor/entt/entt.hpp"
-#include <iostream>
-#include <stdio.h>
 
 using namespace std;
 

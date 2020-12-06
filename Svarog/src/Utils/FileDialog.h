@@ -1,9 +1,6 @@
 #ifndef FILEDIALOG_H_
 #define FILEDIALOG_H_
 
-#include <iostream>
-#include <stdio.h>
-
 using namespace std;
 
 class FileDialog

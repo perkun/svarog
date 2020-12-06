@@ -1,8 +1,6 @@
 #ifndef BATCH_H_
 #define BATCH_H_
 
-#include <iostream>
-#include <stdio.h>
 #include "IndexedModel.h"
 #include "Core.h"
 

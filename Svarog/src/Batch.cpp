@@ -1,4 +1,6 @@
+#include "svpch.h"
 #include "Batch.h"
+
 
 Batch::Batch()
 {

@@ -1,10 +1,6 @@
 #ifndef INDEXEDMODEL_H_
 #define INDEXEDMODEL_H_
 
-#include <iostream>
-#include <stdio.h>
-
-#include <glm/glm.hpp>
 #include "Core.h"
 #include "VertexLayout.h"
 

@@ -1,11 +1,9 @@
 #ifndef INPUT_H_
 #define INPUT_H_
 
+
 #include "Application.h"
 #include "imgui.h"
-#include <glm/glm.hpp>
-#include <iostream>
-#include <stdio.h>
 #include "Application.h"
 
 using namespace std;

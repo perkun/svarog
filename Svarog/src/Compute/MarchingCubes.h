@@ -3,9 +3,6 @@
 
 #include "IndexedModel.h"
 #include "VolumetricData.h"
-#include <glm/glm.hpp>
-#include <iostream>
-#include <stdio.h>
 
 using namespace std;
 using namespace glm;

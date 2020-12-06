@@ -1,3 +1,4 @@
+#include "svpch.h"
 #include "MarchingCubes.h"
 
 namespace MarchingCubes {

@@ -66,7 +66,8 @@ project "rarog"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	buildoptions { "-pthread" }
+	--buildoptions { "-pthread", "-v", "-ftime-report" }
+	buildoptions { "-pthread"}
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("build/" .. outputdir  .. "/%{prj.name}")
 	files
@@ -76,6 +77,8 @@ project "rarog"
 		--"%{prj.name}/**.h",
 		--"%{prj.name}/**.cpp"
 	}
+
+	--pchheader "svpch.h"
 
 	includedirs
 	{
@@ -178,6 +181,8 @@ project "Svarog"
 	--objdir ("build/" .. outputdir .. "/%{prj.name}")
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("build/" .. outputdir  .. "/%{prj.name}")
+
+	pchheader "svpch.h"
 
 	files
 	{

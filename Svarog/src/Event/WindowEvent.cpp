@@ -1,3 +1,4 @@
+#include "svpch.h"
 #include "WindowEvent.h"
 
 WindowResizeEvent::WindowResizeEvent(int width, int height)

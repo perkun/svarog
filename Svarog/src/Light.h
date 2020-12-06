@@ -1,9 +1,6 @@
 #ifndef LIGHT_H_
 #define LIGHT_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <glm/glm.hpp>
 
 using namespace std;
 using namespace glm;

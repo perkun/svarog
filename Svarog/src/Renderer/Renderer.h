@@ -1,9 +1,6 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
-#include <iostream>
-#include <stdio.h>
-// #include "Mesh.h"
 #include "Shader.h"
 #include "VertexArrayObject.h"
 

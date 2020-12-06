@@ -1,10 +1,6 @@
 #ifndef MATERIAL_H_
 #define MATERIAL_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <map>
-#include <glm/glm.hpp>
 #include "Shader.h"
 
 using namespace std;

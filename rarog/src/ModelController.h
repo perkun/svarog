@@ -1,8 +1,6 @@
 #ifndef MODELCONTROLLER_H_
 #define MODELCONTROLLER_H_
 
-#include <iostream>
-#include <stdio.h>
 #include "Event.h"
 #include "Input.h"
 #include "ScriptableEntity.h"

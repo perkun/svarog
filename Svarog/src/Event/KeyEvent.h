@@ -1,9 +1,6 @@
 #ifndef KEYEVENT_H_
 #define KEYEVENT_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <functional>
 #include "Event.h"
 
 using namespace std;

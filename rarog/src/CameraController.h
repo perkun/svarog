@@ -5,8 +5,6 @@
 #include "Input.h"
 #include "ScriptableEntity.h"
 #include "Transform.h"
-#include <iostream>
-#include <stdio.h>
 
 using namespace std;
 

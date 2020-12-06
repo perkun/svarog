@@ -1,14 +1,12 @@
 #ifndef SCENELAYER_H_
 #define SCENELAYER_H_
 
-#include <iostream>
-#include <stdio.h>
 #include "Layer.h"
-#include "Event.h"
-#include "Scene.h"
-#include "imgui.h"
+#include "Event/WindowEvent.h"
 
 using namespace std;
+
+class Scene;
 
 class SceneLayer : public Layer
 {

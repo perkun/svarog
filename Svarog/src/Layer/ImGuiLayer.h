@@ -1,8 +1,6 @@
 #ifndef IMGUILAYER_H_
 #define IMGUILAYER_H_
 
-#include <iostream>
-#include <stdio.h>
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/backends/imgui_impl_glfw.h"
 #include "vendor/imgui/backends/imgui_impl_opengl3.h"

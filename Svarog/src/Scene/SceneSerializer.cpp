@@ -1,3 +1,4 @@
+#include "svpch.h"
 #include "SceneSerializer.h"
 namespace YAML
 {

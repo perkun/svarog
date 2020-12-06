@@ -1,8 +1,6 @@
 #ifndef COMPONENTS_H_
 #define COMPONENTS_H_
 
-#include <iostream>
-#include <stdio.h>
 #include "VertexArrayObject.h"
 #include "Texture.h"
 #include "Shader.h"

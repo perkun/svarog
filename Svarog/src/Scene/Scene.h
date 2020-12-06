@@ -1,17 +1,12 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
-#include <algorithm>
-#include <iostream>
-#include <stdio.h>
-#include "Core.h"
 #include "Application.h"
 #include "Components.h"
 #include "Texture.h"
 #include "Transform.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "Renderer.h"
 #include "Light.h"
 #include "vendor/entt/entt.hpp"
 #include "Entity.h"

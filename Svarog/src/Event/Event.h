@@ -1,9 +1,6 @@
 #ifndef EVENT_H_
 #define EVENT_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <functional>
 
 using namespace std;
 

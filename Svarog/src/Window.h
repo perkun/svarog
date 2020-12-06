@@ -1,10 +1,7 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 
-#include <iostream>
-#include <stdio.h>
 #include <GLFW/glfw3.h>
-#include <functional>
 #include "Event/Event.h"
 #include "Event/KeyEvent.h"
 #include "Event/MouseEvent.h"

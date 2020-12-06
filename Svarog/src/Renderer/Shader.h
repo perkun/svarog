@@ -1,14 +1,7 @@
 #ifndef SHADER_H_
 #define SHADER_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <string>
 #include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include <vector>
-#include <map>
 #include "Core.h"
 
 using namespace std;

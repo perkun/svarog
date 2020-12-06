@@ -1,3 +1,4 @@
+#include "svpch.h"
 #include "Transform.h"
 
 Transform::Transform()
@@ -203,7 +204,7 @@ void Transform::rotate_about_origin(vec2 cursor_shift,
   azimuth -= cursor_shift.x * rotation_speed;
   height += cursor_shift.y  * rotation_speed;
 
-  height = clamp(height, min_height, max_height);
+  height = glm::clamp(height, min_height, max_height);
 
   position.x = r * cos(height) * cos(azimuth);
   position.y = r * cos(height) * sin(azimuth);

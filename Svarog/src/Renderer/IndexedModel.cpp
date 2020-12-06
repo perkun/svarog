@@ -1,3 +1,4 @@
+#include "svpch.h"
 #include "IndexedModel.h"
 #include "Core.h"
 #include "Log.h"

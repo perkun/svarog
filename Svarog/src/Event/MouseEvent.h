@@ -1,10 +1,6 @@
 #ifndef MOUSEEVENT_H_
 #define MOUSEEVENT_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <functional>
-#include <glm/glm.hpp>
 #include "Event.h"
 
 using namespace std;

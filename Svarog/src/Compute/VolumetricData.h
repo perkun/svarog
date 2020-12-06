@@ -1,10 +1,8 @@
 #ifndef VOLUMETRICDATA_H_
 #define VOLUMETRICDATA_H_
 
-#include <iostream>
-#include <stdio.h>
+#include "svpch.h"
 #include "PerlinNoise.h"
-#include <math.h>
 
 using namespace std;
 

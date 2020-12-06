@@ -1,8 +1,6 @@
 #ifndef SCRIPTABLEENTITY_H_
 #define SCRIPTABLEENTITY_H_
 
-#include <iostream>
-#include <stdio.h>
 #include "Entity.h"
 #include "Event.h"
 

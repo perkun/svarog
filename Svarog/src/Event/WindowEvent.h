@@ -1,9 +1,6 @@
 #ifndef WINDOWEVENT_H_
 #define WINDOWEVENT_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <glm/glm.hpp>
 #include "Event.h"
 
 

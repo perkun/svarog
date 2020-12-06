@@ -1,3 +1,4 @@
+#include "svpch.h"
 #include "Material.h"
 
 Material::Material()

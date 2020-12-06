@@ -1,4 +1,7 @@
+#include "svpch.h"
 #include "SceneLayer.h"
+#include "Scene.h"
+
 
 SceneLayer::SceneLayer() : Layer("SceneLayer")
 {

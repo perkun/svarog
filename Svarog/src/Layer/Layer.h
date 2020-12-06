@@ -1,6 +1,3 @@
-#include <iostream>
-#include <stdio.h>
-#include <string>
 #include "Event/Event.h"
 
 using namespace std;

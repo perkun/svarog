@@ -1,18 +1,21 @@
 #ifndef MAINLAYER_H_
 #define MAINLAYER_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <cmdlineargs/ArgumentHandler.h>
 
-#include "Svarog.h"
-
+// #include "Svarog.h"
 #include "CameraController.h"
 #include "ModelController.h"
 
+#include "SceneLayer.h"
+#include "Scene.h"
+#include "Utils/FileDialog.h"
+#include "Batch.h"
+
+
 
 using namespace std;
+using namespace glm;
 
 class MainLayer : public SceneLayer
 {

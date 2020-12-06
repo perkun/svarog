@@ -1,10 +1,6 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
 
 using namespace std;
 using namespace glm;

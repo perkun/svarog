@@ -1,3 +1,4 @@
+#include "svpch.h"
 #include "Texture.h"
 
 Texture::Texture(TextureSpec &ts) : specs(ts)

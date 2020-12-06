@@ -1,10 +1,6 @@
 #ifndef LOG_H_
 #define LOG_H_
 
-#include <iostream>
-#include <stdio.h>
-#include <memory>
-#include <spdlog/spdlog.h>
 
 using namespace std;
 
