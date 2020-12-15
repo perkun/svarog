@@ -25,14 +25,6 @@ public:
 	void move_up(double);
 	void move_down(double);
 
-	void pan_left(double);
-	void pan_right(double);
-	void pan_forwards(double);
-	void pan_backwards(double);
-
-	void rotate_about_origin(vec2 cursor_shift, float min_height,
-			float max_height);
-	void rotate_about_target(vec2 cursor_shift);
 
 	void pitch(float);
 	void yaw(float);
@@ -41,7 +33,6 @@ public:
 // 	void move(double);
 	void update();
 
-	vec3 calculate_intersection_point(vec3 plane_point, vec3 plane_normal);
 
 	void set_rotation_alpha_beta_gamma();
 

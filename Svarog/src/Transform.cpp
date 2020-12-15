@@ -133,28 +133,6 @@ void Transform::move_right(double time_delta)
 
 
 
-void Transform::pan_right(double time_delta)
-{
-	position += vec3(vec2(right * (float)(time_delta * speed)), 0.);
-}
-
-
-void Transform::pan_left(double time_delta)
-{
-	position -= vec3(vec2(right * (float)(time_delta * speed)), 0.);
-}
-
-void Transform::pan_forwards(double time_delta)
-{
-	position += vec3(vec2(front * (float)(time_delta * speed)), 0.);
-}
-
-
-void Transform::pan_backwards(double time_delta)
-{
-	position -= vec3(vec2(front * (float)(time_delta * speed)), 0.);
-}
-
 
 
 void Transform::pitch(float shift)
@@ -189,45 +167,8 @@ void Transform::roll(float shift)
 	up = normalize(cross(right, front));
 }
 
-void Transform::rotate_about_origin(vec2 cursor_shift,
-                                 float min_height = -M_PI_2 + 0.2,
-                                 float max_height = M_PI_2 - 0.2)
-{
-  float r = glm::length(position);
-  float azimuth = atan2(position.y, position.x);
-  float height = asin(position.z / r);
 
-  azimuth -= cursor_shift.x * rotation_speed;
-  height += cursor_shift.y  * rotation_speed;
 
-  height = glm::clamp(height, min_height, max_height);
-
-  position.x = r * cos(height) * cos(azimuth);
-  position.y = r * cos(height) * sin(azimuth);
-  position.z = r * sin(height);
-
-  front = -normalize(position);
-
-  update();
-}
-
-vec3 Transform::calculate_intersection_point(vec3 plane_point, vec3 plane_normal)
-{
-	float d = dot(plane_point - position, vec3(0., 0., 1.)) / dot(front, vec3(0., 0., 1.));
-	return position + (front * d);
-}
-
-void Transform::rotate_about_target(vec2 cursor_shift)
-{
-	vec3 intersection_point = calculate_intersection_point(vec3(0.), vec3(0., 0., 1.));
-	position = position - intersection_point;
-
-	rotate_about_origin(cursor_shift, -M_PI_2 + 0.2, M_PI_2 - 0.2);
-
-	position = position + intersection_point;
-
-	update();
-}
 
 // void Transform::move(double time_delta)
 // {

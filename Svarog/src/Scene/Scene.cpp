@@ -1,4 +1,3 @@
-#include "SceneCamera.h"
 #include "svpch.h"
 #include "Scene.h"
 
@@ -70,6 +69,7 @@ void Scene::enable_render_to_framebuffer()
 
 void Scene::draw(Entity *entity)
 {
+	// is it used for anything ?
     if (entity->has_component<SceneStatus>())
     {
         SceneStatus &scene_status = entity->get_component<SceneStatus>();
@@ -123,10 +123,6 @@ void Scene::draw_root()
     CORE_ASSERT(observer.has_component<CameraComponent>(),
                 "Observer has no Camera Component");
 
-    Transform &sct = observer.get_component<Transform>();
-    scene_material.uniforms_mat4["u_view_matrix"] = sct.get_view();
-    scene_material.uniforms_mat4["u_perspective_matrix"] =
-        observer.get_component<CameraComponent>().camera->get_perspective();
 
     Renderer::set_viewport(0, 0, Application::get_window()->width,
                            Application::get_window()->height);
@@ -174,11 +170,19 @@ void Scene::on_update_runtime(double time_delta)
 
 	});
 
+    Transform &sct = observer.get_component<Transform>();
+    scene_material.uniforms_mat4["u_view_matrix"] = sct.get_view();
+    scene_material.uniforms_mat4["u_perspective_matrix"] =
+        observer.get_component<CameraComponent>().camera->get_perspective();
+
 	draw_root();
 }
 
 
 void Scene::on_update_editor(double time_delta, EditorCamera &editor_camera)
 {
-	draw_root();
+    scene_material.uniforms_mat4["u_view_matrix"] = editor_camera.get_view();
+    scene_material.uniforms_mat4["u_perspective_matrix"] =
+        editor_camera.get_perspective();
+    draw_root();
 }

@@ -21,7 +21,8 @@ public:
 
 	virtual void on_attach() override;
 	virtual void on_detach() override;
-	void on_update(double ts) override;
+	virtual void on_update(double ts) override;
+	virtual void on_event(Event&) override;
 	virtual void on_imgui_render() override;
 
 	// GUI functions
@@ -43,6 +44,8 @@ public:
 private:
 	vec2 viewport_panel_size;
 	ArgumentHandler arg_handler;
+
+	EditorCamera editor_camera;
 
 	Shader *basic_shader, *color_shader, *line_shader;;
 

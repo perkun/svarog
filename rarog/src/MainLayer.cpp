@@ -104,14 +104,23 @@ void MainLayer::on_attach()
     scene->root_entity.add_child(&grid);
     scene->root_entity.add_child(&scene->light);
 
-
 	scene->enable_render_to_framebuffer();
+
+	editor_camera.set_camera_properties(
+		radians(45.), window->width / (float)window->height, 0.01, 500.0);
+}
+
+void MainLayer::on_event(Event &e)
+{
+	editor_camera.on_event(e);
 }
 
 void MainLayer::on_update(double time_delta)
 {
-    scene->on_update_runtime(time_delta);
+	editor_camera.on_update(time_delta);
 
+//     scene->on_update_runtime(time_delta);
+    scene->on_update_editor(time_delta, editor_camera);
 }
 
 void MainLayer::on_imgui_render()
@@ -301,6 +310,7 @@ void MainLayer::scene_window()
         viewport_panel_size.x = vps.x;
         viewport_panel_size.y = vps.y;
         scene->on_resize(viewport_panel_size.x, viewport_panel_size.y);
+        editor_camera.on_resize(viewport_panel_size.x, viewport_panel_size.y);
     }
 
     long int tex_id = scene->framebuffer->get_color_attachment_id();

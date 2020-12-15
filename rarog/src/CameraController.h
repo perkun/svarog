@@ -53,8 +53,8 @@ protected:
 
     void on_mouse_scrolled_event(MouseScrolledEvent &e)
     {
-		Transform &ot = get_component<Transform>();
-        ot.position += ot.front * (float)(e.get_offset().y / 5. * ot.speed);
+// 		Transform &ot = get_component<Transform>();
+//         ot.position += ot.front * (float)(e.get_offset().y / 5. * ot.speed);
     }
 
     void on_cursor_moved_event(MouseMovedEvent &e)
@@ -62,18 +62,18 @@ protected:
 //         if (Input::is_imgui_window_hovered())
 //             return;
 
-		vec2 cursor_shift = e.get_cursor_pos() - cursor_pos;
-
-        if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_3))
-            get_component<Transform>().rotate_about_target(cursor_shift);
-
-        if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_2))
-		{
-            get_component<Transform>().pan_forwards(cursor_shift.y/600.);
-            get_component<Transform>().pan_left(cursor_shift.x/600.);
-		}
-
-		cursor_pos= e.get_cursor_pos();
+// 		vec2 cursor_shift = e.get_cursor_pos() - cursor_pos;
+//
+//         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_3))
+//             get_component<Transform>().rotate_about_target(cursor_shift);
+//
+//         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_2))
+// 		{
+//             get_component<Transform>().pan_forwards(cursor_shift.y/600.);
+//             get_component<Transform>().pan_left(cursor_shift.x/600.);
+// 		}
+//
+// 		cursor_pos= e.get_cursor_pos();
     }
 
 };
