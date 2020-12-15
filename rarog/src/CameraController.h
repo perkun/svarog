@@ -28,16 +28,16 @@ protected:
 //         if (Input::is_imgui_window_hovered())
 //             return;
 
-//         Transform &ot = get_component<Transform>();
+        Transform &ot = get_component<Transform>();
 //
-//         if (Input::is_key_pressed(GLFW_KEY_W))
-//             ot.pan_forwards(time_delta);
-//         if (Input::is_key_pressed(GLFW_KEY_S))
-//             ot.pan_backwards(time_delta);
-//         if (Input::is_key_pressed(GLFW_KEY_A))
-//             ot.pan_left(time_delta);
-//         if (Input::is_key_pressed(GLFW_KEY_D))
-//             ot.pan_right(time_delta);
+        if (Input::is_key_pressed(GLFW_KEY_W))
+            ot.move_forwards(time_delta);
+        if (Input::is_key_pressed(GLFW_KEY_S))
+            ot.move_backwards(time_delta);
+        if (Input::is_key_pressed(GLFW_KEY_A))
+            ot.move_left(time_delta);
+        if (Input::is_key_pressed(GLFW_KEY_D))
+            ot.move_right(time_delta);
     }
 
     virtual void on_event(Event &e) override

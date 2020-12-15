@@ -112,15 +112,19 @@ void MainLayer::on_attach()
 
 void MainLayer::on_event(Event &e)
 {
-	editor_camera.on_event(e);
+	if (mode == Mode::EDITOR)
+		editor_camera.on_event(e);
 }
 
 void MainLayer::on_update(double time_delta)
 {
 	editor_camera.on_update(time_delta);
 
-//     scene->on_update_runtime(time_delta);
-    scene->on_update_editor(time_delta, editor_camera);
+	ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
+	if (mode == Mode::EDITOR)
+		scene->on_update_editor(time_delta, editor_camera);
+	else if (mode == Mode::RUNTIME)
+    	scene->on_update_runtime(time_delta);
 }
 
 void MainLayer::on_imgui_render()
@@ -146,6 +150,22 @@ void MainLayer::on_detach()
     if (texture != NULL)
         delete texture;
 }
+
+
+void MainLayer::toggle_mode()
+{
+	if (mode == Mode::EDITOR)
+	{
+		mode = Mode::RUNTIME;
+	}
+	else if (mode == Mode::RUNTIME)
+	{
+		mode = Mode::EDITOR;
+	}
+}
+
+
+
 
 void MainLayer::load_model()
 {
@@ -290,6 +310,17 @@ void MainLayer::menu_bar()
 
             ImGui::EndMenu();
         }
+
+		string run_btn_label;
+		if (mode == Mode::EDITOR)
+			run_btn_label = "Run";
+		else if (mode == Mode::RUNTIME)
+			run_btn_label = "Stop";
+
+		if (ImGui::Button(run_btn_label.c_str()))
+		{
+			toggle_mode();
+		}
 
         ImGui::EndMainMenuBar();
     }

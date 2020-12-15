@@ -13,6 +13,12 @@
 using namespace std;
 using namespace glm;
 
+enum class Mode {
+	EDITOR = 0,
+	RUNTIME,
+	NUM_MODES
+};
+
 class MainLayer : public SceneLayer
 {
 public:
@@ -30,6 +36,8 @@ public:
 	void scene_options();
 	void orbital_parameters_panel();
 	void menu_bar();
+
+	void toggle_mode();
 
 	void load_model();
 	void load_texture();
@@ -53,6 +61,8 @@ private:
 	Texture *texture = NULL;
 
 	Entity model, grid;
+
+	Mode mode = Mode::EDITOR;
 };
 
 #endif /* MAINLAYER_H_ */
