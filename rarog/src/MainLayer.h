@@ -19,6 +19,7 @@ enum class Mode {
 	NUM_MODES
 };
 
+
 class MainLayer : public Layer
 {
 public:
