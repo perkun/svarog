@@ -110,17 +110,18 @@ void MainLayer::on_attach()
 		radians(45.), window->width / (float)window->height, 0.01, 500.0);
 }
 
-void MainLayer::on_event(Event &e)
-{
-	if (mode == Mode::EDITOR)
-		editor_camera.on_event(e);
-}
+// void MainLayer::on_event(Event &e)
+// {
+// 	if (mode == Mode::EDITOR)
+// 		editor_camera.on_event(e);
+// }
 
 void MainLayer::on_update(double time_delta)
 {
 	editor_camera.on_update(time_delta);
 
 	ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
+
 	if (mode == Mode::EDITOR)
 		scene->on_update_editor(time_delta, editor_camera);
 	else if (mode == Mode::RUNTIME)

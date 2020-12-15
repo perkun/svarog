@@ -28,7 +28,7 @@ public:
 	virtual void on_attach() override;
 	virtual void on_detach() override;
 	virtual void on_update(double ts) override;
-	virtual void on_event(Event&) override;
+// 	virtual void on_event(Event&) override;
 	virtual void on_imgui_render() override;
 
 	// GUI functions
