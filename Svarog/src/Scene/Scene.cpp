@@ -1,3 +1,4 @@
+#include "SceneCamera.h"
 #include "svpch.h"
 #include "Scene.h"
 
@@ -37,7 +38,6 @@ void Scene::on_resize(float width, float height)
 	{
 		Camera *cam = registry.get<CameraComponent>(e).camera;
 		cam->aspect = width / (float)height;
-		cam->update();
 	}
 
 	if (flags & RENDER_TO_FRAMEBUFFER)
@@ -118,66 +118,6 @@ void Scene::draw_depth_first(Entity *entity)
 }
 
 
-// void Scene::draw_root(POV perspective, double time_delta)
-// {
-//     // scene materials from observer:
-// 	CORE_ASSERT(observer.has_component<Transform>(), "Observer has no Transform Component");
-// 	CORE_ASSERT(light.has_component<Transform>(), "Light has no Transform Component");
-//
-//     Transform &sct = observer.get_component<Transform>();
-//     Transform &slt = light.get_component<Transform>();
-//
-//     scene_material.uniforms_vec3["u_light_position"] = slt.position;
-//     scene_material.uniforms_mat4["u_light_view_matrix"] = slt.get_view();
-//     scene_material.uniforms_mat4["u_light_perspective_matrix"] =
-//         light.get_component<CameraComponent>().camera->get_perspective();
-//
-//
-// 	CORE_ASSERT(light.has_component<FramebufferComponent>(), "Light has no Framebuffer Component");
-//     Framebuffer *shadow_fb =
-//         light.get_component<FramebufferComponent>().framebuffer;
-//
-//     if (perspective == POV::LIGHT)
-//     {
-//         shadow_fb->bind();
-//         shadow_fb->clear();
-//
-//         scene_material.uniforms_mat4["u_view_matrix"] = slt.get_view();
-//         scene_material.uniforms_mat4["u_perspective_matrix"] =
-//             light.get_component<CameraComponent>().camera->get_perspective();
-//
-//         draw_depth_first(&root_entity);
-//
-//         shadow_fb->unbind();
-//     }
-//     else if (perspective == POV::OBSERVER)
-//     {
-//         scene_material.uniforms_mat4["u_view_matrix"] = sct.get_view();
-//         scene_material.uniforms_mat4["u_perspective_matrix"] =
-//             observer.get_component<CameraComponent>().camera->get_perspective();
-//
-// 		Renderer::set_viewport(0, 0, Application::get_window()->width,
-//                    			   Application::get_window()->height);
-//
-// 		if (render_to_framebuffer)
-// 		{
-// 			CORE_ASSERT(framebuffer != NULL, "Framebuffer is NULL");
-// 			framebuffer->bind();
-// 			framebuffer->clear();
-// 		}
-// 		else
-// 			Renderer::bind_default_framebuffer();
-//
-//         shadow_fb->bind_depth_texture(1);
-// 		framebuffer->bind_color_texture(2);
-//
-//         draw_depth_first(&root_entity);
-//
-// 		if (render_to_framebuffer)
-// 			framebuffer->unbind();
-//     }
-// }
-
 void Scene::draw_root()
 {
     CORE_ASSERT(observer.has_component<CameraComponent>(),
@@ -219,7 +159,7 @@ void Scene::draw_root()
 	}
 }
 
-void Scene::on_update(double time_delta)
+void Scene::on_update_runtime(double time_delta)
 {
 	//update scripts
 	registry.view<NativeScriptComponent>().each([=](auto entity, auto&nsc)
@@ -235,11 +175,10 @@ void Scene::on_update(double time_delta)
 	});
 
 	draw_root();
+}
 
-//     // From Light Perspective ////////
-//     draw_root(POV::LIGHT, time_delta);
-//
-//     // From normal Camera /////////
-//     draw_root(POV::OBSERVER, time_delta);
 
+void Scene::on_update_editor(double time_delta, EditorCamera &editor_camera)
+{
+	draw_root();
 }

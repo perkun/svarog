@@ -11,6 +11,7 @@
 #include "vendor/entt/entt.hpp"
 #include "Entity.h"
 #include "Material.h"
+#include "EditorCamera.h"
 
 using namespace std;
 
@@ -44,7 +45,8 @@ public:
 	void draw_depth_first(Entity*);
 
 	void on_resize(float, float);
-	void on_update(double);
+	void on_update_runtime(double);
+	void on_update_editor(double, EditorCamera&);
 
 	void enable_render_to_framebuffer();
 

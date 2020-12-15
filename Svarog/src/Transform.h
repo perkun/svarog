@@ -16,21 +16,6 @@ public:
 	mat4 get_world_tansform();
 	mat4 get_view();
 
-////////
-// 	bool is_moving_forwards = false;
-// 	bool is_moving_backwards = false;
-// 	bool is_moving_up = false;
-// 	bool is_moving_down = false;
-// 	bool is_moving_left = false;
-// 	bool is_moving_right = false;
-//
-// 	bool is_panning_right = false;
-// 	bool is_panning_left = false;
-// 	bool is_panning_forwards = false;
-// 	bool is_panning_backwards = false;
-//
-// 	bool is_rotating = false;
-
 	void update_target(vec3);
 
 	void move_forwards(double);

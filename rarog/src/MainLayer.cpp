@@ -110,7 +110,7 @@ void MainLayer::on_attach()
 
 void MainLayer::on_update(double time_delta)
 {
-    scene->on_update(time_delta);
+    scene->on_update_runtime(time_delta);
 
 }
 

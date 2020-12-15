@@ -21,10 +21,6 @@ void Transform::update_local()
 	 	 glm::translate(position) * get_rotation_matrix_313() * glm::scale(scale);
 }
 
-// void Transform::set_rotation_alpha_beta_gamma()
-// {
-// 	rotation = get_rotation_matrix_313();
-// }
 
 
 mat4 Transform::get_local_tansform()
