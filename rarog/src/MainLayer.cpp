@@ -69,29 +69,29 @@ void MainLayer::on_attach()
     auto window = Application::get_window();
 
 
-	grid = scene->create_entity("grid");
+	grid = scene.create_entity("grid");
 	grid.add_component<Material>(line_shader);
 	grid.add_component<MeshComponent>(new VertexArrayObject(
 		create_grid(100., 5., 0.2), true));
 
-    scene->observer = scene->create_entity("Observer");
-    scene->observer.add_component<CameraComponent>(new PerspectiveCamera(
+    scene.observer = scene.create_entity("Observer");
+    scene.observer.add_component<CameraComponent>(new PerspectiveCamera(
         radians(45.0), window->width / (float)window->height, 0.01, 500.0));
-    scene->observer.add_component<NativeScriptComponent>()
+    scene.observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
-    Transform &sot = scene->observer.get_component<Transform>();
+    Transform &sot = scene.observer.get_component<Transform>();
     sot.position = vec3(6.3, -3., 5.12);
     sot.update_target(init_model_pos);
     sot.speed = 8.;
 
-    scene->light = scene->create_entity("Light");
-    scene->light.add_component<MeshComponent>(
+    scene.light = scene.create_entity("Light");
+    scene.light.add_component<MeshComponent>(
         new VertexArrayObject(IndexedIcoSphere(vec3(0.), vec3(0.5))));
-    scene->light.add_component<Material>(color_shader)
+    scene.light.add_component<Material>(color_shader)
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
 
-    model = scene->create_entity("Main model");
+    model = scene.create_entity("Main model");
     model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 0;
     model.add_component<MeshComponent>(model_vao);
     model.add_component<NativeScriptComponent>().bind<ModelController>();
@@ -100,21 +100,38 @@ void MainLayer::on_attach()
 
 	Renderer::set_line_width(2.);
 
-    scene->root_entity.add_child(&model);
-    scene->root_entity.add_child(&grid);
-    scene->root_entity.add_child(&scene->light);
+    scene.root_entity.add_child(&model);
+    scene.root_entity.add_child(&grid);
+    scene.root_entity.add_child(&scene.light);
 
-	scene->enable_render_to_framebuffer();
+	scene.enable_render_to_framebuffer();
 
 	editor_camera.set_camera_properties(
 		radians(45.), window->width / (float)window->height, 0.01, 500.0);
 }
 
-// void MainLayer::on_event(Event &e)
-// {
-// 	if (mode == Mode::EDITOR)
-// 		editor_camera.on_event(e);
-// }
+void MainLayer::on_event(Event &e)
+{
+    EventDispacher dispatcher(e);
+
+    dispatcher.dispatch<WindowResizeEvent>(
+        bind(&MainLayer::on_window_resize_event, this, placeholders::_1));
+
+	scene.controllers_events(e);
+
+	if (mode == Mode::EDITOR)
+		editor_camera.on_event(e);
+}
+
+void MainLayer::on_window_resize_event(WindowResizeEvent &event)
+{
+    ivec2 size = event.get_size();
+
+	if (! (scene.flags & RENDER_TO_FRAMEBUFFER))
+		scene.on_resize(size.x, size.y);
+}
+
+
 
 void MainLayer::on_update(double time_delta)
 {
@@ -123,9 +140,9 @@ void MainLayer::on_update(double time_delta)
 	ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
 	if (mode == Mode::EDITOR)
-		scene->on_update_editor(time_delta, editor_camera);
+		scene.on_update_editor(time_delta, editor_camera);
 	else if (mode == Mode::RUNTIME)
-    	scene->on_update_runtime(time_delta);
+    	scene.on_update_runtime(time_delta);
 }
 
 void MainLayer::on_imgui_render()
@@ -330,7 +347,7 @@ void MainLayer::menu_bar()
 
 void MainLayer::scene_window()
 {
-	if (!(scene->flags & RENDER_TO_FRAMEBUFFER))
+	if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
 		return;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
@@ -341,11 +358,11 @@ void MainLayer::scene_window()
     {
         viewport_panel_size.x = vps.x;
         viewport_panel_size.y = vps.y;
-        scene->on_resize(viewport_panel_size.x, viewport_panel_size.y);
+        scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
         editor_camera.on_resize(viewport_panel_size.x, viewport_panel_size.y);
     }
 
-    long int tex_id = scene->framebuffer->get_color_attachment_id();
+    long int tex_id = scene.framebuffer->get_color_attachment_id();
     ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
@@ -361,7 +378,7 @@ void MainLayer::scene_options()
 	{
 		grid.detatch();
 		if (show_grid)
-			scene->root_entity.add_child(&grid);
+			scene.root_entity.add_child(&grid);
 	}
 
     ImGui::End();
@@ -388,7 +405,7 @@ void MainLayer::orbital_parameters_panel()
     ImGui::Spacing();
     ImGui::Spacing();
 
-    Transform &ot = scene->observer.get_component<Transform>();
+    Transform &ot = scene.observer.get_component<Transform>();
     position = ot.position;
     position /= 10.0;
     ImGui::Text("Observer Position");

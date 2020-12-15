@@ -11,14 +11,14 @@ public:
     virtual void on_attach() { }
     virtual void on_detach() { }
     virtual void on_update(double ts) { }
-    virtual void on_imgui_render() { }
     virtual void on_event(Event &event) { }
+    virtual void on_imgui_render() { }
 
-    const std::string &GetName() const
+    const std::string &get_name() const
     {
-        return m_DebugName;
+        return debug_name;
     }
 
 protected:
-    std::string m_DebugName;
+    std::string debug_name;
 };

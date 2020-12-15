@@ -3,7 +3,7 @@
 
 #include <cmdlineargs/ArgumentHandler.h>
 
-#include "SceneLayer.h"
+#include "Layer.h"
 #include "Scene.h"
 #include "Utils/FileDialog.h"
 #include "Batch.h"
@@ -19,7 +19,7 @@ enum class Mode {
 	NUM_MODES
 };
 
-class MainLayer : public SceneLayer
+class MainLayer : public Layer
 {
 public:
     MainLayer(int argc, char *argv[]);
@@ -28,8 +28,10 @@ public:
 	virtual void on_attach() override;
 	virtual void on_detach() override;
 	virtual void on_update(double ts) override;
-// 	virtual void on_event(Event&) override;
 	virtual void on_imgui_render() override;
+
+	virtual void on_event(Event&) override;
+	void on_window_resize_event(WindowResizeEvent&);
 
 	// GUI functions
 	void scene_window();
@@ -56,6 +58,8 @@ private:
 	EditorCamera editor_camera;
 
 	Shader *basic_shader, *color_shader, *line_shader;;
+
+	Scene scene;
 
 	VertexArrayObject *model_vao;
 	Texture *texture = NULL;

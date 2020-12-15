@@ -33,6 +33,7 @@ enum  SceneFlags {
 class Scene
 {
 	friend class Entity;
+	friend class Layer;
 	friend class SceneLayer;
 	friend class SceneSerializer;
 public:
@@ -47,6 +48,8 @@ public:
 	void on_resize(float, float);
 	void on_update_runtime(double);
 	void on_update_editor(double, EditorCamera&);
+
+	void controllers_events(Event&);
 
 	void enable_render_to_framebuffer();
 

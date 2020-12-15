@@ -29,6 +29,18 @@ Entity Scene::create_entity(string name)
 	return entity;
 }
 
+void Scene::controllers_events(Event &event)
+{
+	/// send event to all the controllers
+	registry.view<NativeScriptComponent>().each([&event](auto entity, auto&nsc)
+	{
+		if (!nsc.instance)
+			return;
+
+		nsc.instance->on_event(event);
+	});
+}
+
 
 void Scene::on_resize(float width, float height)
 {
