@@ -135,6 +135,20 @@ void MainLayer::on_window_resize_event(WindowResizeEvent &event)
 
 void MainLayer::on_update(double time_delta)
 {
+// 	int history_len = 100;
+// 	for (int i = history_len-1; i > 0; i--)
+// 	{
+// 		fps_history[i] = fps_history[i - 1];
+// 	}
+// 	fps_history[0] = 1./time_delta;
+//
+// 	fps = 0.;
+// 	for (int i = 0; i < history_len; i++)
+// 	{
+// 		fps += fps_history[i];
+// 	}
+// 	fps /= history_len;
+
 	editor_camera.on_update(time_delta);
 
 	ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
@@ -391,6 +405,8 @@ void MainLayer::orbital_parameters_panel()
     vec3 position = t.position;
     position /= 10.0;
     ImGui::Begin("Orbital Parameters");
+
+//     ImGui::Text("FPS: %.3lf", fps);
 
     ImGui::Text("Model Position");
     if (ImGui::InputFloat("pos x", &position.x))

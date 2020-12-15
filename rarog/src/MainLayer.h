@@ -67,6 +67,9 @@ private:
 	Entity model, grid;
 
 	Mode mode = Mode::EDITOR;
+
+// 	double fps;
+// 	double fps_history[100];
 };
 
 #endif /* MAINLAYER_H_ */
