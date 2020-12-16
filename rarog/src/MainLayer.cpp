@@ -106,7 +106,7 @@ void MainLayer::on_attach()
 
 	scene.enable_render_to_framebuffer();
 
-	editor_camera.set_camera_properties(
+	editor_camera = EditorCamera(
 		radians(45.), window->width / (float)window->height, 0.01, 500.0);
 }
 

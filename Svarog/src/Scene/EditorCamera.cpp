@@ -29,13 +29,6 @@ EditorCamera::~EditorCamera()
 {
 }
 
-void EditorCamera::set_camera_properties(float fov, float aspect, float zNear, float zFar)
-{
-	this->fov = fov;
-	this->aspect = aspect;
-	this->view_box_z_near = zNear;
-	this->view_box_z_far = zFar;
-}
 
 
 void EditorCamera::on_update(double time_delta)

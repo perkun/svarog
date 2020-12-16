@@ -18,7 +18,6 @@ public:
     EditorCamera(float fov, float aspect, float zNear, float zFar);
 	~EditorCamera();
 
-	void set_camera_properties(float fov, float aspect, float zNear, float zFar);
 
 	void on_event(Event &e);
 	void on_update(double);

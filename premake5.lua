@@ -89,9 +89,11 @@ project "rarog"
  		"Svarog/src/Scene",
  		"Svarog/src/Renderer",
  		"Svarog/src/Compute",
- 		"Svarog/src/vendor/imgui",
- 		"Svarog/src/vendor/imgui/backends",
- 		"Svarog/src/vendor/stb_image",
+ 		"Svarog/vendor/imgui",
+ 		"Svarog/vendor/imgui/backends",
+ 		"Svarog/vendor/stb_image",
+ 		"Svarog/vendor/entt",
+-- 		"Svarog/src/vendor/ImGuizmo",
 	}
 
 
@@ -187,7 +189,11 @@ project "Svarog"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp",
+		"%{prj.name}/vendor/imgui/**.h",
+		"%{prj.name}/vendor/imgui/**.cpp"
 		--"src/**.h",
 		--"src/**.cpp"
 	}
@@ -200,10 +206,12 @@ project "Svarog"
  		"%{prj.name}/src/Scene",
  		"%{prj.name}/src/Renderer",
  		"%{prj.name}/src/Compute",
- 		"%{prj.name}/src/vendor/imgui",
- 		"%{prj.name}/src/vendor/imgui/backends",
- 		"%{prj.name}/src/vendor/stb_image",
- 		"%{prj.name}/src/vendor/spdlog",
+ 		"%{prj.name}/vendor/imgui",
+ 		"%{prj.name}/vendor/imgui/backends",
+ 		"%{prj.name}/vendor/stb_image",
+ 		"%{prj.name}/vendor/spdlog",
+ 		"%{prj.name}/vendor/entt",
+ 		--"%{prj.name}/src/vendor/ImGuizmo",
 	}
 
 

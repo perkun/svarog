@@ -8,7 +8,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Light.h"
-#include "vendor/entt/entt.hpp"
+#include "entt.hpp"
 #include "Entity.h"
 #include "Material.h"
 #include "EditorCamera.h"
