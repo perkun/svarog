@@ -2,6 +2,9 @@
 #include "MainLayer.h"
 #include "CameraController.h"
 #include "ModelController.h"
+#include "ImGuizmo.h"
+#include <glm/gtc/type_ptr.hpp>
+#include "Math.h"
 
 MainLayer::MainLayer(int argc, char *argv[])
 {
@@ -117,10 +120,35 @@ void MainLayer::on_event(Event &e)
     dispatcher.dispatch<WindowResizeEvent>(
         bind(&MainLayer::on_window_resize_event, this, placeholders::_1));
 
+    dispatcher.dispatch<KeyReleasedEvent>(
+        bind(&MainLayer::on_key_released_event, this, placeholders::_1));
+
 	scene.controllers_events(e);
 
 	if (mode == Mode::EDITOR)
 		editor_camera.on_event(e);
+}
+
+
+void MainLayer::on_key_released_event(KeyReleasedEvent &event)
+{
+    int key_code = event.get_key_code();
+
+    if (key_code == GLFW_KEY_Q)
+	{
+         Application::stop();
+	}
+    else if (key_code == GLFW_KEY_Z)
+		guizmo_type = ImGuizmo::OPERATION::TRANSLATE;
+    else if (key_code == GLFW_KEY_X)
+		guizmo_type = ImGuizmo::OPERATION::ROTATE;
+    else if (key_code == GLFW_KEY_C)
+		guizmo_type = ImGuizmo::OPERATION::SCALE;
+    else if (key_code == GLFW_KEY_V)
+		guizmo_type = -1;
+
+
+
 }
 
 void MainLayer::on_window_resize_event(WindowResizeEvent &event)
@@ -361,8 +389,8 @@ void MainLayer::menu_bar()
 
 void MainLayer::scene_window()
 {
-	if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
-		return;
+    if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
+        return;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
     ImGui::Begin("Scene");
@@ -379,10 +407,55 @@ void MainLayer::scene_window()
     long int tex_id = scene.framebuffer->get_color_attachment_id();
     ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
                  ImVec2(1, 0));
+
+    // Gizmos
+    Entity selected_entity = model; // TODO: created selection
+    if (selected_entity && guizmo_type != -1)
+    {
+        ImGuizmo::SetOrthographic(false);
+        ImGuizmo::SetDrawlist();
+        float windowWidth = (float)ImGui::GetWindowWidth();
+        float windowHeight = (float)ImGui::GetWindowHeight();
+        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y,
+                          windowWidth, windowHeight);
+
+        // Editor camera
+        const glm::mat4 &camera_projection = editor_camera.get_perspective();
+        glm::mat4 camera_view = editor_camera.get_view();
+
+        // Entity transform
+        Transform &tc = selected_entity.get_component<Transform>();
+        glm::mat4 transform = tc.get_world_tansform();
+
+        // Snapping
+        bool snap = Input::is_key_pressed(GLFW_KEY_LEFT_CONTROL);
+        float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+        // Snap to 45 degrees for rotation
+        if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
+            snapValue = 45.0f;
+
+        float snapValues[3] = {snapValue, snapValue, snapValue};
+
+        ImGuizmo::Manipulate(
+            glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
+            (ImGuizmo::OPERATION)guizmo_type, ImGuizmo::LOCAL,
+            glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
+
+        if (ImGuizmo::IsUsing())
+        {
+            glm::vec3 translation, rotation, scale;
+            Math::decompose_transform(transform, translation, rotation, scale);
+//
+            glm::vec3 deltaRotation = rotation - tc.rotation;
+            tc.position = translation;
+            tc.rotation += deltaRotation;
+            tc.scale = scale;
+        }
+    }
+
     ImGui::End();
     ImGui::PopStyleVar();
 }
-
 
 void MainLayer::scene_options()
 {
@@ -438,14 +511,15 @@ void MainLayer::orbital_parameters_panel()
     ImGui::Spacing();
 
     ImGui::Text("Angles");
-    float a = t.alpha / M_PI * 180., b = t.beta / M_PI * 180.,
-          g = t.gamma / M_PI * 180.;
-    if (ImGui::DragFloat("alpha", &a, 1.0, 0., 360.))
-        t.alpha = a / 180. * M_PI;
-    if (ImGui::DragFloat("beta", &b, 1.0, 0., 180.))
-        t.beta = b / 180. * M_PI;
-    if (ImGui::DragFloat("gamma", &g, 1.0, 0., 360.))
-        t.gamma = g / 180. * M_PI;
+    float x = t.rotation.x / M_PI * 180., y = t.rotation.y / M_PI * 180.,
+          z = t.rotation.z / M_PI * 180.;
+
+    if (ImGui::DragFloat("rot x", &x, 1.0, 0., 360.))
+        t.rotation.x = x / 180. * M_PI;
+    if (ImGui::DragFloat("rot y", &y, 1.0, 0., 180.))
+        t.rotation.y = y / 180. * M_PI;
+    if (ImGui::DragFloat("rot z", &z, 1.0, 0., 360.))
+        t.rotation.z = z / 180. * M_PI;
 
     ImGui::Spacing();
     ImGui::Spacing();

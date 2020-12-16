@@ -1,6 +1,7 @@
 #include "svpch.h"
 #include "ImGuiLayer.h"
 #include "Application.h"
+#include "ImGuizmo.h"
 
 ImGuiLayer::ImGuiLayer()
 {
@@ -86,7 +87,7 @@ void ImGuiLayer::begin()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-
+	ImGuizmo::BeginFrame();
 }
 
 

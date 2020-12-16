@@ -135,8 +135,8 @@ void on_event(Event &event)
     // 	dispatcher.dispatch<KeyPressedEvent>(
     // 		bind(&on_key_pressed_event, this, placeholders::_1));
     //
-    dispatcher.dispatch<KeyReleasedEvent>(
-        bind(&on_key_released_event, placeholders::_1));
+//     dispatcher.dispatch<KeyReleasedEvent>(
+//         bind(&on_key_released_event, placeholders::_1));
     // 		bind(&on_key_released_event, this, placeholders::_1));
     //
     // 	dispatcher.dispatch<MouseButtonPressedEvent>(

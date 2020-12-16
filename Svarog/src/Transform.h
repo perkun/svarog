@@ -34,7 +34,7 @@ public:
 	void update();
 
 
-	void set_rotation_alpha_beta_gamma();
+// 	void set_rotation_alpha_beta_gamma();
 
 
 	double speed = 0.6; // world space units per second
@@ -52,7 +52,7 @@ public:
 	vec3 up, front, right;
 
 	float alpha, beta, gamma;
-	vec3 scale, position;
+	vec3 scale, position, rotation;
 
 private:
 	mat4 get_rotation_matrix_313();

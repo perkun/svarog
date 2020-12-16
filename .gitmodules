@@ -1,0 +1,3 @@
+[submodule "Svarog/vendor/ImGuizmo"]
+	path = Svarog/vendor/ImGuizmo
+	url = https://github.com/TheCherno/ImGuizmo.git

@@ -1,9 +1,13 @@
 #include "svpch.h"
 #include "Transform.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 Transform::Transform()
 {
 	position = vec3(0.0);
+	rotation = vec3(0.0);
 	scale = vec3(1.0);
 	alpha = beta = gamma = 0.0;
 
@@ -17,8 +21,8 @@ Transform::~Transform() {}
 void Transform::update_local()
 {
 	local =
-// 	 	 glm::translate(position) * get_rotation_matrix() * glm::scale(scale);
-	 	 glm::translate(position) * get_rotation_matrix_313() * glm::scale(scale);
+	 	 glm::translate(position) * get_rotation_matrix() * glm::scale(scale);
+// 	 	 glm::translate(position) * get_rotation_matrix_313() * glm::scale(scale);
 }
 
 
@@ -37,26 +41,11 @@ mat4 Transform::get_world_tansform()
 
 mat4 Transform::get_rotation_matrix()
 {
-	// roll
-// 	mat4 roll_mat(1.0);
-	mat4 roll_mat = rotate(-(float)(roll_angle), vec3(0., 1., 0.));
-// 	right = vec3(roll_mat * vec4(right, 1.0));
-// 	up = normalize(cross(right, front));
-
-	// pitch
-// 	mat4 pitch_mat(1.0);
-	mat4 pitch_mat = rotate(-(float)(pitch_angle), vec3(1., 0., 0.));
-
-	// yaw
-// 	mat4 yaw_mat(1.0);
-	mat4 yaw_mat = rotate(-(float)(yaw_angle), vec3(0., 0., 1.));
-
-
-	front = vec3(yaw_mat * pitch_mat * roll_mat * vec4(front, 1.0));
-	right = vec3(yaw_mat * pitch_mat * roll_mat * vec4(right, 1.0));
-	up = vec3(yaw_mat * pitch_mat * roll_mat * vec4(up, 1.0));
-
-	return yaw_mat * pitch_mat * roll_mat;
+	return
+		toMat4(quat(rotation));
+// 		rotate(mat4(1.0f), rotation.x, vec3(1, 0, 0)) *
+// 		rotate(mat4(1.0f), rotation.y, vec3(0, 1, 0)) *
+// 		rotate(mat4(1.0f), rotation.z, vec3(0, 0, 1));
 }
 
 mat4 Transform::get_rotation_matrix_313()

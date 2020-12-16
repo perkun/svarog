@@ -93,7 +93,7 @@ project "rarog"
  		"Svarog/vendor/imgui/backends",
  		"Svarog/vendor/stb_image",
  		"Svarog/vendor/entt",
--- 		"Svarog/src/vendor/ImGuizmo",
+ 		"Svarog/vendor/ImGuizmo",
 	}
 
 
@@ -193,7 +193,9 @@ project "Svarog"
 		"%{prj.name}/vendor/stb_image/**.h",
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/imgui/**.h",
-		"%{prj.name}/vendor/imgui/**.cpp"
+		"%{prj.name}/vendor/imgui/**.cpp",
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp"
 		--"src/**.h",
 		--"src/**.cpp"
 	}
@@ -211,7 +213,7 @@ project "Svarog"
  		"%{prj.name}/vendor/stb_image",
  		"%{prj.name}/vendor/spdlog",
  		"%{prj.name}/vendor/entt",
- 		--"%{prj.name}/src/vendor/ImGuizmo",
+ 		"%{prj.name}/vendor/ImGuizmo",
 	}
 
 

@@ -26,6 +26,7 @@ Entity Scene::create_entity(string name)
 	Entity entity(registry.create(), &registry);
 	entity.add_component<Transform>(Transform());
 	entity.add_component<TagComponent>(name);
+
 	return entity;
 }
 

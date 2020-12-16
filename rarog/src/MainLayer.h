@@ -32,6 +32,7 @@ public:
 	virtual void on_imgui_render() override;
 
 	virtual void on_event(Event&) override;
+	void on_key_released_event(KeyReleasedEvent&);
 	void on_window_resize_event(WindowResizeEvent&);
 
 	// GUI functions
@@ -68,6 +69,8 @@ private:
 	Entity model, grid;
 
 	Mode mode = Mode::EDITOR;
+
+	int guizmo_type = -1;
 
 // 	double fps;
 // 	double fps_history[100];
