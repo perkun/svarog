@@ -72,6 +72,7 @@ void MainLayer::on_attach()
     auto window = Application::get_window();
 
 
+
 	grid = scene.create_entity("grid");
 	grid.add_component<Material>(line_shader);
 	grid.add_component<MeshComponent>(new VertexArrayObject(
