@@ -41,10 +41,10 @@ public:
     Scene();
 	~Scene();
 
-	Entity create_entity(string name = "Default entity");
+	Entity create_entity(string name = "Unnamed");
 
-	void draw(Entity*);
-	void draw_depth_first(Entity*);
+	void draw(Entity&);
+	void draw_depth_first(Entity&);
 
 	void on_resize(float, float);
 	void on_update_runtime(double);

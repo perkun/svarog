@@ -81,58 +81,58 @@ void Scene::enable_render_to_framebuffer()
 
 
 
-void Scene::draw(Entity *entity)
+void Scene::draw(Entity &entity)
 {
-	CORE_ASSERT(entity->has_component<Transform>(), "entity not valid");
+	CORE_ASSERT(entity.has_component<Transform>(), "entity not valid");
 
 	// is it used for anything ?
-    if (entity->has_component<SceneStatus>())
+    if (entity.has_component<SceneStatus>())
     {
-        SceneStatus &scene_status = entity->get_component<SceneStatus>();
+        SceneStatus &scene_status = entity.get_component<SceneStatus>();
         if (!scene_status.render)
             return;
     }
 
     // update local transform, then multiply by parent.local
-    Transform &tr = entity->get_component<Transform>();
+    Transform &tr = entity.get_component<Transform>();
     tr.update_local();
 
 
-    if (!entity->get_component<SceneGraphComponent>().parent)
+    if (!entity.get_component<SceneGraphComponent>().parent)
         tr.world = tr.local;
     else
     {
-        Transform &pt = entity->get_component<SceneGraphComponent>()
+        Transform &pt = entity.get_component<SceneGraphComponent>()
                             .parent.get_component<Transform>();
         tr.world = pt.world * tr.local;
     }
 
-    if (entity->has_component<Material>())
+    if (entity.has_component<Material>())
     {
-		Material &material = entity->get_component<Material>();
+		Material &material = entity.get_component<Material>();
 		material.uniforms_mat4["u_model_matrix"] = tr.world;
 
-		if (entity->has_component<TextureComponent>())
-			entity->get_component<TextureComponent>().texture->bind();
+		if (entity.has_component<TextureComponent>())
+			entity.get_component<TextureComponent>().texture->bind();
 
 		material.set_uniforms();  // binds and sets
 
 		scene_material.set_uniforms(material.shader);
 
 
-        if (entity->has_component<MeshComponent>())
+        if (entity.has_component<MeshComponent>())
         {
-            MeshComponent &mesh = entity->get_component<MeshComponent>();
+            MeshComponent &mesh = entity.get_component<MeshComponent>();
             Renderer::draw(mesh.vao, material.shader);
         }
     }
 }
 
-void Scene::draw_depth_first(Entity *entity)
+void Scene::draw_depth_first(Entity &entity)
 {
 	draw(entity);
-	for (Entity child: entity->get_component<SceneGraphComponent>().children)
-		draw_depth_first(&child);
+	for (Entity &child: entity.get_component<SceneGraphComponent>().children)
+		draw_depth_first(child);
 }
 
 
@@ -155,9 +155,9 @@ void Scene::draw_root()
 	else
     	Renderer::bind_default_framebuffer();
 
-    draw_depth_first(&root_entity);
+    draw_depth_first(root_entity);
 
-
+	// post draw
 	if (flags & RENDER_TO_FRAMEBUFFER)
 	{
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, ms_framebuffer->id);
