@@ -18,13 +18,14 @@ void SceneHierarchyPanel::on_imgui_render()
 {
 	ImGui::Begin("Scene Hierarchy");
 
-	scene->registry.each([&](auto entityID)
-	{
-		Entity entity(entityID, &scene->registry);
-// 		if (entity.parent == NULL)  // root
-			draw_entity_node(entity);
-
-	});
+// 	scene->registry.each([&](auto entityID)
+// 	{
+// 		Entity entity(entityID, &scene->registry);
+// // 		if (entity.parent == NULL)  // root
+// 			draw_entity_node(entity);
+//
+// 	});
+	draw_entity_node(scene->root_entity);
 
 	// deselect when clicked elsewhere
 	if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
@@ -53,7 +54,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 
     ImGuiTreeNodeFlags flags =
         ((scene->selected_entity == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
-        ImGuiTreeNodeFlags_OpenOnArrow;
+        ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
     bool opened =
         ImGui::TreeNodeEx((void *)(entity.get_handle()), flags, tag.c_str());
@@ -64,9 +65,41 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
     }
 
     if (opened)
-        ImGui::TreePop();
+	{
+		// list components
+		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		if (entity.has_component<MeshComponent>())
+		{
+			ImGui::TreeNodeEx((void*)1231231, flags, "Mesh Component");
+			// 		if (ImGui::IsItemClicked())
+		}
+		if (entity.has_component<TextureComponent>())
+		{
+			ImGui::TreeNodeEx((void*)1231231, flags, "Texture Component");
+			// 		if (ImGui::IsItemClicked())
+		}
+		if (entity.has_component<ShaderComponent>())
+		{
+			ImGui::TreeNodeEx((void*)1231231, flags, "Shader Component");
+			// 		if (ImGui::IsItemClicked())
+		}
+		if (entity.has_component<CameraComponent>())
+		{
+			ImGui::TreeNodeEx((void*)1231231, flags, "Camera Component");
+			// 		if (ImGui::IsItemClicked())
+		}
+		if (entity.has_component<NativeScriptComponent>())
+		{
+			ImGui::TreeNodeEx((void*)1231231, flags, "Native Script Component");
+			// 		if (ImGui::IsItemClicked())
+		}
 
-    // 	ImGui::Text("%s", tag.c_str());
+		// list children
+		for (Entity &child: entity.get_component<SceneGraphComponent>().children)
+			draw_entity_node(child);
+		ImGui::TreePop();
+	}
+
 }
 
 void SceneHierarchyPanel::draw_selected_properties(Entity &entity)

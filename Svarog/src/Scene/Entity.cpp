@@ -12,24 +12,23 @@ Entity::~Entity()
 
 void Entity::add_child(Entity &child)
 {
-	child.get_component<SceneGraphComponent>().parent = Entity(entity_handle,
-		scene_registry_handle);
+	child.get_component<SceneGraphComponent>().parent = *this;
 	get_component<SceneGraphComponent>().children.push_back(child);
 }
 
 
 void Entity::detatch()
 {
-//     if (!get_component<SceneGraphComponent>().parent)
-//         return;
-//
-//     Entity &parent = get_component<SceneGraphComponent>().parent;
-//     for (unsigned int i = 0;
-//          i < parent.get_component<SceneGraphComponent>().children.size(); i++)
-//         if (parent.get_component<SceneGraphComponent>().children[i] == this)
-//             parent.get_component<SceneGraphComponent>().children.erase(
-//                 parent.get_component<SceneGraphComponent>().children.begin() +
-//                 i);
-//
-//     parent = Entity();
+    Entity &parent = get_component<SceneGraphComponent>().parent;
+
+    if (!parent) // no parent
+        return;
+
+	vector<Entity> &parent_children =
+		parent.get_component<SceneGraphComponent>().children;
+    for (unsigned int i = 0; i < parent_children.size(); i++)
+        if (parent_children[i] == *this)
+            parent_children.erase(parent_children.begin() + i);
+
+    parent = Entity();
 }

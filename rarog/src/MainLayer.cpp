@@ -300,6 +300,7 @@ void MainLayer::remove_texture()
     if (texture != NULL)
         delete texture;
     texture = NULL;
+	model.remove_component<TextureComponent>();
 }
 
 
@@ -506,9 +507,9 @@ void MainLayer::scene_options_panel()
 
 	if (ImGui::Checkbox("show grid", &show_grid))
 	{
-// 		grid.detatch();
-// 		if (show_grid)
-// 			scene.root_entity.add_child(&grid);
+		grid.detatch();
+		if (show_grid)
+			scene.root_entity.add_child(grid);
 	}
 
     ImGui::End();

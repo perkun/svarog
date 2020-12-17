@@ -1,7 +1,7 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
-#include "../vendor/entt/entt.hpp"
+#include "entt.hpp"
 
 using namespace std;
 
@@ -44,7 +44,7 @@ public:
     }
 
     template <typename T>
-	T &remove_component()
+	void remove_component()
     {
         if (!has_component<T>())
             cout << "Entity does not have this component" << endl;

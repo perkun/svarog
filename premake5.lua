@@ -196,7 +196,7 @@ project "Svarog"
 		"%{prj.name}/vendor/imgui/**.h",
 		"%{prj.name}/vendor/imgui/**.cpp",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
-		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp"
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp",
 		--"src/**.h",
 		--"src/**.cpp"
 	}
