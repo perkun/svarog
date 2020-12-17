@@ -19,7 +19,7 @@ public:
 
     ~Entity();
 
-    void add_child(Entity *);
+    void add_child(Entity&);
     void detatch();
 
     template <typename T>
@@ -73,8 +73,13 @@ public:
         return !(*this == other);
     }
 
-    Entity *parent = NULL;
-    vector<Entity *> children;
+//     Entity *parent = NULL;
+//     vector<Entity *> children;
+
+	entt::entity get_handle()
+	{
+		return entity_handle;
+	}
 
     // 	bool active = false;
 private:

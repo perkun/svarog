@@ -7,6 +7,7 @@
 #include "Scene.h"
 #include "Utils/FileDialog.h"
 #include "Batch.h"
+#include "Panels/SceneHierarchyPanel.h"
 // #include "Svarog.h"
 
 
@@ -37,7 +38,7 @@ public:
 
 	// GUI functions
 	void scene_window();
-	void scene_options();
+	void scene_options_panel();
 	void orbital_parameters_panel();
 	void menu_bar();
 
@@ -71,6 +72,8 @@ private:
 	Mode mode = Mode::EDITOR;
 
 	int guizmo_type = -1;
+
+	SceneHierarchyPanel scene_hierarchy_panel;
 
 // 	double fps;
 // 	double fps_history[100];

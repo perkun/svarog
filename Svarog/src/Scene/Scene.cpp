@@ -26,6 +26,7 @@ Entity Scene::create_entity(string name)
 	Entity entity(registry.create(), &registry);
 	entity.add_component<Transform>(Transform());
 	entity.add_component<TagComponent>(name);
+	entity.add_component<SceneGraphComponent>();
 
 	return entity;
 }
@@ -82,6 +83,8 @@ void Scene::enable_render_to_framebuffer()
 
 void Scene::draw(Entity *entity)
 {
+	CORE_ASSERT(entity->has_component<Transform>(), "entity not valid");
+
 	// is it used for anything ?
     if (entity->has_component<SceneStatus>())
     {
@@ -94,11 +97,13 @@ void Scene::draw(Entity *entity)
     Transform &tr = entity->get_component<Transform>();
     tr.update_local();
 
-    if (entity->parent == NULL)
+
+    if (!entity->get_component<SceneGraphComponent>().parent)
         tr.world = tr.local;
     else
     {
-        Transform &pt = entity->parent->get_component<Transform>();
+        Transform &pt = entity->get_component<SceneGraphComponent>()
+                            .parent.get_component<Transform>();
         tr.world = pt.world * tr.local;
     }
 
@@ -126,8 +131,8 @@ void Scene::draw(Entity *entity)
 void Scene::draw_depth_first(Entity *entity)
 {
 	draw(entity);
-	for (Entity *child: entity->children)
-		draw_depth_first(child);
+	for (Entity child: entity->get_component<SceneGraphComponent>().children)
+		draw_depth_first(&child);
 }
 
 

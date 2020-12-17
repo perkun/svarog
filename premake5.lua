@@ -82,7 +82,8 @@ project "rarog"
 
 	includedirs
 	{
- 		"%{prj.name}",
+ 		"%{prj.name}/src",
+ 		"%{prj.name}/src/Panels",
  		"Svarog/src",
  		"Svarog/src/Layer",
  		"Svarog/src/Event",

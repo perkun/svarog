@@ -36,6 +36,7 @@ class Scene
 	friend class Layer;
 	friend class SceneLayer;
 	friend class SceneSerializer;
+	friend class SceneHierarchyPanel;
 public:
     Scene();
 	~Scene();
@@ -64,6 +65,8 @@ public:
 
 	Entity observer;
 	Entity light;
+
+	Entity selected_entity;
 
 private:
 // 	void draw_root(POV, double);  // equivalent of on_update()

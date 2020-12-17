@@ -77,6 +77,7 @@ void MainLayer::on_attach()
 	grid.add_component<Material>(line_shader);
 	grid.add_component<MeshComponent>(new VertexArrayObject(
 		create_grid(100., 5., 0.2), true));
+// 	grid.get_component<SceneGraphComponent>().parent = scene.root_entity;
 
     scene.observer = scene.create_entity("Observer");
     CameraComponent &socp =
@@ -96,6 +97,7 @@ void MainLayer::on_attach()
     scene.light.add_component<Material>(color_shader)
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
+// 	scene.light.get_component<SceneGraphComponent>().parent = scene.root_entity;
 
     model = scene.create_entity("Main model");
     model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 0;
@@ -103,17 +105,20 @@ void MainLayer::on_attach()
     model.add_component<NativeScriptComponent>().bind<ModelController>();
     model.get_component<Transform>().position = init_model_pos;
 
+// 	model.get_component<SceneGraphComponent>().parent = scene.root_entity;
 
 	Renderer::set_line_width(2.);
 
-    scene.root_entity.add_child(&model);
-    scene.root_entity.add_child(&grid);
-    scene.root_entity.add_child(&scene.light);
+    scene.root_entity.add_child(model);
+    scene.root_entity.add_child(grid);
+    scene.root_entity.add_child(scene.light);
 
 	scene.enable_render_to_framebuffer();
 
 	editor_camera = EditorCamera(
 		radians(45.), window->width / (float)window->height, 0.01, 500.0);
+
+	scene_hierarchy_panel = SceneHierarchyPanel(&scene);
 }
 
 void MainLayer::on_event(Event &e)
@@ -139,8 +144,8 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 
 	if (mode == Mode::EDITOR)
 	{
-		if (key_code == GLFW_KEY_Q)
-			Application::stop();
+// 		if (key_code == GLFW_KEY_Q)
+// 			Application::stop();
 
 		if (key_code == GLFW_KEY_G)
 			guizmo_type = ImGuizmo::OPERATION::TRANSLATE;
@@ -201,13 +206,15 @@ void MainLayer::on_imgui_render()
     ImGui::DockSpaceOverViewport();
     menu_bar();
     scene_window();
-    orbital_parameters_panel();
+//     orbital_parameters_panel();
 
 	if (show_scene_options)
-		scene_options();
+		scene_options_panel();
 
     if (show_imgui_demo)
         ImGui::ShowDemoWindow();
+
+	scene_hierarchy_panel.on_imgui_render();
 }
 
 void MainLayer::on_detach()
@@ -236,6 +243,7 @@ void MainLayer::toggle_mode()
 		mode = Mode::EDITOR;
 		Application::get_window()->set_cursor_normal();
 	}
+
 }
 
 
@@ -423,7 +431,7 @@ void MainLayer::scene_window()
                  ImVec2(1, 0));
 
     // Gizmos
-    Entity selected_entity = model; // TODO: created selection
+    Entity selected_entity = scene.selected_entity; // TODO: created selection
     if (selected_entity && guizmo_type != -1)
     {
         ImGuizmo::SetOrthographic(false);
@@ -475,7 +483,7 @@ void MainLayer::scene_window()
     ImGui::PopStyleVar();
 }
 
-void MainLayer::scene_options()
+void MainLayer::scene_options_panel()
 {
 
     ImGui::Begin("Scene Options");
@@ -498,9 +506,9 @@ void MainLayer::scene_options()
 
 	if (ImGui::Checkbox("show grid", &show_grid))
 	{
-		grid.detatch();
-		if (show_grid)
-			scene.root_entity.add_child(&grid);
+// 		grid.detatch();
+// 		if (show_grid)
+// 			scene.root_entity.add_child(&grid);
 	}
 
     ImGui::End();
