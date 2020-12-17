@@ -28,16 +28,16 @@ protected:
 //         if (Input::is_imgui_window_hovered())
 //             return;
 
-        Transform &ot = get_component<Transform>();
-//
+		Camera *cam = get_component<CameraComponent>().camera;
+
         if (Input::is_key_pressed(GLFW_KEY_W))
-            ot.move_forwards(time_delta);
+			cam->position += cam->front * (float)(time_delta * cam->speed);
         if (Input::is_key_pressed(GLFW_KEY_S))
-            ot.move_backwards(time_delta);
+			cam->position -= cam->front * (float)(time_delta * cam->speed);
         if (Input::is_key_pressed(GLFW_KEY_A))
-            ot.move_left(time_delta);
+			cam->position -= cam->right * (float)(time_delta * cam->speed);
         if (Input::is_key_pressed(GLFW_KEY_D))
-            ot.move_right(time_delta);
+			cam->position += cam->right * (float)(time_delta * cam->speed);
     }
 
     virtual void on_event(Event &e) override
@@ -62,18 +62,29 @@ protected:
 //         if (Input::is_imgui_window_hovered())
 //             return;
 
-// 		vec2 cursor_shift = e.get_cursor_pos() - cursor_pos;
+		vec2 cursor_shift = e.get_cursor_pos() - cursor_pos;
 //
 //         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_3))
 //             get_component<Transform>().rotate_about_target(cursor_shift);
-//
+
 //         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_2))
-// 		{
-//             get_component<Transform>().pan_forwards(cursor_shift.y/600.);
-//             get_component<Transform>().pan_left(cursor_shift.x/600.);
-// 		}
-//
-// 		cursor_pos= e.get_cursor_pos();
+		{
+			Camera *cam = get_component<CameraComponent>().camera;
+
+			mat4 rot = rotate(-cursor_shift.x * cam->rotation_speed, cam->up);
+			cam->front = vec3( rot *vec4(cam->front, 1.0));
+			cam->update();
+
+			rot = rotate(-cursor_shift.y * cam->rotation_speed, cam->right);
+			cam->front = vec3( rot *vec4(cam->front, 1.0));
+			cam->update();
+
+// 			cam->rotation.x += cursor_shift.y * cam->rotation_speed;
+// 			cam->rotation.z += cursor_shift.x * cam->rotation_speed;
+
+		}
+
+		cursor_pos= e.get_cursor_pos();
     }
 
 };

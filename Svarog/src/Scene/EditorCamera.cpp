@@ -98,8 +98,6 @@ void EditorCamera::update_target(vec3 new_target)
 	update();
 }
 
-
-
 void EditorCamera::update()
 {
 	right = normalize(cross(front, up));

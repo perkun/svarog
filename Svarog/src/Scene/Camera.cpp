@@ -1,7 +1,40 @@
 #include "svpch.h"
 #include "Camera.h"
 
+Camera::Camera()
+{
+	up = vec3(0., 0., 1.);
+	front = vec3(1., 0., 0.);
 
+    position = vec3(6.3, -3., 5.12);
+    update_target(vec3(0., 0., 0.));
+}
+
+mat4 Camera::get_view()
+{
+	calculate_view();
+	return view;
+}
+
+
+void Camera::calculate_view()
+{
+	view = lookAt(position, position + front, up);
+}
+
+
+void Camera::update_target(vec3 new_target)
+{
+	front = normalize(new_target - position);
+	update();
+}
+
+void Camera::update()
+{
+	right = normalize(cross(front, up));
+	right.z = 0.0;
+	up = normalize(cross(right, front));
+}
 
 
 

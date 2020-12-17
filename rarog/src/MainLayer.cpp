@@ -79,13 +79,15 @@ void MainLayer::on_attach()
 		create_grid(100., 5., 0.2), true));
 
     scene.observer = scene.create_entity("Observer");
-    scene.observer.add_component<CameraComponent>(new PerspectiveCamera(
-        radians(45.0), window->width / (float)window->height, 0.01, 500.0));
+    CameraComponent &socp =
+		scene.observer.add_component<CameraComponent>(new PerspectiveCamera(
+        	radians(45.0), window->width / (float)window->height, 0.01, 500.0));
     scene.observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
+    socp.camera->update_target(init_model_pos);
+
     Transform &sot = scene.observer.get_component<Transform>();
     sot.position = vec3(6.3, -3., 5.12);
-    sot.update_target(init_model_pos);
     sot.speed = 8.;
 
     scene.light = scene.create_entity("Light");
@@ -135,18 +137,24 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 {
     int key_code = event.get_key_code();
 
-    if (key_code == GLFW_KEY_Q)
+	if (mode == Mode::EDITOR)
 	{
-         Application::stop();
+		if (key_code == GLFW_KEY_Q)
+			Application::stop();
+
+		if (key_code == GLFW_KEY_G)
+			guizmo_type = ImGuizmo::OPERATION::TRANSLATE;
+		else if (key_code == GLFW_KEY_R)
+			guizmo_type = ImGuizmo::OPERATION::ROTATE;
+		else if (key_code == GLFW_KEY_S)
+			guizmo_type = ImGuizmo::OPERATION::SCALE;
+		else if (key_code == GLFW_KEY_ESCAPE)
+			guizmo_type = -1;
 	}
-    else if (key_code == GLFW_KEY_Z)
-		guizmo_type = ImGuizmo::OPERATION::TRANSLATE;
-    else if (key_code == GLFW_KEY_X)
-		guizmo_type = ImGuizmo::OPERATION::ROTATE;
-    else if (key_code == GLFW_KEY_C)
-		guizmo_type = ImGuizmo::OPERATION::SCALE;
-    else if (key_code == GLFW_KEY_V)
-		guizmo_type = -1;
+
+	if (mode == Mode::RUNTIME)
+		if (key_code == GLFW_KEY_Q)
+			toggle_mode();
 
 
 
@@ -218,10 +226,15 @@ void MainLayer::toggle_mode()
 	if (mode == Mode::EDITOR)
 	{
 		mode = Mode::RUNTIME;
+		scene.observer.get_component<CameraComponent>().camera->update_target(
+			model.get_component<Transform>().position);
+		guizmo_type = -1;
+		Application::get_window()->set_cursor_disabled();
 	}
 	else if (mode == Mode::RUNTIME)
 	{
 		mode = Mode::EDITOR;
+		Application::get_window()->set_cursor_normal();
 	}
 }
 
@@ -437,9 +450,13 @@ void MainLayer::scene_window()
 
         float snapValues[3] = {snapValue, snapValue, snapValue};
 
+		int manipulation_ref_frame = ImGuizmo::WORLD;
+		if (guizmo_type == ImGuizmo::OPERATION::SCALE)
+			manipulation_ref_frame = ImGuizmo::LOCAL;
+
         ImGuizmo::Manipulate(
             glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-            (ImGuizmo::OPERATION)guizmo_type, ImGuizmo::LOCAL,
+            (ImGuizmo::OPERATION)guizmo_type, (ImGuizmo::MODE)manipulation_ref_frame,
             glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
 
         if (ImGuizmo::IsUsing())
@@ -462,6 +479,23 @@ void MainLayer::scene_options()
 {
 
     ImGui::Begin("Scene Options");
+
+	if (ImGui::RadioButton("Translate", guizmo_type == ImGuizmo::TRANSLATE))
+		guizmo_type = ImGuizmo::TRANSLATE;
+
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Rotate", guizmo_type == ImGuizmo::ROTATE))
+		guizmo_type = ImGuizmo::ROTATE;
+
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Scale", guizmo_type == ImGuizmo::SCALE))
+		guizmo_type = ImGuizmo::SCALE;
+
+	ImGui::SameLine();
+	if (ImGui::RadioButton("None", guizmo_type == -1))
+		guizmo_type = -1;
+
+
 	if (ImGui::Checkbox("show grid", &show_grid))
 	{
 		grid.detatch();

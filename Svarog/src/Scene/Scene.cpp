@@ -180,13 +180,13 @@ void Scene::on_update_runtime(double time_delta)
 			nsc.instance->on_create();
 		}
 		nsc.instance->on_update(time_delta);
-
 	});
 
-    Transform &sct = observer.get_component<Transform>();
-    scene_material.uniforms_mat4["u_view_matrix"] = sct.get_view();
+//     Transform &sct = observer.get_component<Transform>();
+	Camera *cam = observer.get_component<CameraComponent>().camera;
+    scene_material.uniforms_mat4["u_view_matrix"] = cam->get_view();
     scene_material.uniforms_mat4["u_perspective_matrix"] =
-        observer.get_component<CameraComponent>().camera->get_perspective();
+        cam->get_perspective();
 
 	draw_root();
 }

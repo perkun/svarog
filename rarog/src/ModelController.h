@@ -57,8 +57,10 @@ public:
 			Transform &t = get_component<Transform>();
 // 			t.alpha += t.rotation_speed * (cursor_shift.x);
 //             t.beta += t.rotation_speed * (cursor_shift.y);
-			t.gamma += cursor_shift.x * t.rotation_speed;
-			t.beta +=  cursor_shift.y * t.rotation_speed;
+// 			t.gamma += cursor_shift.x * t.rotation_speed;
+// 			t.beta +=  cursor_shift.y * t.rotation_speed;
+// 			t.pitch(cursor_shift.y);
+// 			t.yaw(cursor_shift.x);
 		}
 
 		cursor_pos= e.get_cursor_pos();

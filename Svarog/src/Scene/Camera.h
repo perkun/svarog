@@ -1,17 +1,27 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
-
 using namespace std;
 using namespace glm;
 
 class Camera
 {
 public:
+	Camera();
 	virtual mat4 get_perspective() = 0;
+
+	mat4 get_view();
+	void update_target(vec3 new_target);
+	void update();
+
 	float aspect;
+	vec3 position, front, up, right;
+	float speed = 10., rotation_speed = 0.0003;
 
 protected:
+	void calculate_view();
+
+	mat4 view;
 	float view_box_z_near, view_box_z_far;
 };
 

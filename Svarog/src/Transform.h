@@ -16,40 +16,11 @@ public:
 	mat4 get_world_tansform();
 	mat4 get_view();
 
-	void update_target(vec3);
-
-	void move_forwards(double);
-	void move_backwards(double);
-	void move_left(double);
-	void move_right(double);
-	void move_up(double);
-	void move_down(double);
-
-
-	void pitch(float);
-	void yaw(float);
-	void roll(float);
-
-// 	void move(double);
-	void update();
-
-
-// 	void set_rotation_alpha_beta_gamma();
-
-
 	double speed = 0.6; // world space units per second
 	double rotation_speed = 0.002;  // radians / sec
-///////
 
 	mat4 local;
 	mat4 world;
-	mat4 view;
-
-	float pitch_angle = 0, yaw_angle = 0, roll_angle = 0;
-
-// 	mat4 rotation = mat4(1.0);
-
-	vec3 up, front, right;
 
 	float alpha, beta, gamma;
 	vec3 scale, position, rotation;
