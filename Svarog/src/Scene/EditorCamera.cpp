@@ -13,13 +13,13 @@ EditorCamera::EditorCamera() : PerspectiveCamera(0., 0., 0., 0.)
 
 }
 
-EditorCamera::EditorCamera(float fov, float aspect, float zNear, float zFar)
+EditorCamera::EditorCamera(float fov, float aspect, float zNear, float zFar, vec3 position)
  : PerspectiveCamera(fov, aspect, zNear, zFar)
 {
 	up = vec3(0., 0., 1.);
 	front = vec3(1., 0., 0.);
 
-    position = vec3(6.3, -3., 5.12);
+    this->position = position;
     update_target(vec3(0., 0., 0.));
     speed = 8.;
 }
@@ -105,27 +105,36 @@ void EditorCamera::update()
 	up = normalize(cross(right, front));
 }
 
-
+void EditorCamera::calculate_speed()
+{
+    speed = glm::length(
+        calculate_intersection_point(vec3(0.), vec3(0., 0., 1.)) - position);
+    speed *= 1920. * 0.47 / Application::get_window()->width;
+}
 
 void EditorCamera::pan_right(double time_delta)
 {
+	calculate_speed();
 	position += vec3(vec2(right * (float)(time_delta * speed)), 0.);
 }
 
 
 void EditorCamera::pan_left(double time_delta)
 {
+	calculate_speed();
 	position -= vec3(vec2(right * (float)(time_delta * speed)), 0.);
 }
 
 void EditorCamera::pan_forwards(double time_delta)
 {
+	calculate_speed();
 	position += vec3(vec2(front * (float)(time_delta * speed)), 0.);
 }
 
 
 void EditorCamera::pan_backwards(double time_delta)
 {
+	calculate_speed();
 	position -= vec3(vec2(front * (float)(time_delta * speed)), 0.);
 }
 

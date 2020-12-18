@@ -15,7 +15,7 @@ class EditorCamera : public PerspectiveCamera
 {
 public:
 	EditorCamera();
-    EditorCamera(float fov, float aspect, float zNear, float zFar);
+    EditorCamera(float fov, float aspect, float zNear, float zFar, vec3 pos);
 	~EditorCamera();
 
 
@@ -40,11 +40,12 @@ private:
 	void on_mouse_scrolled_event(MouseScrolledEvent &e);
 	void on_cursor_moved_event(MouseMovedEvent &e);
 
+	void calculate_speed();
 	vec3 calculate_intersection_point(vec3 plane_point, vec3 plane_normal);
 
 	vec3 up, front, right;
 	vec3 position;
-	float speed = 0.6, rotation_speed = 0.002;
+	float speed, rotation_speed = 0.002;
 
 	vec2 cursor_pos = vec2(0.0);
 
