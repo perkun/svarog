@@ -21,6 +21,7 @@ public:
 
     void add_child(Entity&);
     void detatch();
+	Entity& get_parent();
 
     template <typename T>
 	bool has_component()

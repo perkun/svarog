@@ -32,3 +32,8 @@ void Entity::detatch()
 
     parent = Entity();
 }
+
+Entity& Entity::get_parent()
+{
+	return get_component<SceneGraphComponent>().parent;
+}

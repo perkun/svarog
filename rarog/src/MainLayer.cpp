@@ -116,7 +116,8 @@ void MainLayer::on_attach()
 	scene.enable_render_to_framebuffer();
 
 	editor_camera = EditorCamera(
-		radians(45.), window->width / (float)window->height, 0.01, 500.0);
+		radians(45.), window->width / (float)window->height, 0.01, 500.0,
+		vec3(6.3, -3., 5.12));
 
 	scene_hierarchy_panel = SceneHierarchyPanel(&scene);
 }
@@ -144,8 +145,8 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 
 	if (mode == Mode::EDITOR)
 	{
-// 		if (key_code == GLFW_KEY_Q)
-// 			Application::stop();
+		if (key_code == GLFW_KEY_Q)
+			Application::stop();
 
 		if (key_code == GLFW_KEY_G)
 			guizmo_type = ImGuizmo::OPERATION::TRANSLATE;
@@ -433,7 +434,7 @@ void MainLayer::scene_window()
 
     // Gizmos
     Entity selected_entity = scene.selected_entity; // TODO: created selection
-    if (selected_entity && guizmo_type != -1)
+    if (selected_entity && selected_entity.get_parent() && guizmo_type != -1)
     {
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist();
@@ -463,20 +464,43 @@ void MainLayer::scene_window()
 		if (guizmo_type == ImGuizmo::OPERATION::SCALE)
 			manipulation_ref_frame = ImGuizmo::LOCAL;
 
+		mat4 delta_matrix;
         ImGuizmo::Manipulate(
             glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
             (ImGuizmo::OPERATION)guizmo_type, (ImGuizmo::MODE)manipulation_ref_frame,
-            glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
+            glm::value_ptr(transform), glm::value_ptr(delta_matrix),
+			snap ? snapValues : nullptr);
 
         if (ImGuizmo::IsUsing())
         {
+			Entity &parent = selected_entity.get_parent();
+// 			if (!parent)  // no parent, root
+			Transform &ptc = parent.get_component<Transform>();
+
             glm::vec3 translation, rotation, scale;
+            glm::vec3 delta_translation, delta_rotation, delta_scale;
+
+            Math::decompose_transform(delta_matrix,
+				delta_translation, delta_rotation, delta_scale);
+
             Math::decompose_transform(transform, translation, rotation, scale);
-//
-            glm::vec3 deltaRotation = rotation - tc.rotation;
-            tc.position = translation;
-            tc.rotation += deltaRotation;
-            tc.scale = scale;
+
+			if (guizmo_type == ImGuizmo::OPERATION::TRANSLATE)
+			{
+				vec4 pos = vec4(tc.position, 1.0);
+				pos += glm::inverse(ptc.get_world_tansform())
+						* vec4(delta_translation, 0.0);
+				tc.position = vec3(pos);
+			}
+			else if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
+			{
+				vec4 rot = vec4(tc.rotation, 1.0);
+				rot += glm::inverse(ptc.get_world_tansform())
+						* vec4(delta_rotation, 0.0);
+				tc.rotation = vec3(rot);
+			}
+			else if (guizmo_type == ImGuizmo::OPERATION::SCALE)
+            	tc.scale = scale;
         }
     }
 

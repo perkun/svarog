@@ -25,39 +25,55 @@ void SceneHierarchyPanel::on_imgui_render()
 // 			draw_entity_node(entity);
 //
 // 	});
-	draw_entity_node(scene->root_entity);
+	draw_entity_node(scene->root_entity, false);
 
 	// deselect when clicked elsewhere
 	if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 	{
 		scene->selected_entity = Entity();
 	}
-
-
 	ImGui::End();
 
 
 	ImGui::Begin("Properties");
-
-	if (scene->selected_entity)
+	if (scene->selected_entity && scene->selected_entity.get_parent())
 	{
 		 draw_selected_properties(scene->selected_entity);
 	}
-
 	ImGui::End();
 }
 
 
-void SceneHierarchyPanel::draw_entity_node(Entity &entity)
+void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
 {
-    string tag = entity.get_component<TagComponent>().tag;
+    string &tag = entity.get_component<TagComponent>().tag;
 
     ImGuiTreeNodeFlags flags =
         ((scene->selected_entity == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
-        ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+        ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick
+		| ImGuiTreeNodeFlags_DefaultOpen;
 
     bool opened =
         ImGui::TreeNodeEx((void *)(entity.get_handle()), flags, tag.c_str());
+
+	if (drag_source && ImGui::BeginDragDropSource())
+	{
+		ImGui::SetDragDropPayload("_TREENODE", (void*)(&entity), 256);
+		ImGui::Text("Move Entity");
+		ImGui::EndDragDropSource();
+	}
+
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_TREENODE"))
+		{
+			Entity payload_entity = *(const Entity*)payload->Data;
+			payload_entity.detatch();
+			entity.add_child(payload_entity);
+		}
+	}
+
 
     if (ImGui::IsItemClicked())
     {
@@ -96,7 +112,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 
 		// list children
 		for (Entity &child: entity.get_component<SceneGraphComponent>().children)
-			draw_entity_node(child);
+			draw_entity_node(child, true);
 		ImGui::TreePop();
 	}
 
@@ -117,10 +133,14 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 
 	if (entity.has_component<Transform>())
 	{
+		// TODO: convertions rad -> deg, and positions * multiplicant
 		Transform &t = entity.get_component<Transform>();
+		glm::vec3 rot_deg;
+		rot_deg = (float)(180./M_PI) * t.rotation ;
 		ImGui::DragFloat3("Position", glm::value_ptr(t.position), 0.1);
+		ImGui::DragFloat3("Rotation [deg]", glm::value_ptr(rot_deg), 0.1);
 		ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
-		ImGui::DragFloat3("Rotation", glm::value_ptr(t.rotation), 0.1);
+		t.rotation = rot_deg * (float)(M_PI / 180.0);
 	}
 
 
