@@ -42,6 +42,7 @@ public:
 	~Scene();
 
 	Entity create_entity(string name = "Unnamed");
+	void destroy_entity(Entity);
 
 	void draw(Entity&);
 	void draw_depth_first(Entity&);

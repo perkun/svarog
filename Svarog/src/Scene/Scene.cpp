@@ -4,7 +4,7 @@
 
 Scene::Scene()
 {
-	root_entity = create_entity("Root");
+	root_entity = create_entity("root");
 // 	observer = create_entity("Observer");
 }
 
@@ -29,6 +29,11 @@ Entity Scene::create_entity(string name)
 	entity.add_component<SceneGraphComponent>();
 
 	return entity;
+}
+
+void Scene::destroy_entity(Entity entity)
+{
+	registry.destroy(entity.get_handle());
 }
 
 void Scene::controllers_events(Event &event)

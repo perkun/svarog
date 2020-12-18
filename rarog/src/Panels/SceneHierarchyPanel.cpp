@@ -32,6 +32,18 @@ void SceneHierarchyPanel::on_imgui_render()
 	{
 		scene->selected_entity = Entity();
 	}
+
+	// left click popup
+	if (ImGui::BeginPopupContextWindow(0, 1, false)) // not over any item
+	{
+		if (ImGui::MenuItem("Create Empty Entity"))
+		{
+			Entity e = scene->create_entity("Unnamed Entity");
+			scene->root_entity.add_child(e);
+		}
+		ImGui::EndPopup();
+	}
+
 	ImGui::End();
 
 
@@ -60,6 +72,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
 	{
 		ImGui::SetDragDropPayload("_TREENODE", (void*)(&entity), 256);
 		ImGui::Text("Move Entity");
+
 		ImGui::EndDragDropSource();
 	}
 
@@ -72,6 +85,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
 			payload_entity.detatch();
 			entity.add_child(payload_entity);
 		}
+		ImGui::EndDragDropTarget();
 	}
 
 
@@ -79,6 +93,31 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
     {
 		scene->selected_entity = entity;
     }
+
+	// left click popup
+	if (ImGui::BeginPopupContextItem()) // not over any item
+	{
+		if (entity != scene->root_entity && ImGui::MenuItem("Delete Entity"))
+		{
+			ImGui::EndPopup();
+			if (opened)
+				ImGui::TreePop();
+
+			scene->selected_entity = Entity();
+
+			for (Entity c: entity.get_component<SceneGraphComponent>().children)
+			{
+				c.detatch();
+				scene->destroy_entity(c);
+			}
+
+			entity.detatch();
+			scene->destroy_entity(entity);
+			return;
+		}
+
+		ImGui::EndPopup();
+	}
 
     if (opened)
 	{
