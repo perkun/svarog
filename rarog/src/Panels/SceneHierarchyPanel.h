@@ -15,7 +15,7 @@ public:
 	void on_imgui_render();
 
 private:
-	void draw_entity_node(Entity&, bool drag_source);
+	void draw_entity_node(Entity&);
 	void draw_selected_properties(Entity&);
 
 	Scene *scene;

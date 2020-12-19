@@ -25,7 +25,7 @@ void SceneHierarchyPanel::on_imgui_render()
 // 			draw_entity_node(entity);
 //
 // 	});
-	draw_entity_node(scene->root_entity, false);
+	draw_entity_node(scene->root_entity);
 
 	// deselect when clicked elsewhere
 	if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
@@ -54,7 +54,7 @@ void SceneHierarchyPanel::on_imgui_render()
 }
 
 
-void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
+void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 {
 	string &tag = entity.get_component<TagComponent>().tag;
 
@@ -67,7 +67,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
         ImGui::TreeNodeEx((void *)(entity.get_handle()), flags, tag.c_str());
 
 	// Drag and Drop
-	if (drag_source && ImGui::BeginDragDropSource())
+	if (entity != scene->root_entity && ImGui::BeginDragDropSource())
 	{
 		ImGui::SetDragDropPayload("_TREENODE", (void*)(&entity), 256);
 		ImGui::Text("Move Entity");
@@ -150,7 +150,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
 
 		// list children
 		for (Entity &child: entity.get_component<SceneGraphComponent>().children)
-			draw_entity_node(child, true);
+			draw_entity_node(child);
 
 		ImGui::TreePop();
 	}
