@@ -31,11 +31,6 @@ Entity Scene::create_entity(string name)
 	return entity;
 }
 
-void Scene::destroy_entity(Entity entity)
-{
-	registry.destroy(entity.get_handle());
-}
-
 void Scene::controllers_events(Event &event)
 {
 	/// send event to all the controllers

@@ -29,10 +29,16 @@ void ImGuiLayer::on_attach()
 
 
 //     io.Fonts->AddFontFromFileTTF("../data/DroidSans.ttf", 18.0f);
+//
+ImFontConfig config;
+config.MergeMode = true;
+config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
+static const ImWchar icon_ranges[] = {0xf000, 0xffff, 0 };
 
     io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Inconsolata-Bold.ttf", 18.0f);
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Inconsolata-Medium.ttf", 18.0f);
-
+    io.FontDefault = io.Fonts->AddFontFromFileTTF(
+		"/usr/share/fonts/TTF/InconsolataGo Nerd Font Complete.ttf", 18.0f, &config, icon_ranges);
+// 		"/usr/share/fonts/TTF/Inconsolata-Medium.ttf", 18.0f);
 //     io.Fonts->AddFontFromFileTTF("/usr/share/fonts/nerd-fonts-complete/TTF/InconsolataGo Nerd Font Complete.ttf", 18.0f);
 //     io.FontDefault = io.Fonts->AddFontFromFileTTF(
 // 		"/usr/share/fonts/nerd-fonts-complete/TTF/InconsolataGo Nerd Font Complete.ttf", 18.0f);

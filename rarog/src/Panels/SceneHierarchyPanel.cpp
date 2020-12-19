@@ -33,16 +33,6 @@ void SceneHierarchyPanel::on_imgui_render()
 		scene->selected_entity = Entity();
 	}
 
-	// left click popup
-	if (ImGui::BeginPopupContextWindow(0, 1, false)) // not over any item
-	{
-		if (ImGui::MenuItem("Create Empty Entity"))
-		{
-			Entity e = scene->create_entity("Unnamed Entity");
-			scene->root_entity.add_child(e);
-		}
-		ImGui::EndPopup();
-	}
 
 	ImGui::End();
 
@@ -53,12 +43,20 @@ void SceneHierarchyPanel::on_imgui_render()
 		 draw_selected_properties(scene->selected_entity);
 	}
 	ImGui::End();
+
+	if (entity_to_delete)
+	{
+		scene->selected_entity = Entity();
+		entity_to_delete.destroy();
+		entity_to_delete = Entity();
+	}
+
 }
 
 
 void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
 {
-    string &tag = entity.get_component<TagComponent>().tag;
+	string &tag = entity.get_component<TagComponent>().tag;
 
     ImGuiTreeNodeFlags flags =
         ((scene->selected_entity == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
@@ -68,6 +66,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
     bool opened =
         ImGui::TreeNodeEx((void *)(entity.get_handle()), flags, tag.c_str());
 
+	// Drag and Drop
 	if (drag_source && ImGui::BeginDragDropSource())
 	{
 		ImGui::SetDragDropPayload("_TREENODE", (void*)(&entity), 256);
@@ -75,7 +74,6 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
 
 		ImGui::EndDragDropSource();
 	}
-
 
 	if (ImGui::BeginDragDropTarget())
 	{
@@ -88,36 +86,37 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
 		ImGui::EndDragDropTarget();
 	}
 
-
     if (ImGui::IsItemClicked())
     {
 		scene->selected_entity = entity;
     }
 
+
+
 	// left click popup
 	if (ImGui::BeginPopupContextItem()) // not over any item
 	{
-		if (entity != scene->root_entity && ImGui::MenuItem("Delete Entity"))
+		char txt[50];
+		sprintf(txt, "%s Create Child Entity", "\xef\x81\xa7");
+		if (ImGui::MenuItem(txt))
 		{
-			ImGui::EndPopup();
-			if (opened)
-				ImGui::TreePop();
+			Entity e = scene->create_entity("Unnamed Entity");
+			entity.add_child(e);
+		}
 
-			scene->selected_entity = Entity();
-
-			for (Entity c: entity.get_component<SceneGraphComponent>().children)
+		if (entity != scene->root_entity)
+		{
+			ImGui::Spacing(); ImGui::Separator();
+			sprintf(txt, "%s Delete Entity", "\xef\x80\x8d");
+			if (ImGui::MenuItem(txt))
 			{
-				c.detatch();
-				scene->destroy_entity(c);
+				entity_to_delete = entity;
 			}
-
-			entity.detatch();
-			scene->destroy_entity(entity);
-			return;
 		}
 
 		ImGui::EndPopup();
 	}
+
 
     if (opened)
 	{
@@ -152,6 +151,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity, bool drag_source)
 		// list children
 		for (Entity &child: entity.get_component<SceneGraphComponent>().children)
 			draw_entity_node(child, true);
+
 		ImGui::TreePop();
 	}
 
@@ -181,6 +181,4 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 		ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
 		t.rotation = rot_deg * (float)(M_PI / 180.0);
 	}
-
-
 }

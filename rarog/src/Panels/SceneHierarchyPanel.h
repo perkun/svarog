@@ -21,6 +21,8 @@ private:
 	Scene *scene;
 
 	char buff[256];
+
+	Entity entity_to_delete;
 };
 
 #endif /* SCENEHIERARCHYPANEL_H_ */

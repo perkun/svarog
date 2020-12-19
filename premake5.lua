@@ -95,6 +95,7 @@ project "rarog"
  		"Svarog/vendor/stb_image",
  		"Svarog/vendor/entt",
  		"Svarog/vendor/ImGuizmo",
+		"Svarog/assets/fonts"
 	}
 
 

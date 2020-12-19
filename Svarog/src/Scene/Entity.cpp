@@ -37,3 +37,19 @@ Entity& Entity::get_parent()
 {
 	return get_component<SceneGraphComponent>().parent;
 }
+
+vector<Entity>& Entity::get_children()
+{
+	return get_component<SceneGraphComponent>().children;
+}
+
+void Entity::destroy()
+{
+	string tag = get_component<TagComponent>().tag;
+	for (Entity child: get_children())
+		child.destroy();
+
+	detatch();
+	scene_registry_handle->destroy(entity_handle);
+	WARN("Deleted Entity {}", tag);
+}
