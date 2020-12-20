@@ -68,6 +68,8 @@ public:
 
 	Entity selected_entity;
 
+	map<string, Shader*> shaders;
+
 private:
 // 	void draw_root(POV, double);  // equivalent of on_update()
 	void draw_root();  // equivalent of on_update()

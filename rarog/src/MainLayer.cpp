@@ -57,17 +57,22 @@ void MainLayer::on_attach()
     vert_col_vs[vert_col_vs_len] = 0;
     vert_col_fs[vert_col_fs_len] = 0;
 
-    basic_shader = new Shader();
+    Shader *basic_shader = new Shader();
     basic_shader->create_shader((char *)(void *)basic_vs,
                                 (char *)(void *)basic_fs);
 
-    color_shader = new Shader();
+    Shader *color_shader = new Shader();
     color_shader->create_shader((char *)(void *)basic_vs,
                                 (char *)(void *)color_fs);
 
-    line_shader = new Shader();
+    Shader *line_shader = new Shader();
     line_shader->create_shader((char *)(void *)vert_col_vs,
                                (char *)(void *)vert_col_fs);
+
+	scene.shaders["basic_shader"] = basic_shader;
+	scene.shaders["color_shader"] = color_shader;
+	scene.shaders["line_shader"] = line_shader;
+
 
     auto window = Application::get_window();
 
@@ -220,12 +225,12 @@ void MainLayer::on_imgui_render()
 
 void MainLayer::on_detach()
 {
-    delete basic_shader;
-    delete color_shader;
-    delete line_shader;
+//     delete basic_shader;
+//     delete color_shader;
+//     delete line_shader;
 
-    if (texture != NULL)
-        delete texture;
+//     if (texture != NULL)
+//         delete texture;
 }
 
 

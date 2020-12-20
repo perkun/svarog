@@ -10,6 +10,7 @@ MeshComponent::MeshComponent(VertexArrayObject *vao)
 
 MeshComponent::~MeshComponent()
 {
+		WARN("Deleting mesh component");
 }
 
 
@@ -19,7 +20,8 @@ TextureComponent::TextureComponent(Texture *tex)
 }
 
 TextureComponent::~TextureComponent()
-{}
+{
+}
 
 
 ShaderComponent::ShaderComponent(Shader *s)

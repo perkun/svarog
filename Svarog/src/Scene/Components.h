@@ -39,7 +39,7 @@ public:
 	TextureComponent(Texture*);
 	~TextureComponent();
 
-	Texture *texture;
+	Texture *texture = NULL;
 };
 
 

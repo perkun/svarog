@@ -14,6 +14,7 @@
 using namespace std;
 using namespace glm;
 
+
 enum class Mode {
 	EDITOR = 0,
 	RUNTIME,
@@ -60,7 +61,7 @@ private:
 
 	EditorCamera editor_camera;
 
-	Shader *basic_shader, *color_shader, *line_shader;;
+// 	Shader *basic_shader, *color_shader, *line_shader;;
 
 	Scene scene;
 

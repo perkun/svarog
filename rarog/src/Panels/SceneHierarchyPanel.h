@@ -2,6 +2,7 @@
 #define SCENEHIERARCHYPANEL_H_
 
 #include "Scene.h"
+#include "Utils/FileDialog.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ public:
 private:
 	void draw_entity_node(Entity&);
 	void draw_selected_properties(Entity&);
+	void load_texture_from_file(Entity&);
 
 	Scene *scene;
 
