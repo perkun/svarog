@@ -43,6 +43,9 @@ void SceneHierarchyPanel::on_imgui_render()
 	}
 	ImGui::End();
 
+
+
+	// deleting
 	if (entity_to_delete)
 	{
 		if (scene->selected_entity == entity_to_delete)
@@ -106,7 +109,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 		if (entity != scene->root_entity)
 		{
 			sprintf(buff, "%s Add Mesh Component", "\xef\x83\x86");
-			if (ImGui::BeginMenu(buff))
+			if (!entity.has_component<MeshComponent>() && ImGui::BeginMenu(buff))
 			{
 				if (ImGui::MenuItem("Cube"))
 				{
@@ -119,7 +122,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 			}
 
 			sprintf(buff, "%s Add Material Component", "\xef\x83\x86");
-			if (ImGui::BeginMenu(buff))
+			if (!entity.has_component<Material>() && ImGui::BeginMenu(buff))
 			{
 				for (pair<string, Shader*> element: scene->shaders)
 				{
@@ -132,7 +135,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 			}
 
 			sprintf(buff, "%s Add Texture Component", "\xef\x83\x86");
-			if (ImGui::BeginMenu(buff))
+			if (!entity.has_component<TextureComponent>() && ImGui::BeginMenu(buff))
 			{
 				if (ImGui::MenuItem("From File"))
 				{
@@ -179,7 +182,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 			}
 			// 		if (ImGui::IsItemClicked())
 		}
-		if (entity.has_component<ShaderComponent>())
+		if (entity.has_component<Material>())
 		{
 			ImGui::TreeNodeEx((void*)1231231, flags, "%s Material Component", "\xef\x83\x86");
 			// 		if (ImGui::IsItemClicked())
