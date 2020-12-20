@@ -65,7 +65,7 @@ private:
 
 	Scene scene;
 
-	VertexArrayObject *model_vao;
+// 	VertexArrayObject *model_vao;
 	Texture *texture = NULL;
 
 	Entity model, grid;

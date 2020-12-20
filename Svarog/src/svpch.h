@@ -14,6 +14,7 @@
 #include <numeric>
 #include <random>
 #include <fstream>
+#include <memory>
 
 #include <GL/glew.h>
 #include <GL/gl.h>

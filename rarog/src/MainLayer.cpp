@@ -30,11 +30,12 @@ void MainLayer::on_attach()
 {
     vec3 init_model_pos(0., 5., 0.);
 
+	shared_ptr<VertexArrayObject> model_vao;
     if (arg_handler.isSpecified("model"))
 	{
 		string filename = arg_handler.args["model"].to_str();
 		if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
-			model_vao = new VertexArrayObject(IndexedModelObj(
+			model_vao = make_unique<VertexArrayObject(IndexedModelObj(
 				filename, NormalIndexing::PER_FACE));
 		else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
 			model_vao = new VertexArrayObject(IndexedModelShp(

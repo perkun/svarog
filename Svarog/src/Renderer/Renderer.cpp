@@ -63,7 +63,7 @@ void set_blend(bool mesh_blend)
 
 }
 
-void draw(VertexArrayObject *vao, Shader *shader)
+void draw(shared_ptr<VertexArrayObject> vao, Shader *shader)
 {
 	shader->bind();
 	set_blend(vao->blend);

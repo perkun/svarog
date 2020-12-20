@@ -10,7 +10,7 @@ using namespace glm;
 namespace Renderer
 {
 	void init();
-    void draw(VertexArrayObject *vao, Shader *shader);
+    void draw(shared_ptr<VertexArrayObject> vao, Shader *shader);
 	void clear();
 	void clear(vec4);
 	void clear(float, float, float, float);

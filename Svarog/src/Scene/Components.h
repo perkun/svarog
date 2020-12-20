@@ -1,7 +1,6 @@
 #ifndef COMPONENTS_H_
 #define COMPONENTS_H_
 
-#include "svpch.h"
 #include "VertexArrayObject.h"
 #include "Texture.h"
 #include "Shader.h"
@@ -26,10 +25,12 @@ struct TagComponent
 class MeshComponent
 {
 public:
-    MeshComponent(VertexArrayObject*);
+//     MeshComponent(VertexArrayObject*);
+    MeshComponent(shared_ptr<VertexArrayObject>);
 	~MeshComponent();
 
-	VertexArrayObject *vao = NULL;
+// 	VertexArrayObject *vao = NULL;
+	shared_ptr<VertexArrayObject> vao;
 };
 
 

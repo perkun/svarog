@@ -2,7 +2,7 @@
 #include "Components.h"
 
 
-MeshComponent::MeshComponent(VertexArrayObject *vao)
+MeshComponent::MeshComponent(shared_ptr<VertexArrayObject> vao)
 {
 	this->vao = vao;
 }
@@ -10,7 +10,7 @@ MeshComponent::MeshComponent(VertexArrayObject *vao)
 
 MeshComponent::~MeshComponent()
 {
-		WARN("Deleting mesh component");
+	WARN("Deleting mesh component");
 }
 
 
