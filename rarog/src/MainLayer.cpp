@@ -35,14 +35,14 @@ void MainLayer::on_attach()
 	{
 		string filename = arg_handler.args["model"].to_str();
 		if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
-			model_vao = make_unique<VertexArrayObject(IndexedModelObj(
+			model_vao = make_shared<VertexArrayObject>(IndexedModelObj(
 				filename, NormalIndexing::PER_FACE));
 		else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
-			model_vao = new VertexArrayObject(IndexedModelShp(
+			model_vao = make_shared<VertexArrayObject>(IndexedModelShp(
 				filename, NormalIndexing::PER_FACE));
 	}
     else
-        model_vao = new VertexArrayObject(IndexedCube(vec3(-0.5), vec3(1.)));
+        model_vao = make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
 
 
 	#include "../shaders/basic.vs.include"
@@ -81,7 +81,7 @@ void MainLayer::on_attach()
 
 	grid = scene.create_entity("grid");
 	grid.add_component<Material>(line_shader);
-	grid.add_component<MeshComponent>(new VertexArrayObject(
+	grid.add_component<MeshComponent>(make_shared<VertexArrayObject>(
 		create_grid(100., 5., 0.2), true));
 // 	grid.get_component<SceneGraphComponent>().parent = scene.root_entity;
 
@@ -99,7 +99,7 @@ void MainLayer::on_attach()
 
     scene.light = scene.create_entity("Light");
     scene.light.add_component<MeshComponent>(
-        new VertexArrayObject(IndexedIcoSphere(vec3(0.), vec3(0.5))));
+        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.5))));
     scene.light.add_component<Material>(color_shader)
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
@@ -258,31 +258,31 @@ void MainLayer::toggle_mode()
 
 void MainLayer::load_model()
 {
-    string filename = FileDialog::open_file("*.obj *.shp");
-
-	if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
-	{
-		INFO("Loading OBJ model {}", filename);
-		delete model_vao;
-
-		model_vao = new VertexArrayObject(
-				IndexedModelObj(filename, NormalIndexing::PER_FACE));
-	}
-	else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
-	{
-		INFO("Loading SHP model {}", filename);
-		delete model_vao;
-
-		model_vao = new VertexArrayObject(
-				IndexedModelShp(filename, NormalIndexing::PER_FACE));
-	}
-	else
-	{
-		WARN("Wrong model file extension");
-		return;
-	}
-
-    model.replace_component<MeshComponent>(model_vao);
+//     string filename = FileDialog::open_file("*.obj *.shp");
+//
+// 	if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
+// 	{
+// 		INFO("Loading OBJ model {}", filename);
+// 		delete model_vao;
+//
+// 		model_vao = new VertexArrayObject(
+// 				IndexedModelObj(filename, NormalIndexing::PER_FACE));
+// 	}
+// 	else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
+// 	{
+// 		INFO("Loading SHP model {}", filename);
+// 		delete model_vao;
+//
+// 		model_vao = new VertexArrayObject(
+// 				IndexedModelShp(filename, NormalIndexing::PER_FACE));
+// 	}
+// 	else
+// 	{
+// 		WARN("Wrong model file extension");
+// 		return;
+// 	}
+//
+//     model.replace_component<MeshComponent>(model_vao);
 }
 
 void MainLayer::load_texture()

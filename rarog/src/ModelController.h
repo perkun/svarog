@@ -59,8 +59,8 @@ public:
 //             t.beta += t.rotation_speed * (cursor_shift.y);
 // 			t.gamma += cursor_shift.x * t.rotation_speed;
 // 			t.beta +=  cursor_shift.y * t.rotation_speed;
-// 			t.pitch(cursor_shift.y);
-// 			t.yaw(cursor_shift.x);
+			t.rotation.x += cursor_shift.y * t.rotation_speed;
+			t.rotation.y += cursor_shift.x * t.rotation_speed;
 		}
 
 		cursor_pos= e.get_cursor_pos();

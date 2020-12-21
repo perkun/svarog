@@ -97,7 +97,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 
 
 	// left click popup
-	if (ImGui::BeginPopupContextItem()) // not over any item
+	if (ImGui::BeginPopupContextItem())
 	{
 		sprintf(buff, "%s Add Empty Entity", "\xef\x81\xa7");
 		if (ImGui::MenuItem(buff))
@@ -114,7 +114,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 				if (ImGui::MenuItem("Cube"))
 				{
 					entity.add_component<MeshComponent>(
-						new VertexArrayObject(IndexedCube())
+						make_shared<VertexArrayObject>(IndexedCube())
 					);
 				}
 
@@ -159,44 +159,20 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
     if (opened)
 	{
 		// list components
-		flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		if (entity.has_component<MeshComponent>())
-		{
-			ImGui::TreeNodeEx((void*)1231231, flags, "%s Mesh Component", "\xef\x83\x86");
-			// 		if (ImGui::IsItemClicked())
-		}
-		if (entity.has_component<TextureComponent>())
-		{
-			ImGui::TreeNodeEx((void*)1231231, flags, "%s Texture Component", "\xef\x83\x86");
-			if (ImGui::BeginPopupContextItem()) // not over any item
+		list_component<MeshComponent>(entity, "Mesh Component", "\xef\x83\x86",
+			[](Entity &e){});
+		list_component<TextureComponent>(entity, "Texture Component", "\xef\x83\x86",
+			[](Entity &e)
 			{
-				sprintf(buff, "%s Remove", "\xef\x80\x8d");
-				if (ImGui::MenuItem(buff))
-				{
-					delete entity.get_component<TextureComponent>().texture;
-					entity.remove_component<TextureComponent>();
-					if (entity.has_component<Material>())
-						entity.get_component<Material>().uniforms_int["u_has_texture"] = 0;
-				}
-				ImGui::EndPopup();
-			}
-			// 		if (ImGui::IsItemClicked())
-		}
-		if (entity.has_component<Material>())
-		{
-			ImGui::TreeNodeEx((void*)1231231, flags, "%s Material Component", "\xef\x83\x86");
-			// 		if (ImGui::IsItemClicked())
-		}
-		if (entity.has_component<CameraComponent>())
-		{
-			ImGui::TreeNodeEx((void*)1231231, flags, "%s Camera Component", "\xef\x83\x86");
-			// 		if (ImGui::IsItemClicked())
-		}
-		if (entity.has_component<NativeScriptComponent>())
-		{
-			ImGui::TreeNodeEx((void*)1231231, flags, "%s Native Script Component", "\xef\x83\x86");
-			// 		if (ImGui::IsItemClicked())
-		}
+				if (e.has_component<Material>())
+					e.get_component<Material>().uniforms_int["u_has_texture"] = 0;
+			});
+		list_component<Material>(entity, "Material Component", "\xef\x83\x86",
+			[](Entity &e){});
+		list_component<CameraComponent>(entity, "Camera Component", "\xef\x83\x86",
+			[](Entity &e){});
+		list_component<NativeScriptComponent>(entity, "Native Script Component", "\xef\x83\x86",
+			[](Entity &e){});
 
 		// list children
 		for (Entity &child: entity.get_component<SceneGraphComponent>().children)

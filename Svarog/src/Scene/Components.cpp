@@ -10,7 +10,6 @@ MeshComponent::MeshComponent(shared_ptr<VertexArrayObject> vao)
 
 MeshComponent::~MeshComponent()
 {
-	WARN("Deleting mesh component");
 }
 
 
