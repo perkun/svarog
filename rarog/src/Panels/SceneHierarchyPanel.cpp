@@ -220,7 +220,6 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 			tag = string(buff);
 	}
 
-
 	if (entity.has_component<Transform>())
 	{
 		// TODO: convertions rad -> deg, and positions * multiplicant
@@ -231,6 +230,40 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 		ImGui::DragFloat3("Rotation [deg]", glm::value_ptr(rot_deg), 0.1);
 		ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
 		t.rotation = rot_deg * (float)(M_PI / 180.0);
+	}
+
+	ImGui::Separator();
+
+
+	if (entity.has_component<Material>())
+	{
+		Material &m = entity.get_component<Material>();
+// 		for (pair<string, vec4> &uniform: m.uniforms_vec4)
+		for (auto uniform = m.uniforms_vec3.begin();
+			 uniform != m.uniforms_vec3.end(); uniform++)
+		{
+			ImGui::InputFloat3(uniform->first.c_str(),
+				glm::value_ptr(uniform->second));
+		}
+
+		for (auto uniform = m.uniforms_vec4.begin();
+			 uniform != m.uniforms_vec4.end(); uniform++)
+		{
+			ImGui::InputFloat4(uniform->first.c_str(),
+				glm::value_ptr(uniform->second));
+		}
+
+		for (auto uniform = m.uniforms_int.begin();
+			 uniform != m.uniforms_int.end(); uniform++)
+		{
+			ImGui::InputInt(uniform->first.c_str(),
+				&uniform->second);
+		}
+
+		ImGui::InputText("new", buff, 50);
+		ImGui::SameLine();
+		int value;
+		ImGui::InputInt("int value", &value);
 	}
 }
 

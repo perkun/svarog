@@ -99,7 +99,7 @@ project "rarog"
 	}
 
 
-	prebuildcommands { "cd shaders; ./to-hex-include" }
+	--prebuildcommands { "cd shaders; ./to-hex-include" }
 
 	links { "glfw", "GLEW", "GL", "cmdlineargs", "cfitsio",
 			"yaml-cpp",  "spdlog",  "pthread", "Svarog"  }

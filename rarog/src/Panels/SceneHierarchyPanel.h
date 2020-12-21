@@ -53,7 +53,10 @@ void SceneHierarchyPanel::list_component(Entity &entity, const char *label, cons
 			}
 			ImGui::EndPopup();
 		}
-		// 		if (ImGui::IsItemClicked())
+// 		if (ImGui::IsItemClicked())
+// 		{
+//
+// 		}
 	}
 
 
