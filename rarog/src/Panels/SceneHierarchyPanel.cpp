@@ -301,11 +301,9 @@ void SceneHierarchyPanel::load_texture_from_file(Entity &entity)
 
     if (entity.has_component<TextureComponent>())
 	{
-		delete entity.get_component<TextureComponent>().texture;
-		entity.replace_component<TextureComponent>(new ImgTexture(filename));
+		entity.remove_component<TextureComponent>();
 	}
-    else
-        entity.add_component<TextureComponent>(new ImgTexture(filename));
+	entity.add_component<TextureComponent>(make_shared<ImgTexture>(filename));
 
 	if (entity.has_component<Material>())
     	entity.get_component<Material>().uniforms_int["u_has_texture"] = 1;

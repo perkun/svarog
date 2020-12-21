@@ -28,7 +28,7 @@ protected:
 //         if (Input::is_imgui_window_hovered())
 //             return;
 
-		Camera *cam = get_component<CameraComponent>().camera;
+		shared_ptr<Camera> cam = get_component<CameraComponent>().camera;
 
         if (Input::is_key_pressed(GLFW_KEY_W))
 			cam->position += cam->front * (float)(time_delta * cam->speed);
@@ -69,7 +69,7 @@ protected:
 
 //         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_2))
 		{
-			Camera *cam = get_component<CameraComponent>().camera;
+			shared_ptr<Camera> cam = get_component<CameraComponent>().camera;
 
 			mat4 rot = rotate(-cursor_shift.x * cam->rotation_speed, cam->up);
 			cam->front = vec3( rot *vec4(cam->front, 1.0));

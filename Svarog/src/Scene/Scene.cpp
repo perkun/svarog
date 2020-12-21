@@ -11,14 +11,6 @@ Scene::Scene()
 
 Scene::~Scene()
 {
-	if (framebuffer != NULL)
-		delete framebuffer;
-
-// 	auto view = registry.view<MeshComponent>();
-// 	for (auto &e: view)
-// 	{
-// 		delete registry.get<MeshComponent>(e).vao;
-// 	}
 }
 
 Entity Scene::create_entity(string name)
@@ -49,7 +41,7 @@ void Scene::on_resize(float width, float height)
 	auto view = registry.view<CameraComponent>();
 	for (auto &e: view)
 	{
-		Camera *cam = registry.get<CameraComponent>(e).camera;
+		shared_ptr<Camera> cam = registry.get<CameraComponent>(e).camera;
 		cam->aspect = width / (float)height;
 	}
 
@@ -188,7 +180,7 @@ void Scene::on_update_runtime(double time_delta)
 	});
 
 //     Transform &sct = observer.get_component<Transform>();
-	Camera *cam = observer.get_component<CameraComponent>().camera;
+	shared_ptr<Camera> cam = observer.get_component<CameraComponent>().camera;
     scene_material.uniforms_mat4["u_view_matrix"] = cam->get_view();
     scene_material.uniforms_mat4["u_perspective_matrix"] =
         cam->get_perspective();

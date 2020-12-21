@@ -13,7 +13,7 @@ MeshComponent::~MeshComponent()
 }
 
 
-TextureComponent::TextureComponent(Texture *tex)
+TextureComponent::TextureComponent(shared_ptr<Texture> tex)
 {
 	this->texture = tex;
 }
@@ -21,15 +21,6 @@ TextureComponent::TextureComponent(Texture *tex)
 TextureComponent::~TextureComponent()
 {
 }
-
-
-ShaderComponent::ShaderComponent(Shader *s)
-{
-	this->shader = s;
-}
-
-ShaderComponent::~ShaderComponent()
-{}
 
 
 SceneStatus::SceneStatus() : active(false)
@@ -45,7 +36,7 @@ SceneStatus::~SceneStatus()
 {
 }
 
-CameraComponent::CameraComponent(Camera *c)
+CameraComponent::CameraComponent(shared_ptr<Camera> c)
 {
 	camera = c;
 }
@@ -54,7 +45,7 @@ CameraComponent::~CameraComponent()
 {
 }
 
-FramebufferComponent::FramebufferComponent(Framebuffer *fb)
+FramebufferComponent::FramebufferComponent(shared_ptr<Framebuffer> fb)
 {
 	framebuffer = fb;
 }
@@ -62,3 +53,4 @@ FramebufferComponent::FramebufferComponent(Framebuffer *fb)
 FramebufferComponent::~FramebufferComponent()
 {
 }
+

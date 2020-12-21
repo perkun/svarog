@@ -21,15 +21,12 @@ struct TagComponent
 };
 
 
-
 class MeshComponent
 {
 public:
-//     MeshComponent(VertexArrayObject*);
     MeshComponent(shared_ptr<VertexArrayObject>);
 	~MeshComponent();
 
-// 	VertexArrayObject *vao = NULL;
 	shared_ptr<VertexArrayObject> vao;
 };
 
@@ -37,22 +34,12 @@ public:
 class TextureComponent
 {
 public:
-	TextureComponent(Texture*);
+	TextureComponent(shared_ptr<Texture>);
 	~TextureComponent();
 
-	Texture *texture = NULL;
+	shared_ptr<Texture> texture;
 };
 
-
-class ShaderComponent
-{
-public:
-	ShaderComponent(Shader*);
-	~ShaderComponent();
-
-	Shader *shader;
-
-};
 
 class SceneStatus
 {
@@ -76,19 +63,19 @@ public:
 class CameraComponent
 {
 public:
-	CameraComponent(Camera*);
+	CameraComponent(shared_ptr<Camera>);
 	~CameraComponent();
 
-	Camera *camera;
+	shared_ptr<Camera> camera;
 };
 
 class FramebufferComponent
 {
 public:
-	FramebufferComponent(Framebuffer*);
+	FramebufferComponent(shared_ptr<Framebuffer>);
 	~FramebufferComponent();
 
-	Framebuffer *framebuffer;
+	shared_ptr<Framebuffer> framebuffer;
 };
 
 class NativeScriptComponent
