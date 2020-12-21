@@ -87,7 +87,7 @@ void MainLayer::on_attach()
 
     scene.observer = scene.create_entity("Observer");
     CameraComponent &socp =
-		scene.observer.add_component<CameraComponent>(new PerspectiveCamera(
+		scene.observer.add_component<CameraComponent>(make_shared<PerspectiveCamera>(
         	radians(45.0), window->width / (float)window->height, 0.01, 500.0));
     scene.observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
@@ -118,6 +118,8 @@ void MainLayer::on_attach()
     scene.root_entity.add_child(model);
     scene.root_entity.add_child(grid);
     scene.root_entity.add_child(scene.light);
+    scene.root_entity.add_child(scene.observer);
+
 
 	scene.enable_render_to_framebuffer();
 
@@ -285,30 +287,30 @@ void MainLayer::load_model()
 //     model.replace_component<MeshComponent>(model_vao);
 }
 
-void MainLayer::load_texture()
-{
-    string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
-    INFO("Loading texture {}", filename);
-    if (texture != NULL)
-        delete texture;
-    texture = new ImgTexture(filename);
-
-    if (model.has_component<TextureComponent>())
-        model.replace_component<TextureComponent>(texture);
-    else
-        model.add_component<TextureComponent>(texture);
-
-    model.get_component<Material>().uniforms_int["u_has_texture"] = 1;
-}
-
-void MainLayer::remove_texture()
-{
-    model.get_component<Material>().uniforms_int["u_has_texture"] = 0;
-    if (texture != NULL)
-        delete texture;
-    texture = NULL;
-	model.remove_component<TextureComponent>();
-}
+// void MainLayer::load_texture()
+// {
+//     string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
+//     INFO("Loading texture {}", filename);
+//     if (texture != NULL)
+//         delete texture;
+//     texture = new ImgTexture(filename);
+//
+//     if (model.has_component<TextureComponent>())
+//         model.replace_component<TextureComponent>(texture);
+//     else
+//         model.add_component<TextureComponent>(texture);
+//
+//     model.get_component<Material>().uniforms_int["u_has_texture"] = 1;
+// }
+//
+// void MainLayer::remove_texture()
+// {
+//     model.get_component<Material>().uniforms_int["u_has_texture"] = 0;
+//     if (texture != NULL)
+//         delete texture;
+//     texture = NULL;
+// 	model.remove_component<TextureComponent>();
+// }
 
 
 void MainLayer::menu_bar()
@@ -339,14 +341,14 @@ void MainLayer::menu_bar()
             // 				cout << "loading scene" << endl;
             // 			}
 
-            if (ImGui::MenuItem("Load model"))
-                load_model();
-
-            if (ImGui::MenuItem("Load texture"))
-                load_texture();
-
-            if (ImGui::MenuItem("Remove texture"))
-                remove_texture();
+//             if (ImGui::MenuItem("Load model"))
+//                 load_model();
+//
+//             if (ImGui::MenuItem("Load texture"))
+//                 load_texture();
+//
+//             if (ImGui::MenuItem("Remove texture"))
+//                 remove_texture();
 
             ImGui::Separator();
 

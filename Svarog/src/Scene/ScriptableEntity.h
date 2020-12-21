@@ -17,6 +17,12 @@ public:
 		return entity.get_component<T>();
 	}
 
+	template<typename T>
+	bool has_component()
+	{
+		return entity.has_component<T>();
+	}
+
 	virtual void on_event(Event &e) {}
 protected:
 	virtual void on_create() {}

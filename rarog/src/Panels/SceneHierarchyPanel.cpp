@@ -1,6 +1,8 @@
 #include "svpch.h"
 #include "SceneHierarchyPanel.h"
 #include "Components.h"
+#include "CameraController.h"
+#include "ModelController.h"
 #include <glm/gtc/type_ptr.hpp>
 
 SceneHierarchyPanel::SceneHierarchyPanel(Scene *s)
@@ -165,6 +167,20 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 				if (ImGui::MenuItem("From File"))
 				{
 					load_texture_from_file(entity);
+				}
+				ImGui::EndMenu();
+			}
+
+			sprintf(buff, "%s Add Native Script Component", "\xef\x83\x86");
+			if (!entity.has_component<NativeScriptComponent>() && ImGui::BeginMenu(buff))
+			{
+				if (ImGui::MenuItem("Camera Controller"))
+				{
+					entity.add_component<NativeScriptComponent>().bind<CameraController>();
+				}
+				if (ImGui::MenuItem("Model Controller"))
+				{
+					entity.add_component<NativeScriptComponent>().bind<ModelController>();
 				}
 				ImGui::EndMenu();
 			}

@@ -27,6 +27,8 @@ protected:
     {
 //         if (Input::is_imgui_window_hovered())
 //             return;
+		ASSERT(has_component<CameraComponent>(),
+			"CameraController ERROR: Entity does not have Camera Component");
 
 		shared_ptr<Camera> cam = get_component<CameraComponent>().camera;
 
