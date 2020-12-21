@@ -259,11 +259,33 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 			ImGui::InputInt(uniform->first.c_str(),
 				&uniform->second);
 		}
+		for (auto uniform = m.uniforms_float.begin();
+			 uniform != m.uniforms_float.end(); uniform++)
+		{
+			ImGui::InputFloat(uniform->first.c_str(),
+				&uniform->second);
+		}
 
-		ImGui::InputText("new", buff, 50);
+		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+		ImGui::Text("Add uniform");
+
+		sprintf(buff, "");
+		if (ImGui::InputText("name", buff, sizeof(buff)))
+			sprintf(u_name, buff);
+		if (ImGui::Button("Add int") && strcmp(u_name, "") != 0)
+			m.uniforms_int[u_name] = 0;
 		ImGui::SameLine();
-		int value;
-		ImGui::InputInt("int value", &value);
+		if (ImGui::Button("Add float") && strcmp(u_name, "") != 0)
+			m.uniforms_float[u_name] = 0.;
+		ImGui::SameLine();
+		if (ImGui::Button("Add vec3") && strcmp(u_name, "") != 0)
+			m.uniforms_vec3[u_name] = vec3(0);
+		ImGui::SameLine();
+		if (ImGui::Button("Add vec4") && strcmp(u_name, "") != 0)
+			m.uniforms_vec4[u_name] = vec4(0);
+// 		ImGui::SameLine();
+// 		if (ImGui::Button("Add mat4") && strcmp(u_name, "") != 0)
+// 			m.uniforms_mat4[u_name] = mat4(0);
 	}
 }
 

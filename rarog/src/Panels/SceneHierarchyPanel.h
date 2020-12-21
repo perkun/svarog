@@ -26,6 +26,7 @@ private:
 	Scene *scene;
 
 	char buff[256];
+	char u_name[50];
 
 	Entity entity_to_delete;
 
@@ -34,7 +35,8 @@ private:
 
 
 template<typename T, typename OnRemoveFunction>
-void SceneHierarchyPanel::list_component(Entity &entity, const char *label, const char *icon, OnRemoveFunction orf)
+void SceneHierarchyPanel::list_component(Entity &entity, const char *label,
+										 const char *icon, OnRemoveFunction orf)
 {
 	ImGuiTreeNodeFlags flags =
 		ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
