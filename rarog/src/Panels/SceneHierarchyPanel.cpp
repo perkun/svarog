@@ -114,8 +114,33 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 				if (ImGui::MenuItem("Cube"))
 				{
 					entity.add_component<MeshComponent>(
-						make_shared<VertexArrayObject>(IndexedCube())
-					);
+						make_shared<VertexArrayObject>(IndexedCube()));
+				}
+				if (ImGui::MenuItem("Ico Sphere"))
+				{
+					entity.add_component<MeshComponent>(
+						make_shared<VertexArrayObject>(IndexedIcoSphere()));
+				}
+				if (ImGui::MenuItem("Quad"))
+				{
+					entity.add_component<MeshComponent>(
+						make_shared<VertexArrayObject>(IndexedQuad()));
+				}
+				if (ImGui::MenuItem("Obj file"))
+				{
+					string filename = FileDialog::open_file("*.OBJ *.obj");
+					if (!filename.empty())
+						entity.add_component<MeshComponent>(
+							make_shared<VertexArrayObject>(
+								IndexedModelObj(filename, NormalIndexing::PER_VERTEX)));
+				}
+				if (ImGui::MenuItem("Shp file"))
+				{
+					string filename = FileDialog::open_file("*.SHP *.shp");
+					if (!filename.empty())
+						entity.add_component<MeshComponent>(
+							make_shared<VertexArrayObject>(
+								IndexedModelShp(filename, NormalIndexing::PER_VERTEX)));
 				}
 
 				ImGui::EndMenu();
