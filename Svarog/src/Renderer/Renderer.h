@@ -19,8 +19,6 @@ enum class  Rendererflags {
 
 namespace Renderer
 {
-
-
 	void init();
     void draw(shared_ptr<VertexArrayObject> vao, Shader *shader);
 	void clear();

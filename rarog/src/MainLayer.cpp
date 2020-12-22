@@ -221,16 +221,7 @@ void MainLayer::on_update(double time_delta)
 	else if (mode == Mode::RUNTIME)
     	scene.on_update_runtime(time_delta);
 
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, ms_framebuffer->id);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer->id);
-	glBlitFramebuffer(0, 0,
-			framebuffer->specification.width,
-			framebuffer->specification.height,
-			0, 0,
-			framebuffer->specification.width,
-			framebuffer->specification.height,
-			GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	Framebuffer::blit(ms_framebuffer, framebuffer);
 	Renderer::bind_default_framebuffer();
 }
 

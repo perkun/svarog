@@ -19,6 +19,8 @@ struct FramebufferSpec
 class Framebuffer
 {
 public:
+	static void blit(Framebuffer *ms_framebuffer, Framebuffer *framebuffer);
+
     Framebuffer(unsigned int w, unsigned int h, char f);
     ~Framebuffer();
 
