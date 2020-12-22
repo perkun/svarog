@@ -105,21 +105,19 @@ void MainLayer::on_attach()
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
 // 	scene.light.get_component<SceneGraphComponent>().parent = scene.root_entity;
 
-    model = scene.create_entity("Main model");
+    Entity model = scene.create_entity("Model");
     model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 0;
     model.add_component<MeshComponent>(model_vao);
     model.add_component<NativeScriptComponent>().bind<ModelController>();
     model.get_component<Transform>().position = init_model_pos;
 
-// 	model.get_component<SceneGraphComponent>().parent = scene.root_entity;
-
 	Renderer::set_line_width(2.);
 
     scene.root_entity.add_child(model);
-    scene.root_entity.add_child(grid);
     scene.root_entity.add_child(scene.light);
     scene.root_entity.add_child(scene.observer);
 
+    scene.root_entity.add_child(grid);
 
 	scene.enable_render_to_framebuffer();
 
@@ -205,7 +203,9 @@ void MainLayer::on_update(double time_delta)
 	ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
 	if (mode == Mode::EDITOR)
+	{
 		scene.on_update_editor(time_delta, editor_camera);
+	}
 	else if (mode == Mode::RUNTIME)
     	scene.on_update_runtime(time_delta);
 }
@@ -228,12 +228,7 @@ void MainLayer::on_imgui_render()
 
 void MainLayer::on_detach()
 {
-//     delete basic_shader;
-//     delete color_shader;
-//     delete line_shader;
 
-//     if (texture != NULL)
-//         delete texture;
 }
 
 
@@ -242,8 +237,8 @@ void MainLayer::toggle_mode()
 	if (mode == Mode::EDITOR)
 	{
 		mode = Mode::RUNTIME;
-		scene.observer.get_component<CameraComponent>().camera->update_target(
-			model.get_component<Transform>().position);
+// 		scene.observer.get_component<CameraComponent>().camera->update_target(
+// 			model.get_component<Transform>().position);
 		guizmo_type = -1;
 		Application::get_window()->set_cursor_disabled();
 	}
@@ -255,62 +250,6 @@ void MainLayer::toggle_mode()
 
 }
 
-
-
-
-void MainLayer::load_model()
-{
-//     string filename = FileDialog::open_file("*.obj *.shp");
-//
-// 	if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
-// 	{
-// 		INFO("Loading OBJ model {}", filename);
-// 		delete model_vao;
-//
-// 		model_vao = new VertexArrayObject(
-// 				IndexedModelObj(filename, NormalIndexing::PER_FACE));
-// 	}
-// 	else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
-// 	{
-// 		INFO("Loading SHP model {}", filename);
-// 		delete model_vao;
-//
-// 		model_vao = new VertexArrayObject(
-// 				IndexedModelShp(filename, NormalIndexing::PER_FACE));
-// 	}
-// 	else
-// 	{
-// 		WARN("Wrong model file extension");
-// 		return;
-// 	}
-//
-//     model.replace_component<MeshComponent>(model_vao);
-}
-
-// void MainLayer::load_texture()
-// {
-//     string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
-//     INFO("Loading texture {}", filename);
-//     if (texture != NULL)
-//         delete texture;
-//     texture = new ImgTexture(filename);
-//
-//     if (model.has_component<TextureComponent>())
-//         model.replace_component<TextureComponent>(texture);
-//     else
-//         model.add_component<TextureComponent>(texture);
-//
-//     model.get_component<Material>().uniforms_int["u_has_texture"] = 1;
-// }
-//
-// void MainLayer::remove_texture()
-// {
-//     model.get_component<Material>().uniforms_int["u_has_texture"] = 0;
-//     if (texture != NULL)
-//         delete texture;
-//     texture = NULL;
-// 	model.remove_component<TextureComponent>();
-// }
 
 
 void MainLayer::menu_bar()
@@ -341,14 +280,6 @@ void MainLayer::menu_bar()
             // 				cout << "loading scene" << endl;
             // 			}
 
-//             if (ImGui::MenuItem("Load model"))
-//                 load_model();
-//
-//             if (ImGui::MenuItem("Load texture"))
-//                 load_texture();
-//
-//             if (ImGui::MenuItem("Remove texture"))
-//                 remove_texture();
 
             ImGui::Separator();
 
@@ -502,9 +433,9 @@ void MainLayer::scene_window()
 			}
 			else if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
 			{
-				vec4 rot = vec4(tc.rotation, 1.0);
+				vec4 rot = vec4(tc.rotation, 0.0);
 				rot += glm::inverse(ptc.get_world_tansform())
-						* vec4(delta_rotation, 0.0);
+						 * vec4(delta_rotation, 0.0);
 				tc.rotation = vec3(rot);
 			}
 			else if (guizmo_type == ImGuizmo::OPERATION::SCALE)
@@ -547,69 +478,6 @@ void MainLayer::scene_options_panel()
     ImGui::End();
 }
 
-
-void MainLayer::orbital_parameters_panel()
-{
-    Transform &t = model.get_component<Transform>();
-    vec3 position = t.position;
-    position /= 10.0;
-    ImGui::Begin("Orbital Parameters");
-
-//     ImGui::Text("FPS: %.3lf", fps);
-
-    ImGui::Text("Model Position");
-    if (ImGui::InputFloat("pos x", &position.x))
-        t.position.x = position.x * 10;
-    if (ImGui::InputFloat("pos y", &position.y))
-        t.position.y = position.y * 10;
-    if (ImGui::InputFloat("pos z", &position.z))
-        t.position.z = position.z * 10;
-
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::Spacing();
-
-    Transform &ot = scene.observer.get_component<Transform>();
-    position = ot.position;
-    position /= 10.0;
-    ImGui::Text("Observer Position");
-    if (ImGui::InputFloat("obs pos x", &position.x))
-        ot.position.x = position.x * 10;
-    if (ImGui::InputFloat("obs pos y", &position.y))
-        ot.position.y = position.y * 10;
-    if (ImGui::InputFloat("obs pos z", &position.z))
-        ot.position.z = position.z * 10;
-
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::Spacing();
-
-    ImGui::Text("Angles");
-    float x = t.rotation.x / M_PI * 180., y = t.rotation.y / M_PI * 180.,
-          z = t.rotation.z / M_PI * 180.;
-
-    if (ImGui::DragFloat("rot x", &x, 1.0, 0., 360.))
-        t.rotation.x = x / 180. * M_PI;
-    if (ImGui::DragFloat("rot y", &y, 1.0, 0., 180.))
-        t.rotation.y = y / 180. * M_PI;
-    if (ImGui::DragFloat("rot z", &z, 1.0, 0., 360.))
-        t.rotation.z = z / 180. * M_PI;
-
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::Spacing();
-
-    ImGui::Text("Scale");
-
-    float scale = model.get_component<Transform>().scale.x;
-    if (ImGui::DragFloat("scale", &scale, 0.01, 0.01, 20.))
-        model.get_component<Transform>().scale = vec3(scale);
-
-    ImGui::End();
-}
 
 
 IndexedModel MainLayer::create_grid(float size, float sep, float alpha)

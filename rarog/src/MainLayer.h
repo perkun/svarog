@@ -40,14 +40,10 @@ public:
 	// GUI functions
 	void scene_window();
 	void scene_options_panel();
-	void orbital_parameters_panel();
 	void menu_bar();
 
 	void toggle_mode();
 
-	void load_model();
-	void load_texture();
-	void remove_texture();
 
 	IndexedModel create_grid(float size, float sep, float alpha);
 
@@ -68,7 +64,7 @@ private:
 // 	VertexArrayObject *model_vao;
 	Texture *texture = NULL;
 
-	Entity model, grid;
+	Entity grid;
 
 	Mode mode = Mode::EDITOR;
 
