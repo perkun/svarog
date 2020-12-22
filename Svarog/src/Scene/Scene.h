@@ -52,13 +52,7 @@ public:
 
 	void controllers_events(Event&);
 
-	void enable_render_to_framebuffer();
-
 	char flags = 0;
-
-	Framebuffer *framebuffer = NULL;
-	Framebuffer *ms_framebuffer = NULL;
-
 
 	Material scene_material;
 	Entity root_entity;
@@ -68,11 +62,10 @@ public:
 
 	Entity selected_entity;
 
+	// TODO: create assets ledger in Application
 	map<string, Shader*> shaders;
 
 private:
-// 	void draw_root(POV, double);  // equivalent of on_update()
-	void draw_root();  // equivalent of on_update()
 	entt::registry registry;
 };
 

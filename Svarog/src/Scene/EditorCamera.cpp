@@ -1,5 +1,7 @@
 #include "svpch.h"
+#include "Application.h"
 #include "EditorCamera.h"
+
 
 
 EditorCamera::EditorCamera() : PerspectiveCamera(0., 0., 0., 0.)

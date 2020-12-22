@@ -8,6 +8,7 @@ static const uint32_t s_MaxFramebufferSize = 8192;
 //     invalidate();
 // }
 
+
 Framebuffer::Framebuffer(unsigned int w, unsigned int h, char f)
 {
 	specification.width = w;

@@ -1,14 +1,26 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
+#include "Application.h"
 #include "Shader.h"
 #include "VertexArrayObject.h"
+#include "Camera.h"
+#include "EditorCamera.h"
+#include "Material.h"
 
 using namespace std;
 using namespace glm;
 
+enum class  Rendererflags {
+	render_to_framebuffer = 0b1,
+	shadow_map = 0b10
+};
+
+
 namespace Renderer
 {
+
+
 	void init();
     void draw(shared_ptr<VertexArrayObject> vao, Shader *shader);
 	void clear();
@@ -20,6 +32,13 @@ namespace Renderer
 
 	void enable_blend();
 	void disable_blend();
+
+	void begin_scene(EditorCamera &camera);
+	void begin_scene(const shared_ptr<Camera> &camera);
+	void end_scene();
+	void submit(const shared_ptr<VertexArrayObject> &vao, Material &material);
+
+	extern int flags;
 };
 
 #endif /* RENDERER_H_ */

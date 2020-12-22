@@ -1,5 +1,6 @@
 #include "svpch.h"
 #include "Scene.h"
+#include "Renderer.h"
 
 
 Scene::Scene()
@@ -44,33 +45,7 @@ void Scene::on_resize(float width, float height)
 		shared_ptr<Camera> cam = registry.get<CameraComponent>(e).camera;
 		cam->aspect = width / (float)height;
 	}
-
-	if (flags & RENDER_TO_FRAMEBUFFER)
-	{
-        ASSERT(ms_framebuffer != NULL, "Multisampling Framebuffer is NULL");
-        ASSERT(framebuffer != NULL, "Framebuffer is NULL");
-        ms_framebuffer->resize(width, height);
-        framebuffer->resize(width, height);
-		Renderer::bind_default_framebuffer();
-	}
-
 }
-
-void Scene::enable_render_to_framebuffer()
-{
-    flags |= RENDER_TO_FRAMEBUFFER;
-
-    auto window = Application::get_window();
-
-    ms_framebuffer = new Framebuffer(window->width, window->height,
-                       COLOR_ATTACHMENT | DEPTH_ATTACHMENT | MULTISAMPLING);
-
-	framebuffer = new Framebuffer(window->width, window->height,
-                       COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
-}
-
-
-
 
 
 void Scene::draw(Entity &entity)
@@ -107,15 +82,10 @@ void Scene::draw(Entity &entity)
 		if (entity.has_component<TextureComponent>())
 			entity.get_component<TextureComponent>().texture->bind();
 
-		material.set_uniforms();  // binds and sets
-
-		scene_material.set_uniforms(material.shader);
-
-
         if (entity.has_component<MeshComponent>())
         {
             MeshComponent &mesh = entity.get_component<MeshComponent>();
-            Renderer::draw(mesh.vao, material.shader);
+			Renderer::submit(mesh.vao, material);
         }
     }
 }
@@ -127,43 +97,6 @@ void Scene::draw_depth_first(Entity &entity)
 		draw_depth_first(child);
 }
 
-
-void Scene::draw_root()
-{
-    CORE_ASSERT(observer.has_component<CameraComponent>(),
-                "Observer has no Camera Component");
-
-
-    Renderer::set_viewport(0, 0, Application::get_window()->width,
-                           Application::get_window()->height);
-
-	if (flags & RENDER_TO_FRAMEBUFFER)
-	{
-		CORE_ASSERT(framebuffer != NULL, "Framebuffer is NULL");
-
-		ms_framebuffer->bind();
-		ms_framebuffer->clear();
-	}
-	else
-    	Renderer::bind_default_framebuffer();
-
-    draw_depth_first(root_entity);
-
-	// post draw
-	if (flags & RENDER_TO_FRAMEBUFFER)
-	{
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, ms_framebuffer->id);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer->id);
-		glBlitFramebuffer(0, 0,
-				framebuffer->specification.width,
-				framebuffer->specification.height,
-				0, 0,
-				framebuffer->specification.width,
-				framebuffer->specification.height,
-				GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		Renderer::bind_default_framebuffer();
-	}
-}
 
 void Scene::on_update_runtime(double time_delta)
 {
@@ -179,20 +112,15 @@ void Scene::on_update_runtime(double time_delta)
 		nsc.instance->on_update(time_delta);
 	});
 
-//     Transform &sct = observer.get_component<Transform>();
-	shared_ptr<Camera> cam = observer.get_component<CameraComponent>().camera;
-    scene_material.uniforms_mat4["u_view_matrix"] = cam->get_view();
-    scene_material.uniforms_mat4["u_perspective_matrix"] =
-        cam->get_perspective();
-
-	draw_root();
+	Renderer::begin_scene(observer.get_component<CameraComponent>().camera);
+    draw_depth_first(root_entity);
+	Renderer::end_scene();
 }
 
 
 void Scene::on_update_editor(double time_delta, EditorCamera &editor_camera)
 {
-    scene_material.uniforms_mat4["u_view_matrix"] = editor_camera.get_view();
-    scene_material.uniforms_mat4["u_perspective_matrix"] =
-        editor_camera.get_perspective();
-    draw_root();
+	Renderer::begin_scene(editor_camera);
+    draw_depth_first(root_entity);
+	Renderer::end_scene();
 }

@@ -1,8 +1,6 @@
 #ifndef INPUT_H_
 #define INPUT_H_
 
-
-#include "Application.h"
 #include "Application.h"
 
 using namespace std;

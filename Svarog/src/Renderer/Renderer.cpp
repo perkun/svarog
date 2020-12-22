@@ -1,5 +1,6 @@
 #include "svpch.h"
 #include "Renderer.h"
+#include "Core.h"
 
 
 namespace Renderer {
@@ -7,6 +8,7 @@ namespace Renderer {
 
 // private:
 bool blend = false;
+Material scene_material;
 // vec4 clear_color = vec4(0., 0., 0., 1.);
 ////
 
@@ -60,8 +62,41 @@ void set_blend(bool mesh_blend)
 			blend = false;
 		}
 	}
-
 }
+
+
+void begin_scene(EditorCamera &camera)
+{
+    scene_material.uniforms_mat4["u_view_matrix"] = camera.get_view();
+    scene_material.uniforms_mat4["u_perspective_matrix"] =
+        camera.get_perspective();
+}
+
+
+void begin_scene(const shared_ptr<Camera> &camera)
+{
+    scene_material.uniforms_mat4["u_view_matrix"] = camera->get_view();
+    scene_material.uniforms_mat4["u_perspective_matrix"] =
+        camera->get_perspective();
+}
+
+
+void end_scene()
+{
+}
+
+void submit(const shared_ptr<VertexArrayObject> &vao, Material &material)
+{
+	material.set_uniforms();
+	scene_material.shader = material.shader;
+	scene_material.set_uniforms();
+
+	set_blend(vao->blend);
+
+	glBindVertexArray(vao->vao_id);
+	glDrawElements(vao->draw_type, vao->num_draw_elements, GL_UNSIGNED_INT, NULL);
+}
+
 
 void draw(shared_ptr<VertexArrayObject> vao, Shader *shader)
 {

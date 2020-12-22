@@ -8,6 +8,7 @@
 #include "Utils/FileDialog.h"
 #include "Batch.h"
 #include "Panels/SceneHierarchyPanel.h"
+#include "Framebuffer.h"
 // #include "Svarog.h"
 
 
@@ -71,6 +72,8 @@ private:
 	int guizmo_type = -1;
 
 	SceneHierarchyPanel scene_hierarchy_panel;
+
+	Framebuffer *ms_framebuffer, *framebuffer;
 
 // 	double fps;
 // 	double fps_history[100];

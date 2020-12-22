@@ -5,6 +5,8 @@
 #include "ImGuizmo.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "Math.h"
+#include "Renderer.h"
+
 
 MainLayer::MainLayer(int argc, char *argv[])
 {
@@ -119,13 +121,20 @@ void MainLayer::on_attach()
 
     scene.root_entity.add_child(grid);
 
-	scene.enable_render_to_framebuffer();
+// 	scene.enable_render_to_framebuffer();
 
 	editor_camera = EditorCamera(
 		radians(45.), window->width / (float)window->height, 0.01, 500.0,
 		vec3(6.3, -3., 5.12));
 
 	scene_hierarchy_panel = SceneHierarchyPanel(&scene);
+
+
+    ms_framebuffer = new Framebuffer(window->width, window->height,
+                       COLOR_ATTACHMENT | DEPTH_ATTACHMENT | MULTISAMPLING);
+
+	framebuffer = new Framebuffer(window->width, window->height,
+                       COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 }
 
 void MainLayer::on_event(Event &e)
@@ -176,8 +185,8 @@ void MainLayer::on_window_resize_event(WindowResizeEvent &event)
 {
     ivec2 size = event.get_size();
 
-	if (! (scene.flags & RENDER_TO_FRAMEBUFFER))
-		scene.on_resize(size.x, size.y);
+// 	if (! (scene.flags & RENDER_TO_FRAMEBUFFER))
+// 		scene.on_resize(size.x, size.y);
 }
 
 
@@ -202,12 +211,27 @@ void MainLayer::on_update(double time_delta)
 
 	ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
+	ms_framebuffer->bind();
+	ms_framebuffer->clear();
+
 	if (mode == Mode::EDITOR)
 	{
 		scene.on_update_editor(time_delta, editor_camera);
 	}
 	else if (mode == Mode::RUNTIME)
     	scene.on_update_runtime(time_delta);
+
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, ms_framebuffer->id);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer->id);
+	glBlitFramebuffer(0, 0,
+			framebuffer->specification.width,
+			framebuffer->specification.height,
+			0, 0,
+			framebuffer->specification.width,
+			framebuffer->specification.height,
+			GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	Renderer::bind_default_framebuffer();
 }
 
 void MainLayer::on_imgui_render()
@@ -352,8 +376,8 @@ void MainLayer::menu_bar()
 
 void MainLayer::scene_window()
 {
-    if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
-        return;
+//     if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
+//         return;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
     ImGui::Begin("Scene");
@@ -363,11 +387,15 @@ void MainLayer::scene_window()
     {
         viewport_panel_size.x = vps.x;
         viewport_panel_size.y = vps.y;
+
         scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
         editor_camera.on_resize(viewport_panel_size.x, viewport_panel_size.y);
+        ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+        framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+		Renderer::bind_default_framebuffer();
     }
 
-    long int tex_id = scene.framebuffer->get_color_attachment_id();
+    long int tex_id = framebuffer->get_color_attachment_id();
     ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
                  ImVec2(1, 0));
 
