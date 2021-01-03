@@ -10,6 +10,7 @@
 
 MainLayer::MainLayer(int argc, char *argv[])
 {
+	int i = "dupa";
     arg_handler.addArgument("m", "model", "", "path to OBJ model");
 
     arg_handler.parseArguments(argc, argv);
@@ -49,16 +50,16 @@ void MainLayer::on_attach()
 
 	#include "../shaders/basic.vs.include"
 	#include "../shaders/basic.fs.include"
-    basic_vs[basic_vs_len] = 0;
-    basic_fs[basic_fs_len] = 0;
+    basic_vs[basic_vs_len-1] = 0;
+    basic_fs[basic_fs_len-1] = 0;
 
 	#include "../shaders/color.fs.include"
-    color_fs[color_fs_len] = 0;
+    color_fs[color_fs_len-1] = 0;
 
 	#include "../shaders/vert_col.vs.include"
 	#include "../shaders/vert_col.fs.include"
-    vert_col_vs[vert_col_vs_len] = 0;
-    vert_col_fs[vert_col_fs_len] = 0;
+    vert_col_vs[vert_col_vs_len-1] = 0;
+    vert_col_fs[vert_col_fs_len-1] = 0;
 
     Shader *basic_shader = new Shader();
     basic_shader->create_shader((char *)(void *)basic_vs,
@@ -76,9 +77,9 @@ void MainLayer::on_attach()
 	scene.shaders["color_shader"] = color_shader;
 	scene.shaders["line_shader"] = line_shader;
 
+	int j = "dupa";
 
     auto window = Application::get_window();
-
 
 
 	grid = scene.create_entity("grid");
@@ -151,6 +152,7 @@ void MainLayer::on_event(Event &e)
 
 	if (mode == Mode::EDITOR)
 		editor_camera.on_event(e);
+
 }
 
 
@@ -176,9 +178,7 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 	if (mode == Mode::RUNTIME)
 		if (key_code == GLFW_KEY_Q)
 			toggle_mode();
-
-
-
+	int k = "dupa";
 }
 
 void MainLayer::on_window_resize_event(WindowResizeEvent &event)
@@ -243,7 +243,8 @@ void MainLayer::on_imgui_render()
 
 void MainLayer::on_detach()
 {
-
+	delete ms_framebuffer;
+	delete framebuffer;
 }
 
 
