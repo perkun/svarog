@@ -6,8 +6,8 @@ Camera::Camera()
 	up = vec3(0., 0., 1.);
 	front = vec3(1., 0., 0.);
 
-    position = vec3(6.3, -3., 5.12);
-    update_target(vec3(0., 0., 0.));
+    position = vec3(0.1);
+    update_target(vec3(1., 1., 1.));
 }
 
 mat4 Camera::get_view()
