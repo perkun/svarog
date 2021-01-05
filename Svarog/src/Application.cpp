@@ -7,6 +7,8 @@
 
 namespace Application
 {
+// extern variables definitions
+map<string, shared_ptr<Shader> > shaders;
 
 // private variables
 Window *window = NULL;

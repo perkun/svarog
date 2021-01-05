@@ -62,8 +62,6 @@ public:
 
 	Entity selected_entity;
 
-	// TODO: create assets ledger in Application
-	map<string, Shader*> shaders;
 
 private:
 	entt::registry registry;

@@ -60,7 +60,7 @@ private:
 
 // 	Shader *basic_shader, *color_shader, *line_shader;;
 
-	Scene scene;
+	Scene scene, ui_scene;
 
 // 	VertexArrayObject *model_vao;
 	Texture *texture = NULL;

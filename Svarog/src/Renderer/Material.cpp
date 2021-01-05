@@ -5,7 +5,7 @@ Material::Material()
 {
 }
 
-Material::Material(Shader *shader) : shader(shader)
+Material::Material(shared_ptr<Shader> shader) : shader(shader)
 {
 }
 
@@ -44,7 +44,7 @@ void Material::set_uniforms()
 	}
 }
 
-void Material::set_uniforms(Shader *shader)
+void Material::set_uniforms(shared_ptr<Shader> shader)
 {
     shader->bind();
 

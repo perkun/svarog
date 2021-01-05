@@ -20,17 +20,21 @@ IndexedLine::IndexedLine(vec3 start, vec3 stop, vec4 color)
 
     layout.elements.push_back(VertexDataType::FLOAT3);
     layout.elements.push_back(VertexDataType::FLOAT4);
+
+	layout.calculate_stride_and_elem_offsets();
 }
 
 
 IndexedQuad::IndexedQuad()
 {
     create(vec3(0.0), vec2(1.));
+	layout.calculate_stride_and_elem_offsets();
 }
 
 IndexedQuad::IndexedQuad(vec3 position, vec2 scale)
 {
     create(position, scale);
+	layout.calculate_stride_and_elem_offsets();
 }
 
 void IndexedQuad::create(vec3 position, vec2 scale)
@@ -63,11 +67,13 @@ void IndexedQuad::create(vec3 position, vec2 scale)
 IndexedCube::IndexedCube()
 {
     create(vec3(0.0), vec3(1.0));
+	layout.calculate_stride_and_elem_offsets();
 }
 
 IndexedCube::IndexedCube(vec3 position, vec3 scale)
 {
     create(position, scale);
+	layout.calculate_stride_and_elem_offsets();
 }
 
 void IndexedCube::create(vec3 position, vec3 scale)
@@ -119,11 +125,13 @@ void IndexedCube::create(vec3 position, vec3 scale)
 IndexedColorCube::IndexedColorCube()
 {
     create(vec3(0.), vec3(1.0), vec4(1.0));
+	layout.calculate_stride_and_elem_offsets();
 }
 
 IndexedColorCube::IndexedColorCube(vec3 position, vec3 scale, vec4 color)
 {
     create(position, scale, color);
+	layout.calculate_stride_and_elem_offsets();
 }
 
 void IndexedColorCube::create(vec3 position, vec3 scale, vec4 color)
@@ -179,6 +187,7 @@ void IndexedColorCube::create(vec3 position, vec3 scale, vec4 color)
 IndexedModelShp::IndexedModelShp(string filename, NormalIndexing mode)
 {
 	load(filename, mode);
+	layout.calculate_stride_and_elem_offsets();
 }
 
 void IndexedModelShp::load(string filename, NormalIndexing mode)
@@ -242,6 +251,7 @@ void IndexedModelShp::load(string filename, NormalIndexing mode)
 IndexedModelObj::IndexedModelObj(string filename, NormalIndexing mode)
 {
     load(filename, mode);
+	layout.calculate_stride_and_elem_offsets();
 }
 
 void IndexedModelObj::load(string filename, NormalIndexing mode)
@@ -606,11 +616,13 @@ void IndexedModelFile::prepare_vertices_and_indices()
 IndexedIcoSphere::IndexedIcoSphere()
 {
     create(vec3(0.), vec3(1.));
+	layout.calculate_stride_and_elem_offsets();
 }
 
 IndexedIcoSphere::IndexedIcoSphere(vec3 position, vec3 scale)
 {
     create(position, scale);
+	layout.calculate_stride_and_elem_offsets();
 }
 
 void IndexedIcoSphere::create(vec3 position, vec3 scale)

@@ -38,12 +38,12 @@ class Material
 {
 public:
 	Material();
-    Material(Shader*);
+    Material(shared_ptr<Shader>);
 	~Material();
 
-	Shader *shader;
+	shared_ptr<Shader> shader;
 	void set_uniforms();
-	void set_uniforms(Shader*);
+	void set_uniforms(shared_ptr<Shader>);
 
 	map<string, vec4> uniforms_vec4;
 	map<string, vec3> uniforms_vec3;

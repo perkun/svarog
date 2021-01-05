@@ -5,6 +5,8 @@
 
 namespace Renderer {
 
+// extern variables definitions
+extern int flags;
 
 // private:
 bool blend = false;

@@ -20,9 +20,9 @@ public:
 	size_t offset;
 	VertexDataType data_type;
 
-	int get_num_components();
-	int get_gl_type();
-	size_t get_size();
+	int get_num_components() const;
+	int get_gl_type() const;
+	size_t get_size() const;
 };
 
 

@@ -14,11 +14,11 @@ class VertexArrayObject
 public:
 //     VertexArrayObject(VertexLayout vl);
 	VertexArrayObject() {}
-	VertexArrayObject(IndexedModel idx_mod, bool b = false);
+	VertexArrayObject(const IndexedModel &idx_mod, bool b = false);
 	~VertexArrayObject();
 // 	VertexArrayObject(const VertexArrayObject &other);
 
-	void create(IndexedModel&);
+	void create(const IndexedModel&);
 
 // 	VertexLayout vertices_layout;
 

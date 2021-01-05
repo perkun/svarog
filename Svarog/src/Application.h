@@ -6,6 +6,7 @@
 #include "Event/Event.h"
 #include "LayerStack.h"
 #include "Window.h"
+#include "Shader.h"
 
 
 using namespace std;
@@ -58,6 +59,9 @@ void set_bg_color(vec4);
 
 Window* get_window();
 ImGuiLayer* get_imgui_layer();
+
+extern map<string, shared_ptr<Shader> > shaders;
+
 } // namespace Application
 
 #endif

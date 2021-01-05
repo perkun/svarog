@@ -2,7 +2,7 @@
 #include "VertexLayout.h"
 
 
-int VertexLayoutElement::get_num_components()
+int VertexLayoutElement::get_num_components() const
 {
 	switch(data_type)
 	{
@@ -19,7 +19,7 @@ int VertexLayoutElement::get_num_components()
 }
 
 
-int VertexLayoutElement::get_gl_type()
+int VertexLayoutElement::get_gl_type() const
 {
 	switch(data_type)
 	{
@@ -37,7 +37,7 @@ int VertexLayoutElement::get_gl_type()
 }
 
 
-size_t VertexLayoutElement::get_size()
+size_t VertexLayoutElement::get_size() const
 {
 	switch(data_type)
 	{

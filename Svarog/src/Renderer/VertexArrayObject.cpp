@@ -8,7 +8,7 @@
 // }
 //
 
-VertexArrayObject::VertexArrayObject(IndexedModel idx_mod, bool b)
+VertexArrayObject::VertexArrayObject(const IndexedModel &idx_mod, bool b)
 {
 	blend = b;
 	create(idx_mod);
@@ -38,9 +38,9 @@ VertexArrayObject::~VertexArrayObject()
 // // 	vertices_layout = other.vertices_layout;
 // }
 
-void VertexArrayObject::create(IndexedModel &indexed_model)
+void VertexArrayObject::create(const IndexedModel &indexed_model)
 {
-	indexed_model.layout.calculate_stride_and_elem_offsets();
+// 	indexed_model.layout.calculate_stride_and_elem_offsets();
 	num_draw_elements = indexed_model.indices.size() * 3;
 	draw_type = indexed_model.draw_type;
 
@@ -60,7 +60,7 @@ void VertexArrayObject::create(IndexedModel &indexed_model)
 
 //     unsigned int buffer_index = 0;
 	unsigned int location_index = 0;
-    for (VertexLayoutElement &vle : indexed_model.layout.elements)
+    for (const VertexLayoutElement &vle : indexed_model.layout.elements)
     {
     	glEnableVertexAttribArray(location_index);
         glVertexAttribPointer(location_index, vle.get_num_components(),

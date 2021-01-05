@@ -151,7 +151,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 			sprintf(buff, "%s Add Material Component", "\xef\x83\x86");
 			if (!entity.has_component<Material>() && ImGui::BeginMenu(buff))
 			{
-				for (pair<string, Shader*> element: scene->shaders)
+				for (pair<string, shared_ptr<Shader> > element: Application::shaders)
 				{
 					if (ImGui::MenuItem(element.first.c_str()))
 					{

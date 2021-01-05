@@ -1,16 +1,14 @@
 #include "svpch.h"
 #include "MainLayer.h"
 #include "CameraController.h"
-#include "ModelController.h"
 #include "ImGuizmo.h"
-#include <glm/gtc/type_ptr.hpp>
 #include "Math.h"
+#include "ModelController.h"
 #include "Renderer.h"
-
+#include <glm/gtc/type_ptr.hpp>
 
 MainLayer::MainLayer(int argc, char *argv[])
 {
-	int i = "dupa";
     arg_handler.addArgument("m", "model", "", "path to OBJ model");
 
     arg_handler.parseArguments(argc, argv);
@@ -31,67 +29,35 @@ MainLayer::~MainLayer()
 
 void MainLayer::on_attach()
 {
+    auto window = Application::get_window();
     vec3 init_model_pos(0., 5., 0.);
 
-	shared_ptr<VertexArrayObject> model_vao;
+    shared_ptr<VertexArrayObject> model_vao;
     if (arg_handler.isSpecified("model"))
-	{
-		string filename = arg_handler.args["model"].to_str();
-		if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
-			model_vao = make_shared<VertexArrayObject>(IndexedModelObj(
-				filename, NormalIndexing::PER_FACE));
-		else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
-			model_vao = make_shared<VertexArrayObject>(IndexedModelShp(
-				filename, NormalIndexing::PER_FACE));
-	}
+    {
+        string filename = arg_handler.args["model"].to_str();
+        if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
+            model_vao = make_shared<VertexArrayObject>(
+                IndexedModelObj(filename, NormalIndexing::PER_FACE));
+        else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
+            model_vao = make_shared<VertexArrayObject>(
+                IndexedModelShp(filename, NormalIndexing::PER_FACE));
+    }
     else
-        model_vao = make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
+        model_vao =
+            make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
 
 
-	#include "../shaders/basic.vs.include"
-	#include "../shaders/basic.fs.include"
-    basic_vs[basic_vs_len-1] = 0;
-    basic_fs[basic_fs_len-1] = 0;
 
-	#include "../shaders/color.fs.include"
-    color_fs[color_fs_len-1] = 0;
-
-	#include "../shaders/vert_col.vs.include"
-	#include "../shaders/vert_col.fs.include"
-    vert_col_vs[vert_col_vs_len-1] = 0;
-    vert_col_fs[vert_col_fs_len-1] = 0;
-
-    Shader *basic_shader = new Shader();
-    basic_shader->create_shader((char *)(void *)basic_vs,
-                                (char *)(void *)basic_fs);
-
-    Shader *color_shader = new Shader();
-    color_shader->create_shader((char *)(void *)basic_vs,
-                                (char *)(void *)color_fs);
-
-    Shader *line_shader = new Shader();
-    line_shader->create_shader((char *)(void *)vert_col_vs,
-                               (char *)(void *)vert_col_fs);
-
-	scene.shaders["basic_shader"] = basic_shader;
-	scene.shaders["color_shader"] = color_shader;
-	scene.shaders["line_shader"] = line_shader;
-
-	int j = "dupa";
-
-    auto window = Application::get_window();
-
-
-	grid = scene.create_entity("grid");
-	grid.add_component<Material>(line_shader);
-	grid.add_component<MeshComponent>(make_shared<VertexArrayObject>(
-		create_grid(100., 5., 0.2), true));
-// 	grid.get_component<SceneGraphComponent>().parent = scene.root_entity;
+    grid = scene.create_entity("grid");
+    grid.add_component<Material>(Application::shaders["line_shader"]);
+    grid.add_component<MeshComponent>(
+        make_shared<VertexArrayObject>(create_grid(100., 5., 0.2), true));
 
     scene.observer = scene.create_entity("Observer");
-    CameraComponent &socp =
-		scene.observer.add_component<CameraComponent>(make_shared<PerspectiveCamera>(
-        	radians(45.0), window->width / (float)window->height, 0.01, 500.0));
+    CameraComponent &socp = scene.observer.add_component<CameraComponent>(
+        make_shared<PerspectiveCamera>(
+            radians(45.0), window->width / (float)window->height, 0.01, 500.0));
     scene.observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
     socp.camera->update_target(init_model_pos);
@@ -103,39 +69,38 @@ void MainLayer::on_attach()
     scene.light = scene.create_entity("Light");
     scene.light.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.5))));
-    scene.light.add_component<Material>(color_shader)
+    scene.light.add_component<Material>(Application::shaders["color_shader"])
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
-// 	scene.light.get_component<SceneGraphComponent>().parent = scene.root_entity;
+
 
     Entity model = scene.create_entity("Model");
-    model.add_component<Material>(basic_shader).uniforms_int["u_has_texture"] = 0;
+    model.add_component<Material>(Application::shaders["basic_shader"])
+        .uniforms_int["u_has_texture"] = 0;
     model.add_component<MeshComponent>(model_vao);
     model.add_component<NativeScriptComponent>().bind<ModelController>();
     model.get_component<Transform>().position = init_model_pos;
 
-	Renderer::set_line_width(2.);
+    Renderer::set_line_width(2.);
 
     scene.root_entity.add_child(model);
     scene.root_entity.add_child(scene.light);
     scene.root_entity.add_child(scene.observer);
 
-    scene.root_entity.add_child(grid);
+    ui_scene.root_entity.add_child(grid);
 
-// 	scene.enable_render_to_framebuffer();
+    editor_camera =
+        EditorCamera(radians(45.), window->width / (float)window->height, 0.01,
+                     500.0, vec3(6.3, -3., 5.12));
 
-	editor_camera = EditorCamera(
-		radians(45.), window->width / (float)window->height, 0.01, 500.0,
-		vec3(6.3, -3., 5.12));
+    scene_hierarchy_panel = SceneHierarchyPanel(&scene);
 
-	scene_hierarchy_panel = SceneHierarchyPanel(&scene);
+    ms_framebuffer =
+        new Framebuffer(window->width, window->height,
+                        COLOR_ATTACHMENT | DEPTH_ATTACHMENT | MULTISAMPLING);
 
-
-    ms_framebuffer = new Framebuffer(window->width, window->height,
-                       COLOR_ATTACHMENT | DEPTH_ATTACHMENT | MULTISAMPLING);
-
-	framebuffer = new Framebuffer(window->width, window->height,
-                       COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
+    framebuffer = new Framebuffer(window->width, window->height,
+                                  COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 }
 
 void MainLayer::on_event(Event &e)
@@ -148,81 +113,75 @@ void MainLayer::on_event(Event &e)
     dispatcher.dispatch<KeyReleasedEvent>(
         bind(&MainLayer::on_key_released_event, this, placeholders::_1));
 
-	scene.controllers_events(e);
+    scene.controllers_events(e);
 
-	if (mode == Mode::EDITOR)
-		editor_camera.on_event(e);
-
+    if (mode == Mode::EDITOR)
+        editor_camera.on_event(e);
 }
-
 
 void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 {
     int key_code = event.get_key_code();
 
-	if (mode == Mode::EDITOR)
-	{
-		if (key_code == GLFW_KEY_Q)
-			Application::stop();
+    if (mode == Mode::EDITOR)
+    {
+        if (key_code == GLFW_KEY_Q)
+            Application::stop();
 
-		if (key_code == GLFW_KEY_G)
-			guizmo_type = ImGuizmo::OPERATION::TRANSLATE;
-		else if (key_code == GLFW_KEY_R)
-			guizmo_type = ImGuizmo::OPERATION::ROTATE;
-		else if (key_code == GLFW_KEY_S)
-			guizmo_type = ImGuizmo::OPERATION::SCALE;
-		else if (key_code == GLFW_KEY_ESCAPE)
-			guizmo_type = -1;
-	}
+        if (key_code == GLFW_KEY_G)
+            guizmo_type = ImGuizmo::OPERATION::TRANSLATE;
+        else if (key_code == GLFW_KEY_R)
+            guizmo_type = ImGuizmo::OPERATION::ROTATE;
+        else if (key_code == GLFW_KEY_S)
+            guizmo_type = ImGuizmo::OPERATION::SCALE;
+        else if (key_code == GLFW_KEY_ESCAPE)
+            guizmo_type = -1;
+    }
 
-	if (mode == Mode::RUNTIME)
-		if (key_code == GLFW_KEY_Q)
-			toggle_mode();
-	int k = "dupa";
+    if (mode == Mode::RUNTIME)
+        if (key_code == GLFW_KEY_Q)
+            toggle_mode();
 }
 
 void MainLayer::on_window_resize_event(WindowResizeEvent &event)
 {
     ivec2 size = event.get_size();
-
-// 	if (! (scene.flags & RENDER_TO_FRAMEBUFFER))
-// 		scene.on_resize(size.x, size.y);
 }
-
-
 
 void MainLayer::on_update(double time_delta)
 {
-// 	int history_len = 100;
-// 	for (int i = history_len-1; i > 0; i--)
-// 	{
-// 		fps_history[i] = fps_history[i - 1];
-// 	}
-// 	fps_history[0] = 1./time_delta;
-//
-// 	fps = 0.;
-// 	for (int i = 0; i < history_len; i++)
-// 	{
-// 		fps += fps_history[i];
-// 	}
-// 	fps /= history_len;
+    // 	int history_len = 100;
+    // 	for (int i = history_len-1; i > 0; i--)
+    // 	{
+    // 		fps_history[i] = fps_history[i - 1];
+    // 	}
+    // 	fps_history[0] = 1./time_delta;
+    //
+    // 	fps = 0.;
+    // 	for (int i = 0; i < history_len; i++)
+    // 	{
+    // 		fps += fps_history[i];
+    // 	}
+    // 	fps /= history_len;
 
-	editor_camera.on_update(time_delta);
+    editor_camera.on_update(time_delta);
 
-	ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
+    ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
-	ms_framebuffer->bind();
-	ms_framebuffer->clear();
+    ms_framebuffer->bind();
+    ms_framebuffer->clear();
 
-	if (mode == Mode::EDITOR)
-	{
-		scene.on_update_editor(time_delta, editor_camera);
-	}
-	else if (mode == Mode::RUNTIME)
-    	scene.on_update_runtime(time_delta);
+    if (mode == Mode::EDITOR)
+    {
+        scene.on_update_editor(time_delta, editor_camera);
+        ui_scene.on_update_editor(time_delta, editor_camera);
 
-	Framebuffer::blit(ms_framebuffer, framebuffer);
-	Renderer::bind_default_framebuffer();
+    }
+    else if (mode == Mode::RUNTIME)
+        scene.on_update_runtime(time_delta);
+
+    Framebuffer::blit(ms_framebuffer, framebuffer);
+    Renderer::bind_default_framebuffer();
 }
 
 void MainLayer::on_imgui_render()
@@ -230,50 +189,46 @@ void MainLayer::on_imgui_render()
     ImGui::DockSpaceOverViewport();
     menu_bar();
     scene_window();
-//     orbital_parameters_panel();
+    //     orbital_parameters_panel();
 
-	if (show_scene_options)
-		scene_options_panel();
+    if (show_scene_options)
+        scene_options_panel();
 
     if (show_imgui_demo)
         ImGui::ShowDemoWindow();
 
-	scene_hierarchy_panel.on_imgui_render();
+    scene_hierarchy_panel.on_imgui_render();
 }
 
 void MainLayer::on_detach()
 {
-	delete ms_framebuffer;
-	delete framebuffer;
+    delete ms_framebuffer;
+    delete framebuffer;
 }
-
 
 void MainLayer::toggle_mode()
 {
-	if (mode == Mode::EDITOR)
-	{
-		mode = Mode::RUNTIME;
-// 		scene.observer.get_component<CameraComponent>().camera->update_target(
-// 			model.get_component<Transform>().position);
-		guizmo_type = -1;
-		Application::get_window()->set_cursor_disabled();
-	}
-	else if (mode == Mode::RUNTIME)
-	{
-		mode = Mode::EDITOR;
-		Application::get_window()->set_cursor_normal();
-	}
-
+    if (mode == Mode::EDITOR)
+    {
+        mode = Mode::RUNTIME;
+        // 		scene.observer.get_component<CameraComponent>().camera->update_target(
+        // 			model.get_component<Transform>().position);
+        guizmo_type = -1;
+        Application::get_window()->set_cursor_disabled();
+    }
+    else if (mode == Mode::RUNTIME)
+    {
+        mode = Mode::EDITOR;
+        Application::get_window()->set_cursor_normal();
+    }
 }
-
-
 
 void MainLayer::menu_bar()
 {
-	ImGuiIO &io = ImGui::GetIO();
-	auto bold_font = io.Fonts->Fonts[0];
+    ImGuiIO &io = ImGui::GetIO();
+    auto bold_font = io.Fonts->Fonts[0];
 
-	ImGui::PushFont(bold_font);
+    ImGui::PushFont(bold_font);
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -295,7 +250,6 @@ void MainLayer::menu_bar()
             // 				scene_serializer.deserialize(filename);
             // 				cout << "loading scene" << endl;
             // 			}
-
 
             ImGui::Separator();
 
@@ -350,26 +304,26 @@ void MainLayer::menu_bar()
             ImGui::EndMenu();
         }
 
-		string run_btn_label;
-		if (mode == Mode::EDITOR)
-			run_btn_label = "Run";
-		else if (mode == Mode::RUNTIME)
-			run_btn_label = "Stop";
+        string run_btn_label;
+        if (mode == Mode::EDITOR)
+            run_btn_label = "Run";
+        else if (mode == Mode::RUNTIME)
+            run_btn_label = "Stop";
 
-		if (ImGui::Button(run_btn_label.c_str()))
-		{
-			toggle_mode();
-		}
+        if (ImGui::Button(run_btn_label.c_str()))
+        {
+            toggle_mode();
+        }
 
         ImGui::EndMainMenuBar();
     }
-	ImGui::PopFont();
+    ImGui::PopFont();
 }
 
 void MainLayer::scene_window()
 {
-//     if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
-//         return;
+    //     if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
+    //         return;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
     ImGui::Begin("Scene");
@@ -384,7 +338,7 @@ void MainLayer::scene_window()
         editor_camera.on_resize(viewport_panel_size.x, viewport_panel_size.y);
         ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
         framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
-		Renderer::bind_default_framebuffer();
+        Renderer::bind_default_framebuffer();
     }
 
     long int tex_id = framebuffer->get_color_attachment_id();
@@ -419,47 +373,47 @@ void MainLayer::scene_window()
 
         float snapValues[3] = {snapValue, snapValue, snapValue};
 
-		int manipulation_ref_frame = ImGuizmo::WORLD;
-		if (guizmo_type == ImGuizmo::OPERATION::SCALE)
-			manipulation_ref_frame = ImGuizmo::LOCAL;
+        int manipulation_ref_frame = ImGuizmo::WORLD;
+        if (guizmo_type == ImGuizmo::OPERATION::SCALE)
+            manipulation_ref_frame = ImGuizmo::LOCAL;
 
-		mat4 delta_matrix;
+        mat4 delta_matrix;
         ImGuizmo::Manipulate(
             glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-            (ImGuizmo::OPERATION)guizmo_type, (ImGuizmo::MODE)manipulation_ref_frame,
-            glm::value_ptr(transform), glm::value_ptr(delta_matrix),
-			snap ? snapValues : nullptr);
+            (ImGuizmo::OPERATION)guizmo_type,
+            (ImGuizmo::MODE)manipulation_ref_frame, glm::value_ptr(transform),
+            glm::value_ptr(delta_matrix), snap ? snapValues : nullptr);
 
         if (ImGuizmo::IsUsing())
         {
-			Entity &parent = selected_entity.get_parent();
-// 			if (!parent)  // no parent, root
-			Transform &ptc = parent.get_component<Transform>();
+            Entity &parent = selected_entity.get_parent();
+            // 			if (!parent)  // no parent, root
+            Transform &ptc = parent.get_component<Transform>();
 
             glm::vec3 translation, rotation, scale;
             glm::vec3 delta_translation, delta_rotation, delta_scale;
 
-            Math::decompose_transform(delta_matrix,
-				delta_translation, delta_rotation, delta_scale);
+            Math::decompose_transform(delta_matrix, delta_translation,
+                                      delta_rotation, delta_scale);
 
             Math::decompose_transform(transform, translation, rotation, scale);
 
-			if (guizmo_type == ImGuizmo::OPERATION::TRANSLATE)
-			{
-				vec4 pos = vec4(tc.position, 1.0);
-				pos += glm::inverse(ptc.get_world_tansform())
-						* vec4(delta_translation, 0.0);
-				tc.position = vec3(pos);
-			}
-			else if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
-			{
-				vec4 rot = vec4(tc.rotation, 0.0);
-				rot += glm::inverse(ptc.get_world_tansform())
-						 * vec4(delta_rotation, 0.0);
-				tc.rotation = vec3(rot);
-			}
-			else if (guizmo_type == ImGuizmo::OPERATION::SCALE)
-            	tc.scale = scale;
+            if (guizmo_type == ImGuizmo::OPERATION::TRANSLATE)
+            {
+                vec4 pos = vec4(tc.position, 1.0);
+                pos += glm::inverse(ptc.get_world_tansform()) *
+                       vec4(delta_translation, 0.0);
+                tc.position = vec3(pos);
+            }
+            else if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
+            {
+                vec4 rot = vec4(tc.rotation, 0.0);
+                rot += glm::inverse(ptc.get_world_tansform()) *
+                       vec4(delta_rotation, 0.0);
+                tc.rotation = vec3(rot);
+            }
+            else if (guizmo_type == ImGuizmo::OPERATION::SCALE)
+                tc.scale = scale;
         }
     }
 
@@ -472,57 +426,53 @@ void MainLayer::scene_options_panel()
 
     ImGui::Begin("Scene Options");
 
-	if (ImGui::RadioButton("Translate", guizmo_type == ImGuizmo::TRANSLATE))
-		guizmo_type = ImGuizmo::TRANSLATE;
+    if (ImGui::RadioButton("Translate", guizmo_type == ImGuizmo::TRANSLATE))
+        guizmo_type = ImGuizmo::TRANSLATE;
 
-	ImGui::SameLine();
-	if (ImGui::RadioButton("Rotate", guizmo_type == ImGuizmo::ROTATE))
-		guizmo_type = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", guizmo_type == ImGuizmo::ROTATE))
+        guizmo_type = ImGuizmo::ROTATE;
 
-	ImGui::SameLine();
-	if (ImGui::RadioButton("Scale", guizmo_type == ImGuizmo::SCALE))
-		guizmo_type = ImGuizmo::SCALE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", guizmo_type == ImGuizmo::SCALE))
+        guizmo_type = ImGuizmo::SCALE;
 
-	ImGui::SameLine();
-	if (ImGui::RadioButton("None", guizmo_type == -1))
-		guizmo_type = -1;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("None", guizmo_type == -1))
+        guizmo_type = -1;
 
-
-	if (ImGui::Checkbox("show grid", &show_grid))
-	{
-		grid.detatch();
-		if (show_grid)
-			scene.root_entity.add_child(grid);
-	}
+    if (ImGui::Checkbox("show grid", &show_grid))
+    {
+        grid.detatch();
+        if (show_grid)
+            ui_scene.root_entity.add_child(grid);
+    }
 
     ImGui::End();
 }
 
-
-
 IndexedModel MainLayer::create_grid(float size, float sep, float alpha)
 {
-	Batch grid_batch;
+    Batch grid_batch;
 
-	for (float i = -size; i <= size; i += sep)
-	{
-		if (i == 0.) continue;
+    for (float i = -size; i <= size; i += sep)
+    {
+        if (i == 0.)
+            continue;
 
-		grid_batch.push_back(
-			IndexedLine(vec3(-size, i, 0.),
-						vec3(size, i, 0.),
-						vec4(0.3, 0.3, 0.3, alpha) ) );
+        grid_batch.push_back(IndexedLine(vec3(-size, i, 0.), vec3(size, i, 0.),
+                                         vec4(0.3, 0.3, 0.3, alpha)));
 
-		grid_batch.push_back(
-			IndexedLine(vec3(i, -size, 0.),
-						vec3(i, size, 0.),
-						vec4(0.3, 0.3, 0.3, alpha) ) );
-	}
+        grid_batch.push_back(IndexedLine(vec3(i, -size, 0.), vec3(i, size, 0.),
+                                         vec4(0.3, 0.3, 0.3, alpha)));
+    }
 
-	grid_batch.push_back(IndexedLine(vec3(-size, 0., 0.), vec3(size, 0., 0.),
-			vec4(245./256, 74./256, 29./256, alpha)));
-	grid_batch.push_back(IndexedLine(vec3(0., -size, 0.), vec3(0., size, 0.),
-			vec4(28./256, 157./256, 51./256, alpha)));
+    grid_batch.push_back(
+        IndexedLine(vec3(-size, 0., 0.), vec3(size, 0., 0.),
+                    vec4(245. / 256, 74. / 256, 29. / 256, alpha)));
+    grid_batch.push_back(
+        IndexedLine(vec3(0., -size, 0.), vec3(0., size, 0.),
+                    vec4(28. / 256, 157. / 256, 51. / 256, alpha)));
 
-	return grid_batch.indexed_model;
+    return grid_batch.indexed_model;
 }
