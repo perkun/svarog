@@ -38,7 +38,7 @@ void main()
 
 	float d = dot( normal_world, light_direction );
 	d = max(d, 0);
-	d = d * shadow_factor;
+	d = d * clamp(shadow_factor, 0.2, 1.0);
 
 	if (u_has_texture == 1)
 	{
