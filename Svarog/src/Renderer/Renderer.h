@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "EditorCamera.h"
 #include "Material.h"
+#include "Entity.h"
 
 using namespace std;
 using namespace glm;
@@ -33,6 +34,7 @@ namespace Renderer
 
 	void begin_scene(EditorCamera &camera);
 	void begin_scene(const shared_ptr<Camera> &camera);
+	void set_dir_light(const shared_ptr<Camera>);
 	void end_scene();
 	void submit(const shared_ptr<VertexArrayObject> &vao, Material &material);
 

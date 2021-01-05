@@ -13,6 +13,7 @@ public:
 	mat4 get_view();
 	void update_target(vec3 new_target);
 	void update();
+	void update_near_far(float near, float far);
 
 	float aspect;
 	vec3 position, front, up, right;

@@ -46,7 +46,7 @@ private:
 	void menu_bar();
 	void toggle_mode();
 
-	Entity light, runtime_observer;
+	Entity light, runtime_observer, model;
 
 	bool shadow_map = true;
 	bool show_imgui_demo = false;

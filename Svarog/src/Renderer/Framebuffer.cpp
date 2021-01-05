@@ -75,6 +75,8 @@ void Framebuffer::invalidate()
 		else {
 			glCreateTextures(GL_TEXTURE_2D, 1, &color_attachment);
 			glBindTexture(GL_TEXTURE_2D, color_attachment);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -109,6 +111,9 @@ void Framebuffer::invalidate()
 		else {
 			glCreateTextures(GL_TEXTURE_2D, 1, &depth_attachment);
 			glBindTexture(GL_TEXTURE_2D, depth_attachment);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, specification.width,
 					specification.height);
 

@@ -82,6 +82,14 @@ void begin_scene(const shared_ptr<Camera> &camera)
         camera->get_perspective();
 }
 
+void set_dir_light(const shared_ptr<Camera> lc)
+{
+	scene_material.uniforms_mat4["u_light_perspective_matrix"] = lc->get_perspective();
+	scene_material.uniforms_mat4["u_light_view_matrix"] = lc->get_view();
+	scene_material.uniforms_vec3["u_light_position"] = lc->position;
+	scene_material.uniforms_int["u_depth_map"] = 1;
+}
+
 
 void end_scene()
 {

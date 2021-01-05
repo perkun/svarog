@@ -17,11 +17,6 @@ using namespace std;
 
 class SceneSerializer;
 
-enum class POV
-{
-	OBSERVER, LIGHT
-};
-
 
 enum  SceneFlags {
 	RENDER_TO_FRAMEBUFFER = 0b1,
@@ -57,11 +52,7 @@ public:
 	Material scene_material;
 	Entity root_entity;
 
-	Entity observer;
-	Entity light;
-
-	Entity selected_entity;
-
+	Entity observer, selected_entity, light;
 
 private:
 	entt::registry registry;

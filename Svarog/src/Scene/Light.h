@@ -10,11 +10,10 @@ using namespace glm;
 class Light
 {
 public:
-    Light(shared_ptr<Framebuffer> fb, shared_ptr<Camera> cam);
+    Light();
 	~Light();
 
-	shared_ptr<Framebuffer> shadow_framebuffer;
-	shared_ptr<Camera> camera;
+	vec4 color = vec4(1.0);
 };
 
 #endif /* LIGHT_H_ */

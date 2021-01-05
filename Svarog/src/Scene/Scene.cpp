@@ -20,6 +20,7 @@ Entity Scene::create_entity(string name)
 	entity.add_component<Transform>(Transform());
 	entity.add_component<TagComponent>(name);
 	entity.add_component<SceneGraphComponent>();
+	entity.add_component<SceneStatus>();
 
 
 
@@ -118,6 +119,8 @@ void Scene::on_update_runtime(double time_delta)
 
 
     Renderer::begin_scene(observer.get_component<CameraComponent>().camera);
+	if (light)
+		Renderer::set_dir_light(light.get_component<CameraComponent>().camera);
     draw_depth_first(root_entity);
     Renderer::end_scene();
 }
@@ -125,6 +128,8 @@ void Scene::on_update_runtime(double time_delta)
 void Scene::on_update_editor(double time_delta, EditorCamera &editor_camera)
 {
 	Renderer::begin_scene(editor_camera);
+	if (light)
+		Renderer::set_dir_light(light.get_component<CameraComponent>().camera);
     draw_depth_first(root_entity);
 	Renderer::end_scene();
 }

@@ -98,4 +98,14 @@ public:
     }
 };
 
+class LightComponent
+{
+public:
+	LightComponent() {}
+	~LightComponent() {}
+
+	glm::vec4 color = vec4(1.);
+};
+
+
 #endif /* SCENE/COMPONENTS_H_ */

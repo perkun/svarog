@@ -75,6 +75,7 @@ void MainLayer::on_attach()
     light.add_component<Material>(Application::shaders["color_shader"])
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
+	light.add_component<LightComponent>();
 
     light.add_component<FramebufferComponent>(
 			make_shared<Framebuffer>(1024, 1024, DEPTH_ATTACHMENT));
@@ -82,9 +83,9 @@ void MainLayer::on_attach()
 	light.add_component<CameraComponent>(
 //         make_shared<PerspectiveCamera>(
 //             radians(25.0), window->width / (float)window->height, 0.01, 50.0));
-			make_shared<OrthograficCamera>(10., 1., 0.01, 10.));
+			make_shared<OrthograficCamera>(10., 1., 0.01, 20.));
 
-    Entity model = scene.create_entity("Model");
+    model = scene.create_entity("Model");
     model.add_component<Material>(Application::shaders["tex_sha"])
         .uniforms_int["u_has_texture"] = 0;
     model.add_component<MeshComponent>(model_vao);
@@ -92,34 +93,19 @@ void MainLayer::on_attach()
     model.get_component<Transform>().position = init_model_pos;
 
 
-// 	Transform &lt = light.get_component<Transform>();
-	auto lc = light.get_component<CameraComponent>().camera;
-	lc->position = vec3(0.01, 0.02, 0.02);
-	lc->update_target(init_model_pos);
-
-	Material &mat = model.get_component<Material>();
-	mat.uniforms_mat4["u_light_perspective_matrix"] = lc->get_perspective();
-	mat.uniforms_mat4["u_light_view_matrix"] = lc->get_view();
-	mat.uniforms_vec3["u_light_position"] = lc->position;
-
-	mat.uniforms_int["u_depth_map"] = 1;
-
 
 	Entity box = scene.create_entity("box");
 	box.add_component<Material>(Application::shaders["basic_shader"]);
 	box.add_component<MeshComponent>(make_shared<VertexArrayObject>(IndexedCube()));
-
 
     scene.root_entity.add_child(model);
     scene.root_entity.add_child(light);
     scene.root_entity.add_child(runtime_observer);
     scene.root_entity.add_child(box);
 
-
     ui_scene.root_entity.add_child(grid);
 
 	scene.observer = runtime_observer;
-	scene.light = light;
 
 
     editor_camera =
@@ -200,28 +186,35 @@ void MainLayer::on_update(double time_delta)
     ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
 
-        if (shadow_map) // render to shadowmap
-        {
-            ASSERT(scene.light.has_component<FramebufferComponent>(),
-                   "Scene light doesn't have Framebuffer Component");
-            ASSERT(scene.light.has_component<CameraComponent>(),
-                   "Scene light doesn't have Camera Component");
 
-            // bind shadow framebuffer and rander scene there
-            auto fb = scene.light.get_component<FramebufferComponent>().framebuffer;
-			fb->bind();
-			fb->clear();
+	if (light) // render to shadowmap
+	{
+		ASSERT(light.has_component<FramebufferComponent>(),
+				"Scene light doesn't have Framebuffer Component");
+		ASSERT(light.has_component<CameraComponent>(),
+				"Scene light doesn't have Camera Component");
 
-			scene.light.get_component<CameraComponent>().camera->aspect = 1;
+		scene.light = Entity();
 
-            scene.observer = light;
-            scene.on_update_runtime(time_delta);
+		SceneStatus &lsc = light.get_component<SceneStatus>();
+		lsc.render = false;
+		Transform &lt = light.get_component<Transform>();
+		auto lc = light.get_component<CameraComponent>().camera;
+		lc->position = lt.position;
+		lc->update_target(model.get_component<Transform>().position);
 
-			fb->bind_depth_texture(1);
-        }
+		light.get_component<CameraComponent>().camera->aspect = 1;
+		auto fb = light.get_component<FramebufferComponent>().framebuffer;
+		fb->bind();
+		fb->clear();
+		scene.observer = light;
+		scene.on_update_runtime(time_delta);
+		fb->bind_depth_texture(1);
 
+		lsc.render = true;
+	}
 
-
+	scene.light = light;
 
     if (mode == Mode::EDITOR)
     {
@@ -390,7 +383,7 @@ void MainLayer::scene_window()
 
 	ImGui::Begin("depth map");
 
-	long int shadow_tex_id = scene.light.get_component<FramebufferComponent>().framebuffer->get_depth_attachment_id();
+	long int shadow_tex_id = light.get_component<FramebufferComponent>().framebuffer->get_depth_attachment_id();
     ImGui::Image((void *)shadow_tex_id, ImVec2(300, 300), ImVec2(0, 1),
                  ImVec2(1, 0));
 	ImGui::End();
