@@ -65,7 +65,7 @@ mat4 PerspectiveCamera::get_perspective()
 // ORTHOGONAL CAMERA
 
 
-OrthogonalCamera::OrthogonalCamera(float size_x, float aspect,
+OrthograficCamera::OrthograficCamera(float size_x, float aspect,
                                    float view_box_zNear, float view_box_zFar)
 {
     this->view_box_z_near = view_box_zNear;
@@ -83,7 +83,7 @@ OrthogonalCamera::OrthogonalCamera(float size_x, float aspect,
 }
 
 
-mat4 OrthogonalCamera::get_perspective()
+mat4 OrthograficCamera::get_perspective()
 {
 	view_box_left = -size_x / 2.0;
 	view_box_right = size_x / 2.0;

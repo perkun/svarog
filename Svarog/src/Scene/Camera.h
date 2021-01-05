@@ -40,11 +40,11 @@ protected:
 
 
 
-class OrthogonalCamera : public Camera
+class OrthograficCamera : public Camera
 {
 public:
-    OrthogonalCamera(float size_x, float aspect, float zNear, float zFar);
-    ~OrthogonalCamera();
+    OrthograficCamera(float size_x, float aspect, float zNear, float zFar);
+    ~OrthograficCamera() {}
 
 	virtual mat4 get_perspective() override;
 

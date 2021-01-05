@@ -21,6 +21,8 @@ Entity Scene::create_entity(string name)
 	entity.add_component<TagComponent>(name);
 	entity.add_component<SceneGraphComponent>();
 
+
+
 	return entity;
 }
 

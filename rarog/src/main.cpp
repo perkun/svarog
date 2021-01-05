@@ -33,6 +33,11 @@ int main(int argc, char *argv[])
     vert_col_vs[vert_col_vs_len-1] = 0;
     vert_col_fs[vert_col_fs_len-1] = 0;
 
+	#include "../shaders/tex_sha.vs.include"
+	#include "../shaders/tex_sha.fs.include"
+    tex_sha_vs[tex_sha_vs_len-1] = 0;
+    tex_sha_fs[tex_sha_fs_len-1] = 0;
+
     shared_ptr<Shader> basic_shader = make_shared<Shader>();
     basic_shader->create_shader((char *)(void *)basic_vs,
                                 (char *)(void *)basic_fs);
@@ -45,10 +50,14 @@ int main(int argc, char *argv[])
     line_shader->create_shader((char *)(void *)vert_col_vs,
                                (char *)(void *)vert_col_fs);
 
+    shared_ptr<Shader> tex_sha = make_shared<Shader>();
+    tex_sha->create_shader((char *)(void *)tex_sha_vs,
+                           (char *)(void *)tex_sha_fs);
 
 	Application::shaders["basic_shader"] = basic_shader;
 	Application::shaders["color_shader"] = color_shader;
 	Application::shaders["line_shader"] = line_shader;
+	Application::shaders["tex_sha"] = tex_sha;
 
 
 	Application::push_layer(new MainLayer(argc, argv));

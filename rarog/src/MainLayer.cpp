@@ -1,4 +1,6 @@
 #include "svpch.h"
+#include "Components.h"
+#include "Framebuffer.h"
 #include "MainLayer.h"
 #include "CameraController.h"
 #include "ImGuizmo.h"
@@ -54,7 +56,7 @@ void MainLayer::on_attach()
     grid.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(create_grid(100., 5., 0.2), true));
 
-    Entity runtime_observer = scene.create_entity("Observer");
+    runtime_observer = scene.create_entity("Observer");
     CameraComponent &socp = runtime_observer.add_component<CameraComponent>(
         make_shared<PerspectiveCamera>(
             radians(45.0), window->width / (float)window->height, 0.01, 500.0));
@@ -66,24 +68,44 @@ void MainLayer::on_attach()
     sot.position = vec3(6.3, -3., 5.12);
     sot.speed = 8.;
 
-    Entity light = scene.create_entity("Light");
+    light = scene.create_entity("Light");
     light.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.5))));
     light.add_component<Material>(Application::shaders["color_shader"])
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
 
+    light.add_component<FramebufferComponent>(
+			make_shared<Framebuffer>(1024, 1024, FbFlag::DEPTH_ATTACHMENT));
+
+	light.add_component<CameraComponent>(
+			make_shared<OrthograficCamera>(100., 1., 0.01, 100.));
+
     Entity model = scene.create_entity("Model");
-    model.add_component<Material>(Application::shaders["basic_shader"])
+    model.add_component<Material>(Application::shaders["tex_sha"])
         .uniforms_int["u_has_texture"] = 0;
     model.add_component<MeshComponent>(model_vao);
     model.add_component<NativeScriptComponent>().bind<ModelController>();
     model.get_component<Transform>().position = init_model_pos;
 
 
+	Transform &lt = light.get_component<Transform>();
+	auto lc = light.get_component<CameraComponent>().camera;
+	Material &mat = model.get_component<Material>();
+	mat.uniforms_mat4["u_light_perspective_matrix"] = lc->get_perspective();
+	mat.uniforms_mat4["u_light_view_matrix"] = lc->get_view();
+	mat.uniforms_vec3["u_light_position"] = lt.position;
+
+
+	Entity box = scene.create_entity("box");
+	box.add_component<Material>(Application::shaders["basic_shader"]);
+	box.add_component<MeshComponent>(make_shared<VertexArrayObject>(IndexedIcoSphere()));
+
+
     scene.root_entity.add_child(model);
     scene.root_entity.add_child(light);
     scene.root_entity.add_child(runtime_observer);
+    scene.root_entity.add_child(box);
 
 
     ui_scene.root_entity.add_child(grid);
@@ -167,23 +189,49 @@ void MainLayer::on_update(double time_delta)
     // 	}
     // 	fps /= history_len;
 
-    editor_camera.on_update(time_delta);
 
     ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
-    ms_framebuffer->bind();
-    ms_framebuffer->clear();
+
 
     if (mode == Mode::EDITOR)
     {
+		editor_camera.on_update(time_delta);
+
+		ms_framebuffer->bind();
+		ms_framebuffer->clear();
+
         scene.on_update_editor(time_delta, editor_camera);
         ui_scene.on_update_editor(time_delta, editor_camera);
     }
     else if (mode == Mode::RUNTIME)
-        scene.on_update_runtime(time_delta);
+	{
+		if (shadow_map)  // render to shadowmap
+		{
+			ASSERT(scene.light.has_component<FramebufferComponent>(),
+					"Scene light doesn't have Framebuffer Component");
+			ASSERT(scene.light.has_component<CameraComponent>(),
+					"Scene light doesn't have Camera Component");
+
+			// bind shadow framebuffer and rander scene there
+			scene.light.get_component<FramebufferComponent>().framebuffer->bind();
+			scene.light.get_component<FramebufferComponent>().framebuffer->clear();
+
+			scene.observer = light;
+			scene.on_update_runtime(time_delta);
+		}
+
+		ms_framebuffer->bind();
+		ms_framebuffer->clear();
+
+		scene.observer = runtime_observer;
+		scene.on_update_runtime(time_delta);
+	}
 
     Framebuffer::blit(ms_framebuffer, framebuffer);
     Renderer::bind_default_framebuffer();
+
+
 }
 
 void MainLayer::on_imgui_render()
@@ -344,6 +392,8 @@ void MainLayer::scene_window()
     }
 
     long int tex_id = framebuffer->get_color_attachment_id();
+// 	if (mode == Mode::RUNTIME)
+// 		tex_id = scene.light.get_component<FramebufferComponent>().framebuffer->get_depth_attachment_id();
     ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
                  ImVec2(1, 0));
 

@@ -2,6 +2,7 @@
 #define ENTITY_H_
 
 #include "entt.hpp"
+#include "Core.h"
 
 using namespace std;
 
@@ -42,7 +43,9 @@ public:
 	T &get_component()
     {
         if (!has_component<T>())
-            cout << "Entity does not have this component" << endl;
+		{
+            CORE_ERROR("Entity does not have this component");
+		}
         return scene_registry_handle->get<T>(entity_handle);
     }
 
