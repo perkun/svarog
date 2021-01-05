@@ -38,41 +38,28 @@ public:
 	void on_key_released_event(KeyReleasedEvent&);
 	void on_window_resize_event(WindowResizeEvent&);
 
+private:
+	IndexedModel create_grid(float size, float sep, float alpha);
 	// GUI functions
 	void scene_window();
 	void scene_options_panel();
 	void menu_bar();
-
 	void toggle_mode();
-
-
-	IndexedModel create_grid(float size, float sep, float alpha);
 
 	bool show_imgui_demo = false;
 	bool show_scene_options = true;
 	bool show_grid = true;
 
-private:
 	vec2 viewport_panel_size;
 	ArgumentHandler arg_handler;
 
 	EditorCamera editor_camera;
-
-// 	Shader *basic_shader, *color_shader, *line_shader;;
-
 	Scene scene, ui_scene;
 
-// 	VertexArrayObject *model_vao;
-	Texture *texture = NULL;
-
 	Entity grid;
-
 	Mode mode = Mode::EDITOR;
-
 	int guizmo_type = -1;
-
 	SceneHierarchyPanel scene_hierarchy_panel;
-
 	Framebuffer *ms_framebuffer, *framebuffer;
 
 // 	double fps;

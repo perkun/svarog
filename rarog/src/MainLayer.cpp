@@ -30,7 +30,9 @@ MainLayer::~MainLayer()
 void MainLayer::on_attach()
 {
     auto window = Application::get_window();
+    Renderer::set_line_width(2.);
     vec3 init_model_pos(0., 5., 0.);
+
 
     shared_ptr<VertexArrayObject> model_vao;
     if (arg_handler.isSpecified("model"))
@@ -47,32 +49,29 @@ void MainLayer::on_attach()
         model_vao =
             make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
 
-
-
     grid = scene.create_entity("grid");
     grid.add_component<Material>(Application::shaders["line_shader"]);
     grid.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(create_grid(100., 5., 0.2), true));
 
-    scene.observer = scene.create_entity("Observer");
-    CameraComponent &socp = scene.observer.add_component<CameraComponent>(
+    Entity runtime_observer = scene.create_entity("Observer");
+    CameraComponent &socp = runtime_observer.add_component<CameraComponent>(
         make_shared<PerspectiveCamera>(
             radians(45.0), window->width / (float)window->height, 0.01, 500.0));
-    scene.observer.add_component<NativeScriptComponent>()
+    runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
     socp.camera->update_target(init_model_pos);
 
-    Transform &sot = scene.observer.get_component<Transform>();
+    Transform &sot = runtime_observer.get_component<Transform>();
     sot.position = vec3(6.3, -3., 5.12);
     sot.speed = 8.;
 
-    scene.light = scene.create_entity("Light");
-    scene.light.add_component<MeshComponent>(
+    Entity light = scene.create_entity("Light");
+    light.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.5))));
-    scene.light.add_component<Material>(Application::shaders["color_shader"])
+    light.add_component<Material>(Application::shaders["color_shader"])
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
-
 
     Entity model = scene.create_entity("Model");
     model.add_component<Material>(Application::shaders["basic_shader"])
@@ -81,13 +80,17 @@ void MainLayer::on_attach()
     model.add_component<NativeScriptComponent>().bind<ModelController>();
     model.get_component<Transform>().position = init_model_pos;
 
-    Renderer::set_line_width(2.);
 
     scene.root_entity.add_child(model);
-    scene.root_entity.add_child(scene.light);
-    scene.root_entity.add_child(scene.observer);
+    scene.root_entity.add_child(light);
+    scene.root_entity.add_child(runtime_observer);
+
 
     ui_scene.root_entity.add_child(grid);
+
+	scene.observer = runtime_observer;
+	scene.light = light;
+
 
     editor_camera =
         EditorCamera(radians(45.), window->width / (float)window->height, 0.01,
@@ -175,7 +178,6 @@ void MainLayer::on_update(double time_delta)
     {
         scene.on_update_editor(time_delta, editor_camera);
         ui_scene.on_update_editor(time_delta, editor_camera);
-
     }
     else if (mode == Mode::RUNTIME)
         scene.on_update_runtime(time_delta);

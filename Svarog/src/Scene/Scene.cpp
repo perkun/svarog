@@ -100,23 +100,25 @@ void Scene::draw_depth_first(Entity &entity)
 
 void Scene::on_update_runtime(double time_delta)
 {
-	//update scripts
-	registry.view<NativeScriptComponent>().each([=](auto entity, auto&nsc)
-	{
-		if (!nsc.instance)
-		{   // instanciate script
-			nsc.instance = nsc.instantiate_script();
-			nsc.instance->entity = Entity(entity, &(this->registry));
-			nsc.instance->on_create();
-		}
-		nsc.instance->on_update(time_delta);
-	});
+    // update scripts
+    registry.view<NativeScriptComponent>().each([=](auto entity, auto &nsc) {
+        if (!nsc.instance)
+        { // instanciate script
+            nsc.instance = nsc.instantiate_script();
+            nsc.instance->entity = Entity(entity, &(this->registry));
+            nsc.instance->on_create();
+        }
+        nsc.instance->on_update(time_delta);
+    });
 
-	Renderer::begin_scene(observer.get_component<CameraComponent>().camera);
+    CORE_ASSERT(observer.has_component<CameraComponent>(),
+           "Observer does not have a CameraComponent");
+
+
+    Renderer::begin_scene(observer.get_component<CameraComponent>().camera);
     draw_depth_first(root_entity);
-	Renderer::end_scene();
+    Renderer::end_scene();
 }
-
 
 void Scene::on_update_editor(double time_delta, EditorCamera &editor_camera)
 {
