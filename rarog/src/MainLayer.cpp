@@ -634,6 +634,8 @@ void MainLayer::make_lightcurve(Entity &target)
 	lc.calculate_max();
 	lightcurves.push_back(lc);
 
+	lc_id = lightcurves.size() -1;
+
 	// resize back
 	scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
 	ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
