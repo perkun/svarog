@@ -46,6 +46,8 @@ private:
 	void scene_options_panel();
 	void menu_bar();
 	void toggle_mode();
+	void set_editor_mode();
+	void set_runtime_mode();
 
 	void make_lightcurve(Entity &target);
 

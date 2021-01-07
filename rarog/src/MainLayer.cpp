@@ -273,29 +273,35 @@ void MainLayer::on_detach()
 void MainLayer::toggle_mode()
 {
     if (mode == Mode::EDITOR)
-    {
-        mode = Mode::RUNTIME;
-        // 		scene.observer.get_component<CameraComponent>().camera->update_target(
-        // 			model.get_component<Transform>().position);
-        guizmo_type = -1;
-        Application::get_window()->set_cursor_disabled();
-
-		runtime_observer.get_component<SceneStatus>().render = false;
-        runtime_observer.get_component<CameraComponent>().camera->position =
-            runtime_observer.get_component<Transform>().position;
-		runtime_observer.get_component<CameraComponent>().camera->update_target(
-				model.get_component<Transform>().position);
-// 				vec3(0.));
-    }
+		set_runtime_mode();
     else if (mode == Mode::RUNTIME)
-    {
-        mode = Mode::EDITOR;
-        Application::get_window()->set_cursor_normal();
-        // TODO: make all objects visible in Editor mode
-        runtime_observer.get_component<SceneStatus>().render = true;
-        runtime_observer.get_component<Transform>().position =
-            runtime_observer.get_component<CameraComponent>().camera->position;
-    }
+		set_editor_mode();
+}
+
+void MainLayer::set_editor_mode()
+{
+    mode = Mode::EDITOR;
+    Application::get_window()->set_cursor_normal();
+    // TODO: make all objects visible in Editor mode
+    runtime_observer.get_component<SceneStatus>().render = true;
+    runtime_observer.get_component<Transform>().position =
+        runtime_observer.get_component<CameraComponent>().camera->position;
+}
+
+void MainLayer::set_runtime_mode()
+{
+    mode = Mode::RUNTIME;
+    // 		scene.observer.get_component<CameraComponent>().camera->update_target(
+    // 			model.get_component<Transform>().position);
+    guizmo_type = -1;
+    Application::get_window()->set_cursor_disabled();
+
+    runtime_observer.get_component<SceneStatus>().render = false;
+    runtime_observer.get_component<CameraComponent>().camera->position =
+        runtime_observer.get_component<Transform>().position;
+    runtime_observer.get_component<CameraComponent>().camera->update_target(
+        model.get_component<Transform>().position);
+    // 				vec3(0.));
 }
 
 void MainLayer::menu_bar()
@@ -603,13 +609,13 @@ void MainLayer::make_lightcurve(Entity &target)
 	int height = 256;
 	float *pixel_buffer = new float[width * height];
 	Lightcurve lc(num_points);
-
-	mode = Mode::EDITOR;
-	toggle_mode();  //  now we are sure we are in RUNTIME mode
-
 	vec4 bg_color = Application::get_bg_color();
-	Application::set_bg_color(vec4(0., 0., 0., 1.));
 
+	runtime_observer.get_component<CameraComponent>().camera->update_target(
+			target.get_component<Transform>().position);
+
+	set_runtime_mode();
+	Application::set_bg_color(vec4(0., 0., 0., 1.));
 	scene.on_resize(width, height);
 	ms_framebuffer->resize(width, height);
 	framebuffer->resize(width, height);
@@ -629,20 +635,17 @@ void MainLayer::make_lightcurve(Entity &target)
 	}
 	target.get_component<Transform>().rotation.z += glm::radians(num_points/360.);
 
-
 	lc.calculate_min();
 	lc.calculate_max();
 	lightcurves.push_back(lc);
 
-	lc_id = lightcurves.size() -1;
+	lc_id = lightcurves.size() - 1;
 
-	// resize back
 	scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
 	ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
 	framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
 
 	Application::set_bg_color(bg_color);
-	toggle_mode();  //  back to EDITOR mode
-
+	set_editor_mode();
 	delete[] pixel_buffer;
 }
