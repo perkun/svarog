@@ -57,17 +57,22 @@ void MainLayer::on_attach()
         make_shared<VertexArrayObject>(create_grid(100., 5., 0.2), true));
 
     runtime_observer = scene.create_entity("Observer");
-    CameraComponent &socp = runtime_observer.add_component<CameraComponent>(
+    CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
         make_shared<PerspectiveCamera>(
             radians(45.0), window->width / (float)window->height, 0.01, 500.0));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
-    socp.camera->position = vec3(6.3, -3., 5.12);
-    socp.camera->update_target(init_model_pos);
 
-    Transform &sot = runtime_observer.get_component<Transform>();
-    sot.position = vec3(6.3, -3., 5.12);
-    sot.speed = 8.;
+	runtime_observer.add_component<Material>(Application::shaders["color_shader"])
+				.uniforms_vec4[ "u_color"] = vec4(40/256., 185/256., 240/256., 1.0);
+	runtime_observer.add_component<MeshComponent>(make_shared<VertexArrayObject>(
+			IndexedIcoSphere(vec3(0.), vec3(0.3))));
+    rocp.camera->position = vec3(3., 3., 0.);
+    rocp.camera->update_target(init_model_pos);
+
+    Transform &rot = runtime_observer.get_component<Transform>();
+    rot.position = rocp.camera->position;
+    rot.speed = 8.;
 
     light = scene.create_entity("Light");
     light.add_component<MeshComponent>(
@@ -218,6 +223,7 @@ void MainLayer::on_update(double time_delta)
 
     if (mode == Mode::EDITOR)
     {
+
         editor_camera.on_update(time_delta);
 
         ms_framebuffer->bind();
@@ -228,7 +234,6 @@ void MainLayer::on_update(double time_delta)
     }
     else if (mode == Mode::RUNTIME)
     {
-
         ms_framebuffer->bind();
         ms_framebuffer->clear();
 
@@ -271,11 +276,22 @@ void MainLayer::toggle_mode()
         // 			model.get_component<Transform>().position);
         guizmo_type = -1;
         Application::get_window()->set_cursor_disabled();
+
+		runtime_observer.get_component<SceneStatus>().render = false;
+        runtime_observer.get_component<CameraComponent>().camera->position =
+            runtime_observer.get_component<Transform>().position;
+		runtime_observer.get_component<CameraComponent>().camera->update_target(
+// 				model.get_component<Transform>().position);
+				vec3(0.));
     }
     else if (mode == Mode::RUNTIME)
     {
         mode = Mode::EDITOR;
         Application::get_window()->set_cursor_normal();
+        // TODO: make all objects visible in Editor mode
+        runtime_observer.get_component<SceneStatus>().render = true;
+        runtime_observer.get_component<Transform>().position =
+            runtime_observer.get_component<CameraComponent>().camera->position;
     }
 }
 
@@ -381,12 +397,12 @@ void MainLayer::scene_window()
     //     if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
     //         return;
 
-	ImGui::Begin("depth map");
-
-	long int shadow_tex_id = light.get_component<FramebufferComponent>().framebuffer->get_depth_attachment_id();
-    ImGui::Image((void *)shadow_tex_id, ImVec2(300, 300), ImVec2(0, 1),
-                 ImVec2(1, 0));
-	ImGui::End();
+// 	ImGui::Begin("depth map");
+//
+// 	long int shadow_tex_id = light.get_component<FramebufferComponent>().framebuffer->get_depth_attachment_id();
+//     ImGui::Image((void *)shadow_tex_id, ImVec2(300, 300), ImVec2(0, 1),
+//                  ImVec2(1, 0));
+// 	ImGui::End();
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
     ImGui::Begin("Scene");
