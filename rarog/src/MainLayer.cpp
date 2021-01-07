@@ -7,6 +7,7 @@
 #include "Math.h"
 #include "ModelController.h"
 #include "Renderer.h"
+#include "Utils/FileDialog.h"
 #include <glm/gtc/type_ptr.hpp>
 
 MainLayer::MainLayer(int argc, char *argv[])
@@ -171,7 +172,7 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 
 void MainLayer::on_window_resize_event(WindowResizeEvent &event)
 {
-    ivec2 size = event.get_size();
+//     ivec2 size = event.get_size();
 }
 
 void MainLayer::on_update(double time_delta)
@@ -539,6 +540,32 @@ void MainLayer::scene_options_panel()
             ui_scene.root_entity.add_child(grid);
     }
 
+    if (lightcurves.size() > 0)
+    {
+        ImGui::InputInt("Lightcurve Nr", &lc_id, 1);
+
+        if (lc_id < 0)
+            lc_id = 0;
+        if (lc_id >= lightcurves.size())
+            lc_id = lightcurves.size() - 1;
+
+		float min = lightcurves[lc_id].min;
+		float max = lightcurves[lc_id].max;
+
+        ImGui::PlotLines("LC", lightcurves[lc_id].data(),
+                         lightcurves[lc_id].size(), 0, NULL, min, max,
+                         ImVec2(400.0f, 260.0f));
+
+		if (ImGui::Button("Save magnitudes"))
+		{
+			lightcurves[lc_id].save_mag(FileDialog::save_file("*").c_str());
+		}
+		if (ImGui::Button("Save flux"))
+		{
+			lightcurves[lc_id].save_flux(FileDialog::save_file("*").c_str());
+		}
+    }
+
     ImGui::End();
 }
 
@@ -571,50 +598,49 @@ IndexedModel MainLayer::create_grid(float size, float sep, float alpha)
 
 void MainLayer::make_lightcurve(Entity &target)
 {
-	if (mode == Mode::RUNTIME)
-		return;  //  for now
+	int num_points = 360;
+	int width = 256;
+	int height = 256;
+	float *pixel_buffer = new float[width * height];
+	Lightcurve lc(num_points);
 
+	mode = Mode::EDITOR;
 	toggle_mode();  //  now we are sure we are in RUNTIME mode
 
-	int width = framebuffer->specification.width;
-	int height = framebuffer->specification.height;
+	vec4 bg_color = Application::get_bg_color();
+	Application::set_bg_color(vec4(0., 0., 0., 1.));
 
+	scene.on_resize(width, height);
+	ms_framebuffer->resize(width, height);
+	framebuffer->resize(width, height);
 
-	float *pixel_buffer = new float[width * height];
-	vector<double> magnitudes;
-	magnitudes.reserve(360);
-
-	for (int i = 0; i < 360; i++)
+	for (int i = 0; i < num_points; i++)
 	{
-		target.get_component<Transform>().rotation.z += glm::radians(1.);
+		target.get_component<Transform>().rotation.z += glm::radians(num_points/360.);
 		on_update(0);
 
 		framebuffer->bind();
 		glReadPixels(0, 0, width, height, GL_RED, GL_FLOAT, pixel_buffer);
 
-		double mag = 0.0;
+		double flux = 0.0;
 		for (int j = 0; j < width * height; j++)
-		{
-			mag += pixel_buffer[j];
-		}
-		mag = -2.5*log10(mag);
-		magnitudes.emplace_back(mag);
+			flux += pixel_buffer[j];
+		lc.push_value(flux);
 	}
+	target.get_component<Transform>().rotation.z += glm::radians(num_points/360.);
 
 
+	lc.calculate_min();
+	lc.calculate_max();
+	lightcurves.push_back(lc);
 
-	double avg = 0.;
-	for (double mag: magnitudes)
-		avg += mag;
-	avg /= magnitudes.size();
-	for (double &mag: magnitudes)
-		mag -= avg;
+	// resize back
+	scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
+	ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+	framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
 
-	FILE *out = fopen("../../../data/lc_rarog.dat", "w");
-	for (int i = 0; i < 360; i++)
-		fprintf(out, "%f\t%.16lf\n", i/360., magnitudes[i]);
-	fclose(out);
+	Application::set_bg_color(bg_color);
+	toggle_mode();  //  back to EDITOR mode
 
 	delete[] pixel_buffer;
-	toggle_mode();  //  back to EDITOR mode
 }
