@@ -42,7 +42,7 @@ void MainLayer::on_attach()
         string filename = arg_handler.args["model"].to_str();
         if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
             model_vao = make_shared<VertexArrayObject>(
-                IndexedModelObj(filename, NormalIndexing::PER_FACE));
+                IndexedModelObj(filename, NormalIndexing::PER_VERTEX));
         else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
             model_vao = make_shared<VertexArrayObject>(
                 IndexedModelShp(filename, NormalIndexing::PER_FACE));
@@ -58,8 +58,10 @@ void MainLayer::on_attach()
 
     runtime_observer = scene.create_entity("Observer");
     CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
-        make_shared<PerspectiveCamera>(
-            radians(45.0), window->width / (float)window->height, 0.01, 500.0));
+//         make_shared<PerspectiveCamera>(
+//             radians(45.0), window->width / (float)window->height, 0.01, 500.0));
+		   make_shared<OrthograficCamera>(
+				   6., 1.0, 0.1, 20.));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
@@ -99,14 +101,14 @@ void MainLayer::on_attach()
 
 
 
-	Entity box = scene.create_entity("box");
-	box.add_component<Material>(Application::shaders["basic_shader"]);
-	box.add_component<MeshComponent>(make_shared<VertexArrayObject>(IndexedCube()));
+// 	Entity box = scene.create_entity("box");
+// 	box.add_component<Material>(Application::shaders["basic_shader"]);
+// 	box.add_component<MeshComponent>(make_shared<VertexArrayObject>(IndexedCube()));
 
     scene.root_entity.add_child(model);
     scene.root_entity.add_child(light);
     scene.root_entity.add_child(runtime_observer);
-    scene.root_entity.add_child(box);
+//     scene.root_entity.add_child(box);
 
     ui_scene.root_entity.add_child(grid);
 
@@ -281,8 +283,8 @@ void MainLayer::toggle_mode()
         runtime_observer.get_component<CameraComponent>().camera->position =
             runtime_observer.get_component<Transform>().position;
 		runtime_observer.get_component<CameraComponent>().camera->update_target(
-// 				model.get_component<Transform>().position);
-				vec3(0.));
+				model.get_component<Transform>().position);
+// 				vec3(0.));
     }
     else if (mode == Mode::RUNTIME)
     {
@@ -375,6 +377,14 @@ void MainLayer::menu_bar()
 
             ImGui::EndMenu();
         }
+
+		if (ImGui::BeginMenu("Do stuff"))
+		{
+			if (ImGui::MenuItem("Make lightcurve"))
+				make_lightcurve(model);
+
+			ImGui::EndMenu();
+		}
 
         string run_btn_label;
         if (mode == Mode::EDITOR)
@@ -556,4 +566,55 @@ IndexedModel MainLayer::create_grid(float size, float sep, float alpha)
                     vec4(28. / 256, 157. / 256, 51. / 256, alpha)));
 
     return grid_batch.indexed_model;
+}
+
+
+void MainLayer::make_lightcurve(Entity &target)
+{
+	if (mode == Mode::RUNTIME)
+		return;  //  for now
+
+	toggle_mode();  //  now we are sure we are in RUNTIME mode
+
+	int width = framebuffer->specification.width;
+	int height = framebuffer->specification.height;
+
+
+	float *pixel_buffer = new float[width * height];
+	vector<double> magnitudes;
+	magnitudes.reserve(360);
+
+	for (int i = 0; i < 360; i++)
+	{
+		target.get_component<Transform>().rotation.z += glm::radians(1.);
+		on_update(0);
+
+		framebuffer->bind();
+		glReadPixels(0, 0, width, height, GL_RED, GL_FLOAT, pixel_buffer);
+
+		double mag = 0.0;
+		for (int j = 0; j < width * height; j++)
+		{
+			mag += pixel_buffer[j];
+		}
+		mag = -2.5*log10(mag);
+		magnitudes.emplace_back(mag);
+	}
+
+
+
+	double avg = 0.;
+	for (double mag: magnitudes)
+		avg += mag;
+	avg /= magnitudes.size();
+	for (double &mag: magnitudes)
+		mag -= avg;
+
+	FILE *out = fopen("../../../data/lc_rarog.dat", "w");
+	for (int i = 0; i < 360; i++)
+		fprintf(out, "%f\t%.16lf\n", i/360., magnitudes[i]);
+	fclose(out);
+
+	delete[] pixel_buffer;
+	toggle_mode();  //  back to EDITOR mode
 }
