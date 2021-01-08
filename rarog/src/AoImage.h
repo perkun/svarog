@@ -2,6 +2,7 @@
 #define AOIMAGE_H_
 
 #include "Texture.h"
+#include "Entity.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ public:
 
 	shared_ptr<Texture> texture;
 
+	Entity ghost_observer, ghost_target;
 
 private:
 

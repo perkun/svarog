@@ -1,3 +1,4 @@
+#include "Entity.h"
 
 class Lightcurve
 {
@@ -23,6 +24,9 @@ public:
 	float* data() { return fluxes.data(); }
 
 	float min, max;
+
+	Entity ghost_observer, ghost_target;
+
 
 private:
 	vector<float> fluxes;

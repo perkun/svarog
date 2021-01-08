@@ -78,11 +78,20 @@ void ObservatoryPanel::display_lightcurves()
     float min = lightcurves[lc_id].min;
     float max = lightcurves[lc_id].max;
 
+	if (ImGui::Button("set lc positions"))
+	{
+		layer->scene.observer.get_component<Transform>().position =
+			lightcurves[lc_id].ghost_observer.get_component<Transform>().position;
+		layer->scene.observer.get_component<CameraComponent>().camera->position =
+			lightcurves[lc_id].ghost_observer.get_component<Transform>().position;
+	}
+
     ImGui::PlotLines("LC", lightcurves[lc_id].data(), lightcurves[lc_id].size(),
                      0, NULL, min, max, ImVec2(200.0f, 130.0f));
 
 	if (ImGui::Button("Delete LC"))
 	{
+		lightcurves[lc_id].ghost_observer.destroy();
 		lightcurves.erase(lightcurves.begin() + lc_id);
 	}
 
@@ -110,11 +119,19 @@ void ObservatoryPanel::display_ao_images()
     if (ao_id >= ao_images.size())
         ao_id = ao_images.size() - 1;
 
+	if (ImGui::Button("set ao positions"))
+	{
+		layer->scene.observer.get_component<Transform>().position =
+			ao_images[ao_id].ghost_observer.get_component<Transform>().position;
+		layer->scene.observer.get_component<CameraComponent>().camera->position =
+			ao_images[ao_id].ghost_observer.get_component<Transform>().position;
+	}
     long int tex_id = ao_images[ao_id].texture->get_texture_id();
     ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));
 
 	if (ImGui::Button("Delete AO image"))
 	{
+		ao_images[ao_id].ghost_observer.destroy();
 		ao_images.erase(ao_images.begin() + ao_id);
 	}
 
@@ -160,8 +177,21 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 
     lc.calculate_min();
     lc.calculate_max();
-    lightcurves.push_back(lc);
 
+
+	Entity ghost_observer = layer->ui_scene.create_entity("LC ghost");
+	ghost_observer.add_component<Material>(Application::shaders["color_shader"])
+		.uniforms_vec4[ "u_color"] = vec4(32/256., 172/256., 64/256., 0.2);
+	ghost_observer.add_component<MeshComponent>(make_shared<VertexArrayObject>(
+				IndexedIcoSphere(vec3(0.), vec3(0.3))));
+	Transform &got = ghost_observer.get_component<Transform>();
+	got.position = observer.get_component<Transform>().position;
+
+	layer->ui_scene.root_entity.add_child(ghost_observer);
+
+	lc.ghost_observer = ghost_observer;
+
+    lightcurves.push_back(lc);
     lc_id = lightcurves.size() - 1;
 
     layer->scene.on_resize(layer->viewport_panel_size.x,
@@ -211,6 +241,20 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
 
 	ao_images.push_back(AoImage(ao_width, ao_height));
 	ao_images.back().texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
+
+
+	Entity ghost_observer = layer->ui_scene.create_entity("AO ghost");
+	ghost_observer.add_component<Material>(Application::shaders["color_shader"])
+		.uniforms_vec4[ "u_color"] = vec4(237/256., 84/256., 84/256., 0.2);
+	ghost_observer.add_component<MeshComponent>(make_shared<VertexArrayObject>(
+				IndexedIcoSphere(vec3(0.), vec3(0.3))));
+	Transform &got = ghost_observer.get_component<Transform>();
+	got.position = observer.get_component<Transform>().position;
+
+	layer->ui_scene.root_entity.add_child(ghost_observer);
+
+	ao_images.back().ghost_observer = ghost_observer;
+
 
 	ao_id = ao_images.size() - 1;
 
