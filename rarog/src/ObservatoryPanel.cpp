@@ -19,29 +19,38 @@ void ObservatoryPanel::on_imgui_render()
 	observe_button();
 	ImGui::Separator();
 	// observations buttons
-	if (ImGui::Button("Make lightcurve"))
+	if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
 		make_lightcurve(layer->model, layer->runtime_observer);
-
-
+	ImGui::SameLine(0., 20.);
+	ImGui::PushItemWidth(100.);
 	ImGui::InputInt("LC num points", &lc_num_points);
 
 
-	if (ImGui::Button("Make AO image"))
+	if (ImGui::Button("Make AO image", ImVec2(150, 0)))
 		make_ao_image(layer->model, layer->runtime_observer);
-
+	ImGui::SameLine(0.0, 20.0);
+	ImGui::PushItemWidth(100.);
 	ImGui::InputInt("AO size [px]", &ao_size, 1, 100);
 
+
 	ImGui::Separator();
+
+	for (int i = 0; i < 10; i++) ImGui::Spacing();
+
 
 	auto cam = dynamic_pointer_cast<OrthograficCamera>(
 			layer->scene.observer.get_component<CameraComponent>().camera);
 
+
+	ImGui::PushItemWidth(150.);
 	ImGui::DragFloat("camera fov", &(cam->size_x), 0.2, 0.5, 100.);
 
 	ImGui::Separator();
+	for (int i = 0; i < 10; i++) ImGui::Spacing();
 	display_lightcurves();
 
 	ImGui::Separator();
+	for (int i = 0; i < 10; i++) ImGui::Spacing();
 	display_ao_images();
 
 	ImGui::End();
@@ -68,7 +77,8 @@ void ObservatoryPanel::display_lightcurves()
     if (lightcurves.size() == 0)
         return;
 
-    ImGui::InputInt("Lightcurve Nr", &lc_id, 1);
+	ImGui::PushItemWidth(100.);
+    ImGui::InputInt("Lc Nr", &lc_id, 1);
 
     if (lc_id < 0)
         lc_id = 0;
@@ -78,6 +88,7 @@ void ObservatoryPanel::display_lightcurves()
     float min = lightcurves[lc_id].min;
     float max = lightcurves[lc_id].max;
 
+	ImGui::SameLine(0., 20.);
 	if (ImGui::Button("set lc positions"))
 	{
 		layer->scene.observer.get_component<Transform>().position =
@@ -112,13 +123,15 @@ void ObservatoryPanel::display_ao_images()
     if (ao_images.size() == 0)
         return;
 
-    ImGui::InputInt("AO img Nr", &ao_id, 1);
+	ImGui::PushItemWidth(100.);
+    ImGui::InputInt("AO Nr", &ao_id, 1);
 
     if (ao_id < 0)
         ao_id = 0;
     if (ao_id >= ao_images.size())
         ao_id = ao_images.size() - 1;
 
+	ImGui::SameLine(0., 20.);
 	if (ImGui::Button("set ao positions"))
 	{
 		layer->scene.observer.get_component<Transform>().position =
@@ -152,6 +165,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
     observer.get_component<CameraComponent>().camera->update_target(
         target.get_component<Transform>().position);
 
+	Mode prev_mode = layer->mode;
     layer->set_runtime_mode();
 
     Application::set_bg_color(vec4(0., 0., 0., 1.));
@@ -202,7 +216,8 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
                                layer->viewport_panel_size.y);
 
     Application::set_bg_color(bg_color);
-    layer->set_editor_mode();
+	if (prev_mode == Mode::EDITOR)
+		layer->set_editor_mode();
     delete[] pixel_buffer;
 }
 
@@ -223,6 +238,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
     observer.get_component<CameraComponent>().camera->update_target(
         target.get_component<Transform>().position);
 
+	Mode prev_mode = layer->mode;
     layer->set_runtime_mode();
 
     Application::set_bg_color(vec4(0.0, 0.0, 0.0, 1.));
@@ -266,7 +282,10 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
                                layer->viewport_panel_size.y);
 
     Application::set_bg_color(bg_color);
-    layer->set_editor_mode();
+
+	if (prev_mode == Mode::EDITOR)
+		layer->set_editor_mode();
+
 	delete[] pixel_buffer_r;
 	delete[] pixel_buffer_g;
 	delete[] pixel_buffer_b;
