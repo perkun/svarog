@@ -40,7 +40,6 @@ protected:
 };
 
 
-
 class OrthograficCamera : public Camera
 {
 public:
@@ -49,9 +48,10 @@ public:
 
 	virtual mat4 get_perspective() override;
 
+	float size_x;
+
 protected:
 	float view_box_top, view_box_bottom, view_box_left, view_box_right;
-	float size_x;
 };
 
 #endif /* CAMERA_H_ */

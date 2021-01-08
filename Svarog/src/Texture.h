@@ -2,6 +2,7 @@
 #define TEXTURE_H_
 
 #include "stb_image.h"
+#include "stb_image_write.h"
 
 using namespace std;
 using namespace glm;
@@ -41,6 +42,8 @@ public:
 	void bind(unsigned int slot = 0);
 	vec2 get_dimentions();
 	long get_size();
+
+	void save(const char* filename);
 protected:
 	Texture() {}
 
@@ -55,7 +58,7 @@ protected:
 template <typename T>
 void Texture::update(T *data_r, T *data_g, T *data_b, int xoffset, int yoffset)
 {
-	T data[specs.width * specs.height * 3];
+	T *data = new T[specs.width * specs.height * 3];
 
 	for (int i = 0; i < specs.width * specs.height; i++)
 	{
@@ -67,10 +70,12 @@ void Texture::update(T *data_r, T *data_g, T *data_b, int xoffset, int yoffset)
     bind();
 	if (specs.target == GL_TEXTURE_2D)
 		glTexSubImage2D(specs.target, specs.level, xoffset, yoffset, specs.width,
-						specs.height, specs.format, specs.type, &data[0]);
+						specs.height, specs.format, specs.type, data);
 // 	else if (specs.target == GL_TEXTURE_3D)
 // 		glTexImage3D(specs.target, specs.level, specs.internal_format, specs.width,
 // 				specs.height, specs.depth, specs.border, specs.format, specs.type, &data[0]);
+
+	delete[] data;
 
 }
 

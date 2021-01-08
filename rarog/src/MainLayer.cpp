@@ -34,7 +34,6 @@ MainLayer::~MainLayer()
 
 void MainLayer::on_attach()
 {
-	observatory_panel = new ObservatoryPanel(this);
 
     auto window = Application::get_window();
     Renderer::set_line_width(2.);
@@ -66,7 +65,7 @@ void MainLayer::on_attach()
 //         make_shared<PerspectiveCamera>(
 //             radians(45.0), window->width / (float)window->height, 0.01, 500.0));
 		   make_shared<OrthograficCamera>(
-				   6., 1.0, 0.1, 20.));
+				   3., 1.0, 0.1, 20.));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
@@ -135,6 +134,8 @@ void MainLayer::on_attach()
 
     framebuffer = new Framebuffer(window->width, window->height,
                                   COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
+
+	observatory_panel = new ObservatoryPanel(this);
 }
 
 void MainLayer::on_event(Event &e)
@@ -202,6 +203,7 @@ void MainLayer::on_update(double time_delta)
 
 	if (shadow_map) // render to shadowmap
 	{
+		Entity tmp_scene_observer = scene.observer;
 		ASSERT(light.has_component<FramebufferComponent>(),
 				"Scene light doesn't have Framebuffer Component");
 		ASSERT(light.has_component<CameraComponent>(),
@@ -229,6 +231,7 @@ void MainLayer::on_update(double time_delta)
 		fb->bind_depth_texture(1);
 
 		lsc.render = true;
+		scene.observer = tmp_scene_observer;
 	}
 
 	scene.light = light;
@@ -248,7 +251,6 @@ void MainLayer::on_update(double time_delta)
         ms_framebuffer->bind();
         ms_framebuffer->clear();
 
-        scene.observer = runtime_observer;
         scene.on_update_runtime(time_delta);
     }
 

@@ -83,8 +83,37 @@ void Texture::multiply_data(float factor)
 {
 }
 
+void Texture::save(const char* filename)
+{
+    stbi_flip_vertically_on_write(1);
+    int channels = 1;
+    if (specs.format == GL_RGBA)
+        channels = 4;
+    else if (specs.format == GL_RGB)
+        channels = 3;
+    else if (specs.format == GL_RED || specs.format == GL_BLUE ||
+             specs.format == GL_BLUE)
+        channels = 1;
 
+    // TODO: mach data type to the specs.type !!
+    float *data = new float[specs.width * specs.height * channels];
 
+    bind();
+    glGetTexImage(specs.target, 0, specs.format, specs.type, data);
+
+    unsigned char *png_data =
+        new unsigned char[specs.width * specs.height * channels];
+    for (int i = 0; i < specs.width * specs.height * channels; i++)
+    {
+        png_data[i] = (unsigned char)(data[i] * 255);
+    }
+
+    stbi_write_png(filename, specs.width, specs.height, channels, png_data,
+                   specs.width * channels);
+
+    delete[] data;
+    delete[] png_data;
+}
 
 ImgTexture::ImgTexture(string path)
 {
