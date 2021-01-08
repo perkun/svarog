@@ -42,7 +42,7 @@ public:
 	void draw_depth_first(Entity&);
 
 	void on_resize(float, float);
-	void on_update_runtime(double);
+	void on_update_runtime(double, bool update_scripts = true);
 	void on_update_editor(double, EditorCamera&);
 
 	void controllers_events(Event&);

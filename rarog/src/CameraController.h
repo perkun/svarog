@@ -69,7 +69,7 @@ protected:
 //         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_3))
 //             get_component<Transform>().rotate_about_target(cursor_shift);
 
-//         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_2))
+        if (Input::is_key_pressed(GLFW_KEY_LEFT_CONTROL))
 		{
 			shared_ptr<Camera> cam = get_component<CameraComponent>().camera;
 

@@ -6,8 +6,10 @@
 #include "ImGuizmo.h"
 #include "Math.h"
 #include "ModelController.h"
+#include "AsteroidController.h"
 #include "Renderer.h"
 #include "Utils/FileDialog.h"
+#include "ObservatoryPanel.h"
 #include <glm/gtc/type_ptr.hpp>
 
 MainLayer::MainLayer(int argc, char *argv[])
@@ -32,6 +34,8 @@ MainLayer::~MainLayer()
 
 void MainLayer::on_attach()
 {
+	observatory_panel = new ObservatoryPanel(this);
+
     auto window = Application::get_window();
     Renderer::set_line_width(2.);
     vec3 init_model_pos(0., 5., 0.);
@@ -97,8 +101,11 @@ void MainLayer::on_attach()
     model.add_component<Material>(Application::shaders["tex_sha"])
         .uniforms_int["u_has_texture"] = 0;
     model.add_component<MeshComponent>(model_vao);
-    model.add_component<NativeScriptComponent>().bind<ModelController>();
-    model.get_component<Transform>().position = init_model_pos;
+    model.add_component<NativeScriptComponent>().bind<AsteroidController>();
+//     model.add_component<NativeScriptComponent>().bind<ModelController>();
+	Transform &mt = model.get_component<Transform>();
+	mt.rotation_speed = 2 * M_PI / 10.;
+    mt.position = init_model_pos;
 
 
 
@@ -193,9 +200,7 @@ void MainLayer::on_update(double time_delta)
 
     ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
-
-
-	if (light) // render to shadowmap
+	if (shadow_map) // render to shadowmap
 	{
 		ASSERT(light.has_component<FramebufferComponent>(),
 				"Scene light doesn't have Framebuffer Component");
@@ -216,7 +221,11 @@ void MainLayer::on_update(double time_delta)
 		fb->bind();
 		fb->clear();
 		scene.observer = light;
-		scene.on_update_runtime(time_delta);
+
+		if (mode == Mode::EDITOR)
+			scene.on_update_editor(time_delta, editor_camera);
+		else if (mode == Mode::RUNTIME)
+			scene.on_update_runtime(time_delta, false);
 		fb->bind_depth_texture(1);
 
 		lsc.render = true;
@@ -226,7 +235,6 @@ void MainLayer::on_update(double time_delta)
 
     if (mode == Mode::EDITOR)
     {
-
         editor_camera.on_update(time_delta);
 
         ms_framebuffer->bind();
@@ -262,12 +270,14 @@ void MainLayer::on_imgui_render()
         ImGui::ShowDemoWindow();
 
     scene_hierarchy_panel.on_imgui_render();
+	observatory_panel->on_imgui_render();
 }
 
 void MainLayer::on_detach()
 {
     delete ms_framebuffer;
     delete framebuffer;
+	delete observatory_panel;
 }
 
 void MainLayer::toggle_mode()
@@ -294,7 +304,7 @@ void MainLayer::set_runtime_mode()
     // 		scene.observer.get_component<CameraComponent>().camera->update_target(
     // 			model.get_component<Transform>().position);
     guizmo_type = -1;
-    Application::get_window()->set_cursor_disabled();
+//     Application::get_window()->set_cursor_disabled();
 
     runtime_observer.get_component<SceneStatus>().render = false;
     runtime_observer.get_component<CameraComponent>().camera->position =
@@ -385,24 +395,7 @@ void MainLayer::menu_bar()
             ImGui::EndMenu();
         }
 
-		if (ImGui::BeginMenu("Do stuff"))
-		{
-			if (ImGui::MenuItem("Make lightcurve"))
-				make_lightcurve(model);
 
-			ImGui::EndMenu();
-		}
-
-        string run_btn_label;
-        if (mode == Mode::EDITOR)
-            run_btn_label = "Run";
-        else if (mode == Mode::RUNTIME)
-            run_btn_label = "Stop";
-
-        if (ImGui::Button(run_btn_label.c_str()))
-        {
-            toggle_mode();
-        }
 
         ImGui::EndMainMenuBar();
     }
@@ -546,31 +539,6 @@ void MainLayer::scene_options_panel()
             ui_scene.root_entity.add_child(grid);
     }
 
-    if (lightcurves.size() > 0)
-    {
-        ImGui::InputInt("Lightcurve Nr", &lc_id, 1);
-
-        if (lc_id < 0)
-            lc_id = 0;
-        if (lc_id >= lightcurves.size())
-            lc_id = lightcurves.size() - 1;
-
-		float min = lightcurves[lc_id].min;
-		float max = lightcurves[lc_id].max;
-
-        ImGui::PlotLines("LC", lightcurves[lc_id].data(),
-                         lightcurves[lc_id].size(), 0, NULL, min, max,
-                         ImVec2(400.0f, 260.0f));
-
-		if (ImGui::Button("Save magnitudes"))
-		{
-			lightcurves[lc_id].save_mag(FileDialog::save_file("*").c_str());
-		}
-		if (ImGui::Button("Save flux"))
-		{
-			lightcurves[lc_id].save_flux(FileDialog::save_file("*").c_str());
-		}
-    }
 
     ImGui::End();
 }
@@ -602,50 +570,3 @@ IndexedModel MainLayer::create_grid(float size, float sep, float alpha)
 }
 
 
-void MainLayer::make_lightcurve(Entity &target)
-{
-	int num_points = 360;
-	int width = 256;
-	int height = 256;
-	float *pixel_buffer = new float[width * height];
-	Lightcurve lc(num_points);
-	vec4 bg_color = Application::get_bg_color();
-
-	runtime_observer.get_component<CameraComponent>().camera->update_target(
-			target.get_component<Transform>().position);
-
-	set_runtime_mode();
-	Application::set_bg_color(vec4(0., 0., 0., 1.));
-	scene.on_resize(width, height);
-	ms_framebuffer->resize(width, height);
-	framebuffer->resize(width, height);
-
-	for (int i = 0; i < num_points; i++)
-	{
-		target.get_component<Transform>().rotation.z += glm::radians(num_points/360.);
-		on_update(0);
-
-		framebuffer->bind();
-		glReadPixels(0, 0, width, height, GL_RED, GL_FLOAT, pixel_buffer);
-
-		double flux = 0.0;
-		for (int j = 0; j < width * height; j++)
-			flux += pixel_buffer[j];
-		lc.push_value(flux);
-	}
-	target.get_component<Transform>().rotation.z += glm::radians(num_points/360.);
-
-	lc.calculate_min();
-	lc.calculate_max();
-	lightcurves.push_back(lc);
-
-	lc_id = lightcurves.size() - 1;
-
-	scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
-	ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
-	framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
-
-	Application::set_bg_color(bg_color);
-	set_editor_mode();
-	delete[] pixel_buffer;
-}

@@ -9,7 +9,6 @@
 #include "Batch.h"
 #include "Panels/SceneHierarchyPanel.h"
 #include "Framebuffer.h"
-#include "Lightcurve.h"
 // #include "Svarog.h"
 
 
@@ -23,9 +22,11 @@ enum class Mode {
 	NUM_MODES
 };
 
+class ObservatoryPanel;
 
 class MainLayer : public Layer
 {
+	friend class ObservatoryPanel;
 public:
     MainLayer(int argc, char *argv[]);
 	~MainLayer();
@@ -67,11 +68,10 @@ private:
 	Entity grid;
 	Mode mode = Mode::EDITOR;
 	int guizmo_type = -1;
-	SceneHierarchyPanel scene_hierarchy_panel;
 	Framebuffer *ms_framebuffer, *framebuffer;
 
-	vector<Lightcurve> lightcurves;
-	int lc_id;
+	SceneHierarchyPanel scene_hierarchy_panel;
+	ObservatoryPanel *observatory_panel;
 
 // 	double fps;
 // 	double fps_history[100];
