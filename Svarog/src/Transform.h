@@ -25,8 +25,8 @@ public:
 	float alpha, beta, gamma;
 	vec3 scale, position, rotation;
 
-private:
 	mat4 get_rotation_matrix_313();
+private:
 	mat4 get_rotation_matrix();
 };
 

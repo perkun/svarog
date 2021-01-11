@@ -2,7 +2,6 @@
 #include "Transform.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
 
 Transform::Transform()
 {
@@ -19,8 +18,8 @@ void Transform::update_local()
 {
 	local =
 	 	 glm::translate(position) * get_rotation_matrix() * glm::scale(scale);
-// 	 	 glm::translate(position) * get_rotation_matrix_313() * glm::scale(scale);
 }
+
 
 
 mat4 Transform::get_local_tansform()

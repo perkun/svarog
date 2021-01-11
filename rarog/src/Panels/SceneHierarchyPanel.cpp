@@ -241,10 +241,12 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 		// TODO: convertions rad -> deg, and positions * multiplicant
 		Transform &t = entity.get_component<Transform>();
 		glm::vec3 rot_deg;
+
 		rot_deg = (float)(180./M_PI) * t.rotation ;
 		ImGui::DragFloat3("Position", glm::value_ptr(t.position), 0.1);
 		ImGui::DragFloat3("Rotation [deg]", glm::value_ptr(rot_deg), 0.1);
 		ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
+
 		t.rotation = rot_deg * (float)(M_PI / 180.0);
 	}
 

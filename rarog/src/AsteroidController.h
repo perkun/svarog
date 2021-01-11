@@ -29,12 +29,17 @@ protected:
     virtual void on_update(double time_delta) override
     {
 		Transform &t = get_component<Transform>();
-		t.rotation.z += t.rotation_speed * time_delta;
+		float gamma = t.rotation_speed * time_delta;
 
-		if (t.rotation.z < 0.)
-			t.rotation.z += 2*M_PI;
-		if (t.rotation.z > 2*M_PI)
-			t.rotation.z -= 2*M_PI;
+		quat q;
+
+		// rotate about z axis
+		q.w = cos(gamma/2);
+		q.x = 0;
+		q.y = 0;
+		q.z = sin(gamma/2);
+
+		t.rotation = glm::eulerAngles(quat(t.rotation) * q);
 	}
 
     virtual void on_event(Event &e) override

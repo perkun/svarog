@@ -45,13 +45,28 @@ void ObservatoryPanel::on_imgui_render()
 	ImGui::PushItemWidth(150.);
 	ImGui::DragFloat("camera fov", &(cam->size_x), 0.2, 0.5, 100.);
 
-	ImGui::Separator();
-	for (int i = 0; i < 10; i++) ImGui::Spacing();
-	display_lightcurves();
 
-	ImGui::Separator();
 	for (int i = 0; i < 10; i++) ImGui::Spacing();
-	display_ao_images();
+	// observations
+	ImGuiTabBarFlags tab_bar_flags =
+		ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll;
+	if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
+	{
+		if (ImGui::BeginTabItem("Lightcurves"))
+		{
+			display_lightcurves();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("AO images"))
+		{
+			display_ao_images();
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+
+
+
 
 	ImGui::End();
 }
@@ -187,7 +202,6 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
             flux += pixel_buffer[j];
         lc.push_value(flux);
 	}
-	layer->on_update(2 * M_PI / num_points / t.rotation_speed); // powrot
 
     lc.calculate_min();
     lc.calculate_max();
