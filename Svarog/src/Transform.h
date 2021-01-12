@@ -16,8 +16,8 @@ public:
 	mat4 get_world_tansform();
 	mat4 get_view();
 
-	double speed = 0.6; // world space units per second
-	double rotation_speed = 0.002;  // radians / sec
+	float speed = 0.6; // world space units per second
+	float rotation_speed = 0.002;  // radians / sec
 
 	mat4 local;
 	mat4 world;

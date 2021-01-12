@@ -3,6 +3,7 @@
 #include "Components.h"
 #include "CameraController.h"
 #include "ModelController.h"
+#include "AsteroidController.h"
 #include <glm/gtc/type_ptr.hpp>
 
 SceneHierarchyPanel::SceneHierarchyPanel(Scene *s)
@@ -100,7 +101,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
     // left click popup
     if (ImGui::BeginPopupContextItem())
     {
-        sprintf(buff, "%s Add Empty Entity", "\xef\x81\xa7");
+        sprintf(buff, "%s  Add Empty Entity", "\xef\x81\xa7");
         if (ImGui::MenuItem(buff))
         {
             Entity e = scene->create_entity("Unnamed Entity");
@@ -109,7 +110,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 
         if (entity != scene->root_entity)
         {
-            sprintf(buff, "%s Add Mesh Component", "\xef\x83\x86");
+            sprintf(buff, "%s  Add Mesh Component", "\xef\x9a\xa6");
             if (!entity.has_component<MeshComponent>() &&
                 ImGui::BeginMenu(buff))
             {
@@ -148,7 +149,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 ImGui::EndMenu();
             }
 
-            sprintf(buff, "%s Add Material Component", "\xef\x83\x86");
+            sprintf(buff, "%s  Add Material Component", "\xef\x83\xab");
             if (!entity.has_component<Material>() && ImGui::BeginMenu(buff))
             {
                 for (pair<string, shared_ptr<Shader>> element :
@@ -162,7 +163,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 ImGui::EndMenu();
             }
 
-            sprintf(buff, "%s Add Texture Component", "\xef\x83\x86");
+            sprintf(buff, "%s  Add Texture Component", "\xef\x80\xbe");
             if (!entity.has_component<TextureComponent>() &&
                 ImGui::BeginMenu(buff))
             {
@@ -173,7 +174,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 ImGui::EndMenu();
             }
 
-            sprintf(buff, "%s Add Native Script Component", "\xef\x83\x86");
+            sprintf(buff, "%s  Add Native Script Component", "\xef\x92\x89");
             if (!entity.has_component<NativeScriptComponent>() &&
                 ImGui::BeginMenu(buff))
             {
@@ -187,9 +188,14 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                     entity.add_component<NativeScriptComponent>()
                         .bind<ModelController>();
                 }
+                if (ImGui::MenuItem("Asteroid Controller"))
+                {
+                    entity.add_component<NativeScriptComponent>()
+                        .bind<AsteroidController>();
+                }
                 ImGui::EndMenu();
             }
-            sprintf(buff, "%s Add Camera Component", "\xef\x83\x86");
+            sprintf(buff, "%s  Add Camera Component", "\xef\x80\xbd");
             if (!entity.has_component<CameraComponent>() &&
                 ImGui::BeginMenu(buff))
             {
@@ -220,30 +226,30 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
     }
 
     if (opened)
-    {
-        // list components
-        list_component<MeshComponent>(entity, "Mesh Component", "\xef\x83\x86",
-                                      [](Entity &e) {});
-        list_component<TextureComponent>(
-            entity, "Texture Component", "\xef\x83\x86", [](Entity &e) {
-                if (e.has_component<Material>())
-                    e.get_component<Material>().uniforms_int["u_has_texture"] =
-                        0;
-            });
-        list_component<Material>(entity, "Material Component", "\xef\x83\x86",
-                                 [](Entity &e) {});
-        list_component<CameraComponent>(entity, "Camera Component",
-                                        "\xef\x83\x86", [](Entity &e) {});
-        list_component<NativeScriptComponent>(entity, "Native Script Component",
-                                              "\xef\x83\x86", [](Entity &e) {});
+	{
+		// list components
+		list_component<MeshComponent>(entity, "Mesh Component", "\xef\x9a\xa6",
+				[](Entity &e) {});
+		list_component<TextureComponent>(
+				entity, "Texture Component", "\xef\x80\xbe", [](Entity &e) {
+				if (e.has_component<Material>())
+				e.get_component<Material>().uniforms_int["u_has_texture"] =
+				0;
+				});
+		list_component<Material>(entity, "Material Component", "\xef\x83\xab",
+				[](Entity &e) {});
+		list_component<CameraComponent>(entity, "Camera Component",
+				"\xef\x80\xbd", [](Entity &e) {});
+		list_component<NativeScriptComponent>(entity, "Native Script Component",
+				"\xef\x92\x89", [](Entity &e) {});
 
-        // list children
-        for (Entity &child :
-             entity.get_component<SceneGraphComponent>().children)
-            draw_entity_node(child);
+		// list children
+		for (Entity &child :
+				entity.get_component<SceneGraphComponent>().children)
+			draw_entity_node(child);
 
-        ImGui::TreePop();
-    }
+		ImGui::TreePop();
+	}
 }
 
 void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
@@ -270,6 +276,8 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 		ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
 
 		t.rotation = rot_deg * (float)(M_PI / 180.0);
+
+		ImGui::DragFloat("rotation speed", &t.rotation_speed, 0.1f);
 	}
 
 	ImGui::Separator();

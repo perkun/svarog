@@ -43,11 +43,12 @@ void SceneHierarchyPanel::list_component(Entity &entity, const char *label,
 
 	if (entity.has_component<T>())
 	{
-		ImGui::TreeNodeEx((void*)typeid(T).hash_code(), flags, "%s %s", icon, label);
+		ImGui::TreeNodeEx((void*)typeid(T).hash_code(), flags, "%s  %s",
+						  icon, label);
 
 		if (ImGui::BeginPopupContextItem())
 		{
-			sprintf(buff, "%s Remove", "\xef\x80\x8d");
+			sprintf(buff, "%s  Remove", "\xef\x80\x8d");
 			if (ImGui::MenuItem(buff))
 			{
 				orf(entity);

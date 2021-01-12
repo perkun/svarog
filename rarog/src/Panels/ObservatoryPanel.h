@@ -47,7 +47,7 @@ private:
 	int selected_target_idx = 0;
 	int selected_observer_idx = 0;
 
-	ImVec4 ao_bg_color;
+	vec4 ao_bg_color = vec4(0.0, 0.0, 0.0, 1.);
 
 	vector<Lightcurve> lightcurves;
 	vector<AoImage> ao_images;

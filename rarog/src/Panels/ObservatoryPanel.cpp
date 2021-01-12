@@ -159,9 +159,9 @@ void ObservatoryPanel::on_imgui_render()
 
 			ImGui::Text("bg color");
 			ImGui::SameLine();
-            ImGui::ColorEdit4("MyColor##3", (float *)&ao_bg_color,
+            ImGui::ColorEdit4("ao_bg_color", (float *)&ao_bg_color,
                               ImGuiColorEditFlags_NoInputs |
-                                  ImGuiColorEditFlags_NoLabel);
+                              ImGuiColorEditFlags_NoLabel);
 
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
@@ -410,13 +410,13 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
 	Mode prev_mode = layer->mode;
     layer->set_runtime_mode();
 
-	vec4 color;
-	color.r = ao_bg_color.x;
-	color.g = ao_bg_color.y;
-	color.b = ao_bg_color.z;
-	color.a = ao_bg_color.w;
+// 	vec4 color;
+// 	color.r = ao_bg_color.x;
+// 	color.g = ao_bg_color.y;
+// 	color.b = ao_bg_color.z;
+// 	color.a = ao_bg_color.w;
 
-    Application::set_bg_color(color);
+    Application::set_bg_color(ao_bg_color);
     layer->scene.on_resize(ao_width, ao_height);
     layer->ms_framebuffer->resize(ao_width, ao_height);
     layer->framebuffer->resize(ao_width, ao_height);
