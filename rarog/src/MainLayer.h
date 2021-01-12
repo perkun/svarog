@@ -53,6 +53,8 @@ private:
 	void make_lightcurve(Entity &target);
 
 	Entity light, runtime_observer, model;
+	Entity observer_target;
+
 
 	bool shadow_map = true;
 	bool show_imgui_demo = false;

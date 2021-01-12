@@ -15,6 +15,7 @@ public:
 	shared_ptr<Texture> texture;
 
 	Entity ghost_observer, ghost_target;
+	Entity target;
 // 	float camera_fov;
 
 private:

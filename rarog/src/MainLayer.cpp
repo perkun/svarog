@@ -124,6 +124,7 @@ void MainLayer::on_attach()
     ui_scene.root_entity.add_child(grid);
 
 	scene.observer = runtime_observer;
+	observer_target = model;
 
 
     editor_camera =
@@ -220,7 +221,7 @@ void MainLayer::on_update(double time_delta)
 		Transform &lt = light.get_component<Transform>();
 		auto lc = light.get_component<CameraComponent>().camera;
 		lc->position = lt.position;
-		lc->update_target(model.get_component<Transform>().position);
+		lc->update_target(observer_target.get_component<Transform>().position);
 
 		light.get_component<CameraComponent>().camera->aspect = 1;
 		auto fb = light.get_component<FramebufferComponent>().framebuffer;
@@ -316,7 +317,7 @@ void MainLayer::set_runtime_mode()
     runtime_observer.get_component<CameraComponent>().camera->position =
         runtime_observer.get_component<Transform>().position;
     runtime_observer.get_component<CameraComponent>().camera->update_target(
-        model.get_component<Transform>().position);
+        observer_target.get_component<Transform>().position);
     // 				vec3(0.));
 }
 

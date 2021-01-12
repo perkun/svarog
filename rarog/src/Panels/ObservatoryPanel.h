@@ -30,12 +30,18 @@ private:
 	void make_ao_image(Entity &target, Entity &observer);
 	void display_ao_images();
 
+	vector<Entity> get_scene_entities();
+	void append_children(vector<Entity> &ents, Entity entity);
+
 	int lc_id = 0;
 	int ao_id = 0;
 
 	int ao_size = 400;
 
 	int lc_num_points = 360;
+	float lcs_min = 1e38;
+	float lcs_max = -1e38;
+
 
 	vector<Lightcurve> lightcurves;
 	vector<AoImage> ao_images;
