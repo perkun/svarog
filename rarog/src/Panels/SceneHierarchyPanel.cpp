@@ -61,167 +61,189 @@ void SceneHierarchyPanel::on_imgui_render()
 
 void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 {
-	string &tag = entity.get_component<TagComponent>().tag;
+    string &tag = entity.get_component<TagComponent>().tag;
 
     ImGuiTreeNodeFlags flags =
-        ((scene->selected_entity == entity) ? ImGuiTreeNodeFlags_Selected : 0)
-		| ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick
-		| ((entity == scene->root_entity) ? ImGuiTreeNodeFlags_DefaultOpen : 0);
+        ((scene->selected_entity == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
+        ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
+        ((entity == scene->root_entity) ? ImGuiTreeNodeFlags_DefaultOpen : 0);
 
     bool opened =
         ImGui::TreeNodeEx((void *)(entity.get_handle()), flags, tag.c_str());
 
-	// Drag and Drop
-	if (entity != scene->root_entity && ImGui::BeginDragDropSource())
-	{
-		ImGui::SetDragDropPayload("_TREENODE", (void*)(&entity), 256);
-		ImGui::Text("Move Entity");
+    // Drag and Drop
+    if (entity != scene->root_entity && ImGui::BeginDragDropSource())
+    {
+        ImGui::SetDragDropPayload("_TREENODE", (void *)(&entity), 256);
+        ImGui::Text("Move Entity");
 
-		ImGui::EndDragDropSource();
-	}
+        ImGui::EndDragDropSource();
+    }
 
-	if (ImGui::BeginDragDropTarget())
-	{
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_TREENODE"))
-		{
-			Entity payload_entity = *(const Entity*)payload->Data;
-			payload_entity.detatch();
-			entity.add_child(payload_entity);
-		}
-		ImGui::EndDragDropTarget();
-	}
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload =
+                ImGui::AcceptDragDropPayload("_TREENODE"))
+        {
+            Entity payload_entity = *(const Entity *)payload->Data;
+            payload_entity.detatch();
+            entity.add_child(payload_entity);
+        }
+        ImGui::EndDragDropTarget();
+    }
 
     if (ImGui::IsItemClicked())
     {
-		scene->selected_entity = entity;
+        scene->selected_entity = entity;
     }
 
+    // left click popup
+    if (ImGui::BeginPopupContextItem())
+    {
+        sprintf(buff, "%s Add Empty Entity", "\xef\x81\xa7");
+        if (ImGui::MenuItem(buff))
+        {
+            Entity e = scene->create_entity("Unnamed Entity");
+            entity.add_child(e);
+        }
 
+        if (entity != scene->root_entity)
+        {
+            sprintf(buff, "%s Add Mesh Component", "\xef\x83\x86");
+            if (!entity.has_component<MeshComponent>() &&
+                ImGui::BeginMenu(buff))
+            {
+                if (ImGui::MenuItem("Cube"))
+                {
+                    entity.add_component<MeshComponent>(
+                        make_shared<VertexArrayObject>(IndexedCube()));
+                }
+                if (ImGui::MenuItem("Ico Sphere"))
+                {
+                    entity.add_component<MeshComponent>(
+                        make_shared<VertexArrayObject>(IndexedIcoSphere()));
+                }
+                if (ImGui::MenuItem("Quad"))
+                {
+                    entity.add_component<MeshComponent>(
+                        make_shared<VertexArrayObject>(IndexedQuad()));
+                }
+                if (ImGui::MenuItem("Obj file"))
+                {
+                    string filename = FileDialog::open_file("*.OBJ *.obj");
+                    if (!filename.empty())
+                        entity.add_component<MeshComponent>(
+                            make_shared<VertexArrayObject>(IndexedModelObj(
+                                filename, NormalIndexing::PER_VERTEX)));
+                }
+                if (ImGui::MenuItem("Shp file"))
+                {
+                    string filename = FileDialog::open_file("*.SHP *.shp");
+                    if (!filename.empty())
+                        entity.add_component<MeshComponent>(
+                            make_shared<VertexArrayObject>(IndexedModelShp(
+                                filename, NormalIndexing::PER_VERTEX)));
+                }
 
-	// left click popup
-	if (ImGui::BeginPopupContextItem())
-	{
-		sprintf(buff, "%s Add Empty Entity", "\xef\x81\xa7");
-		if (ImGui::MenuItem(buff))
-		{
-			Entity e = scene->create_entity("Unnamed Entity");
-			entity.add_child(e);
-		}
+                ImGui::EndMenu();
+            }
 
-		if (entity != scene->root_entity)
-		{
-			sprintf(buff, "%s Add Mesh Component", "\xef\x83\x86");
-			if (!entity.has_component<MeshComponent>() && ImGui::BeginMenu(buff))
-			{
-				if (ImGui::MenuItem("Cube"))
-				{
-					entity.add_component<MeshComponent>(
-						make_shared<VertexArrayObject>(IndexedCube()));
-				}
-				if (ImGui::MenuItem("Ico Sphere"))
-				{
-					entity.add_component<MeshComponent>(
-						make_shared<VertexArrayObject>(IndexedIcoSphere()));
-				}
-				if (ImGui::MenuItem("Quad"))
-				{
-					entity.add_component<MeshComponent>(
-						make_shared<VertexArrayObject>(IndexedQuad()));
-				}
-				if (ImGui::MenuItem("Obj file"))
-				{
-					string filename = FileDialog::open_file("*.OBJ *.obj");
-					if (!filename.empty())
-						entity.add_component<MeshComponent>(
-							make_shared<VertexArrayObject>(
-								IndexedModelObj(filename, NormalIndexing::PER_VERTEX)));
-				}
-				if (ImGui::MenuItem("Shp file"))
-				{
-					string filename = FileDialog::open_file("*.SHP *.shp");
-					if (!filename.empty())
-						entity.add_component<MeshComponent>(
-							make_shared<VertexArrayObject>(
-								IndexedModelShp(filename, NormalIndexing::PER_VERTEX)));
-				}
+            sprintf(buff, "%s Add Material Component", "\xef\x83\x86");
+            if (!entity.has_component<Material>() && ImGui::BeginMenu(buff))
+            {
+                for (pair<string, shared_ptr<Shader>> element :
+                     Application::shaders)
+                {
+                    if (ImGui::MenuItem(element.first.c_str()))
+                    {
+                        entity.add_component<Material>(element.second);
+                    }
+                }
+                ImGui::EndMenu();
+            }
 
-				ImGui::EndMenu();
-			}
+            sprintf(buff, "%s Add Texture Component", "\xef\x83\x86");
+            if (!entity.has_component<TextureComponent>() &&
+                ImGui::BeginMenu(buff))
+            {
+                if (ImGui::MenuItem("From File"))
+                {
+                    load_texture_from_file(entity);
+                }
+                ImGui::EndMenu();
+            }
 
-			sprintf(buff, "%s Add Material Component", "\xef\x83\x86");
-			if (!entity.has_component<Material>() && ImGui::BeginMenu(buff))
-			{
-				for (pair<string, shared_ptr<Shader> > element: Application::shaders)
-				{
-					if (ImGui::MenuItem(element.first.c_str()))
-					{
-						entity.add_component<Material>(element.second);
-					}
-				}
-					ImGui::EndMenu();
-			}
+            sprintf(buff, "%s Add Native Script Component", "\xef\x83\x86");
+            if (!entity.has_component<NativeScriptComponent>() &&
+                ImGui::BeginMenu(buff))
+            {
+                if (ImGui::MenuItem("Camera Controller"))
+                {
+                    entity.add_component<NativeScriptComponent>()
+                        .bind<CameraController>();
+                }
+                if (ImGui::MenuItem("Model Controller"))
+                {
+                    entity.add_component<NativeScriptComponent>()
+                        .bind<ModelController>();
+                }
+                ImGui::EndMenu();
+            }
+            sprintf(buff, "%s Add Camera Component", "\xef\x83\x86");
+            if (!entity.has_component<CameraComponent>() &&
+                ImGui::BeginMenu(buff))
+            {
+                if (ImGui::MenuItem("Perspective Camera"))
+                {
+                    entity.add_component<CameraComponent>(
+                        make_shared<PerspectiveCamera>(
+                            radians(25.0), 1.0, 0.01, 50.0));
+                }
+                if (ImGui::MenuItem("Orthografic Camera"))
+                {
+                    entity.add_component<CameraComponent>(
+                        make_shared<OrthograficCamera>(3., 1.0, 0.1, 20.));
+                }
+                ImGui::EndMenu();
+            }
 
-			sprintf(buff, "%s Add Texture Component", "\xef\x83\x86");
-			if (!entity.has_component<TextureComponent>() && ImGui::BeginMenu(buff))
-			{
-				if (ImGui::MenuItem("From File"))
-				{
-					load_texture_from_file(entity);
-				}
-				ImGui::EndMenu();
-			}
+            ImGui::Spacing();
+            ImGui::Separator();
+            sprintf(buff, "%s Delete Entity", "\xef\x80\x8d");
+            if (ImGui::MenuItem(buff))
+            {
+                entity_to_delete = entity;
+            }
+        }
 
-			sprintf(buff, "%s Add Native Script Component", "\xef\x83\x86");
-			if (!entity.has_component<NativeScriptComponent>() && ImGui::BeginMenu(buff))
-			{
-				if (ImGui::MenuItem("Camera Controller"))
-				{
-					entity.add_component<NativeScriptComponent>().bind<CameraController>();
-				}
-				if (ImGui::MenuItem("Model Controller"))
-				{
-					entity.add_component<NativeScriptComponent>().bind<ModelController>();
-				}
-				ImGui::EndMenu();
-			}
-
-			ImGui::Spacing(); ImGui::Separator();
-			sprintf(buff, "%s Delete Entity", "\xef\x80\x8d");
-			if (ImGui::MenuItem(buff))
-			{
-				entity_to_delete = entity;
-			}
-		}
-
-		ImGui::EndPopup();
-	}
-
+        ImGui::EndPopup();
+    }
 
     if (opened)
-	{
-		// list components
-		list_component<MeshComponent>(entity, "Mesh Component", "\xef\x83\x86",
-			[](Entity &e){});
-		list_component<TextureComponent>(entity, "Texture Component", "\xef\x83\x86",
-			[](Entity &e)
-			{
-				if (e.has_component<Material>())
-					e.get_component<Material>().uniforms_int["u_has_texture"] = 0;
-			});
-		list_component<Material>(entity, "Material Component", "\xef\x83\x86",
-			[](Entity &e){});
-		list_component<CameraComponent>(entity, "Camera Component", "\xef\x83\x86",
-			[](Entity &e){});
-		list_component<NativeScriptComponent>(entity, "Native Script Component", "\xef\x83\x86",
-			[](Entity &e){});
+    {
+        // list components
+        list_component<MeshComponent>(entity, "Mesh Component", "\xef\x83\x86",
+                                      [](Entity &e) {});
+        list_component<TextureComponent>(
+            entity, "Texture Component", "\xef\x83\x86", [](Entity &e) {
+                if (e.has_component<Material>())
+                    e.get_component<Material>().uniforms_int["u_has_texture"] =
+                        0;
+            });
+        list_component<Material>(entity, "Material Component", "\xef\x83\x86",
+                                 [](Entity &e) {});
+        list_component<CameraComponent>(entity, "Camera Component",
+                                        "\xef\x83\x86", [](Entity &e) {});
+        list_component<NativeScriptComponent>(entity, "Native Script Component",
+                                              "\xef\x83\x86", [](Entity &e) {});
 
-		// list children
-		for (Entity &child: entity.get_component<SceneGraphComponent>().children)
-			draw_entity_node(child);
+        // list children
+        for (Entity &child :
+             entity.get_component<SceneGraphComponent>().children)
+            draw_entity_node(child);
 
-		ImGui::TreePop();
-	}
-
+        ImGui::TreePop();
+    }
 }
 
 void SceneHierarchyPanel::draw_selected_properties(Entity &entity)

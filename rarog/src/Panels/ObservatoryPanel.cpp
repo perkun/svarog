@@ -5,6 +5,15 @@
 
 ObservatoryPanel::ObservatoryPanel(MainLayer *l) : layer(l)
 {
+	// pteselect target and observer from leyer and layer.scene
+	vector<Entity> ents = get_scene_entities();
+	for (int i = 0; i < ents.size(); i++)
+	{
+		if (ents[i] == layer->scene.observer)
+			selected_observer_idx = i;
+		if (ents[i] == layer->observer_target)
+			selected_target_idx = i;
+	}
 }
 
 
@@ -14,6 +23,7 @@ ObservatoryPanel::~ObservatoryPanel()
 
 void ObservatoryPanel::append_children(vector<Entity> &ents, Entity entity)
 {
+	/// currently only scene.root_entity children are supported
 	for (Entity e: entity.get_children())
 		ents.push_back(e);
 
@@ -29,8 +39,23 @@ vector<Entity> ObservatoryPanel::get_scene_entities()
 	return ents;
 }
 
+void ObservatoryPanel::set_target_and_observer(Entity &ghost_target,
+                                               Entity &ghost_observer,
+                                               Entity &target, Entity &observer)
+{
+    vec3 gtp = ghost_target.get_component<Transform>().position;
+    vec3 gop = ghost_observer.get_component<Transform>().position;
 
+    layer->observer_target = target;
+    layer->scene.observer = observer;
+    layer->scene.observer.get_component<Transform>().position = gop;
+    layer->observer_target.get_component<Transform>().position = gtp;
 
+    shared_ptr<Camera> camera =
+        layer->scene.observer.get_component<CameraComponent>().camera;
+    camera->position = gop;
+    camera->update_target(gtp);
+}
 
 void ObservatoryPanel::on_imgui_render()
 {
@@ -38,50 +63,65 @@ void ObservatoryPanel::on_imgui_render()
 
     observe_button();
     ImGui::Separator();
-    // observations buttons
-    if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
-        make_lightcurve(layer->observer_target, layer->runtime_observer);
-    ImGui::SameLine(0., 20.);
-    ImGui::PushItemWidth(100.);
-    ImGui::InputInt("LC num points", &lc_num_points);
-
-    if (ImGui::Button("Make AO image", ImVec2(150, 0)))
-        make_ao_image(layer->observer_target, layer->runtime_observer);
-    ImGui::SameLine(0.0, 20.0);
-    ImGui::PushItemWidth(100.);
-    ImGui::InputInt("AO size [px]", &ao_size, 1, 100);
-
-    ImGui::Separator();
     for (int i = 0; i < 10; i++)
         ImGui::Spacing();
 
-    ImGui::Separator();
-    for (int i = 0; i < 10; i++)
+    vector<Entity> ents = get_scene_entities();
+
+    if (ImGui::BeginCombo(
+            "Target",
+            ents[selected_target_idx].get_component<TagComponent>().tag.c_str(),
+            0))
+    {
+        for (int n = 0; n < ents.size(); n++)
+        {
+            const bool is_selected = (selected_target_idx == n);
+            if (ImGui::Selectable(
+                    ents[n].get_component<TagComponent>().tag.c_str(),
+                    is_selected))
+            {
+                selected_target_idx = n;
+                layer->observer_target = ents[n];
+                layer->scene.observer.get_component<CameraComponent>()
+                    .camera->update_target(
+                        ents[n].get_component<Transform>().position);
+            }
+            // Set the initial focus when opening the combo (scrolling +
+            // keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    for (int i = 0; i < 5; i++)
         ImGui::Spacing();
 
+    if (ImGui::BeginCombo("Observer",
+                          ents[selected_observer_idx]
+                              .get_component<TagComponent>()
+                              .tag.c_str(),
+                          0))
+    {
+        for (int n = 0; n < ents.size(); n++)
+        {
+            if (!ents[n].has_component<CameraComponent>())
+                continue;
 
-	vector<Entity> ents = get_scene_entities();
-	if (ImGui::BeginCombo("Target",
-			ents[selected_target_idx].get_component<TagComponent>().tag.c_str(), 0))
-	{
-		for (int n = 0; n < ents.size(); n++)
-		{
-			const bool is_selected = (selected_target_idx == n);
-			if (ImGui::Selectable(
-						ents[n].get_component<TagComponent>().tag.c_str(),
-						is_selected))
-			{
-				selected_target_idx = n;
-				layer->observer_target = ents[n];
-			}
-			// Set the initial focus when opening the combo (scrolling +
-			// keyboard navigation focus)
-			if (is_selected)
-				ImGui::SetItemDefaultFocus();
-		}
-		ImGui::EndCombo();
-	}
-
+            const bool is_selected = (selected_observer_idx == n);
+            if (ImGui::Selectable(
+                    ents[n].get_component<TagComponent>().tag.c_str(),
+                    is_selected))
+            {
+                selected_observer_idx = n;
+                layer->scene.observer = ents[n];
+            }
+            // Set the initial focus when opening the combo (scrolling +
+            // keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
 
     auto cam = dynamic_pointer_cast<OrthograficCamera>(
         layer->scene.observer.get_component<CameraComponent>().camera);
@@ -90,9 +130,6 @@ void ObservatoryPanel::on_imgui_render()
     for (int i = 0; i < 10; i++)
         ImGui::Spacing();
 
-
-
-
     // observations
     ImGuiTabBarFlags tab_bar_flags =
         ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll;
@@ -100,11 +137,35 @@ void ObservatoryPanel::on_imgui_render()
     {
         if (ImGui::BeginTabItem("Lightcurves"))
         {
+            // observations buttons
+            if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
+                make_lightcurve(layer->observer_target, layer->scene.observer);
+            ImGui::SameLine(0., 20.);
+            ImGui::PushItemWidth(100.);
+            ImGui::InputInt("LC num points", &lc_num_points);
+            for (int i = 0; i < 10; i++)
+                ImGui::Spacing();
+
             display_lightcurves();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("AO images"))
         {
+            if (ImGui::Button("Make AO image", ImVec2(150, 0)))
+                make_ao_image(layer->observer_target, layer->scene.observer);
+            ImGui::SameLine(0.0, 20.0);
+            ImGui::PushItemWidth(100.);
+            ImGui::InputInt("AO size [px]", &ao_size, 1, 100);
+
+			ImGui::Text("bg color");
+			ImGui::SameLine();
+            ImGui::ColorEdit4("MyColor##3", (float *)&ao_bg_color,
+                              ImGuiColorEditFlags_NoInputs |
+                                  ImGuiColorEditFlags_NoLabel);
+
+            for (int i = 0; i < 10; i++)
+                ImGui::Spacing();
+
             display_ao_images();
             ImGui::EndTabItem();
         }
@@ -155,18 +216,10 @@ void ObservatoryPanel::display_lightcurves()
 	ImGui::SameLine(0., 20.);
 	if (ImGui::Button("set lc positions"))
 	{
-		layer->scene.observer.get_component<Transform>().position =
-			lightcurves[lc_id].ghost_observer.get_component<Transform>().position;
-		layer->scene.observer.get_component<CameraComponent>().camera->position =
-			lightcurves[lc_id].ghost_observer.get_component<Transform>().position;
-		layer->scene.observer.get_component<CameraComponent>().camera->
-			update_target(
-			lightcurves[lc_id].ghost_target.get_component<Transform>().position);
-
-		layer->observer_target = lightcurves[lc_id].target;
-		layer->observer_target.get_component<Transform>().position =
-			lightcurves[lc_id].ghost_target.get_component<Transform>().position;
-
+		set_target_and_observer(lightcurves[lc_id].ghost_target,
+								lightcurves[lc_id].ghost_observer,
+								lightcurves[lc_id].target,
+								lightcurves[lc_id].observer);
 	}
 
     ImGui::PlotLines("LC", lightcurves[lc_id].inv_mag_data(), lightcurves[lc_id].size(),
@@ -223,19 +276,10 @@ void ObservatoryPanel::display_ao_images()
 	ImGui::SameLine(0., 20.);
 	if (ImGui::Button("set ao positions"))
 	{
-		layer->scene.observer.get_component<Transform>().position =
-			ao_images[ao_id].ghost_observer.get_component<Transform>().position;
-		layer->scene.observer.get_component<CameraComponent>().camera->position =
-			ao_images[ao_id].ghost_observer.get_component<Transform>().position;
-		layer->scene.observer.get_component<CameraComponent>().camera->
-			update_target(
-			ao_images[ao_id].ghost_target.get_component<Transform>().position);
-
-		layer->observer_target = ao_images[ao_id].target;
-		layer->observer_target.get_component<Transform>().position =
-			ao_images[ao_id].ghost_target.get_component<Transform>().position;
-
-
+		set_target_and_observer(ao_images[ao_id].ghost_target,
+								ao_images[ao_id].ghost_observer,
+								ao_images[ao_id].target,
+								ao_images[ao_id].observer);
 	}
     long int tex_id = ao_images[ao_id].texture->get_texture_id();
     ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));
@@ -327,6 +371,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 	layer->ui_scene.root_entity.add_child(lc.ghost_target);
 
 	lc.target = target;
+	lc.observer = observer;
 
 
     lightcurves.push_back(lc);
@@ -365,7 +410,13 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
 	Mode prev_mode = layer->mode;
     layer->set_runtime_mode();
 
-    Application::set_bg_color(vec4(0.0, 0.0, 0.0, 1.));
+	vec4 color;
+	color.r = ao_bg_color.x;
+	color.g = ao_bg_color.y;
+	color.b = ao_bg_color.z;
+	color.a = ao_bg_color.w;
+
+    Application::set_bg_color(color);
     layer->scene.on_resize(ao_width, ao_height);
     layer->ms_framebuffer->resize(ao_width, ao_height);
     layer->framebuffer->resize(ao_width, ao_height);
@@ -409,6 +460,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
 	layer->ui_scene.root_entity.add_child(ao.ghost_target);
 
 	ao.target = target;
+	ao.observer = observer;
 
 	ao_images.push_back(ao);
 

@@ -30,6 +30,8 @@ private:
 	void make_ao_image(Entity &target, Entity &observer);
 	void display_ao_images();
 
+	void set_target_and_observer(Entity&, Entity&, Entity&, Entity&);
+
 	vector<Entity> get_scene_entities();
 	void append_children(vector<Entity> &ents, Entity entity);
 
@@ -43,6 +45,9 @@ private:
 	float lcs_max = -1e38;
 
 	int selected_target_idx = 0;
+	int selected_observer_idx = 0;
+
+	ImVec4 ao_bg_color;
 
 	vector<Lightcurve> lightcurves;
 	vector<AoImage> ao_images;

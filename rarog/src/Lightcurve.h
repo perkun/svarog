@@ -35,7 +35,7 @@ public:
 	float min, max;
 
 	Entity ghost_observer, ghost_target;
-	Entity target;
+	Entity target, observer;
 // 	float camera_fov;
 
 

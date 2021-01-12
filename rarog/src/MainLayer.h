@@ -52,7 +52,7 @@ private:
 
 	void make_lightcurve(Entity &target);
 
-	Entity light, runtime_observer, model;
+	Entity light, model;
 	Entity observer_target;
 
 

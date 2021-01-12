@@ -61,7 +61,7 @@ void MainLayer::on_attach()
     grid.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(create_grid(100., 5., 0.2), true));
 
-    runtime_observer = scene.create_entity("Observer");
+    Entity runtime_observer = scene.create_entity("Observer");
     CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
 //         make_shared<PerspectiveCamera>(
 //             radians(45.0), window->width / (float)window->height, 0.01, 500.0));
@@ -300,9 +300,9 @@ void MainLayer::set_editor_mode()
     mode = Mode::EDITOR;
     Application::get_window()->set_cursor_normal();
     // TODO: make all objects visible in Editor mode
-    runtime_observer.get_component<SceneStatus>().render = true;
-    runtime_observer.get_component<Transform>().position =
-        runtime_observer.get_component<CameraComponent>().camera->position;
+    scene.observer.get_component<SceneStatus>().render = true;
+    scene.observer.get_component<Transform>().position =
+        scene.observer.get_component<CameraComponent>().camera->position;
 }
 
 void MainLayer::set_runtime_mode()
@@ -311,14 +311,16 @@ void MainLayer::set_runtime_mode()
     // 		scene.observer.get_component<CameraComponent>().camera->update_target(
     // 			model.get_component<Transform>().position);
     guizmo_type = -1;
-//     Application::get_window()->set_cursor_disabled();
+    //     Application::get_window()->set_cursor_disabled();
 
-    runtime_observer.get_component<SceneStatus>().render = false;
-    runtime_observer.get_component<CameraComponent>().camera->position =
-        runtime_observer.get_component<Transform>().position;
-    runtime_observer.get_component<CameraComponent>().camera->update_target(
-        observer_target.get_component<Transform>().position);
-    // 				vec3(0.));
+    scene.observer.get_component<SceneStatus>().render = false;
+
+    shared_ptr<Camera> camera =
+        scene.observer.get_component<CameraComponent>().camera;
+    camera->position = scene.observer.get_component<Transform>().position;
+    camera->update_target(observer_target.get_component<Transform>().position);
+
+    scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
 }
 
 void MainLayer::menu_bar()
