@@ -17,8 +17,8 @@ void ObservatoryPanel::append_children(vector<Entity> &ents, Entity entity)
 	for (Entity e: entity.get_children())
 		ents.push_back(e);
 
-	for (Entity e: entity.get_children())
-		append_children(ents, e);
+// 	for (Entity e: entity.get_children())
+// 		append_children(ents, e);
 }
 
 
@@ -60,23 +60,20 @@ void ObservatoryPanel::on_imgui_render()
         ImGui::Spacing();
 
 
-	static int item_current_idx = 0;
 	vector<Entity> ents = get_scene_entities();
 	if (ImGui::BeginCombo("Target",
-			ents[item_current_idx].get_component<TagComponent>().tag.c_str(), 0))
+			ents[selected_target_idx].get_component<TagComponent>().tag.c_str(), 0))
 	{
-
 		for (int n = 0; n < ents.size(); n++)
 		{
-			const bool is_selected = (item_current_idx == n);
+			const bool is_selected = (selected_target_idx == n);
 			if (ImGui::Selectable(
 						ents[n].get_component<TagComponent>().tag.c_str(),
 						is_selected))
 			{
-				item_current_idx = n;
+				selected_target_idx = n;
 				layer->observer_target = ents[n];
 			}
-
 			// Set the initial focus when opening the combo (scrolling +
 			// keyboard navigation focus)
 			if (is_selected)
@@ -162,6 +159,9 @@ void ObservatoryPanel::display_lightcurves()
 			lightcurves[lc_id].ghost_observer.get_component<Transform>().position;
 		layer->scene.observer.get_component<CameraComponent>().camera->position =
 			lightcurves[lc_id].ghost_observer.get_component<Transform>().position;
+		layer->scene.observer.get_component<CameraComponent>().camera->
+			update_target(
+			lightcurves[lc_id].ghost_target.get_component<Transform>().position);
 
 		layer->observer_target = lightcurves[lc_id].target;
 		layer->observer_target.get_component<Transform>().position =
@@ -227,10 +227,15 @@ void ObservatoryPanel::display_ao_images()
 			ao_images[ao_id].ghost_observer.get_component<Transform>().position;
 		layer->scene.observer.get_component<CameraComponent>().camera->position =
 			ao_images[ao_id].ghost_observer.get_component<Transform>().position;
+		layer->scene.observer.get_component<CameraComponent>().camera->
+			update_target(
+			ao_images[ao_id].ghost_target.get_component<Transform>().position);
 
 		layer->observer_target = ao_images[ao_id].target;
 		layer->observer_target.get_component<Transform>().position =
 			ao_images[ao_id].ghost_target.get_component<Transform>().position;
+
+
 	}
     long int tex_id = ao_images[ao_id].texture->get_texture_id();
     ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));

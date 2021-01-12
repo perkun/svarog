@@ -42,6 +42,7 @@ private:
 	float lcs_min = 1e38;
 	float lcs_max = -1e38;
 
+	int selected_target_idx = 0;
 
 	vector<Lightcurve> lightcurves;
 	vector<AoImage> ao_images;
