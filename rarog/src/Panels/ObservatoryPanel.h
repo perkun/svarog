@@ -33,7 +33,13 @@ private:
 	void set_target_and_observer(Entity&, Entity&, Entity&, Entity&);
 
 	vector<Entity> get_scene_entities();
+	vector<Entity> get_scene_root_children();
 	void append_children(vector<Entity> &ents, Entity entity);
+
+	// sub-panels functions
+	void target_selection_panel(vector<Entity>&);
+	void observer_selection_panel(vector<Entity>&);
+	void observations_panel();
 
 	int lc_id = 0;
 	int ao_id = 0;

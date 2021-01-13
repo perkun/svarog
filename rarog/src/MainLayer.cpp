@@ -35,7 +35,6 @@ MainLayer::~MainLayer()
 
 void MainLayer::on_attach()
 {
-
     auto window = Application::get_window();
     Renderer::set_line_width(2.);
     Renderer::enable_blend();

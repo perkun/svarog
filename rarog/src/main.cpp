@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
 	Application::init(WIN_W, WIN_H, "Application", false);
 	Application::get_window()->set_cursor_normal();
 
+
 	// load shaders
 	#include "../shaders/basic.vs.include"
 	#include "../shaders/basic.fs.include"
@@ -27,6 +28,9 @@ int main(int argc, char *argv[])
 
 	#include "../shaders/color.fs.include"
     color_fs[color_fs_len-1] = 0;
+
+	#include "../shaders/flat.fs.include"
+    flat_fs[flat_fs_len-1] = 0;
 
 	#include "../shaders/vert_col.vs.include"
 	#include "../shaders/vert_col.fs.include"
@@ -46,6 +50,10 @@ int main(int argc, char *argv[])
     color_shader->create_shader((char *)(void *)basic_vs,
                                 (char *)(void *)color_fs);
 
+    shared_ptr<Shader> flat_shader = make_shared<Shader>();
+    flat_shader->create_shader((char *)(void *)basic_vs,
+                                (char *)(void *)flat_fs);
+
     shared_ptr<Shader> line_shader = make_shared<Shader>();
     line_shader->create_shader((char *)(void *)vert_col_vs,
                                (char *)(void *)vert_col_fs);
@@ -56,6 +64,7 @@ int main(int argc, char *argv[])
 
 	Application::shaders["basic_shader"] = basic_shader;
 	Application::shaders["color_shader"] = color_shader;
+	Application::shaders["flat_shader"] = flat_shader;
 	Application::shaders["line_shader"] = line_shader;
 	Application::shaders["tex_sha"] = tex_sha;
 

@@ -23,12 +23,11 @@ ObservatoryPanel::~ObservatoryPanel()
 
 void ObservatoryPanel::append_children(vector<Entity> &ents, Entity entity)
 {
-	/// currently only scene.root_entity children are supported
 	for (Entity e: entity.get_children())
 		ents.push_back(e);
 
-// 	for (Entity e: entity.get_children())
-// 		append_children(ents, e);
+	for (Entity e: entity.get_children())
+		append_children(ents, e);
 }
 
 
@@ -36,6 +35,15 @@ vector<Entity> ObservatoryPanel::get_scene_entities()
 {
 	vector<Entity> ents;
 	append_children(ents, layer->scene.root_entity);
+	return ents;
+}
+
+
+vector<Entity> ObservatoryPanel::get_scene_root_children()
+{
+	vector<Entity> ents;
+	for (Entity e: layer->scene.root_entity.get_children())
+		ents.push_back(e);
 	return ents;
 }
 
@@ -57,47 +65,47 @@ void ObservatoryPanel::set_target_and_observer(Entity &ghost_target,
     camera->update_target(gtp);
 }
 
-void ObservatoryPanel::on_imgui_render()
+
+void ObservatoryPanel::target_selection_panel(vector<Entity> &ents)
 {
-    ImGui::Begin("Observatory");
+	if (ents.size() == 0)
+		return;
 
-    observe_button();
-    ImGui::Separator();
-    for (int i = 0; i < 10; i++)
-        ImGui::Spacing();
-
-    vector<Entity> ents = get_scene_entities();
-
-    if (ImGui::BeginCombo(
-            "Target",
-            ents[selected_target_idx].get_component<TagComponent>().tag.c_str(),
-            0))
-    {
-        for (int n = 0; n < ents.size(); n++)
-        {
+	if (ImGui::BeginCombo(
+				"Target",
+				ents[selected_target_idx].get_component<TagComponent>().tag.c_str(),
+				0))
+	{
+		for (int n = 0; n < ents.size(); n++)
+		{
 			if (ents[n] == layer->scene.observer)
 				continue;
 
-            const bool is_selected = (selected_target_idx == n);
-            if (ImGui::Selectable(
-                    ents[n].get_component<TagComponent>().tag.c_str(),
-                    is_selected))
-            {
-                selected_target_idx = n;
-                layer->observer_target = ents[n];
-                layer->scene.observer.get_component<CameraComponent>()
-                    .camera->update_target(
-                        ents[n].get_component<Transform>().position);
-            }
-            // Set the initial focus when opening the combo (scrolling +
-            // keyboard navigation focus)
-            if (is_selected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
-    for (int i = 0; i < 5; i++)
-        ImGui::Spacing();
+			const bool is_selected = (selected_target_idx == n);
+			if (ImGui::Selectable(
+						ents[n].get_component<TagComponent>().tag.c_str(),
+						is_selected))
+			{
+				selected_target_idx = n;
+				layer->observer_target = ents[n];
+				layer->scene.observer.get_component<CameraComponent>()
+					.camera->update_target(
+							ents[n].get_component<Transform>().position);
+			}
+			// Set the initial focus when opening the combo (scrolling +
+			// keyboard navigation focus)
+			if (is_selected)
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+}
+
+
+void ObservatoryPanel::observer_selection_panel(vector<Entity> &ents)
+{
+	if (ents.size() == 0)
+		return;
 
     if (ImGui::BeginCombo("Observer",
                           ents[selected_observer_idx]
@@ -110,8 +118,8 @@ void ObservatoryPanel::on_imgui_render()
             if (!ents[n].has_component<CameraComponent>())
                 continue;
 
-			if (ents[n] == layer->observer_target)
-				continue;
+            if (ents[n] == layer->observer_target)
+                continue;
 
             const bool is_selected = (selected_observer_idx == n);
             if (ImGui::Selectable(
@@ -128,15 +136,11 @@ void ObservatoryPanel::on_imgui_render()
         }
         ImGui::EndCombo();
     }
+}
 
-    auto cam = dynamic_pointer_cast<OrthograficCamera>(
-        layer->scene.observer.get_component<CameraComponent>().camera);
-    ImGui::PushItemWidth(150.);
-    ImGui::DragFloat("camera fov", &(cam->size_x), 0.2, 0.5, 100.);
-    for (int i = 0; i < 10; i++)
-        ImGui::Spacing();
 
-    // observations
+void ObservatoryPanel::observations_panel()
+{
     ImGuiTabBarFlags tab_bar_flags =
         ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll;
     if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
@@ -177,6 +181,37 @@ void ObservatoryPanel::on_imgui_render()
         }
         ImGui::EndTabBar();
     }
+
+}
+
+
+
+void ObservatoryPanel::on_imgui_render()
+{
+    ImGui::Begin("Observatory");
+
+    observe_button();
+    ImGui::Separator();
+    for (int i = 0; i < 10; i++)
+        ImGui::Spacing();
+
+    vector<Entity> ents = get_scene_root_children();
+
+	target_selection_panel(ents);
+
+    for (int i = 0; i < 5; i++)
+        ImGui::Spacing();
+
+	observer_selection_panel(ents);
+
+    auto cam = dynamic_pointer_cast<OrthograficCamera>(
+        layer->scene.observer.get_component<CameraComponent>().camera);
+    ImGui::PushItemWidth(150.);
+    ImGui::DragFloat("camera fov", &(cam->size_x), 0.2, 0.5, 100.);
+    for (int i = 0; i < 10; i++)
+        ImGui::Spacing();
+
+	observations_panel();
 
     ImGui::End();
 }
@@ -352,7 +387,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 		lcs_max = max;
 
 	lc.ghost_observer = layer->ui_scene.create_entity("LC ghost observer");
-	lc.ghost_observer.add_component<Material>(Application::shaders["color_shader"])
+	lc.ghost_observer.add_component<Material>(Application::shaders["flat_shader"])
 		.uniforms_vec4[ "u_color"] = vec4(32/256., 172/256., 64/256., 0.2);
 	lc.ghost_observer.add_component<MeshComponent>(make_shared<VertexArrayObject>(
 				IndexedIcoSphere(vec3(0.), vec3(0.3))));
@@ -361,7 +396,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 
 
 	lc.ghost_target = layer->ui_scene.create_entity("LC ghost target");
-	lc.ghost_target.add_component<Material>(Application::shaders["color_shader"])
+	lc.ghost_target.add_component<Material>(Application::shaders["flat_shader"])
 		.uniforms_vec4[ "u_color"] = vec4(32/256., 172/256., 64/256., 0.2);
 	lc.ghost_target.add_component<MeshComponent>(make_shared<VertexArrayObject>(
 				IndexedCube(vec3(-.25), vec3(0.5))));
@@ -441,7 +476,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
 
 
 	ao.ghost_observer = layer->ui_scene.create_entity("AO ghost observer");
-	ao.ghost_observer.add_component<Material>(Application::shaders["color_shader"])
+	ao.ghost_observer.add_component<Material>(Application::shaders["flat_shader"])
 		.uniforms_vec4[ "u_color"] = vec4(237/256., 84/256., 84/256., 0.2);
 	ao.ghost_observer.add_component<MeshComponent>(make_shared<VertexArrayObject>(
 				IndexedIcoSphere(vec3(0.), vec3(0.3))));
@@ -449,7 +484,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
 	got.position = observer.get_component<Transform>().position;
 
 	ao.ghost_target = layer->ui_scene.create_entity("AO ghost target");
-	ao.ghost_target.add_component<Material>(Application::shaders["color_shader"])
+	ao.ghost_target.add_component<Material>(Application::shaders["flat_shader"])
 		.uniforms_vec4[ "u_color"] = vec4(237/256., 84/256., 84/256., 0.2);
 	ao.ghost_target.add_component<MeshComponent>(make_shared<VertexArrayObject>(
 				IndexedCube(vec3(-0.25), vec3(0.5))));
