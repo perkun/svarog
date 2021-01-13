@@ -268,9 +268,10 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 	{
 		// TODO: convertions rad -> deg, and positions * multiplicant
 		Transform &t = entity.get_component<Transform>();
-		glm::vec3 rot_deg;
 
+		glm::vec3 rot_deg;
 		rot_deg = (float)(180./M_PI) * t.rotation ;
+
 		ImGui::DragFloat3("Position", glm::value_ptr(t.position), 0.1);
 		ImGui::DragFloat3("Rotation [deg]", glm::value_ptr(rot_deg), 0.1);
 		ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
@@ -278,6 +279,25 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 		t.rotation = rot_deg * (float)(M_PI / 180.0);
 
 		ImGui::DragFloat("rotation speed", &t.rotation_speed, 0.1f);
+
+		for (int i = 0; i < 5; i++)
+			ImGui::Spacing();
+
+		vec3 euler_angles_deg;
+		euler_angles_deg.x = t.lambda * 180./M_PI;
+		euler_angles_deg.y = t.beta * 180./M_PI;
+		euler_angles_deg.z = t.gamma * 180./M_PI;
+
+		ImGui::DragFloat3("Euler lbg", glm::value_ptr(euler_angles_deg));
+
+		t.lambda = euler_angles_deg.x * M_PI/180.;
+		t.beta = euler_angles_deg.y * M_PI/180.;
+		t.gamma = euler_angles_deg.z * M_PI/180.;
+
+		if (ImGui::Button("set euler lbg"))
+		{
+			t.set_euler_lbg();
+		}
 	}
 
 	ImGui::Separator();

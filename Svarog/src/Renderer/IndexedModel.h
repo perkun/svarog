@@ -119,6 +119,7 @@ protected:
 
 };
 
+
 class IndexedModelObj : public IndexedModelFile
 {
 public:

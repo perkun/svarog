@@ -122,16 +122,21 @@ void Scene::on_update_runtime(double time_delta, bool update_scripts)
 
     Renderer::begin_scene(observer.get_component<CameraComponent>().camera);
     if (light)
+	{
         Renderer::set_dir_light(light.get_component<CameraComponent>().camera);
+	}
     draw_depth_first(root_entity);
     Renderer::end_scene();
 }
+
 
 void Scene::on_update_editor(double time_delta, EditorCamera &editor_camera)
 {
 	Renderer::begin_scene(editor_camera);
 	if (light)
+	{
 		Renderer::set_dir_light(light.get_component<CameraComponent>().camera);
+	}
     draw_depth_first(root_entity);
 	Renderer::end_scene();
 }

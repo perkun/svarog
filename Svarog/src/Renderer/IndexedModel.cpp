@@ -254,6 +254,7 @@ IndexedModelObj::IndexedModelObj(string filename, NormalIndexing mode)
 	layout.calculate_stride_and_elem_offsets();
 }
 
+
 void IndexedModelObj::load(string filename, NormalIndexing mode)
 {
     FILE *f = fopen(filename.c_str(), "r");

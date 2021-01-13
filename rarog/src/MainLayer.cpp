@@ -10,7 +10,9 @@
 #include "AsteroidController.h"
 #include "Renderer.h"
 #include "Utils/FileDialog.h"
+#include "Utils/File.h"
 #include "ObservatoryPanel.h"
+#include "Utils/ObjHeader.h"
 #include <glm/gtc/type_ptr.hpp>
 
 MainLayer::MainLayer(int argc, char *argv[])
@@ -33,6 +35,7 @@ MainLayer::~MainLayer()
 {
 }
 
+
 void MainLayer::on_attach()
 {
     auto window = Application::get_window();
@@ -41,20 +44,34 @@ void MainLayer::on_attach()
     vec3 init_model_pos(0., 5., 0.);
 
 
+	ObjHeader header;
+
     shared_ptr<VertexArrayObject> model_vao;
     if (arg_handler.isSpecified("model"))
     {
         string filename = arg_handler.args["model"].to_str();
-        if (filename.compare(filename.rfind("."), 4, ".obj") == 0)
+		if (File::is_extension(filename, "obj"))
+		{
             model_vao = make_shared<VertexArrayObject>(
                 IndexedModelObj(filename, NormalIndexing::PER_FACE));
-        else if (filename.compare(filename.rfind("."), 4, ".shp") == 0)
+
+			// load header
+			header = ObjHeader(arg_handler.args["model"].to_str());
+		}
+		else if (File::is_extension(filename, "shp"))
             model_vao = make_shared<VertexArrayObject>(
                 IndexedModelShp(filename, NormalIndexing::PER_FACE));
+		else
+		{
+			WARN("Wrong file extension, exiting");
+			cout << "File extension not recognised" << endl;
+			Application::stop();
+		}
     }
     else
         model_vao =
             make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
+
 
     grid = scene.create_entity("grid");
     grid.add_component<Material>(Application::shaders["line_shader"]);
@@ -109,6 +126,11 @@ void MainLayer::on_attach()
 	Transform &mt = model.get_component<Transform>();
 	mt.rotation_speed = 2 * M_PI / 10.;
     mt.position = init_model_pos;
+
+	mt.lambda = header.get_item<float>("lambda") * M_PI/180.;
+	mt.beta = header.get_item<float>("beta") * M_PI/180.;
+	mt.gamma = header.get_item<float>("gamma") * M_PI/180.;
+	mt.set_euler_lbg();
 
 
 
