@@ -75,6 +75,9 @@ void ObservatoryPanel::on_imgui_render()
     {
         for (int n = 0; n < ents.size(); n++)
         {
+			if (ents[n] == layer->scene.observer)
+				continue;
+
             const bool is_selected = (selected_target_idx == n);
             if (ImGui::Selectable(
                     ents[n].get_component<TagComponent>().tag.c_str(),
@@ -106,6 +109,9 @@ void ObservatoryPanel::on_imgui_render()
         {
             if (!ents[n].has_component<CameraComponent>())
                 continue;
+
+			if (ents[n] == layer->observer_target)
+				continue;
 
             const bool is_selected = (selected_observer_idx == n);
             if (ImGui::Selectable(
