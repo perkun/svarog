@@ -133,9 +133,16 @@ void ObservatoryPanel::observer_selection_panel(vector<Entity> &ents)
             // keyboard navigation focus)
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
+
         }
         ImGui::EndCombo();
     }
+
+	// observer camera fov
+	auto cam = dynamic_pointer_cast<OrthograficCamera>(
+			layer->scene.observer.get_component<CameraComponent>().camera);
+	ImGui::PushItemWidth(150.);
+	ImGui::DragFloat("camera fov", &(cam->size_x), 0.02, 0.1, 100.);
 }
 
 
@@ -206,11 +213,6 @@ void ObservatoryPanel::on_imgui_render()
 
     observer_selection_panel(ents);
 
-	// observer camera fov
-    auto cam = dynamic_pointer_cast<OrthograficCamera>(
-        layer->scene.observer.get_component<CameraComponent>().camera);
-    ImGui::PushItemWidth(150.);
-    ImGui::DragFloat("camera fov", &(cam->size_x), 0.2, 0.5, 100.);
     for (int i = 0; i < 10; i++)
         ImGui::Spacing();
 
@@ -404,7 +406,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
         .add_component<Material>(Application::shaders["flat_shader"])
         .uniforms_vec4["u_color"] = vec4(32 / 256., 172 / 256., 64 / 256., 0.2);
     lc.ghost_observer.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.3))));
+        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.03))));
     Transform &got = lc.ghost_observer.get_component<Transform>();
     got.position = observer.get_component<Transform>().position;
 
@@ -412,7 +414,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
     lc.ghost_target.add_component<Material>(Application::shaders["flat_shader"])
         .uniforms_vec4["u_color"] = vec4(32 / 256., 172 / 256., 64 / 256., 0.2);
     lc.ghost_target.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedCube(vec3(-.25), vec3(0.5))));
+        make_shared<VertexArrayObject>(IndexedCube(vec3(-.025), vec3(0.05))));
     Transform &gtt = lc.ghost_target.get_component<Transform>();
     gtt.position = target.get_component<Transform>().position;
 
@@ -486,7 +488,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
         .add_component<Material>(Application::shaders["flat_shader"])
         .uniforms_vec4["u_color"] = vec4(237 / 256., 84 / 256., 84 / 256., 0.2);
     ao.ghost_observer.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.3))));
+        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.03))));
     Transform &got = ao.ghost_observer.get_component<Transform>();
     got.position = observer.get_component<Transform>().position;
 
@@ -494,7 +496,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
     ao.ghost_target.add_component<Material>(Application::shaders["flat_shader"])
         .uniforms_vec4["u_color"] = vec4(237 / 256., 84 / 256., 84 / 256., 0.2);
     ao.ghost_target.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedCube(vec3(-0.25), vec3(0.5))));
+        make_shared<VertexArrayObject>(IndexedCube(vec3(-0.05), vec3(0.05))));
     Transform &gtt = ao.ghost_target.get_component<Transform>();
     gtt.position = target.get_component<Transform>().position;
 

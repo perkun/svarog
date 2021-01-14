@@ -87,6 +87,7 @@ void MainLayer::load_model(vec3 init_model_pos)
         model.add_component<MeshComponent>(
             make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.))));
 
+	mt.scale = vec3(0.1);
 
 	// position
 	if (arg_handler.isSpecified("asteroid_pos"))
@@ -106,21 +107,21 @@ void MainLayer::on_attach()
     auto window = Application::get_window();
     Renderer::set_line_width(2.);
     Renderer::enable_blend();
-    vec3 init_model_pos(0., 5., 0.);
+    vec3 init_model_pos(0., 1., 0.);
 
 	load_model(init_model_pos);
 
     grid = scene.create_entity("grid");
     grid.add_component<Material>(Application::shaders["line_shader"]);
     grid.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(create_grid(100., 5., 0.2), true));
+        make_shared<VertexArrayObject>(create_grid(10., 1., 0.2), true));
 
     Entity runtime_observer = scene.create_entity("Observer");
     CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
         //         make_shared<PerspectiveCamera>(
         //             radians(45.0), window->width / (float)window->height,
         //             0.01, 500.0));
-        make_shared<OrthograficCamera>(1., 1.0, 0.1, 20.));
+        make_shared<OrthograficCamera>(0.4, 1.0, 0.1, 20.));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
@@ -129,8 +130,8 @@ void MainLayer::on_attach()
         .uniforms_vec4["u_color"] =
         vec4(40 / 256., 185 / 256., 240 / 256., 1.0);
     MeshComponent &romc = runtime_observer.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.3))));
-    rocp.camera->position = vec3(3., 3., 0.);
+        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.05))));
+    rocp.camera->position = vec3(sqrt(2.)/2., sqrt(2.)/2., 0.);
 	if (arg_handler.isSpecified("earth_pos"))
 	{
 			rocp.camera->position = vec3(
@@ -149,7 +150,7 @@ void MainLayer::on_attach()
 
     light = scene.create_entity("Light");
     light.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.5))));
+        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.1))));
     light.add_component<Material>(Application::shaders["color_shader"])
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
