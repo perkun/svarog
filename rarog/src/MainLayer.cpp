@@ -18,6 +18,8 @@
 MainLayer::MainLayer(int argc, char *argv[])
 {
     arg_handler.addArgument("m", "model", "", "path to OBJ model");
+    arg_handler.addVectorArgument("", "asteroid_pos", 3, "Asterod position");
+    arg_handler.addVectorArgument("", "earth_pos", 3, "Earth position");
 
     arg_handler.parseArguments(argc, argv);
 
@@ -65,6 +67,10 @@ void MainLayer::load_model(vec3 init_model_pos)
             oc.lambda = header.get_item<float>("lambda") * M_PI / 180.;
             oc.beta = header.get_item<float>("beta") * M_PI / 180.;
             oc.gamma = header.get_item<float>("gamma") * M_PI / 180.;
+			oc.jd_0 = header.get_item<double>("jd_gamma0");
+			oc.rot_period = header.get_item<double>("period[h]") ;
+
+			oc.calculate_rot_phase(2451545.0);
 			mt.rotation = oc.xyz_from_lbg();
 		}
         else if (File::is_extension(filename, "shp"))
@@ -80,6 +86,16 @@ void MainLayer::load_model(vec3 init_model_pos)
     else
         model.add_component<MeshComponent>(
             make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.))));
+
+
+	// position
+	if (arg_handler.isSpecified("asteroid_pos"))
+	{
+			mt.position = vec3(
+				arg_handler.vec_args["asteroid_pos"][0].to_float(),
+				arg_handler.vec_args["asteroid_pos"][1].to_float(),
+				arg_handler.vec_args["asteroid_pos"][2].to_float());
+	}
 
 
 }
@@ -104,7 +120,7 @@ void MainLayer::on_attach()
         //         make_shared<PerspectiveCamera>(
         //             radians(45.0), window->width / (float)window->height,
         //             0.01, 500.0));
-        make_shared<OrthograficCamera>(3., 1.0, 0.1, 20.));
+        make_shared<OrthograficCamera>(1., 1.0, 0.1, 20.));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
@@ -115,6 +131,14 @@ void MainLayer::on_attach()
     MeshComponent &romc = runtime_observer.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.3))));
     rocp.camera->position = vec3(3., 3., 0.);
+	if (arg_handler.isSpecified("earth_pos"))
+	{
+			rocp.camera->position = vec3(
+				arg_handler.vec_args["earth_pos"][0].to_float(),
+				arg_handler.vec_args["earth_pos"][1].to_float(),
+				arg_handler.vec_args["earth_pos"][2].to_float());
+	}
+
     rocp.camera->update_target(init_model_pos);
     // 	romc.vao->draw_type = GL_LINES;
 
@@ -132,7 +156,7 @@ void MainLayer::on_attach()
     light.add_component<LightComponent>();
 
     light.add_component<FramebufferComponent>(
-        make_shared<Framebuffer>(1024, 1024, DEPTH_ATTACHMENT));
+        make_shared<Framebuffer>(2048, 2048, DEPTH_ATTACHMENT));
 
     light.add_component<CameraComponent>(
         //         make_shared<PerspectiveCamera>(

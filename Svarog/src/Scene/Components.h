@@ -110,22 +110,25 @@ public:
 class OrbitalComponent
 {
 public:
-	OrbitalComponent();
-	~OrbitalComponent();
+    OrbitalComponent();
+    ~OrbitalComponent();
 
-	// rotation
-	float jd_0 = 2451545.0;
-	float rotation_phase = 0;
-	float rotation_speed = 1.;
-	float lambda, beta, gamma;
+    // rotation
+    double jd_0 = 2451545.0;
+    double rotation_phase = 0;
+    float rotation_speed = 1.;
+	double rot_period = 1.;
+    double lambda, beta, gamma;
 
-	// xyz euler from lbg
-	vec3 xyz_from_lbg();
+    // xyz euler from lbg
+    vec3 xyz_from_lbg();
+	void calculate_rot_phase(double julian_day);
 
-	// orbital elements
+    // orbital elements
+    double semimajor_axis, eccentricity, inclination, ascending_node, periapsis,
+        true_anomaly;
 
 private:
-
 };
 
 

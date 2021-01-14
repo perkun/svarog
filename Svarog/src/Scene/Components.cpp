@@ -64,10 +64,10 @@ vec3 OrbitalComponent::xyz_from_lbg()
 {
     quat ql, qb, qg;
     // rotate gamma about z axis
-    qg.w = cos((gamma + rotation_phase + M_PI_2) / 2);
+    qg.w = cos((gamma + rotation_phase) / 2);
     qg.x = 0;
     qg.y = 0;
-    qg.z = sin((gamma + rotation_phase + M_PI_2) / 2);
+    qg.z = sin((gamma + rotation_phase) / 2);
 
     // rotate beta about y axis
     qb.w = cos((M_PI_2 - beta) / 2);
@@ -82,5 +82,15 @@ vec3 OrbitalComponent::xyz_from_lbg()
     ql.z = sin(lambda / 2);
 
     return glm::eulerAngles(ql * qb * qg);
+}
 
+
+void OrbitalComponent::calculate_rot_phase(double julian_day)
+{
+    rotation_phase = (julian_day - jd_0) / (rot_period / 24.0) * 2 * M_PI;
+
+    while (rotation_phase < 0)
+        rotation_phase += 2 * M_PI;
+    while (rotation_phase >= 2 * M_PI)
+        rotation_phase -= 2 * M_PI;
 }

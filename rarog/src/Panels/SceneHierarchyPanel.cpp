@@ -281,6 +281,8 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 
 		if (entity.has_component<OrbitalComponent>())
 		{
+			static double julian_day = 2451545.0;
+
 			for (int i = 0; i < 5; i++)
 				ImGui::Spacing();
 
@@ -288,10 +290,19 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 
 			ImGui::DragFloat("rot. speed", &oc.rotation_speed, 0.1f);
 
+			for (int i = 0; i < 5; i++)
+				ImGui::Spacing();
+
 			float rot_phase_deg = oc.rotation_phase * 180./M_PI;
 			if (ImGui::DragFloat("rot phase", &rot_phase_deg))
 			{
 				oc.rotation_phase = rot_phase_deg * M_PI/180.;
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+			if (ImGui::InputDouble("rot. period[h]", &oc.rot_period))
+			{
+				oc.calculate_rot_phase(julian_day);
 				t.rotation = oc.xyz_from_lbg();
 			}
 
@@ -311,6 +322,22 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 
 				t.rotation = oc.xyz_from_lbg();
 			}
+
+			for (int i = 0; i < 5; i++)
+				ImGui::Spacing();
+
+			// set JD
+			if (ImGui::InputDouble("JD", &julian_day) || ImGui::Button("Reset"))
+			{
+				oc.calculate_rot_phase(julian_day);
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+// 			if (ImGui::Button("Reset"))
+// 			{
+// 				oc.calculate_rot_phase(julian_day);
+// 				t.rotation = oc.xyz_from_lbg();
+// 			}
 		}
 	}
 

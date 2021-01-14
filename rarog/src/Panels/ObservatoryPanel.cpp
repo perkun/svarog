@@ -174,6 +174,7 @@ void ObservatoryPanel::observations_panel()
             ImGui::ColorEdit4("ao_bg_color", (float *)&ao_bg_color,
                               ImGuiColorEditFlags_NoInputs |
                                   ImGuiColorEditFlags_NoLabel);
+			ImGui::Checkbox("Earth tilt", &earth_tilt);
 
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
@@ -355,8 +356,6 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
     Transform &t = target.get_component<Transform>();
 	OrbitalComponent &oc = target.get_component<OrbitalComponent>();
 
-	if (oc.rotation_speed == 0)
-		return;
 
     int num_points = lc_num_points;
     int width = 256;
@@ -378,7 +377,10 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 
     for (int i = 0; i < num_points; i++)
     {
-		layer->on_update(2 * M_PI / num_points / oc.rotation_speed);
+		if (oc.rotation_speed != 0)
+			layer->on_update(2 * M_PI / num_points / oc.rotation_speed);
+		else
+			layer->on_update(2 * M_PI / num_points );
 
         layer->framebuffer->bind();
         glReadPixels(0, 0, width, height, GL_RED, GL_FLOAT, pixel_buffer);
@@ -464,6 +466,10 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
     layer->scene.on_resize(ao_width, ao_height);
     layer->ms_framebuffer->resize(ao_width, ao_height);
     layer->framebuffer->resize(ao_width, ao_height);
+
+	if (earth_tilt)
+		observer.get_component<CameraComponent>().camera->up =
+			vec3(0.,0.39774,0.917498);
 
     // make image
     layer->on_update(0.);

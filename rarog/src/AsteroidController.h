@@ -33,8 +33,12 @@ protected:
 		OrbitalComponent &oc = get_component<OrbitalComponent>();
 
 		float rot_angle = oc.rotation_speed * time_delta;
-
 		oc.rotation_phase += rot_angle;
+
+		if (oc.rotation_phase >= 2*M_PI)
+			oc.rotation_phase -= 2*M_PI;
+		if (oc.rotation_phase < 0.)
+			oc.rotation_phase += 2*M_PI;
 
 		quat q;
 

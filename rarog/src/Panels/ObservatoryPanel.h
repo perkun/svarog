@@ -55,6 +55,8 @@ private:
 
 	vec4 ao_bg_color = vec4(0.0, 0.0, 0.0, 1.);
 
+	bool earth_tilt = true;
+
 	vector<Lightcurve> lightcurves;
 	vector<AoImage> ao_images;
 };
