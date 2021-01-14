@@ -273,30 +273,44 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 		rot_deg = (float)(180./M_PI) * t.rotation ;
 
 		ImGui::DragFloat3("Position", glm::value_ptr(t.position), 0.1);
-		ImGui::DragFloat3("Rotation [deg]", glm::value_ptr(rot_deg), 0.1);
+		ImGui::DragFloat3("Rotation", glm::value_ptr(rot_deg), 0.1);
 		ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
 
 		t.rotation = rot_deg * (float)(M_PI / 180.0);
 
-		ImGui::DragFloat("rotation speed", &t.rotation_speed, 0.1f);
 
-		for (int i = 0; i < 5; i++)
-			ImGui::Spacing();
-
-		vec3 euler_angles_deg;
-		euler_angles_deg.x = t.lambda * 180./M_PI;
-		euler_angles_deg.y = t.beta * 180./M_PI;
-		euler_angles_deg.z = t.gamma * 180./M_PI;
-
-		ImGui::DragFloat3("Euler lbg", glm::value_ptr(euler_angles_deg));
-
-		t.lambda = euler_angles_deg.x * M_PI/180.;
-		t.beta = euler_angles_deg.y * M_PI/180.;
-		t.gamma = euler_angles_deg.z * M_PI/180.;
-
-		if (ImGui::Button("set euler lbg"))
+		if (entity.has_component<OrbitalComponent>())
 		{
-			t.set_euler_lbg();
+			for (int i = 0; i < 5; i++)
+				ImGui::Spacing();
+
+			OrbitalComponent &oc = entity.get_component<OrbitalComponent>();
+
+			ImGui::DragFloat("rot. speed", &oc.rotation_speed, 0.1f);
+
+			float rot_phase_deg = oc.rotation_phase * 180./M_PI;
+			if (ImGui::DragFloat("rot phase", &rot_phase_deg))
+			{
+				oc.rotation_phase = rot_phase_deg * M_PI/180.;
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+			for (int i = 0; i < 5; i++)
+				ImGui::Spacing();
+
+			vec3 euler_angles_deg;
+			euler_angles_deg.x = oc.lambda * 180./M_PI;
+			euler_angles_deg.y = oc.beta * 180./M_PI;
+			euler_angles_deg.z = oc.gamma * 180./M_PI;
+
+			if (ImGui::DragFloat3("Euler lbg", glm::value_ptr(euler_angles_deg)))
+			{
+				oc.lambda = euler_angles_deg.x * M_PI/180.;
+				oc.beta = euler_angles_deg.y * M_PI/180.;
+				oc.gamma = euler_angles_deg.z * M_PI/180.;
+
+				t.rotation = oc.xyz_from_lbg();
+			}
 		}
 	}
 
@@ -340,16 +354,18 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 		sprintf(buff, "");
 		if (ImGui::InputText("name", buff, sizeof(buff)))
 			sprintf(u_name, buff);
-		if (ImGui::Button("Add int") && strcmp(u_name, "") != 0)
+		ImGui::Text("Add: ");
+		ImGui::SameLine();
+		if (ImGui::Button("int") && strcmp(u_name, "") != 0)
 			m.uniforms_int[u_name] = 0;
 		ImGui::SameLine();
-		if (ImGui::Button("Add float") && strcmp(u_name, "") != 0)
+		if (ImGui::Button("float") && strcmp(u_name, "") != 0)
 			m.uniforms_float[u_name] = 0.;
 		ImGui::SameLine();
-		if (ImGui::Button("Add vec3") && strcmp(u_name, "") != 0)
+		if (ImGui::Button("vec3") && strcmp(u_name, "") != 0)
 			m.uniforms_vec3[u_name] = vec3(0);
 		ImGui::SameLine();
-		if (ImGui::Button("Add vec4") && strcmp(u_name, "") != 0)
+		if (ImGui::Button("vec4") && strcmp(u_name, "") != 0)
 			m.uniforms_vec4[u_name] = vec4(0);
 // 		ImGui::SameLine();
 // 		if (ImGui::Button("Add mat4") && strcmp(u_name, "") != 0)

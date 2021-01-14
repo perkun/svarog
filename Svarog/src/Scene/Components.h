@@ -107,5 +107,26 @@ public:
 	glm::vec4 color = vec4(1.);
 };
 
+class OrbitalComponent
+{
+public:
+	OrbitalComponent();
+	~OrbitalComponent();
+
+	// rotation
+	float jd_0 = 2451545.0;
+	float rotation_phase = 0;
+	float rotation_speed = 1.;
+	float lambda, beta, gamma;
+
+	// xyz euler from lbg
+	vec3 xyz_from_lbg();
+
+	// orbital elements
+
+private:
+
+};
+
 
 #endif /* SCENE/COMPONENTS_H_ */

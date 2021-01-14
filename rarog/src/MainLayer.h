@@ -50,7 +50,8 @@ private:
 	void set_editor_mode();
 	void set_runtime_mode();
 
-	void make_lightcurve(Entity &target);
+	void load_model(vec3 init_model_pos);
+
 
 	Entity light, model;
 	Entity observer_target;

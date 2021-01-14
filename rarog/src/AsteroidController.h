@@ -6,6 +6,7 @@
 #include "Input.h"
 #include "ScriptableEntity.h"
 #include "Transform.h"
+#include "Components.h"
 
 using namespace std;
 using namespace glm;
@@ -29,15 +30,19 @@ protected:
     virtual void on_update(double time_delta) override
     {
 		Transform &t = get_component<Transform>();
-		float gamma = t.rotation_speed * time_delta;
+		OrbitalComponent &oc = get_component<OrbitalComponent>();
+
+		float rot_angle = oc.rotation_speed * time_delta;
+
+		oc.rotation_phase += rot_angle;
 
 		quat q;
 
 		// rotate about z axis
-		q.w = cos(gamma/2);
+		q.w = cos(rot_angle/2);
 		q.x = 0;
 		q.y = 0;
-		q.z = sin(gamma/2);
+		q.z = sin(rot_angle/2);
 
 		t.rotation = glm::eulerAngles(quat(t.rotation) * q);
 	}

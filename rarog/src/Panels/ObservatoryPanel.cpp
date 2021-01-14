@@ -352,6 +352,12 @@ void ObservatoryPanel::display_ao_images()
 
 void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 {
+    Transform &t = target.get_component<Transform>();
+	OrbitalComponent &oc = target.get_component<OrbitalComponent>();
+
+	if (oc.rotation_speed == 0)
+		return;
+
     int num_points = lc_num_points;
     int width = 256;
     int height = 256;
@@ -370,11 +376,9 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
     layer->ms_framebuffer->resize(width, height);
     layer->framebuffer->resize(width, height);
 
-    Transform &t = target.get_component<Transform>();
-
     for (int i = 0; i < num_points; i++)
     {
-        layer->on_update(2 * M_PI / num_points / t.rotation_speed);
+		layer->on_update(2 * M_PI / num_points / oc.rotation_speed);
 
         layer->framebuffer->bind();
         glReadPixels(0, 0, width, height, GL_RED, GL_FLOAT, pixel_buffer);

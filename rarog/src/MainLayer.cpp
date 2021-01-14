@@ -36,6 +36,55 @@ MainLayer::~MainLayer()
 }
 
 
+void MainLayer::load_model(vec3 init_model_pos)
+{
+    model = scene.create_entity("Model");
+    model.add_component<Material>(Application::shaders["tex_sha"])
+        .uniforms_int["u_has_texture"] = 0;
+    model.add_component<NativeScriptComponent>().bind<AsteroidController>();
+    Transform &mt = model.get_component<Transform>();
+    mt.position = init_model_pos;
+
+	OrbitalComponent &oc = model.add_component<OrbitalComponent>();
+	oc.lambda = 0;
+	oc.beta = M_PI_2;
+	oc.gamma = -M_PI_2;
+    oc.rotation_speed = 2 * M_PI / 10.;
+	mt.rotation = oc.xyz_from_lbg();
+
+    if (arg_handler.isSpecified("model"))
+    {
+        string filename = arg_handler.args["model"].to_str();
+        if (File::is_extension(filename, "obj"))
+        {
+            model.add_component<MeshComponent>(make_shared<VertexArrayObject>(
+                IndexedModelObj(filename, NormalIndexing::PER_FACE)));
+
+            ObjHeader header(arg_handler.args["model"].to_str());
+
+            oc.lambda = header.get_item<float>("lambda") * M_PI / 180.;
+            oc.beta = header.get_item<float>("beta") * M_PI / 180.;
+            oc.gamma = header.get_item<float>("gamma") * M_PI / 180.;
+			mt.rotation = oc.xyz_from_lbg();
+		}
+        else if (File::is_extension(filename, "shp"))
+            model.add_component<MeshComponent>(make_shared<VertexArrayObject>(
+                IndexedModelShp(filename, NormalIndexing::PER_FACE)));
+        else
+        {
+            WARN("Wrong file extension, exiting");
+            cout << "File extension not recognised" << endl;
+            Application::stop();
+        }
+    }
+    else
+        model.add_component<MeshComponent>(
+            make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.))));
+
+
+}
+
+
 void MainLayer::on_attach()
 {
     auto window = Application::get_window();
@@ -43,35 +92,7 @@ void MainLayer::on_attach()
     Renderer::enable_blend();
     vec3 init_model_pos(0., 5., 0.);
 
-
-	ObjHeader header;
-
-    shared_ptr<VertexArrayObject> model_vao;
-    if (arg_handler.isSpecified("model"))
-    {
-        string filename = arg_handler.args["model"].to_str();
-		if (File::is_extension(filename, "obj"))
-		{
-            model_vao = make_shared<VertexArrayObject>(
-                IndexedModelObj(filename, NormalIndexing::PER_FACE));
-
-			// load header
-			header = ObjHeader(arg_handler.args["model"].to_str());
-		}
-		else if (File::is_extension(filename, "shp"))
-            model_vao = make_shared<VertexArrayObject>(
-                IndexedModelShp(filename, NormalIndexing::PER_FACE));
-		else
-		{
-			WARN("Wrong file extension, exiting");
-			cout << "File extension not recognised" << endl;
-			Application::stop();
-		}
-    }
-    else
-        model_vao =
-            make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
-
+	load_model(init_model_pos);
 
     grid = scene.create_entity("grid");
     grid.add_component<Material>(Application::shaders["line_shader"]);
@@ -80,21 +101,22 @@ void MainLayer::on_attach()
 
     Entity runtime_observer = scene.create_entity("Observer");
     CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
-//         make_shared<PerspectiveCamera>(
-//             radians(45.0), window->width / (float)window->height, 0.01, 500.0));
-		   make_shared<OrthograficCamera>(
-				   3., 1.0, 0.1, 20.));
+        //         make_shared<PerspectiveCamera>(
+        //             radians(45.0), window->width / (float)window->height,
+        //             0.01, 500.0));
+        make_shared<OrthograficCamera>(3., 1.0, 0.1, 20.));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
-	runtime_observer.add_component<Material>(Application::shaders["color_shader"])
-		.uniforms_vec4[ "u_color"] = vec4(40/256., 185/256., 240/256., 1.0);
-	MeshComponent &romc =
-		runtime_observer.add_component<MeshComponent>(make_shared<VertexArrayObject>(
-			IndexedIcoSphere(vec3(0.), vec3(0.3))));
+    runtime_observer
+        .add_component<Material>(Application::shaders["color_shader"])
+        .uniforms_vec4["u_color"] =
+        vec4(40 / 256., 185 / 256., 240 / 256., 1.0);
+    MeshComponent &romc = runtime_observer.add_component<MeshComponent>(
+        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.3))));
     rocp.camera->position = vec3(3., 3., 0.);
     rocp.camera->update_target(init_model_pos);
-// 	romc.vao->draw_type = GL_LINES;
+    // 	romc.vao->draw_type = GL_LINES;
 
 
     Transform &rot = runtime_observer.get_component<Transform>();
@@ -107,46 +129,31 @@ void MainLayer::on_attach()
     light.add_component<Material>(Application::shaders["color_shader"])
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
-	light.add_component<LightComponent>();
+    light.add_component<LightComponent>();
 
     light.add_component<FramebufferComponent>(
-			make_shared<Framebuffer>(1024, 1024, DEPTH_ATTACHMENT));
+        make_shared<Framebuffer>(1024, 1024, DEPTH_ATTACHMENT));
 
-	light.add_component<CameraComponent>(
-//         make_shared<PerspectiveCamera>(
-//             radians(25.0), window->width / (float)window->height, 0.01, 50.0));
-			make_shared<OrthograficCamera>(10., 1., 0.01, 20.));
-
-    model = scene.create_entity("Model");
-    model.add_component<Material>(Application::shaders["tex_sha"])
-        .uniforms_int["u_has_texture"] = 0;
-    model.add_component<MeshComponent>(model_vao);
-    model.add_component<NativeScriptComponent>().bind<AsteroidController>();
-//     model.add_component<NativeScriptComponent>().bind<ModelController>();
-	Transform &mt = model.get_component<Transform>();
-	mt.rotation_speed = 2 * M_PI / 10.;
-    mt.position = init_model_pos;
-
-	mt.lambda = header.get_item<float>("lambda") * M_PI/180.;
-	mt.beta = header.get_item<float>("beta") * M_PI/180.;
-	mt.gamma = header.get_item<float>("gamma") * M_PI/180.;
-	mt.set_euler_lbg();
+    light.add_component<CameraComponent>(
+        //         make_shared<PerspectiveCamera>(
+        //             radians(25.0), window->width / (float)window->height,
+        //             0.01, 50.0));
+        make_shared<OrthograficCamera>(10., 1., 0.01, 20.));
 
 
-
-// 	Entity box = scene.create_entity("box");
-// 	box.add_component<Material>(Application::shaders["basic_shader"]);
-// 	box.add_component<MeshComponent>(make_shared<VertexArrayObject>(IndexedCube()));
+    // 	Entity box = scene.create_entity("box");
+    // 	box.add_component<Material>(Application::shaders["basic_shader"]);
+    // 	box.add_component<MeshComponent>(make_shared<VertexArrayObject>(IndexedCube()));
 
     scene.root_entity.add_child(model);
     scene.root_entity.add_child(light);
     scene.root_entity.add_child(runtime_observer);
-//     scene.root_entity.add_child(box);
+    //     scene.root_entity.add_child(box);
 
     ui_scene.root_entity.add_child(grid);
 
-	scene.observer = runtime_observer;
-	observer_target = model;
+    scene.observer = runtime_observer;
+    observer_target = model;
 
 
     editor_camera =
@@ -162,7 +169,7 @@ void MainLayer::on_attach()
     framebuffer = new Framebuffer(window->width, window->height,
                                   COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 
-	observatory_panel = new ObservatoryPanel(this);
+    observatory_panel = new ObservatoryPanel(this);
 }
 
 void MainLayer::on_event(Event &e)
@@ -207,7 +214,7 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 
 void MainLayer::on_window_resize_event(WindowResizeEvent &event)
 {
-//     ivec2 size = event.get_size();
+    //     ivec2 size = event.get_size();
 }
 
 void MainLayer::on_update(double time_delta)
@@ -228,56 +235,58 @@ void MainLayer::on_update(double time_delta)
 
     ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
-	if (shadow_map) // render to shadowmap
-	{
-		Entity tmp_scene_observer = scene.observer;
-		ASSERT(light.has_component<FramebufferComponent>(),
-				"Scene light doesn't have Framebuffer Component");
-		ASSERT(light.has_component<CameraComponent>(),
-				"Scene light doesn't have Camera Component");
+    if (shadow_map) // render to shadowmap
+    {
+        Entity tmp_scene_observer = scene.observer;
 
-		scene.light = Entity();
+        ASSERT(light.has_component<FramebufferComponent>(),
+               "Scene light doesn't have Framebuffer Component");
+        ASSERT(light.has_component<CameraComponent>(),
+               "Scene light doesn't have Camera Component");
 
-		SceneStatus &lsc = light.get_component<SceneStatus>();
-		lsc.render = false;
-		Transform &lt = light.get_component<Transform>();
-		auto lc = light.get_component<CameraComponent>().camera;
-		lc->position = lt.position;
-		lc->update_target(observer_target.get_component<Transform>().position);
+        scene.light = Entity();
 
-		light.get_component<CameraComponent>().camera->aspect = 1;
-		auto fb = light.get_component<FramebufferComponent>().framebuffer;
-		fb->bind();
-		fb->clear();
-		scene.observer = light;
+        SceneStatus &lss = light.get_component<SceneStatus>();
+        bool tmp_render = lss.render;
+        lss.render = false;
 
-		if (mode == Mode::EDITOR)
-			scene.on_update_editor(time_delta, editor_camera);
-		else if (mode == Mode::RUNTIME)
-			scene.on_update_runtime(time_delta, false);
-		fb->bind_depth_texture(1);
+        Transform &lt = light.get_component<Transform>();
+        auto lc = light.get_component<CameraComponent>().camera;
 
-		lsc.render = true;
-		scene.observer = tmp_scene_observer;
-	}
+        lc->position = lt.position;
+        lc->update_target(observer_target.get_component<Transform>().position);
+        lc->aspect = 1;
 
-	scene.light = light;
+        auto fb = light.get_component<FramebufferComponent>().framebuffer;
+        fb->bind();
+        fb->clear();
+
+        scene.observer = light;
+
+        if (mode == Mode::EDITOR)
+            scene.on_update_editor(time_delta, editor_camera);
+        else if (mode == Mode::RUNTIME)
+            scene.on_update_runtime(time_delta, false);
+
+        fb->bind_depth_texture(1);
+
+        lss.render = tmp_render;
+        scene.observer = tmp_scene_observer;
+    }
+
+    scene.light = light;
+
+    ms_framebuffer->bind();
+    ms_framebuffer->clear();
 
     if (mode == Mode::EDITOR)
     {
         editor_camera.on_update(time_delta);
-
-        ms_framebuffer->bind();
-        ms_framebuffer->clear();
-
         scene.on_update_editor(time_delta, editor_camera);
         ui_scene.on_update_editor(time_delta, editor_camera);
     }
     else if (mode == Mode::RUNTIME)
     {
-        ms_framebuffer->bind();
-        ms_framebuffer->clear();
-
         scene.on_update_runtime(time_delta);
     }
 
@@ -299,22 +308,22 @@ void MainLayer::on_imgui_render()
         ImGui::ShowDemoWindow();
 
     scene_hierarchy_panel.on_imgui_render();
-	observatory_panel->on_imgui_render();
+    observatory_panel->on_imgui_render();
 }
 
 void MainLayer::on_detach()
 {
     delete ms_framebuffer;
     delete framebuffer;
-	delete observatory_panel;
+    delete observatory_panel;
 }
 
 void MainLayer::toggle_mode()
 {
     if (mode == Mode::EDITOR)
-		set_runtime_mode();
+        set_runtime_mode();
     else if (mode == Mode::RUNTIME)
-		set_editor_mode();
+        set_editor_mode();
 }
 
 void MainLayer::set_editor_mode()
@@ -427,7 +436,6 @@ void MainLayer::menu_bar()
         }
 
 
-
         ImGui::EndMainMenuBar();
     }
     ImGui::PopFont();
@@ -435,15 +443,12 @@ void MainLayer::menu_bar()
 
 void MainLayer::scene_window()
 {
-    //     if (!(scene.flags & RENDER_TO_FRAMEBUFFER))
-    //         return;
-
-// 	ImGui::Begin("depth map");
-//
-// 	long int shadow_tex_id = light.get_component<FramebufferComponent>().framebuffer->get_depth_attachment_id();
-//     ImGui::Image((void *)shadow_tex_id, ImVec2(300, 300), ImVec2(0, 1),
-//                  ImVec2(1, 0));
-// 	ImGui::End();
+    //     ImGui::Begin("depth map");
+    //     long int shadow_tex_id = light.get_component<FramebufferComponent>()
+    //                                  .framebuffer->get_depth_attachment_id();
+    //     ImGui::Image((void *)shadow_tex_id, ImVec2(300, 300), ImVec2(0, 1),
+    //                  ImVec2(1, 0));
+    //     ImGui::End();
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
     ImGui::Begin("Scene");
@@ -461,10 +466,9 @@ void MainLayer::scene_window()
         Renderer::bind_default_framebuffer();
     }
 
-	long int tex_id = framebuffer->get_color_attachment_id();
+    long int tex_id = framebuffer->get_color_attachment_id();
     ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
                  ImVec2(1, 0));
-
 
 
     // Gizmos
@@ -599,5 +603,3 @@ IndexedModel MainLayer::create_grid(float size, float sep, float alpha)
 
     return grid_batch.indexed_model;
 }
-
-
