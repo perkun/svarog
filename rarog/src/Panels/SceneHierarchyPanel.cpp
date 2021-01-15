@@ -231,6 +231,13 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 ImGui::EndMenu();
             }
 
+            sprintf(buff, "%s  Add Orbital Component", "\xef\x94\x97");
+            if (!entity.has_component<OrbitalComponent>() &&
+                ImGui::MenuItem(buff))
+            {
+				entity.add_component<OrbitalComponent>();
+            }
+
             ImGui::Spacing();
             ImGui::Separator();
 
@@ -252,8 +259,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 		list_component<TextureComponent>(
 				entity, "Texture Component", "\xef\x80\xbe", [](Entity &e) {
 				if (e.has_component<Material>())
-				e.get_component<Material>().uniforms_int["u_has_texture"] =
-				0;
+				e.get_component<Material>().uniforms_int["u_has_texture"] = 0;
 				});
 		list_component<Material>(entity, "Material Component", "\xef\x83\xab",
 				[](Entity &e) {});
@@ -261,6 +267,9 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 				"\xef\x80\xbd", [](Entity &e) {});
 		list_component<NativeScriptComponent>(entity, "Native Script Component",
 				"\xef\x92\x89", [](Entity &e) {});
+		list_component<OrbitalComponent>(entity, "OrbitalComponent",
+				"\xef\x94\x97", [](Entity &e) {});
+
 
 		// list children
 		for (Entity &child :
@@ -300,7 +309,8 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 
 		if (entity.has_component<OrbitalComponent>())
 		{
-			static double julian_day = 2451545.0;
+			static double julian_day = Time::julian_day_now();
+			static Time::CalendarDate date = Time::jd_to_date(Time::julian_day_now());
 
 			for (int i = 0; i < 5; i++)
 				ImGui::Spacing();
@@ -319,7 +329,7 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 				t.rotation = oc.xyz_from_lbg();
 			}
 
-			if (ImGui::InputDouble("rot. period[h]", &oc.rot_period))
+			if (ImGui::InputDouble("P [h]", &oc.rot_period))
 			{
 				oc.calculate_rot_phase(julian_day);
 				t.rotation = oc.xyz_from_lbg();
@@ -345,9 +355,71 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 			for (int i = 0; i < 5; i++)
 				ImGui::Spacing();
 
-			// set JD
-			if (ImGui::InputDouble("JD", &julian_day) || ImGui::Button("Reset"))
+			if (ImGui::Button("Reset"))
 			{
+				oc.calculate_rot_phase(julian_day);
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+
+			// set JD
+			ImGui::SetNextItemWidth(150);
+			if (ImGui::InputDouble("JD", &julian_day))
+			{
+				oc.calculate_rot_phase(julian_day);
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+			ImGui::SetNextItemWidth(150);
+			if (ImGui::InputInt("Year", &date.year))
+			{
+				date.normalize();
+				julian_day = Time::julian_day(date);
+				oc.calculate_rot_phase(julian_day);
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+			ImGui::SetNextItemWidth(150);
+			if (ImGui::InputInt("Month", &date.month))
+			{
+				date.normalize();
+				julian_day = Time::julian_day(date);
+				oc.calculate_rot_phase(julian_day);
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+			ImGui::SetNextItemWidth(150);
+			if (ImGui::InputInt("Day", &date.day))
+			{
+				date.normalize();
+				julian_day = Time::julian_day(date);
+				oc.calculate_rot_phase(julian_day);
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+			ImGui::SetNextItemWidth(150);
+			if (ImGui::InputInt("Hour", &date.hour))
+			{
+				date.normalize();
+				julian_day = Time::julian_day(date);
+				oc.calculate_rot_phase(julian_day);
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+			ImGui::SetNextItemWidth(150);
+			if (ImGui::InputInt("Min.", &date.minute))
+			{
+				date.normalize();
+				julian_day = Time::julian_day(date);
+				oc.calculate_rot_phase(julian_day);
+				t.rotation = oc.xyz_from_lbg();
+			}
+
+			ImGui::SetNextItemWidth(150);
+			if (ImGui::InputFloat("Sec.", &date.second))
+			{
+				date.normalize();
+				julian_day = Time::julian_day(date);
 				oc.calculate_rot_phase(julian_day);
 				t.rotation = oc.xyz_from_lbg();
 			}

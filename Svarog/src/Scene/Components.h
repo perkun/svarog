@@ -8,6 +8,7 @@
 #include "Framebuffer.h"
 #include "ScriptableEntity.h"
 #include "Entity.h"
+#include "Utils/Time.h"
 
 using namespace std;
 
@@ -114,11 +115,11 @@ public:
     ~OrbitalComponent();
 
     // rotation
-    double jd_0 = 2451545.0;
+    double jd_0 = Time::julian_day_now();
     double rotation_phase = 0;
     float rotation_speed = 1.;
 	double rot_period = 1.;
-    double lambda, beta, gamma;
+    double lambda = 0, beta = M_PI_2, gamma = 0;
 
     // xyz euler from lbg
     vec3 xyz_from_lbg();

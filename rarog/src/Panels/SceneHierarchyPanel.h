@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Utils/FileDialog.h"
 #include "Batch.h"
+#include "Utils/Time.h"
 
 using namespace std;
 

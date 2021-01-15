@@ -25,6 +25,8 @@ void Camera::calculate_view()
 
 void Camera::update_target(vec3 new_target)
 {
+	if (length(new_target - position) == 0)
+		return;
 	front = normalize(new_target - position);
 	update();
 }

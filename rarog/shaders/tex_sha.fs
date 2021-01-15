@@ -16,7 +16,7 @@ uniform sampler2D u_depth_map;
 
 float evaluate_shadow(vec4 vertex_position_light)
 {
-	float epsilon = 0.005;
+	float epsilon = 0.001;
 
 	float shadow = texture(u_depth_map, vertex_position_light.xy).r;
 	if (shadow + epsilon < vertex_position_light.z)						// jeżeli shadow jest dalej niż vertex_pos

@@ -13,6 +13,7 @@
 #include "Utils/File.h"
 #include "ObservatoryPanel.h"
 #include "Utils/ObjHeader.h"
+#include "Utils/Time.h"
 #include <glm/gtc/type_ptr.hpp>
 
 MainLayer::MainLayer(int argc, char *argv[])
@@ -48,9 +49,6 @@ void MainLayer::load_model(vec3 init_model_pos)
     mt.position = init_model_pos;
 
 	OrbitalComponent &oc = model.add_component<OrbitalComponent>();
-	oc.lambda = 0;
-	oc.beta = M_PI_2;
-	oc.gamma = -M_PI_2;
     oc.rotation_speed = 2 * M_PI / 10.;
 	mt.rotation = oc.xyz_from_lbg();
 
@@ -70,7 +68,7 @@ void MainLayer::load_model(vec3 init_model_pos)
 			oc.jd_0 = header.get_item<double>("jd_gamma0");
 			oc.rot_period = header.get_item<double>("period[h]") ;
 
-			oc.calculate_rot_phase(2451545.0);
+			oc.calculate_rot_phase(Time::julian_day_now());
 			mt.rotation = oc.xyz_from_lbg();
 		}
         else if (File::is_extension(filename, "shp"))
@@ -121,7 +119,7 @@ void MainLayer::on_attach()
         //         make_shared<PerspectiveCamera>(
         //             radians(45.0), window->width / (float)window->height,
         //             0.01, 500.0));
-        make_shared<OrthograficCamera>(0.4, 1.0, 0.1, 20.));
+        make_shared<OrthograficCamera>(0.4, 1.0, 0.1, 10.));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
@@ -163,7 +161,7 @@ void MainLayer::on_attach()
         //         make_shared<PerspectiveCamera>(
         //             radians(25.0), window->width / (float)window->height,
         //             0.01, 50.0));
-        make_shared<OrthograficCamera>(10., 1., 0.01, 20.));
+        make_shared<OrthograficCamera>(1., 1., 0.01, 10.));
 
 
     // 	Entity box = scene.create_entity("box");
