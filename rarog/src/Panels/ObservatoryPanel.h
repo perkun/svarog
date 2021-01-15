@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Lightcurve.h"
 #include "AoImage.h"
+#include "RadarImage.h"
 #include "Texture.h"
 
 using namespace std;
@@ -30,6 +31,10 @@ private:
 	void make_ao_image(Entity &target, Entity &observer);
 	void display_ao_images();
 
+	void make_radar_image(Entity &target, Entity &observer);
+	void display_radar_images();
+
+
 	void set_target_and_observer(Entity&, Entity&, Entity&, Entity&);
 
 	vector<Entity> get_scene_entities();
@@ -43,6 +48,7 @@ private:
 
 	int lc_id = 0;
 	int ao_id = 0;
+	int radar_id = 0;
 
 	int ao_size = 400;
 
@@ -59,6 +65,7 @@ private:
 
 	vector<Lightcurve> lightcurves;
 	vector<AoImage> ao_images;
+	vector<RadarImage> radar_images;
 };
 
 #endif /* OBSERVATORYPANEL_H_ */

@@ -190,6 +190,19 @@ void ObservatoryPanel::observations_panel()
 
             ImGui::EndTabItem();
         }
+
+		if (ImGui::BeginTabItem("Radar images"))
+		{
+            if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
+                make_radar_image(layer->observer_target, layer->scene.observer);
+            for (int i = 0; i < 10; i++)
+                ImGui::Spacing();
+
+            display_radar_images();
+
+            ImGui::EndTabItem();
+
+		}
         ImGui::EndTabBar();
     }
 }
@@ -352,6 +365,25 @@ void ObservatoryPanel::display_ao_images()
         ao_images[ao_id].texture->save(FileDialog::save_file("*.png").c_str());
 }
 
+
+void ObservatoryPanel::display_radar_images()
+{
+	if (radar_images.size() == 0)
+		return;
+
+    ImGui::PushItemWidth(100.);
+    if (ImGui::InputInt("Radar Nr", &radar_id, 1))
+    {
+        if (radar_id < 0)
+            radar_id = 0;
+        if (radar_id >= radar_images.size())
+            radar_id = radar_images.size() - 1;
+	}
+
+    long int tex_id = radar_images[radar_id].texture->get_texture_id();
+    ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));
+
+}
 
 void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 {
@@ -523,6 +555,65 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
                                layer->viewport_panel_size.y);
 
     Application::set_bg_color(bg_color);
+
+    if (prev_mode == Mode::EDITOR)
+        layer->set_editor_mode();
+
+    delete[] pixel_buffer_r;
+    delete[] pixel_buffer_g;
+    delete[] pixel_buffer_b;
+}
+
+
+void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
+{
+	int radar_width = 400;
+	int radar_height = 400;
+
+    float *pixel_buffer_r = new float[radar_width * radar_height];
+    float *pixel_buffer_g = new float[radar_width * radar_height];
+    float *pixel_buffer_b = new float[radar_width * radar_height];
+
+    vec4 bg_color = Application::get_bg_color();
+
+	shared_ptr<Shader> tmp_shader = target.get_component<Material>().shader;
+	target.get_component<Material>().shader = Application::shaders["radar"];
+
+    observer.get_component<CameraComponent>().camera->update_target(
+        target.get_component<Transform>().position);
+
+    Mode prev_mode = layer->mode;
+    layer->set_runtime_mode();
+
+    Application::set_bg_color(vec4(1,1,1,1));
+    layer->scene.on_resize(radar_width, radar_height);
+    layer->ms_framebuffer->resize(radar_width, radar_height);
+    layer->framebuffer->resize(radar_width, radar_height);
+
+
+    layer->on_update(0.);
+    layer->framebuffer->bind();
+    glReadPixels(0, 0, radar_width, radar_height, GL_RED, GL_FLOAT, pixel_buffer_r);
+    glReadPixels(0, 0, radar_width, radar_height, GL_GREEN, GL_FLOAT, pixel_buffer_g);
+    glReadPixels(0, 0, radar_width, radar_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
+
+	RadarImage rimg(radar_width, radar_height);
+	rimg.texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
+	rimg.target = target;
+	rimg.observer = observer;
+
+	radar_images.push_back(rimg);
+	radar_id = radar_images.size() -1;
+
+	target.get_component<Material>().shader = tmp_shader;
+
+	Application::set_bg_color(bg_color);
+    layer->scene.on_resize(layer->viewport_panel_size.x,
+                           layer->viewport_panel_size.y);
+    layer->ms_framebuffer->resize(layer->viewport_panel_size.x,
+                                  layer->viewport_panel_size.y);
+    layer->framebuffer->resize(layer->viewport_panel_size.x,
+                               layer->viewport_panel_size.y);
 
     if (prev_mode == Mode::EDITOR)
         layer->set_editor_mode();
