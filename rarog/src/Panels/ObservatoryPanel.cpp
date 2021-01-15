@@ -596,6 +596,8 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
     glReadPixels(0, 0, radar_width, radar_height, GL_RED, GL_FLOAT, pixel_buffer_r);
     glReadPixels(0, 0, radar_width, radar_height, GL_GREEN, GL_FLOAT, pixel_buffer_g);
     glReadPixels(0, 0, radar_width, radar_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
+// 	glReadPixels(0, 0, frame_size, frame_size, GL_DEPTH_COMPONENT, GL_FLOAT, pixel_buffer);
+
 
 	RadarImage rimg(radar_width, radar_height);
 	rimg.texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
