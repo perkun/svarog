@@ -488,7 +488,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
         .add_component<Material>(Application::shaders["flat_shader"])
         .uniforms_vec4["u_color"] = vec4(237 / 256., 84 / 256., 84 / 256., 0.2);
     ao.ghost_observer.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.03))));
+        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.001), vec3(0.03))));
     Transform &got = ao.ghost_observer.get_component<Transform>();
     got.position = observer.get_component<Transform>().position;
 
@@ -496,7 +496,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
     ao.ghost_target.add_component<Material>(Application::shaders["flat_shader"])
         .uniforms_vec4["u_color"] = vec4(237 / 256., 84 / 256., 84 / 256., 0.2);
     ao.ghost_target.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedCube(vec3(-0.05), vec3(0.05))));
+        make_shared<VertexArrayObject>(IndexedCube(vec3(-0.024), vec3(0.05))));
     Transform &gtt = ao.ghost_target.get_component<Transform>();
     gtt.position = target.get_component<Transform>().position;
 

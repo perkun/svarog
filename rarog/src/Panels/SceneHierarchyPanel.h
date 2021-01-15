@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 #include "Utils/FileDialog.h"
+#include "Batch.h"
 
 using namespace std;
 

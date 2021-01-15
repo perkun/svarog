@@ -101,12 +101,30 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
     // left click popup
     if (ImGui::BeginPopupContextItem())
     {
+		ImGui::Checkbox("Render", &entity.get_component<SceneStatus>().render);
+		ImGui::Separator();
+
         sprintf(buff, "%s  Add Empty Entity", "\xef\x81\xa7");
         if (ImGui::MenuItem(buff))
         {
             Entity e = scene->create_entity("Unnamed Entity");
             entity.add_child(e);
         }
+
+        sprintf(buff, "%s  Add xyz axes", "\xef\x81\xa7");
+		if (ImGui::MenuItem(buff))
+		{
+            Entity e = scene->create_entity("xyz axes");
+			e.add_component<Material>(Application::shaders["line_shader"]);
+			Batch axes;
+			axes.push_back(IndexedLine(vec3(0.), vec3(2., 0., 0), vec4(1., 0., 0., 1.)));
+			axes.push_back(IndexedLine(vec3(0.), vec3(0., 2., 0), vec4(0., 1., 0., 1.)));
+			axes.push_back(IndexedLine(vec3(0.), vec3(0., 0., 2), vec4(0., 0., 1., 1.)));
+			e.add_component<MeshComponent>(make_shared<VertexArrayObject>(axes.indexed_model));
+            entity.add_child(e);
+		}
+
+		ImGui::Separator();
 
         if (entity != scene->root_entity)
         {
@@ -215,6 +233,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 
             ImGui::Spacing();
             ImGui::Separator();
+
             sprintf(buff, "%s Delete Entity", "\xef\x80\x8d");
             if (ImGui::MenuItem(buff))
             {
