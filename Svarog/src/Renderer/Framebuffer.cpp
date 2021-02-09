@@ -65,7 +65,7 @@ void Framebuffer::invalidate()
 			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			int samples = 4;
-    		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, specification.width,
+    		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA32F, specification.width,
     		             specification.height, GL_TRUE);
 
     		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE,
@@ -81,7 +81,7 @@ void Framebuffer::invalidate()
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, specification.width,
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, specification.width,
 					specification.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
     		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
