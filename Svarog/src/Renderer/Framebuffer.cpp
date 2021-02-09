@@ -102,7 +102,7 @@ void Framebuffer::invalidate()
 		{
 			glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &depth_attachment);
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, depth_attachment);
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH24_STENCIL8, specification.width,
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH32F_STENCIL8, specification.width,
 					specification.height, GL_TRUE);
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
@@ -114,7 +114,7 @@ void Framebuffer::invalidate()
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, specification.width,
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH32F_STENCIL8, specification.width,
 					specification.height);
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
