@@ -1,4 +1,3 @@
-
 #include "svpch.h"
 #include "Components.h"
 #include "Framebuffer.h"
@@ -18,18 +17,13 @@
 
 MainLayer::MainLayer(int argc, char *argv[])
 {
-    arg_handler.addArgument("m", "model", "", "path to OBJ model");
-    arg_handler.addVectorArgument("", "asteroid_pos", 3, "Asterod position");
-    arg_handler.addVectorArgument("", "earth_pos", 3, "Earth position");
+	Parser parser;
 
-    arg_handler.parseArguments(argc, argv);
+	parser.add_option('m', "model", "path to OBJ model", false, "");
+	parser.add_vec_option("asteroid-pos", "xyz of asteroid (model)", 3, false);
+	parser.add_vec_option("earth-pos", "xyz of Earth (observer)", 3, false);
 
-    if (!arg_handler.isSpecified("model"))
-    {
-        cout << "Model file not specified." << endl;
-        // 		cout << "type rarog --help to se help" << endl;
-        // 		exit(1);
-    }
+	args = parser.parse_args(argc, argv);
 
     TRACE("MainLayer constructed");
 }
@@ -52,15 +46,16 @@ void MainLayer::load_model(vec3 init_model_pos)
     oc.rotation_speed = 2 * M_PI / 10.;
 	mt.rotation = oc.xyz_from_lbg();
 
-    if (arg_handler.isSpecified("model"))
+    if (args["model"])
     {
-        string filename = arg_handler.args["model"].to_str();
+        string filename = args.get_value<string>("model");
+
         if (File::is_extension(filename, "obj"))
         {
             model.add_component<MeshComponent>(make_shared<VertexArrayObject>(
                 IndexedModelObj(filename, NormalIndexing::PER_FACE)));
 
-            ObjHeader header(arg_handler.args["model"].to_str());
+            ObjHeader header(filename);
 
             oc.lambda = header.get_item<float>("lambda") * M_PI / 180.;
             oc.beta = header.get_item<float>("beta") * M_PI / 180.;
@@ -88,15 +83,11 @@ void MainLayer::load_model(vec3 init_model_pos)
 	mt.scale = vec3(0.1);
 
 	// position
-	if (arg_handler.isSpecified("asteroid_pos"))
+	if (args["asteroid-pos"])
 	{
-			mt.position = vec3(
-				arg_handler.vec_args["asteroid_pos"][0].to_float(),
-				arg_handler.vec_args["asteroid_pos"][1].to_float(),
-				arg_handler.vec_args["asteroid_pos"][2].to_float());
+		vector<float> pos = args.get_vec_values<float>("asteroid-pos");
+		mt.position = vec3(pos[0], pos[1], pos[2]);
 	}
-
-
 }
 
 
@@ -130,12 +121,10 @@ void MainLayer::on_attach()
     MeshComponent &romc = runtime_observer.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.05))));
     rocp.camera->position = vec3(sqrt(2.)/2., sqrt(2.)/2., 0.);
-	if (arg_handler.isSpecified("earth_pos"))
+	if (args["earth-pos"])
 	{
-			rocp.camera->position = vec3(
-				arg_handler.vec_args["earth_pos"][0].to_float(),
-				arg_handler.vec_args["earth_pos"][1].to_float(),
-				arg_handler.vec_args["earth_pos"][2].to_float());
+		vector<float> pos = args.get_vec_values<float>("earth-pos");
+		rocp.camera->position = vec3(pos[0], pos[1], pos[2]);
 	}
 
     rocp.camera->update_target(init_model_pos);

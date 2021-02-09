@@ -101,7 +101,7 @@ project "rarog"
 
 	prebuildcommands { "cd shaders; ./to-hex-include" }
 
-	links { "glfw", "GLEW", "GL", "cmdlineargs", "cfitsio",
+	links { "glfw", "GLEW", "GL", "cppargs", "cfitsio",
 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
 
 	filter "configurations:Debug"

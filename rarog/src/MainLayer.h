@@ -1,7 +1,7 @@
 #ifndef MAINLAYER_H_
 #define MAINLAYER_H_
 
-#include <cmdlineargs/ArgumentHandler.h>
+#include <cppargs/Parser.h>
 
 #include "Layer.h"
 #include "Scene.h"
@@ -63,7 +63,8 @@ private:
 	bool show_grid = true;
 
 	vec2 viewport_panel_size;
-	ArgumentHandler arg_handler;
+
+	Args args;
 
 	EditorCamera editor_camera;
 	Scene scene, ui_scene;
