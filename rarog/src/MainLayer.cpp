@@ -15,16 +15,9 @@
 #include "Utils/Time.h"
 #include <glm/gtc/type_ptr.hpp>
 
-MainLayer::MainLayer(int argc, char *argv[])
+MainLayer::MainLayer(Args args)
 {
-	Parser parser;
-
-	parser.add_option('m', "model", "path to OBJ model", false, "");
-	parser.add_vec_option("asteroid-pos", "xyz of asteroid (model)", 3, false);
-	parser.add_vec_option("earth-pos", "xyz of Earth (observer)", 3, false);
-
-	args = parser.parse_args(argc, argv);
-
+	this->args = args;
     TRACE("MainLayer constructed");
 }
 

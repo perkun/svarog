@@ -1,3 +1,4 @@
+#include <cppargs/Parser.h>
 #include "svpch.h"
 #include "Application.h"
 #include "MainLayer.h"
@@ -16,6 +17,16 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+
+	Parser parser;
+
+	parser.add_option('m', "model", "path to OBJ model", false, "");
+	parser.add_vec_option("asteroid-pos", "xyz of asteroid (model)", 3, false);
+	parser.add_vec_option("earth-pos", "xyz of Earth (observer)", 3, false);
+
+	Args args = parser.parse_args(argc, argv);
+
+
 	Application::init(WIN_W, WIN_H, "Application", false);
 	Application::get_window()->set_cursor_normal();
 
@@ -79,7 +90,7 @@ int main(int argc, char *argv[])
 	Application::shaders["radar"] = radar;
 
 
-	Application::push_layer(new MainLayer(argc, argv));
+	Application::push_layer(new MainLayer(args));
 
 
 	// RENDER LOOP
