@@ -32,6 +32,7 @@ private:
 	void display_ao_images();
 
 	void make_radar_image(Entity &target, Entity &observer);
+	RadarImage construct_delay_doppler(float*, float*, int, int);
 	void display_radar_images();
 
 
@@ -49,6 +50,8 @@ private:
 	int lc_id = 0;
 	int ao_id = 0;
 	int radar_id = 0;
+
+	float radar_factor = 10;
 
 	int ao_size = 400;
 

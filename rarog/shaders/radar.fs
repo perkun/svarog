@@ -5,8 +5,10 @@ in vec3 normal_world;
 in vec2 v_tex_coord;
 
 in float radial_velocity;
+in float depth;
 
 uniform int u_has_texture;
+uniform float u_factor;
 uniform sampler2D u_texture;
 
 void main()
@@ -16,18 +18,15 @@ void main()
 
 //	if (u_has_texture == 1)
 //	{
-//		color = texture2D(u_texture, v_tex_coord);
-//		color = vec4( color.xyz * d, color.w);
+//		color = texture2D(u_texture, v_tex_coord); color = vec4( color.xyz * d, color.w);
 //	}
 //	else if (u_has_texture == 0)
 //	{
 // 		color = vec4(d, d, d, 1.0);
 //	}
 
-	if (radial_velocity >=0) // moving away
-		color = vec4(2*radial_velocity, 0., 0., 1.);
-	else
-		color = vec4(0., 0., -2*radial_velocity, 1.);
+	// works with floating point framebuffer (GL_RGBA32F)
+	color = vec4(u_factor*radial_velocity, -depth, 0., 1.);
 
 }
 

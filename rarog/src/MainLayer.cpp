@@ -103,7 +103,7 @@ void MainLayer::on_attach()
         //         make_shared<PerspectiveCamera>(
         //             radians(45.0), window->width / (float)window->height,
         //             0.01, 500.0));
-        make_shared<OrthograficCamera>(0.4, 1.0, 0.1, 10.));
+        make_shared<OrthograficCamera>(0.2, 1.0, 0.1, 10.));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
