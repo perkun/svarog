@@ -16,6 +16,8 @@ public:
 	Entity target, observer, ghost_target, ghost_observer;
 
 	shared_ptr<Texture> texture;
+// 	shared_ptr<Texture> radial;
+// 	shared_ptr<Texture> depth;
 
 };
 

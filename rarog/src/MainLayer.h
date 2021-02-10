@@ -73,6 +73,8 @@ private:
 	int guizmo_type = -1;
 	Framebuffer *ms_framebuffer, *framebuffer;
 
+	bool multisampling = true;
+
 	SceneHierarchyPanel scene_hierarchy_panel;
 	ObservatoryPanel *observatory_panel;
 

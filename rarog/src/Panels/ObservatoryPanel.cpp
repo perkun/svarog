@@ -384,8 +384,25 @@ void ObservatoryPanel::display_radar_images()
 	}
 
     long int tex_id = radar_images[radar_id].texture->get_texture_id();
-    ImGui::Image((void *)tex_id, ImVec2(600, 600), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));
 
+    if (ImGui::Button("Delete Radar image"))
+    {
+//         radar_images[radar_id].ghost_observer.destroy();
+//         radar_images[radar_id].ghost_target.destroy();
+        radar_images.erase(radar_images.begin() + radar_id);
+        radar_id = radar_images.size() - 1;
+//         if (ao_id >= 0)
+//         {
+//             layer->ui_scene.root_entity.add_child(
+//                 ao_images[ao_id].ghost_target);
+//             layer->ui_scene.root_entity.add_child(
+//                 ao_images[ao_id].ghost_observer);
+//         }
+    }
+
+    if (ImGui::Button("Save to png"))
+        radar_images[radar_id].texture->save(FileDialog::save_file("*.png").c_str());
 }
 
 void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
@@ -570,11 +587,12 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
 
 void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
 {
-    int radar_width = 400;
-    int radar_height = 400;
+    int frame_width = 600;
+    int frame_height = 600;
 
-    float *pixel_buffer_r = new float[radar_width * radar_height];
-    float *pixel_buffer_depth = new float[radar_width * radar_height];
+    float *pixel_buffer_r = new float[frame_width * frame_height];
+    float *pixel_buffer_normal = new float[frame_width * frame_height];
+    float *pixel_buffer_depth = new float[frame_width * frame_height];
 //     float *pixel_buffer_g = new float[radar_width * radar_height];
 //     float *pixel_buffer_b = new float[radar_width * radar_height];
 
@@ -584,6 +602,8 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
     shared_ptr<Shader> tmp_shader = mat.shader;
     mat.shader = Application::shaders["radar"];
     mat.uniforms_float["u_factor"] = radar_factor;
+
+	observer.get_component<CameraComponent>().camera->update_near_far(0.01, 1.);
 
 //     shared_ptr<Camera> tmp_cam = observer.get_component<CameraComponent>().camera;
 
@@ -597,23 +617,28 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
     Mode prev_mode = layer->mode;
     layer->set_runtime_mode();
 
-    layer->scene.on_resize(radar_width, radar_height);
-    layer->ms_framebuffer->resize(radar_width, radar_height);
-    layer->framebuffer->resize(radar_width, radar_height);
+    layer->scene.on_resize(frame_width, frame_height);
+
+	layer->multisampling = false;
+    layer->framebuffer->resize(frame_width, frame_height);
     Application::set_bg_color(vec4(0, 0, 0, 0));
 
+	layer->framebuffer->clear();
 
     layer->on_update(0.);
     layer->framebuffer->bind();
-    glReadPixels(0, 0, radar_width, radar_height, GL_RED, GL_FLOAT,
+    glReadPixels(0, 0, frame_width, frame_height, GL_RED, GL_FLOAT,
                  pixel_buffer_r);
-    glReadPixels(0, 0, radar_width, radar_height, GL_GREEN, GL_FLOAT,
+    glReadPixels(0, 0, frame_width, frame_height, GL_GREEN, GL_FLOAT,
+                 pixel_buffer_normal);
+    glReadPixels(0, 0, frame_width, frame_height, GL_BLUE, GL_FLOAT,
                  pixel_buffer_depth);
 //     glReadPixels(0, 0, radar_width, radar_height, GL_DEPTH_COMPONENT, GL_FLOAT,
 //                  pixel_buffer_depth);
 
-    RadarImage rimg = construct_delay_doppler(
-        pixel_buffer_r, pixel_buffer_depth, radar_width, radar_height);
+    RadarImage rimg =
+        construct_delay_doppler(pixel_buffer_r, pixel_buffer_depth,
+                                pixel_buffer_normal, frame_width, frame_height);
     rimg.target = target;
     rimg.observer = observer;
 
@@ -633,6 +658,8 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
     if (prev_mode == Mode::EDITOR)
         layer->set_editor_mode();
 
+	layer->multisampling = true;
+
     delete[] pixel_buffer_r;
     delete[] pixel_buffer_depth;
 //     delete[] pixel_buffer_g;
@@ -642,74 +669,78 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
 
 RadarImage ObservatoryPanel::construct_delay_doppler(float *radial_vel_buffer,
 													 float *depth_bufer,
+													 float *normal_buffer,
 													 int width, int height)
 {
-	RadarImage rimg(width, height);
+    int radar_width = 200;
+    int radar_height = 200;
+    RadarImage rimg(radar_width, radar_height);
 
-	// find min and max vr and d
-	float d_max = depth_bufer[0];
-	float d_min;
+    // find min and max vr and d
+    float d_max = depth_bufer[0];
+    float d_min = depth_bufer[0];
+    float vr_min = radial_vel_buffer[0];
+    float vr_max = radial_vel_buffer[0];
 
-	for (int i = 0; i < width * height; i++)
-	{
-		if (depth_bufer[i] > d_max)
-			d_max = depth_bufer[i];
-	}
+    for (int i = 0; i < width * height; i++)
+    {
+        if (radial_vel_buffer[i] > vr_max)
+            vr_max = radial_vel_buffer[i];
+        if (radial_vel_buffer[i] < vr_min)
+            vr_min = radial_vel_buffer[i];
 
-	d_min = d_max;
-	for (int i = 0; i < width * height; i++)
-	{
-		if (depth_bufer[i] < d_min )//&& depth_bufer[i] != 0)
-			d_min = depth_bufer[i];
-	}
-
-
-	float vr_min = -1.;
-	float vr_max = 1.0;
-
-	TRACE("vr min/max, d min/max: {}, {} | {}, {}", vr_min, vr_max, d_min, d_max);
-
-	d_min = 0.;
-	d_max = 1.;
+        if (depth_bufer[i] > d_max)
+            d_max = depth_bufer[i];
+        if (depth_bufer[i] < d_min)
+            d_min = depth_bufer[i];
+    }
 
 
+    TRACE("vr min/max, d min/max: {}, {} | {}, {}", vr_min, vr_max, d_min,
+          d_max);
 
-	float *delay_doppler = new float[width * height];
-	for (int i = 0; i < width * height; i++)
-		delay_doppler[i] = 0.;
+    vr_min = -1.;
+    vr_max = 1.0;
 
-	for (int i = 0; i < width * height; i++)
-	{
-		if (radial_vel_buffer[i] >= vr_max || radial_vel_buffer[i] <= vr_min)
-			continue;
-		if (depth_bufer[i] >= d_max || depth_bufer[i] <= d_min)
-			continue;
+    d_min = 0.;
+    d_max = 1.;
 
-		int vr = floor(width * (radial_vel_buffer[i] - vr_min) / (vr_max - vr_min));
-		int d = floor(height * (depth_bufer[i] - d_min) / (d_max - d_min));
 
-		if (i == 200*400 + 170)
-			TRACE("vr, d: {}, {}", vr, d);
+    float *delay_doppler = new float[radar_width * radar_height];
+    for (int i = 0; i < radar_width * radar_height; i++)
+        delay_doppler[i] = 0.;
 
-		if (d < 0 || d >= height)
-			continue;
-		if (vr < 0 || vr >= width)
-			continue;
+    for (int i = 0; i < width * height; i++)
+    {
+        if (depth_bufer[i] == 0.) // background
+            continue;
 
-		delay_doppler[d * width + vr] += 1.;
-	}
+        int vr = floor(radar_width * (radial_vel_buffer[i] - vr_min) /
+                       (vr_max - vr_min));
+        int d =
+            floor(radar_height * (depth_bufer[i] - d_min) / (d_max - d_min));
 
-	// normalize delay_doppler
-	float dd_max = delay_doppler[0];
-	for (int i = 0; i < width * height; i++)
-		if (delay_doppler[i] > dd_max)
-			dd_max = delay_doppler[i];
-	for (int i = 0; i < width * height; i++)
-		delay_doppler[i] /= dd_max;
+        // 		if (i == 200*400 + 170)
+        // 			TRACE("vr, d: {}, {}", vr, d);
+
+        if (d < 0 || d >= radar_height)
+            continue;
+        if (vr < 0 || vr >= radar_width)
+            continue;
+
+        delay_doppler[d * radar_width + vr] += normal_buffer[i];
+    }
+
+    // normalize delay_doppler
+    float dd_max = delay_doppler[0];
+    for (int i = 0; i < radar_width * radar_height; i++)
+        if (delay_doppler[i] > dd_max)
+            dd_max = delay_doppler[i];
+    for (int i = 0; i < radar_width * radar_height; i++)
+        delay_doppler[i] /= dd_max;
 
     rimg.texture->update(delay_doppler, delay_doppler, delay_doppler);
-//     rimg.texture->update(depth_bufer,depth_bufer,depth_bufer);
 
-	delete[] delay_doppler;
-	return rimg;
+    delete[] delay_doppler;
+    return rimg;
 }

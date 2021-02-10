@@ -39,7 +39,8 @@ void ObjHeader::parse(string filename)
         trim(key);
         trim(value);
 
-        items[key] = value;
+		if (value != "")
+			items[key] = value;
     }
     fclose(f);
 

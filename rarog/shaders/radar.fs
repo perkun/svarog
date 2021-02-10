@@ -1,11 +1,16 @@
 #version 330 core
 layout(location = 0) out vec4 color;
 
+uniform mat4 u_model_matrix;
+uniform mat4 u_view_matrix;
+uniform mat4 u_perspective_matrix;
+
 in vec3 normal_world;
 in vec2 v_tex_coord;
 
 in float radial_velocity;
 in float depth;
+//in vec4 pos;
 
 uniform int u_has_texture;
 uniform float u_factor;
@@ -25,8 +30,12 @@ void main()
 // 		color = vec4(d, d, d, 1.0);
 //	}
 
+	//vec4 pos_crf = u_view_matrix * u_model_matrix * pos;
+	//float depth2 = pos_crf.z;
+
 	// works with floating point framebuffer (GL_RGBA32F)
-	color = vec4(u_factor*radial_velocity, -depth, 0., 1.);
+	//color = vec4(u_factor*radial_velocity, gl_FragCoord.z, 0., 1.);
+	color = vec4(u_factor*radial_velocity, d, -depth, 1.);
 
 }
 

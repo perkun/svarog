@@ -87,6 +87,12 @@ vec3 OrbitalComponent::xyz_from_lbg()
 
 void OrbitalComponent::calculate_rot_phase(double julian_day)
 {
+    if (rot_period == 0.)
+    {
+        rotation_phase = 0.;
+        return;
+    }
+
     rotation_phase = (julian_day - jd_0) / (rot_period / 24.0) * 2 * M_PI;
 
     while (rotation_phase < 0)

@@ -81,6 +81,7 @@ void MainLayer::load_model(vec3 init_model_pos)
 		vector<float> pos = args.get_vec_values<float>("asteroid-pos");
 		mt.position = vec3(pos[0], pos[1], pos[2]);
 	}
+
 }
 
 
@@ -281,8 +282,16 @@ void MainLayer::on_update(double time_delta)
 
     scene.light = light;
 
-    ms_framebuffer->bind();
-    ms_framebuffer->clear();
+    if (multisampling)
+    {
+        ms_framebuffer->bind();
+        ms_framebuffer->clear();
+    }
+    else
+    {
+        framebuffer->bind();
+        framebuffer->clear();
+    }
 
     if (mode == Mode::EDITOR)
     {
@@ -295,7 +304,8 @@ void MainLayer::on_update(double time_delta)
         scene.on_update_runtime(time_delta);
     }
 
-    Framebuffer::blit(ms_framebuffer, framebuffer);
+	if (multisampling)
+		Framebuffer::blit(ms_framebuffer, framebuffer);
     Renderer::bind_default_framebuffer();
 }
 

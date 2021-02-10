@@ -17,6 +17,8 @@ RadarImage::RadarImage(int width, int height)
 	specs.type = GL_FLOAT;
 
 	texture = make_shared<Texture>(specs);
+// 	radial = make_shared<Texture>(specs);
+// 	depth = make_shared<Texture>(specs);
 }
 
 
