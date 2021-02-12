@@ -2,6 +2,13 @@
 
 
 
+
+
+
+
+
+
+
 void LightcurveSeries::push(Lightcurve *lc)
 {
     lc->make_average_zero();
@@ -12,13 +19,10 @@ void LightcurveSeries::push(Lightcurve *lc)
     if (max > lcs_max)
         lcs_max = max;
 
-    TRACE("lc min: {}, lc max: {} | lcsmin: {}, lcsmin: {}", min, max, lcs_min,
-          lcs_max);
 
     observations.push_back(lc);
     current_id = observations.size() - 1;
 }
-
 
 
 void LightcurveSeries::save_current_mag(const char *filename)

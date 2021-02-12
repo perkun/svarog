@@ -30,6 +30,8 @@ private:
 	void make_lightcurve(Entity &target, Entity &observer);
 	void display_lightcurves();
 
+// 	void display_images(ObservationSeries*);
+
 	void make_ao_image(Entity &target, Entity &observer);
 	void display_ao_images();
 

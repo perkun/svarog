@@ -471,9 +471,6 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
     lc->observer = observer;
 
     lightcurves.push(lc);
-
-	// change current obs:
-	lightcurves.validate_current_id();
 	lightcurves.detach_all_ghosts();
 
 	layer->ui_scene.root_entity.add_child(lc->ghost_target);
@@ -538,8 +535,6 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
     ao->observer = observer;
 
     ao_images.push(ao);
-
-	ao_images.validate_current_id();
 	ao_images.detach_all_ghosts();
 
 	layer->ui_scene.root_entity.add_child(ao->ghost_target);
@@ -572,8 +567,6 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
     float *pixel_buffer_r = new float[frame_width * frame_height];
     float *pixel_buffer_normal = new float[frame_width * frame_height];
     float *pixel_buffer_depth = new float[frame_width * frame_height];
-//     float *pixel_buffer_g = new float[radar_width * radar_height];
-//     float *pixel_buffer_b = new float[radar_width * radar_height];
 
     vec4 bg_color = Application::get_bg_color();
 
@@ -619,13 +612,10 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
 	rimg->observer = observer;
 
 	radar_images.push(rimg);
-
-	radar_images.validate_current_id();
 	radar_images.detach_all_ghosts();
 
 	layer->ui_scene.root_entity.add_child(rimg->ghost_target);
 	layer->ui_scene.root_entity.add_child(rimg->ghost_observer);
-
 
     target.get_component<Material>().shader = tmp_shader;
     Application::set_bg_color(bg_color);
@@ -645,8 +635,7 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
 
     delete[] pixel_buffer_r;
     delete[] pixel_buffer_depth;
-//     delete[] pixel_buffer_g;
-//     delete[] pixel_buffer_b;
+	delete[] pixel_buffer_normal;
 }
 
 

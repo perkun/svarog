@@ -31,6 +31,13 @@ protected:
 
 };
 
+template<typename T>
+ObservationSeries<T>::~ObservationSeries()
+{
+	for (int i = 0; i < observations.size(); i++)
+		delete observations[i];
+}
+
 
 template<typename T>
 void ObservationSeries<T>::detach_all_ghosts()
@@ -65,8 +72,12 @@ T* ObservationSeries<T>::get_current_obs()
 template<typename T>
 void ObservationSeries<T>::delete_current_obs()
 {
-	get_current_obs()->ghost_observer.destroy();
-	get_current_obs()->ghost_target.destroy();
+	T *current_obs = get_current_obs();
+	current_obs->ghost_observer.destroy();
+	current_obs->ghost_target.destroy();
+
+	delete current_obs;
+
 	observations.erase(observations.begin() + current_id);
 	current_id--;
 }
@@ -75,13 +86,6 @@ template<typename T>
 int ObservationSeries<T>::size()
 {
 	return observations.size();
-}
-
-template<typename T>
-ObservationSeries<T>::~ObservationSeries()
-{
-	for (int i = 0; i < observations.size(); i++)
-		delete observations[i];
 }
 
 
