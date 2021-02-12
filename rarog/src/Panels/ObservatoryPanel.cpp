@@ -1,3 +1,4 @@
+#include "Camera.h"
 #include "svpch.h"
 // #include <stdio.h>
 #include "ObservatoryPanel.h"
@@ -64,6 +65,15 @@ void ObservatoryPanel::set_target_and_observer(Entity &ghost_target,
     camera->position = gop;
     camera->update_target(gtp);
 }
+
+
+// void ObservatoryPanel::change_current_obs(ObservationSeries *obs_s)
+// {
+// 	obs_s->validate_current_id();
+// 	obs_s->detach_all_ghosts();
+//     layer->ui_scene.root_entity.add_child(obs_s->get_current_obs()->ghost_target);
+//     layer->ui_scene.root_entity.add_child(obs_s->get_current_obs()->ghost_observer);
+// }
 
 
 void ObservatoryPanel::target_selection_panel(vector<Entity> &ents)
@@ -196,7 +206,7 @@ void ObservatoryPanel::observations_panel()
             if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
                 make_radar_image(layer->observer_target, layer->scene.observer);
 
-			ImGui::InputFloat("factor", &radar_factor);
+			ImGui::InputFloat("ang. speed", &angular_speed);
 
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
@@ -258,61 +268,47 @@ void ObservatoryPanel::display_lightcurves()
     if (lightcurves.size() == 0)
         return;
 
+	Lightcurve *current_obs = lightcurves.get_current_obs();
+
     ImGui::PushItemWidth(100.);
-    if (ImGui::InputInt("Lc Nr", &lc_id, 1))
+    if (ImGui::InputInt("Lc Nr", &lightcurves.current_id, 1))
     {
-        if (lc_id < 0)
-            lc_id = 0;
-        if (lc_id >= lightcurves.size())
-            lc_id = lightcurves.size() - 1;
-
-        for (Lightcurve &lc : lightcurves)
-        {
-            lc.ghost_target.detatch();
-            lc.ghost_observer.detatch();
-        }
-
-        layer->ui_scene.root_entity.add_child(lightcurves[lc_id].ghost_target);
-        layer->ui_scene.root_entity.add_child(
-            lightcurves[lc_id].ghost_observer);
+		current_obs = lightcurves.get_current_obs();
+        lightcurves.detach_all_ghosts();
+		if (current_obs)
+		{
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
+		}
     }
 
     ImGui::SameLine(0., 20.);
     if (ImGui::Button("set lc positions"))
-    {
-        set_target_and_observer(
-            lightcurves[lc_id].ghost_target, lightcurves[lc_id].ghost_observer,
-            lightcurves[lc_id].target, lightcurves[lc_id].observer);
-    }
+        set_target_and_observer(current_obs->ghost_target,
+                                current_obs->ghost_observer, current_obs->target,
+                                current_obs->observer);
 
-    ImGui::PlotLines("LC", lightcurves[lc_id].inv_mag_data(),
-                     lightcurves[lc_id].size(), 0, NULL, lcs_min, lcs_max,
-                     ImVec2(200.0f, 130.0f));
+    ImGui::PlotLines("LC", current_obs->inv_mag_data(),
+                     current_obs->size(), 0, NULL, lightcurves.lcs_min,
+                     lightcurves.lcs_max, ImVec2(200.0f, 130.0f));
 
     if (ImGui::Button("Delete LC"))
-    {
-        lightcurves[lc_id].ghost_observer.destroy();
-        lightcurves[lc_id].ghost_target.destroy();
-        lightcurves.erase(lightcurves.begin() + lc_id);
-        lc_id = lightcurves.size() - 1;
-        if (lc_id >= 0)
-        {
-            layer->ui_scene.root_entity.add_child(
-                lightcurves[lc_id].ghost_target);
-            layer->ui_scene.root_entity.add_child(
-                lightcurves[lc_id].ghost_observer);
-        }
-    }
+	{
+    	lightcurves.delete_current_obs();
+		current_obs = lightcurves.get_current_obs();
+		if (current_obs)
+		{
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
+		}
+	}
 
     if (ImGui::Button("Save magnitudes"))
-    {
-        lightcurves[lc_id].save_mag(FileDialog::save_file("*").c_str());
-    }
+        lightcurves.save_current_mag(FileDialog::save_file("*").c_str());
+
     ImGui::SameLine();
     if (ImGui::Button("Save flux"))
-    {
-        lightcurves[lc_id].save_flux(FileDialog::save_file("*").c_str());
-    }
+        lightcurves.save_current_flux(FileDialog::save_file("*").c_str());
 }
 
 
@@ -321,51 +317,42 @@ void ObservatoryPanel::display_ao_images()
     if (ao_images.size() == 0)
         return;
 
+	AoImage *current_obs = ao_images.get_current_obs();
+
     ImGui::PushItemWidth(100.);
-    if (ImGui::InputInt("AO Nr", &ao_id, 1))
+    if (ImGui::InputInt("AO Nr", &ao_images.current_id, 1))
     {
-        if (ao_id < 0)
-            ao_id = 0;
-        if (ao_id >= ao_images.size())
-            ao_id = ao_images.size() - 1;
-
-        for (AoImage &ao : ao_images)
-        {
-            ao.ghost_observer.detatch();
-            ao.ghost_target.detatch();
-        }
-
-        layer->ui_scene.root_entity.add_child(ao_images[ao_id].ghost_target);
-        layer->ui_scene.root_entity.add_child(ao_images[ao_id].ghost_observer);
+		current_obs = ao_images.get_current_obs();
+        ao_images.detach_all_ghosts();
+		if (current_obs)
+		{
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
+		}
     }
 
     ImGui::SameLine(0., 20.);
     if (ImGui::Button("set ao positions"))
-    {
         set_target_and_observer(
-            ao_images[ao_id].ghost_target, ao_images[ao_id].ghost_observer,
-            ao_images[ao_id].target, ao_images[ao_id].observer);
-    }
-    long int tex_id = ao_images[ao_id].texture->get_texture_id();
+            current_obs->ghost_target, current_obs->ghost_observer,
+            current_obs->target, current_obs->observer);
+
+    long int tex_id = current_obs->texture->get_texture_id();
     ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));
 
     if (ImGui::Button("Delete AO image"))
-    {
-        ao_images[ao_id].ghost_observer.destroy();
-        ao_images[ao_id].ghost_target.destroy();
-        ao_images.erase(ao_images.begin() + ao_id);
-        ao_id = ao_images.size() - 1;
-        if (ao_id >= 0)
-        {
-            layer->ui_scene.root_entity.add_child(
-                ao_images[ao_id].ghost_target);
-            layer->ui_scene.root_entity.add_child(
-                ao_images[ao_id].ghost_observer);
-        }
-    }
+	{
+		ao_images.delete_current_obs();
+		current_obs = ao_images.get_current_obs();
+		if (current_obs)
+		{
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
+		}
+	}
 
     if (ImGui::Button("Save to png"))
-        ao_images[ao_id].texture->save(FileDialog::save_file("*.png").c_str());
+        ao_images.save(FileDialog::save_file("*.png").c_str());
 }
 
 
@@ -374,48 +361,80 @@ void ObservatoryPanel::display_radar_images()
 	if (radar_images.size() == 0)
 		return;
 
+	RadarImage *current_obs = radar_images.get_current_obs();
+
     ImGui::PushItemWidth(100.);
-    if (ImGui::InputInt("Radar Nr", &radar_id, 1))
-    {
-        if (radar_id < 0)
-            radar_id = 0;
-        if (radar_id >= radar_images.size())
-            radar_id = radar_images.size() - 1;
+    if (ImGui::InputInt("Radar Nr", &radar_images.current_id, 1))
+	{
+		current_obs = radar_images.get_current_obs();
+        radar_images.detach_all_ghosts();
+		if (current_obs)
+		{
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
+		}
 	}
 
-    long int tex_id = radar_images[radar_id].texture->get_texture_id();
+    ImGui::SameLine(0., 20.);
+    if (ImGui::Button("set radar positions"))
+        set_target_and_observer(
+            current_obs->ghost_target, current_obs->ghost_observer,
+            current_obs->target, current_obs->observer);
+    long int tex_id = current_obs->texture->get_texture_id();
     ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));
 
     if (ImGui::Button("Delete Radar image"))
-    {
-//         radar_images[radar_id].ghost_observer.destroy();
-//         radar_images[radar_id].ghost_target.destroy();
-        radar_images.erase(radar_images.begin() + radar_id);
-        radar_id = radar_images.size() - 1;
-//         if (ao_id >= 0)
-//         {
-//             layer->ui_scene.root_entity.add_child(
-//                 ao_images[ao_id].ghost_target);
-//             layer->ui_scene.root_entity.add_child(
-//                 ao_images[ao_id].ghost_observer);
-//         }
-    }
+	{
+		radar_images.delete_current_obs();
+		current_obs = radar_images.get_current_obs();
+		if (current_obs)
+		{
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+			layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
+		}
+	}
 
     if (ImGui::Button("Save to png"))
-        radar_images[radar_id].texture->save(FileDialog::save_file("*.png").c_str());
+        radar_images.save(FileDialog::save_file("*.png").c_str());
 }
+
+
+void ObservatoryPanel::add_ghosts(Observation *obs, Entity &target,
+                                  Entity &observer, string obs_type,
+                                  vec4 ghost_color)
+{
+    obs->ghost_observer =
+        layer->ui_scene.create_entity(obs_type + " ghost observer");
+    obs->ghost_observer
+        .add_component<Material>(Application::shaders["flat_shader"])
+        .uniforms_vec4["u_color"] = ghost_color;
+    obs->ghost_observer.add_component<MeshComponent>(
+        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.03))));
+    Transform &got = obs->ghost_observer.get_component<Transform>();
+    got.position = observer.get_component<Transform>().position;
+
+    obs->ghost_target =
+        layer->ui_scene.create_entity(obs_type + " ghost target");
+    obs->ghost_target
+        .add_component<Material>(Application::shaders["flat_shader"])
+        .uniforms_vec4["u_color"] = ghost_color;
+    obs->ghost_target.add_component<MeshComponent>(
+        make_shared<VertexArrayObject>(IndexedCube(vec3(-.025), vec3(0.05))));
+    Transform &gtt = obs->ghost_target.get_component<Transform>();
+    gtt.position = target.get_component<Transform>().position;
+}
+
 
 void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 {
     Transform &t = target.get_component<Transform>();
 	OrbitalComponent &oc = target.get_component<OrbitalComponent>();
 
-
     int num_points = lc_num_points;
     int width = 256;
     int height = 256;
     float *pixel_buffer = new float[width * height];
-    Lightcurve lc(num_points);
+    Lightcurve *lc = new Lightcurve(num_points);
     vec4 bg_color = Application::get_bg_color();
 
     observer.get_component<CameraComponent>().camera->update_target(
@@ -442,47 +461,24 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
         double flux = 0.0;
         for (int j = 0; j < width * height; j++)
             flux += pixel_buffer[j];
-        lc.push_flux(flux);
+        lc->push_flux(flux);
     }
 
-    lc.make_average_zero();
-    float min = lc.calculate_min_inv_mag();
-    float max = lc.calculate_max_inv_mag();
-    if (min < lcs_min)
-        lcs_min = min;
-    if (max > lcs_max)
-        lcs_max = max;
+    add_ghosts(lc, target, observer, "LC",
+               vec4(32 / 256., 172 / 256., 64 / 256., 0.2));
 
-    lc.ghost_observer = layer->ui_scene.create_entity("LC ghost observer");
-    lc.ghost_observer
-        .add_component<Material>(Application::shaders["flat_shader"])
-        .uniforms_vec4["u_color"] = vec4(32 / 256., 172 / 256., 64 / 256., 0.2);
-    lc.ghost_observer.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.03))));
-    Transform &got = lc.ghost_observer.get_component<Transform>();
-    got.position = observer.get_component<Transform>().position;
+    lc->target = target;
+    lc->observer = observer;
 
-    lc.ghost_target = layer->ui_scene.create_entity("LC ghost target");
-    lc.ghost_target.add_component<Material>(Application::shaders["flat_shader"])
-        .uniforms_vec4["u_color"] = vec4(32 / 256., 172 / 256., 64 / 256., 0.2);
-    lc.ghost_target.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedCube(vec3(-.025), vec3(0.05))));
-    Transform &gtt = lc.ghost_target.get_component<Transform>();
-    gtt.position = target.get_component<Transform>().position;
+    lightcurves.push(lc);
 
-    for (Lightcurve &lc : lightcurves)
-    {
-        lc.ghost_target.detatch();
-        lc.ghost_observer.detatch();
-    }
-    layer->ui_scene.root_entity.add_child(lc.ghost_observer);
-    layer->ui_scene.root_entity.add_child(lc.ghost_target);
+	// change current obs:
+	lightcurves.validate_current_id();
+	lightcurves.detach_all_ghosts();
 
-    lc.target = target;
-    lc.observer = observer;
+	layer->ui_scene.root_entity.add_child(lc->ghost_target);
+	layer->ui_scene.root_entity.add_child(lc->ghost_observer);
 
-    lightcurves.push_back(lc);
-    lc_id = lightcurves.size() - 1;
 
     layer->scene.on_resize(layer->viewport_panel_size.x,
                            layer->viewport_panel_size.y);
@@ -521,9 +517,9 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
     layer->ms_framebuffer->resize(ao_width, ao_height);
     layer->framebuffer->resize(ao_width, ao_height);
 
-	if (earth_tilt)
-		observer.get_component<CameraComponent>().camera->up =
-			vec3(0.,0.39774,0.917498);
+    if (earth_tilt)
+        observer.get_component<CameraComponent>().camera->up =
+            vec3(0., 0.39774, 0.917498);
 
     // make image
     layer->on_update(0.);
@@ -532,40 +528,23 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
     glReadPixels(0, 0, ao_width, ao_height, GL_GREEN, GL_FLOAT, pixel_buffer_g);
     glReadPixels(0, 0, ao_width, ao_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
 
-    AoImage ao(ao_width, ao_height);
-    ao.texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
+    AoImage *ao = new AoImage(ao_width, ao_height);
+    ao->texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
 
-    ao.ghost_observer = layer->ui_scene.create_entity("AO ghost observer");
-    ao.ghost_observer
-        .add_component<Material>(Application::shaders["flat_shader"])
-        .uniforms_vec4["u_color"] = vec4(237 / 256., 84 / 256., 84 / 256., 0.2);
-    ao.ghost_observer.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.001), vec3(0.03))));
-    Transform &got = ao.ghost_observer.get_component<Transform>();
-    got.position = observer.get_component<Transform>().position;
+    add_ghosts(ao, target, observer, "AO",
+               vec4(237 / 256., 84 / 256., 84 / 256., 0.2));
 
-    ao.ghost_target = layer->ui_scene.create_entity("AO ghost target");
-    ao.ghost_target.add_component<Material>(Application::shaders["flat_shader"])
-        .uniforms_vec4["u_color"] = vec4(237 / 256., 84 / 256., 84 / 256., 0.2);
-    ao.ghost_target.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedCube(vec3(-0.024), vec3(0.05))));
-    Transform &gtt = ao.ghost_target.get_component<Transform>();
-    gtt.position = target.get_component<Transform>().position;
+    ao->target = target;
+    ao->observer = observer;
 
-    for (AoImage &ao : ao_images)
-    {
-        ao.ghost_observer.detatch();
-        ao.ghost_target.detatch();
-    }
-    layer->ui_scene.root_entity.add_child(ao.ghost_observer);
-    layer->ui_scene.root_entity.add_child(ao.ghost_target);
+    ao_images.push(ao);
 
-    ao.target = target;
-    ao.observer = observer;
+	ao_images.validate_current_id();
+	ao_images.detach_all_ghosts();
 
-    ao_images.push_back(ao);
+	layer->ui_scene.root_entity.add_child(ao->ghost_target);
+	layer->ui_scene.root_entity.add_child(ao->ghost_observer);
 
-    ao_id = ao_images.size() - 1;
 
     layer->scene.on_resize(layer->viewport_panel_size.x,
                            layer->viewport_panel_size.y);
@@ -601,17 +580,11 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
     Material &mat = target.get_component<Material>();
     shared_ptr<Shader> tmp_shader = mat.shader;
     mat.shader = Application::shaders["radar"];
-    mat.uniforms_float["u_factor"] = radar_factor;
+    mat.uniforms_float["u_factor"] = angular_speed;
 
-	observer.get_component<CameraComponent>().camera->update_near_far(0.01, 1.);
-
-//     shared_ptr<Camera> tmp_cam = observer.get_component<CameraComponent>().camera;
-
-	// make new camera
-
-
-// 	->update_target(
-//         target.get_component<Transform>().position);
+	CameraComponent &camera_comp = observer.get_component<CameraComponent>();
+    shared_ptr<Camera> tmp_cam = camera_comp.camera;
+	camera_comp.camera = make_shared<OrthograficCamera>(1., 1., 0.1, 1.);
 
 
     Mode prev_mode = layer->mode;
@@ -636,17 +609,25 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
 //     glReadPixels(0, 0, radar_width, radar_height, GL_DEPTH_COMPONENT, GL_FLOAT,
 //                  pixel_buffer_depth);
 
-    RadarImage rimg =
+    RadarImage *rimg =
         construct_delay_doppler(pixel_buffer_r, pixel_buffer_depth,
                                 pixel_buffer_normal, frame_width, frame_height);
-    rimg.target = target;
-    rimg.observer = observer;
 
-    radar_images.push_back(rimg);
-    radar_id = radar_images.size() - 1;
+	add_ghosts(rimg, target, observer, "Radar", vec4(255/256., 209/255.,0., 0.2));
+
+	rimg->target = target;
+	rimg->observer = observer;
+
+	radar_images.push(rimg);
+
+	radar_images.validate_current_id();
+	radar_images.detach_all_ghosts();
+
+	layer->ui_scene.root_entity.add_child(rimg->ghost_target);
+	layer->ui_scene.root_entity.add_child(rimg->ghost_observer);
+
 
     target.get_component<Material>().shader = tmp_shader;
-
     Application::set_bg_color(bg_color);
     layer->scene.on_resize(layer->viewport_panel_size.x,
                            layer->viewport_panel_size.y);
@@ -660,6 +641,8 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
 
 	layer->multisampling = true;
 
+	camera_comp.camera = tmp_cam;
+
     delete[] pixel_buffer_r;
     delete[] pixel_buffer_depth;
 //     delete[] pixel_buffer_g;
@@ -667,14 +650,14 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
 }
 
 
-RadarImage ObservatoryPanel::construct_delay_doppler(float *radial_vel_buffer,
+RadarImage* ObservatoryPanel::construct_delay_doppler(float *radial_vel_buffer,
 													 float *depth_bufer,
 													 float *normal_buffer,
 													 int width, int height)
 {
     int radar_width = 200;
     int radar_height = 200;
-    RadarImage rimg(radar_width, radar_height);
+    RadarImage *rimg = new RadarImage(radar_width, radar_height);
 
     // find min and max vr and d
     float d_max = depth_bufer[0];
@@ -739,7 +722,7 @@ RadarImage ObservatoryPanel::construct_delay_doppler(float *radial_vel_buffer,
     for (int i = 0; i < radar_width * radar_height; i++)
         delay_doppler[i] /= dd_max;
 
-    rimg.texture->update(delay_doppler, delay_doppler, delay_doppler);
+    rimg->texture->update(delay_doppler, delay_doppler, delay_doppler);
 
     delete[] delay_doppler;
     return rimg;

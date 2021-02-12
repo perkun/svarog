@@ -76,9 +76,9 @@ void MainLayer::load_model(vec3 init_model_pos)
 	mt.scale = vec3(0.1);
 
 	// position
-	if (args["asteroid-pos"])
+	if (args["model-pos"])
 	{
-		vector<float> pos = args.get_vec_values<float>("asteroid-pos");
+		vector<float> pos = args.get_vec_values<float>("model-pos");
 		mt.position = vec3(pos[0], pos[1], pos[2]);
 	}
 
@@ -115,9 +115,9 @@ void MainLayer::on_attach()
     MeshComponent &romc = runtime_observer.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.05))));
     rocp.camera->position = vec3(sqrt(2.)/2., sqrt(2.)/2., 0.);
-	if (args["earth-pos"])
+	if (args["observer-pos"])
 	{
-		vector<float> pos = args.get_vec_values<float>("earth-pos");
+		vector<float> pos = args.get_vec_values<float>("observer-pos");
 		rocp.camera->position = vec3(pos[0], pos[1], pos[2]);
 	}
 

@@ -1,6 +1,8 @@
-#include "Entity.h"
+#ifndef LIGHTCURVE_H_
+#define LIGHTCURVE_H_
+#include "Observation.h"
 
-class Lightcurve
+class Lightcurve : public Observation
 {
 public:
 	Lightcurve();
@@ -34,11 +36,6 @@ public:
 
 	float min, max;
 
-	Entity ghost_observer, ghost_target;
-	Entity target, observer;
-// 	float camera_fov;
-
-
 private:
 	vector<float> fluxes;
 	vector<float> magnitudes;
@@ -46,3 +43,4 @@ private:
 
 };
 
+#endif

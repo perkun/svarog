@@ -1,19 +1,17 @@
 #ifndef RADARIMAGE_H_
 #define RADARIMAGE_H_
 
+#include "Observation.h"
 #include "Texture.h"
-#include "Entity.h"
 
 using namespace std;
 
-class RadarImage
+class RadarImage : public Observation
 {
 public:
 	RadarImage();
 	RadarImage(int, int);
 	~RadarImage();
-
-	Entity target, observer, ghost_target, ghost_observer;
 
 	shared_ptr<Texture> texture;
 // 	shared_ptr<Texture> radial;

@@ -1,23 +1,18 @@
 #ifndef AOIMAGE_H_
 #define AOIMAGE_H_
 
+#include "Observation.h"
 #include "Texture.h"
-#include "Entity.h"
 
 using namespace std;
 
-class AoImage
+class AoImage : public Observation
 {
 public:
 	AoImage(int width, int height);
 	~AoImage();
 
 	shared_ptr<Texture> texture;
-
-	Entity ghost_observer, ghost_target;
-	Entity target, observer;
-// 	float camera_fov;
-
 private:
 
 };
