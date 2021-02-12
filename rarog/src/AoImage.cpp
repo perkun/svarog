@@ -2,7 +2,8 @@
 #include "AoImage.h"
 
 
-AoImage::AoImage(int width, int height)
+AoImage::AoImage(Entity &target, Entity &observer, int width, int height)
+	: Observation(target, observer)
 {
 	TextureSpec specs;
 

@@ -2,21 +2,20 @@
 #define RADARIMAGE_H_
 
 #include "Observation.h"
-#include "Texture.h"
 
 using namespace std;
 
-class RadarImage : public Observation
+class RadarImage : public Image
 {
 public:
-	RadarImage();
-	RadarImage(int, int);
-	~RadarImage();
+    RadarImage(Entity &target, Entity &observer, int width, int height)
+        : Image(target, observer, width, height)
+    {
+		ghost_color = vec4(255 / 256., 209 / 255., 0., 0.2);
+    }
 
-	shared_ptr<Texture> texture;
-// 	shared_ptr<Texture> radial;
-// 	shared_ptr<Texture> depth;
-
+    void construct_delay_doppler(float *radial_vel_buffer, float *depth_bufer,
+                                 float *normal_buffer, int width, int height);
 };
 
 #endif /* RADARIMAGE_H_ */

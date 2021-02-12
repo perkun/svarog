@@ -1,10 +1,10 @@
 #include "Camera.h"
 #include "svpch.h"
-// #include <stdio.h>
 #include "ObservatoryPanel.h"
 
-ObservatoryPanel::ObservatoryPanel(MainLayer *l) : layer(l)
+ObservatoryPanel::ObservatoryPanel(MainLayer *l)
 {
+	layer = l;
     // pteselect target and observer from leyer and layer.scene
     vector<Entity> ents = get_scene_entities();
     for (int i = 0; i < ents.size(); i++)
@@ -48,32 +48,21 @@ vector<Entity> ObservatoryPanel::get_scene_root_children()
 }
 
 
-void ObservatoryPanel::set_target_and_observer(Entity &ghost_target,
-                                               Entity &ghost_observer,
-                                               Entity &target, Entity &observer)
+void ObservatoryPanel::set_target_and_observer(Observation *obs)
 {
-    vec3 gtp = ghost_target.get_component<Transform>().position;
-    vec3 gop = ghost_observer.get_component<Transform>().position;
+    vec3 gtp = obs->target_pos;
+    vec3 gop = obs->observer_pos;
 
-    layer->observer_target = target;
-    layer->scene.observer = observer;
-    layer->scene.observer.get_component<Transform>().position = gop;
+    layer->observer_target = obs->target;
+    layer->scene.observer = obs->observer;
     layer->observer_target.get_component<Transform>().position = gtp;
+    layer->scene.observer.get_component<Transform>().position = gop;
 
     shared_ptr<Camera> camera =
         layer->scene.observer.get_component<CameraComponent>().camera;
     camera->position = gop;
     camera->update_target(gtp);
 }
-
-
-// void ObservatoryPanel::change_current_obs(ObservationSeries *obs_s)
-// {
-// 	obs_s->validate_current_id();
-// 	obs_s->detach_all_ghosts();
-//     layer->ui_scene.root_entity.add_child(obs_s->get_current_obs()->ghost_target);
-//     layer->ui_scene.root_entity.add_child(obs_s->get_current_obs()->ghost_observer);
-// }
 
 
 void ObservatoryPanel::target_selection_panel(vector<Entity> &ents)
@@ -196,7 +185,7 @@ void ObservatoryPanel::observations_panel()
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_ao_images();
+            display_images(ao_images);
 
             ImGui::EndTabItem();
         }
@@ -211,7 +200,7 @@ void ObservatoryPanel::observations_panel()
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_radar_images();
+            display_images(radar_images);
 
             ImGui::EndTabItem();
 
@@ -268,7 +257,7 @@ void ObservatoryPanel::display_lightcurves()
     if (lightcurves.size() == 0)
         return;
 
-	Lightcurve *current_obs = lightcurves.get_current_obs();
+	Observation *current_obs = lightcurves.get_current_obs();
 
     ImGui::PushItemWidth(100.);
     if (ImGui::InputInt("Lc Nr", &lightcurves.current_id, 1))
@@ -284,13 +273,12 @@ void ObservatoryPanel::display_lightcurves()
 
     ImGui::SameLine(0., 20.);
     if (ImGui::Button("set lc positions"))
-        set_target_and_observer(current_obs->ghost_target,
-                                current_obs->ghost_observer, current_obs->target,
-                                current_obs->observer);
+        set_target_and_observer(current_obs);
 
-    ImGui::PlotLines("LC", current_obs->inv_mag_data(),
-                     current_obs->size(), 0, NULL, lightcurves.lcs_min,
-                     lightcurves.lcs_max, ImVec2(200.0f, 130.0f));
+    ImGui::PlotLines(
+        "LC", static_cast<Lightcurve *>(current_obs)->inv_mag_data(),
+        static_cast<Lightcurve *>(current_obs)->size(), 0, NULL,
+        lightcurves.lcs_min, lightcurves.lcs_max, ImVec2(200.0f, 130.0f));
 
     if (ImGui::Button("Delete LC"))
 	{
@@ -312,18 +300,18 @@ void ObservatoryPanel::display_lightcurves()
 }
 
 
-void ObservatoryPanel::display_ao_images()
+void ObservatoryPanel::display_images(ImageSeries& images)
 {
-    if (ao_images.size() == 0)
+    if (images.size() == 0)
         return;
 
-	AoImage *current_obs = ao_images.get_current_obs();
+	Observation *current_obs = images.get_current_obs();
 
     ImGui::PushItemWidth(100.);
-    if (ImGui::InputInt("AO Nr", &ao_images.current_id, 1))
+    if (ImGui::InputInt("Nr", &images.current_id, 1))
     {
-		current_obs = ao_images.get_current_obs();
-        ao_images.detach_all_ghosts();
+		current_obs = images.get_current_obs();
+        images.detach_all_ghosts();
 		if (current_obs)
 		{
 			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
@@ -332,18 +320,16 @@ void ObservatoryPanel::display_ao_images()
     }
 
     ImGui::SameLine(0., 20.);
-    if (ImGui::Button("set ao positions"))
-        set_target_and_observer(
-            current_obs->ghost_target, current_obs->ghost_observer,
-            current_obs->target, current_obs->observer);
+    if (ImGui::Button("set positions"))
+        set_target_and_observer(current_obs);
 
-    long int tex_id = current_obs->texture->get_texture_id();
+    long int tex_id = static_cast<Image*>(current_obs)->texture->get_texture_id();
     ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));
 
-    if (ImGui::Button("Delete AO image"))
+    if (ImGui::Button("Delete image"))
 	{
-		ao_images.delete_current_obs();
-		current_obs = ao_images.get_current_obs();
+		images.delete_current_obs();
+		current_obs = images.get_current_obs();
 		if (current_obs)
 		{
 			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
@@ -352,93 +338,28 @@ void ObservatoryPanel::display_ao_images()
 	}
 
     if (ImGui::Button("Save to png"))
-        ao_images.save(FileDialog::save_file("*.png").c_str());
+        images.save(FileDialog::save_file("*.png").c_str());
+
+	if (ImGui::Button("Save all"))
+		images.save_all(FileDialog::save_file("*.png").c_str());
 }
 
 
-void ObservatoryPanel::display_radar_images()
-{
-	if (radar_images.size() == 0)
-		return;
-
-	RadarImage *current_obs = radar_images.get_current_obs();
-
-    ImGui::PushItemWidth(100.);
-    if (ImGui::InputInt("Radar Nr", &radar_images.current_id, 1))
-	{
-		current_obs = radar_images.get_current_obs();
-        radar_images.detach_all_ghosts();
-		if (current_obs)
-		{
-			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
-			layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
-		}
-	}
-
-    ImGui::SameLine(0., 20.);
-    if (ImGui::Button("set radar positions"))
-        set_target_and_observer(
-            current_obs->ghost_target, current_obs->ghost_observer,
-            current_obs->target, current_obs->observer);
-    long int tex_id = current_obs->texture->get_texture_id();
-    ImGui::Image((void *)tex_id, ImVec2(300, 300), ImVec2(0, 1), ImVec2(1, 0));
-
-    if (ImGui::Button("Delete Radar image"))
-	{
-		radar_images.delete_current_obs();
-		current_obs = radar_images.get_current_obs();
-		if (current_obs)
-		{
-			layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
-			layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
-		}
-	}
-
-    if (ImGui::Button("Save to png"))
-        radar_images.save(FileDialog::save_file("*.png").c_str());
-}
-
-
-void ObservatoryPanel::add_ghosts(Observation *obs, Entity &target,
-                                  Entity &observer, string obs_type,
-                                  vec4 ghost_color)
-{
-    obs->ghost_observer =
-        layer->ui_scene.create_entity(obs_type + " ghost observer");
-    obs->ghost_observer
-        .add_component<Material>(Application::shaders["flat_shader"])
-        .uniforms_vec4["u_color"] = ghost_color;
-    obs->ghost_observer.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.03))));
-    Transform &got = obs->ghost_observer.get_component<Transform>();
-    got.position = observer.get_component<Transform>().position;
-
-    obs->ghost_target =
-        layer->ui_scene.create_entity(obs_type + " ghost target");
-    obs->ghost_target
-        .add_component<Material>(Application::shaders["flat_shader"])
-        .uniforms_vec4["u_color"] = ghost_color;
-    obs->ghost_target.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedCube(vec3(-.025), vec3(0.05))));
-    Transform &gtt = obs->ghost_target.get_component<Transform>();
-    gtt.position = target.get_component<Transform>().position;
-}
 
 
 void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
 {
-    Transform &t = target.get_component<Transform>();
+    Transform &tt = target.get_component<Transform>();
 	OrbitalComponent &oc = target.get_component<OrbitalComponent>();
 
     int num_points = lc_num_points;
     int width = 256;
     int height = 256;
     float *pixel_buffer = new float[width * height];
-    Lightcurve *lc = new Lightcurve(num_points);
+    Lightcurve *lc = new Lightcurve(target, observer, num_points);
     vec4 bg_color = Application::get_bg_color();
 
-    observer.get_component<CameraComponent>().camera->update_target(
-        target.get_component<Transform>().position);
+    observer.get_component<CameraComponent>().camera->update_target(tt.position);
 
     Mode prev_mode = layer->mode;
     layer->set_runtime_mode();
@@ -464,11 +385,10 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer)
         lc->push_flux(flux);
     }
 
-    add_ghosts(lc, target, observer, "LC",
-               vec4(32 / 256., 172 / 256., 64 / 256., 0.2));
+    Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
+    Entity ghost_target = layer->ui_scene.create_entity("ghost target");
+	lc->add_ghosts(ghost_observer, ghost_target);
 
-    lc->target = target;
-    lc->observer = observer;
 
     lightcurves.push(lc);
 	lightcurves.detach_all_ghosts();
@@ -525,14 +445,12 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer)
     glReadPixels(0, 0, ao_width, ao_height, GL_GREEN, GL_FLOAT, pixel_buffer_g);
     glReadPixels(0, 0, ao_width, ao_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
 
-    AoImage *ao = new AoImage(ao_width, ao_height);
+    Image *ao = new Image(target, observer, ao_width, ao_height);
     ao->texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
 
-    add_ghosts(ao, target, observer, "AO",
-               vec4(237 / 256., 84 / 256., 84 / 256., 0.2));
-
-    ao->target = target;
-    ao->observer = observer;
+    Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
+    Entity ghost_target = layer->ui_scene.create_entity("ghost target");
+	ao->add_ghosts(ghost_observer, ghost_target);
 
     ao_images.push(ao);
 	ao_images.detach_all_ghosts();
@@ -599,23 +517,22 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
                  pixel_buffer_normal);
     glReadPixels(0, 0, frame_width, frame_height, GL_BLUE, GL_FLOAT,
                  pixel_buffer_depth);
-//     glReadPixels(0, 0, radar_width, radar_height, GL_DEPTH_COMPONENT, GL_FLOAT,
-//                  pixel_buffer_depth);
 
-    RadarImage *rimg =
-        construct_delay_doppler(pixel_buffer_r, pixel_buffer_depth,
-                                pixel_buffer_normal, frame_width, frame_height);
+    RadarImage *rimg = new RadarImage(target, observer, 200, 200);
+    rimg->construct_delay_doppler(pixel_buffer_r, pixel_buffer_depth,
+                                  pixel_buffer_normal, frame_width,
+                                  frame_height);
 
-	add_ghosts(rimg, target, observer, "Radar", vec4(255/256., 209/255.,0., 0.2));
 
-	rimg->target = target;
-	rimg->observer = observer;
+    Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
+    Entity ghost_target = layer->ui_scene.create_entity("ghost target");
+	rimg->add_ghosts(ghost_observer, ghost_target);
 
-	radar_images.push(rimg);
-	radar_images.detach_all_ghosts();
+    radar_images.push(rimg);
+    radar_images.detach_all_ghosts();
 
-	layer->ui_scene.root_entity.add_child(rimg->ghost_target);
-	layer->ui_scene.root_entity.add_child(rimg->ghost_observer);
+    layer->ui_scene.root_entity.add_child(rimg->ghost_target);
+    layer->ui_scene.root_entity.add_child(rimg->ghost_observer);
 
     target.get_component<Material>().shader = tmp_shader;
     Application::set_bg_color(bg_color);
@@ -639,80 +556,3 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer)
 }
 
 
-RadarImage* ObservatoryPanel::construct_delay_doppler(float *radial_vel_buffer,
-													 float *depth_bufer,
-													 float *normal_buffer,
-													 int width, int height)
-{
-    int radar_width = 200;
-    int radar_height = 200;
-    RadarImage *rimg = new RadarImage(radar_width, radar_height);
-
-    // find min and max vr and d
-    float d_max = depth_bufer[0];
-    float d_min = depth_bufer[0];
-    float vr_min = radial_vel_buffer[0];
-    float vr_max = radial_vel_buffer[0];
-
-    for (int i = 0; i < width * height; i++)
-    {
-        if (radial_vel_buffer[i] > vr_max)
-            vr_max = radial_vel_buffer[i];
-        if (radial_vel_buffer[i] < vr_min)
-            vr_min = radial_vel_buffer[i];
-
-        if (depth_bufer[i] > d_max)
-            d_max = depth_bufer[i];
-        if (depth_bufer[i] < d_min)
-            d_min = depth_bufer[i];
-    }
-
-
-    TRACE("vr min/max, d min/max: {}, {} | {}, {}", vr_min, vr_max, d_min,
-          d_max);
-
-    vr_min = -1.;
-    vr_max = 1.0;
-
-    d_min = 0.;
-    d_max = 1.;
-
-
-    float *delay_doppler = new float[radar_width * radar_height];
-    for (int i = 0; i < radar_width * radar_height; i++)
-        delay_doppler[i] = 0.;
-
-    for (int i = 0; i < width * height; i++)
-    {
-        if (depth_bufer[i] == 0.) // background
-            continue;
-
-        int vr = floor(radar_width * (radial_vel_buffer[i] - vr_min) /
-                       (vr_max - vr_min));
-        int d =
-            floor(radar_height * (depth_bufer[i] - d_min) / (d_max - d_min));
-
-        // 		if (i == 200*400 + 170)
-        // 			TRACE("vr, d: {}, {}", vr, d);
-
-        if (d < 0 || d >= radar_height)
-            continue;
-        if (vr < 0 || vr >= radar_width)
-            continue;
-
-        delay_doppler[d * radar_width + vr] += normal_buffer[i];
-    }
-
-    // normalize delay_doppler
-    float dd_max = delay_doppler[0];
-    for (int i = 0; i < radar_width * radar_height; i++)
-        if (delay_doppler[i] > dd_max)
-            dd_max = delay_doppler[i];
-    for (int i = 0; i < radar_width * radar_height; i++)
-        delay_doppler[i] /= dd_max;
-
-    rimg->texture->update(delay_doppler, delay_doppler, delay_doppler);
-
-    delete[] delay_doppler;
-    return rimg;
-}

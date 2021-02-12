@@ -42,7 +42,8 @@ public:
 	void draw_depth_first(Entity&);
 
 	void on_resize(float, float);
-	void on_update_runtime(double, bool update_scripts = true);
+	void on_update_runtime(double);
+	void on_update_shadow();
 	void on_update_editor(double, EditorCamera&);
 
 	void controllers_events(Event&);
@@ -53,6 +54,9 @@ public:
 	Entity root_entity;
 
 	Entity observer, selected_entity, light;
+
+	// global variable :( to modify the behaviour of draw func
+	bool check_for_shadow_casting = false;
 
 private:
 	entt::registry registry;

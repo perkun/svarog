@@ -30,20 +30,13 @@ private:
 	void make_lightcurve(Entity &target, Entity &observer);
 	void display_lightcurves();
 
-// 	void display_images(ObservationSeries*);
+	void display_images(ImageSeries&);
 
 	void make_ao_image(Entity &target, Entity &observer);
-	void display_ao_images();
 
 	void make_radar_image(Entity &target, Entity &observer);
-	RadarImage* construct_delay_doppler(float*, float*, float*, int, int);
-	void display_radar_images();
 
-	void add_ghosts(Observation *obs, Entity &target, Entity &observer,
-			string obs_type, vec4 color);
-
-
-	void set_target_and_observer(Entity &, Entity &, Entity &, Entity &);
+	void set_target_and_observer(Observation*);
 
 	vector<Entity> get_scene_entities();
 	vector<Entity> get_scene_root_children();
@@ -63,8 +56,8 @@ private:
 	int radar_size = 200;
 
 	LightcurveSeries lightcurves;
-	AoImageSeries ao_images;
-	RadarImageSeries radar_images;
+	ImageSeries ao_images;
+	ImageSeries radar_images;
 
 	int selected_target_idx = 0;
 	int selected_observer_idx = 0;

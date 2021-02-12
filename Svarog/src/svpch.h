@@ -28,6 +28,8 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+#include <yaml-cpp/yaml.h>
+
 #include "Log.h"
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"

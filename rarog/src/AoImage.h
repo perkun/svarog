@@ -9,7 +9,7 @@ using namespace std;
 class AoImage : public Observation
 {
 public:
-	AoImage(int width, int height);
+	AoImage(Entity &target, Entity &observer, int width, int height);
 	~AoImage();
 
 	shared_ptr<Texture> texture;

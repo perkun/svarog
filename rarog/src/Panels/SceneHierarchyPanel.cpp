@@ -101,8 +101,10 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
     // left click popup
     if (ImGui::BeginPopupContextItem())
     {
-		ImGui::Checkbox("Render", &entity.get_component<SceneStatus>().render);
-		ImGui::Separator();
+        ImGui::Checkbox("Render", &entity.get_component<SceneStatus>().render);
+        ImGui::Checkbox("Cast shadows",
+                        &entity.get_component<SceneStatus>().casting_shadow);
+        ImGui::Separator();
 
         sprintf(buff, "%s  Add Empty Entity", "\xef\x81\xa7");
         if (ImGui::MenuItem(buff))
@@ -112,19 +114,24 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
         }
 
         sprintf(buff, "%s  Add xyz axes", "\xef\x81\xa7");
-		if (ImGui::MenuItem(buff))
-		{
+        if (ImGui::MenuItem(buff))
+        {
             Entity e = scene->create_entity("xyz axes");
-			e.add_component<Material>(Application::shaders["line_shader"]);
-			Batch axes;
-			axes.push_back(IndexedLine(vec3(0.), vec3(2., 0., 0), vec4(1., 0., 0., 1.)));
-			axes.push_back(IndexedLine(vec3(0.), vec3(0., 2., 0), vec4(0., 1., 0., 1.)));
-			axes.push_back(IndexedLine(vec3(0.), vec3(0., 0., 2), vec4(0., 0., 1., 1.)));
-			e.add_component<MeshComponent>(make_shared<VertexArrayObject>(axes.indexed_model));
+            e.add_component<Material>(Application::shaders["line_shader"]);
+            Batch axes;
+            axes.push_back(
+                IndexedLine(vec3(0.), vec3(2., 0., 0), vec4(1., 0., 0., 1.)));
+            axes.push_back(
+                IndexedLine(vec3(0.), vec3(0., 2., 0), vec4(0., 1., 0., 1.)));
+            axes.push_back(
+                IndexedLine(vec3(0.), vec3(0., 0., 2), vec4(0., 0., 1., 1.)));
+            e.add_component<MeshComponent>(
+                make_shared<VertexArrayObject>(axes.indexed_model));
+			e.get_component<SceneStatus>().casting_shadow = false;
             entity.add_child(e);
-		}
+        }
 
-		ImGui::Separator();
+        ImGui::Separator();
 
         if (entity != scene->root_entity)
         {
@@ -206,11 +213,26 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                     entity.add_component<NativeScriptComponent>()
                         .bind<ModelController>();
                 }
-                if (ImGui::MenuItem("Asteroid Controller"))
+
+                bool enabled = entity.has_component<OrbitalComponent>();
+                if (ImGui::MenuItem("Asteroid Controller", NULL, false,
+                                    enabled))
                 {
+
                     entity.add_component<NativeScriptComponent>()
                         .bind<AsteroidController>();
                 }
+                if (!enabled && ImGui::IsItemHovered())
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+                    ImGui::TextUnformatted(
+                        "You need to add Orbital Component for "
+                        "this to work");
+                    ImGui::PopTextWrapPos();
+                    ImGui::EndTooltip();
+                }
+
                 ImGui::EndMenu();
             }
             sprintf(buff, "%s  Add Camera Component", "\xef\x80\xbd");
@@ -220,8 +242,8 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 if (ImGui::MenuItem("Perspective Camera"))
                 {
                     entity.add_component<CameraComponent>(
-                        make_shared<PerspectiveCamera>(
-                            radians(25.0), 1.0, 0.01, 50.0));
+                        make_shared<PerspectiveCamera>(radians(25.0), 1.0, 0.01,
+                                                       50.0));
                 }
                 if (ImGui::MenuItem("Orthografic Camera"))
                 {
@@ -235,7 +257,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
             if (!entity.has_component<OrbitalComponent>() &&
                 ImGui::MenuItem(buff))
             {
-				entity.add_component<OrbitalComponent>();
+                entity.add_component<OrbitalComponent>();
             }
 
             ImGui::Spacing();
@@ -252,32 +274,33 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
     }
 
     if (opened)
-	{
-		// list components
-		list_component<MeshComponent>(entity, "Mesh Component", "\xef\x9a\xa6",
-				[](Entity &e) {});
-		list_component<TextureComponent>(
-				entity, "Texture Component", "\xef\x80\xbe", [](Entity &e) {
-				if (e.has_component<Material>())
-				e.get_component<Material>().uniforms_int["u_has_texture"] = 0;
-				});
-		list_component<Material>(entity, "Material Component", "\xef\x83\xab",
-				[](Entity &e) {});
-		list_component<CameraComponent>(entity, "Camera Component",
-				"\xef\x80\xbd", [](Entity &e) {});
-		list_component<NativeScriptComponent>(entity, "Native Script Component",
-				"\xef\x92\x89", [](Entity &e) {});
-		list_component<OrbitalComponent>(entity, "OrbitalComponent",
-				"\xef\x94\x97", [](Entity &e) {});
+    {
+        // list components
+        list_component<MeshComponent>(entity, "Mesh Component", "\xef\x9a\xa6",
+                                      [](Entity &e) {});
+        list_component<TextureComponent>(
+            entity, "Texture Component", "\xef\x80\xbe", [](Entity &e) {
+                if (e.has_component<Material>())
+                    e.get_component<Material>().uniforms_int["u_has_texture"] =
+                        0;
+            });
+        list_component<Material>(entity, "Material Component", "\xef\x83\xab",
+                                 [](Entity &e) {});
+        list_component<CameraComponent>(entity, "Camera Component",
+                                        "\xef\x80\xbd", [](Entity &e) {});
+        list_component<NativeScriptComponent>(entity, "Native Script Component",
+                                              "\xef\x92\x89", [](Entity &e) {});
+        list_component<OrbitalComponent>(entity, "OrbitalComponent",
+                                         "\xef\x94\x97", [](Entity &e) {});
 
 
-		// list children
-		for (Entity &child :
-				entity.get_component<SceneGraphComponent>().children)
-			draw_entity_node(child);
+        // list children
+        for (Entity &child :
+             entity.get_component<SceneGraphComponent>().children)
+            draw_entity_node(child);
 
-		ImGui::TreePop();
-	}
+        ImGui::TreePop();
+    }
 }
 
 void SceneHierarchyPanel::draw_selected_properties(Entity &entity)

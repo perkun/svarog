@@ -7,6 +7,7 @@ class File
 {
 public:
 	static string get_file_extension(string filename);
+	static string get_file_base(string filename);
 	static bool is_extension(string filename, string ext);
 
 };

@@ -270,9 +270,13 @@ void MainLayer::on_update(double time_delta)
         scene.observer = light;
 
         if (mode == Mode::EDITOR)
+            // musi być zeby textura cieni byla aktualna,
+            // inaczej jest tam info o nieniu z ostatniego runtime pass,
+            // a shader jest taki sam w obu modach bierze nieaktualne info o
+            // cieniach
             scene.on_update_editor(time_delta, editor_camera);
         else if (mode == Mode::RUNTIME)
-            scene.on_update_runtime(time_delta, false);
+			scene.on_update_shadow();
 
         fb->bind_depth_texture(1);
 
@@ -396,6 +400,10 @@ void MainLayer::menu_bar()
             // 				scene_serializer.deserialize(filename);
             // 				cout << "loading scene" << endl;
             // 			}
+			if (ImGui::MenuItem("Import positions"))
+			{
+				string filename = FileDialog::open_file("*.yaml");
+			}
 
             ImGui::Separator();
 

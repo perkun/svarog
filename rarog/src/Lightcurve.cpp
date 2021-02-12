@@ -1,11 +1,13 @@
 #include "svpch.h"
 #include "Lightcurve.h"
 
-Lightcurve::Lightcurve(unsigned int size)
+Lightcurve::Lightcurve(Entity &target, Entity &observer, unsigned int size)
+	: Observation(target, observer)
 {
     fluxes.reserve(size);
     magnitudes.reserve(size);
     inverse_magnitudes.reserve(size);
+	ghost_color = vec4(32 / 256., 172 / 256., 64 / 256., 0.2);
 }
 
 Lightcurve::~Lightcurve()

@@ -5,8 +5,7 @@
 class Lightcurve : public Observation
 {
 public:
-	Lightcurve();
-    Lightcurve(unsigned int size);
+    Lightcurve(Entity &target, Entity &observer, unsigned int size);
     ~Lightcurve();
 
 	float& operator[](size_t i)

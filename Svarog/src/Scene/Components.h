@@ -51,6 +51,7 @@ public:
 
 	bool active;
 	bool render = true;
+	bool casting_shadow = true;
 };
 
 class SceneGraphComponent

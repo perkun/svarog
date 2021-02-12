@@ -1,7 +1,6 @@
 #ifndef SCENESERIALIZER_H_
 #define SCENESERIALIZER_H_
 
-#include <yaml-cpp/yaml.h>
 #include "Scene.h"
 
 using namespace std;
