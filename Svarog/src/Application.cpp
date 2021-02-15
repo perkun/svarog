@@ -103,6 +103,8 @@ void init(int width, int height, string w_title, bool fullscreen, bool visible)
 // ~Application()
 void destroy()
 {
+	spdlog::shutdown();
+
     if (window != NULL)
         delete window;
 }

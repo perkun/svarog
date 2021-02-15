@@ -4,6 +4,7 @@
 std::shared_ptr<spdlog::logger> Log::core_logger;
 std::shared_ptr<spdlog::logger> Log::client_logger;
 
+
 void Log::init()
 {
 	spdlog::set_pattern("%^[%T] %n: %v%$");

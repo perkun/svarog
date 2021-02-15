@@ -6,7 +6,8 @@
 #include "Lightcurve.h"
 #include "Observation.h"
 #include "ObservationSeries.h"
-#include "AoImage.h"
+#include "ObservationStorage.h"
+// #include "AoImage.h"
 #include "RadarImage.h"
 #include "Texture.h"
 
@@ -27,14 +28,13 @@ private:
 
 	void observe_button();
 
-	void make_lightcurve(Entity &target, Entity &observer);
-	void display_lightcurves();
+	void make_lightcurve(Entity &target, Entity &observer, LightcurveSeries&);
+	void display_lightcurves(LightcurveSeries&);
 
 	void display_images(ImageSeries&);
 
-	void make_ao_image(Entity &target, Entity &observer);
-
-	void make_radar_image(Entity &target, Entity &observer);
+	void make_ao_image(Entity &target, Entity &observer, ImageSeries&);
+	void make_radar_image(Entity &target, Entity &observer, ImageSeries&);
 
 	void set_target_and_observer(Observation*);
 
@@ -55,9 +55,8 @@ private:
 	float angular_speed = 10; // rot speed, sort of
 	int radar_size = 200;
 
-	LightcurveSeries lightcurves;
-	ImageSeries ao_images;
-	ImageSeries radar_images;
+	int current_storage = 0;
+	vector<ObservationStorage> obs_storage;
 
 	int selected_target_idx = 0;
 	int selected_observer_idx = 0;

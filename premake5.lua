@@ -84,6 +84,7 @@ project "rarog"
 	{
  		"%{prj.name}/src",
  		"%{prj.name}/src/Panels",
+ 		"%{prj.name}/src/Observations",
  		"Svarog/src",
  		"Svarog/src/Layer",
  		"Svarog/src/Event",
