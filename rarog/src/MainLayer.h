@@ -8,6 +8,7 @@
 #include "Batch.h"
 #include "Panels/SceneHierarchyPanel.h"
 #include "Framebuffer.h"
+#include "ObservatoryPanel.h"
 // #include "Svarog.h"
 
 
@@ -21,7 +22,6 @@ enum class Mode {
 	NUM_MODES
 };
 
-class ObservatoryPanel;
 
 class MainLayer : public Layer
 {
@@ -76,7 +76,7 @@ private:
 	bool multisampling = true;
 
 	SceneHierarchyPanel scene_hierarchy_panel;
-	ObservatoryPanel *observatory_panel;
+	ObservatoryPanel observatory_panel;
 
 // 	double fps;
 // 	double fps_history[100];

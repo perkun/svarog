@@ -1,7 +1,6 @@
 #ifndef OBSERVATORYPANEL_H_
 #define OBSERVATORYPANEL_H_
 
-#include "MainLayer.h"
 #include "Entity.h"
 #include "Lightcurve.h"
 #include "Observation.h"
@@ -13,6 +12,7 @@
 
 using namespace std;
 
+class MainLayer;
 
 class ObservatoryPanel
 {

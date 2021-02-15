@@ -1,4 +1,5 @@
 #include "svpch.h"
+#include "MainLayer.h"
 #include "ObservatoryPanel.h"
 #include "Camera.h"
 
