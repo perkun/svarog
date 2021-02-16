@@ -39,6 +39,8 @@ void ObservatoryPanel::add_obs_storage(string filename)
         cout << "Adding Storage Failed" << endl;
 }
 
+
+
 void ObservatoryPanel::set_current_ghosts(ObservationStorage *obs)
 {
     // lc
@@ -232,6 +234,24 @@ void ObservatoryPanel::menu_bar()
 					observe_points(obs_storage[current_storage]);
                 }
             }
+
+			if (ImGui::MenuItem("save to file"))
+			{
+				ObservationStorage *storage = obs_storage[current_storage];
+
+				string filename = FileDialog::save_file("*.yaml");
+
+				storage->save(filename);
+
+				for (int i = 0; i < obs_storage.size(); i++)
+				{
+					if (i == current_storage)
+						continue;
+					if (obs_storage[i]->name == storage->name)
+						storage->name = storage->name + " (c)";
+				}
+
+			}
 
             ImGui::Separator();
             if (ImGui::MenuItem("delete all observations", NULL, false, true))

@@ -18,9 +18,23 @@ ObservationStorage::~ObservationStorage()
 }
 
 
-void ObservationStorage::save()
+void ObservationStorage::save(const string filepath)
 {
+	this->filename = filepath;
+	this->name = File::remove_extension(File::file_base(filename));
 
+	YAML::Emitter out;
+    out << YAML::BeginMap;
+	out << YAML::Key << "points" << YAML::BeginSeq;
+
+	// serialize Observation
+
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+
+
+    std::ofstream fout(filepath);
+    fout << out.c_str();
 }
 
 

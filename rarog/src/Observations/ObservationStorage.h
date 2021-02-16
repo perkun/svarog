@@ -18,7 +18,7 @@ public:
 	ObservationStorage();
 	~ObservationStorage();
 
-	void save();
+	void save(const string filepath);
 	bool load(string filename);
 	void detach_all_ghosts();
 
