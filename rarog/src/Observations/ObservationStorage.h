@@ -2,10 +2,11 @@
 #define OBSERVATIONSTORAGE_H_
 
 #include "ObservationSeries.h"
+#include "Utils/File.h"
 
 using namespace std;
 
-struct Point
+struct YamlPoint
 {
 	double jd;
 	vec3 observer, target;
@@ -21,13 +22,17 @@ public:
 	bool load(string filename);
 	void detach_all_ghosts();
 
+	void delete_all_observations();
+
 	string filename = "untitled.yaml";
+	string name = "untitled";
 
 	LightcurveSeries *lightcurves;
 	ImageSeries *ao_images;
 	ImageSeries *radar_images;
 
-	vector<Point> points;
+	vector<YamlPoint> points;
+	bool file_loaded = false;
 
 };
 

@@ -6,16 +6,6 @@
 ObservatoryPanel::ObservatoryPanel(MainLayer *l)
 {
     layer = l;
-    // pteselect target and observer from leyer and layer.scene
-    vector<Entity> ents = get_scene_entities();
-    for (int i = 0; i < ents.size(); i++)
-    {
-        if (ents[i] == layer->scene.observer)
-            selected_observer_idx = i;
-        if (ents[i] == layer->observer_target)
-            selected_target_idx = i;
-    }
-
 	ObservationStorage *obs = new ObservationStorage;
     obs_storage.push_back(obs);
 }
@@ -29,55 +19,68 @@ ObservatoryPanel::~ObservatoryPanel()
 }
 
 
-void ObservatoryPanel::append_children(vector<Entity> &ents, Entity entity)
-{
-    for (Entity e : entity.get_children())
-        ents.push_back(e);
-
-    for (Entity e : entity.get_children())
-        append_children(ents, e);
-}
-
-
-vector<Entity> ObservatoryPanel::get_scene_entities()
-{
-    vector<Entity> ents;
-    append_children(ents, layer->scene.root_entity);
-    return ents;
-}
-
-
-vector<Entity> ObservatoryPanel::get_scene_root_children()
-{
-    vector<Entity> ents;
-    for (Entity e : layer->scene.root_entity.get_children())
-        ents.push_back(e);
-    return ents;
-}
 
 
 void ObservatoryPanel::add_obs_storage(string filename)
 {
-	ObservationStorage *storage = new ObservationStorage;
+    ObservationStorage *storage = new ObservationStorage;
     if (storage->load(filename))
     {
+        for (int i = 0; i < obs_storage.size(); i++)
+            if (obs_storage[i]->name == storage->name)
+                storage->name = storage->name + " (c)";
+
+        obs_storage[current_storage]->detach_all_ghosts();
         obs_storage.emplace_back(storage);
         current_storage = obs_storage.size() - 1;
+		set_current_ghosts(obs_storage[current_storage]);
     }
     else
         cout << "Adding Storage Failed" << endl;
 }
 
+void ObservatoryPanel::set_current_ghosts(ObservationStorage *obs)
+{
+    // lc
+    if (obs->lightcurves->get_current_obs())
+    {
+        layer->ui_scene.root_entity.add_child(
+            obs->lightcurves->get_current_obs()->ghost_target);
+        layer->ui_scene.root_entity.add_child(
+            obs->lightcurves->get_current_obs()->ghost_observer);
+    }
+
+    // ao
+    if (obs->ao_images->get_current_obs())
+    {
+        layer->ui_scene.root_entity.add_child(
+            obs->ao_images->get_current_obs()->ghost_target);
+        layer->ui_scene.root_entity.add_child(
+            obs->ao_images->get_current_obs()->ghost_observer);
+    }
+    // radar
+    if (obs->radar_images->get_current_obs())
+    {
+        layer->ui_scene.root_entity.add_child(
+            obs->radar_images->get_current_obs()->ghost_target);
+        layer->ui_scene.root_entity.add_child(
+            obs->radar_images->get_current_obs()->ghost_observer);
+    }
+}
+
 
 void ObservatoryPanel::set_target_and_observer(Observation *obs)
 {
-    vec3 gtp = obs->target_pos;
-    vec3 gop = obs->observer_pos;
+    vec3 gtp = obs->target_transform.position;
+    vec3 gop = obs->observer_transform.position;
 
     layer->observer_target = obs->target;
     layer->scene.observer = obs->observer;
-    layer->observer_target.get_component<Transform>().position = gtp;
-    layer->scene.observer.get_component<Transform>().position = gop;
+    layer->observer_target.get_component<Transform>() = obs->target_transform;
+    layer->scene.observer.get_component<Transform>() = obs->observer_transform;
+    if (layer->observer_target.has_component<OrbitalComponent>())
+        layer->observer_target.get_component<OrbitalComponent>() =
+            obs->target_orbital_component;
 
     shared_ptr<Camera> camera =
         layer->scene.observer.get_component<CameraComponent>().camera;
@@ -86,165 +89,45 @@ void ObservatoryPanel::set_target_and_observer(Observation *obs)
 }
 
 
-void ObservatoryPanel::target_selection_panel(vector<Entity> &ents)
-{
-    if (ents.size() == 0)
-        return;
-
-    if (ImGui::BeginCombo(
-            "Target",
-            ents[selected_target_idx].get_component<TagComponent>().tag.c_str(),
-            0))
-    {
-        for (int n = 0; n < ents.size(); n++)
-        {
-            if (ents[n] == layer->scene.observer)
-                continue;
-
-            const bool is_selected = (selected_target_idx == n);
-            if (ImGui::Selectable(
-                    ents[n].get_component<TagComponent>().tag.c_str(),
-                    is_selected))
-            {
-                selected_target_idx = n;
-                layer->observer_target = ents[n];
-                layer->scene.observer.get_component<CameraComponent>()
-                    .camera->update_target(
-                        ents[n].get_component<Transform>().position);
-            }
-            // Set the initial focus when opening the combo (scrolling +
-            // keyboard navigation focus)
-            if (is_selected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
-}
-
-
-void ObservatoryPanel::observer_selection_panel(vector<Entity> &ents)
-{
-    if (ents.size() == 0)
-        return;
-
-    if (ImGui::BeginCombo("Observer",
-                          ents[selected_observer_idx]
-                              .get_component<TagComponent>()
-                              .tag.c_str(),
-                          0))
-    {
-        for (int n = 0; n < ents.size(); n++)
-        {
-            if (!ents[n].has_component<CameraComponent>())
-                continue;
-
-            if (ents[n] == layer->observer_target)
-                continue;
-
-            const bool is_selected = (selected_observer_idx == n);
-            if (ImGui::Selectable(
-                    ents[n].get_component<TagComponent>().tag.c_str(),
-                    is_selected))
-            {
-                selected_observer_idx = n;
-                layer->scene.observer = ents[n];
-            }
-            // Set the initial focus when opening the combo (scrolling +
-            // keyboard navigation focus)
-            if (is_selected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
-
-    // observer camera fov
-    auto cam = dynamic_pointer_cast<OrthograficCamera>(
-        layer->scene.observer.get_component<CameraComponent>().camera);
-    ImGui::PushItemWidth(150.);
-    ImGui::DragFloat("camera fov", &(cam->size_x), 0.02, 0.1, 100.);
-}
-
-
 void ObservatoryPanel::observations_panel()
 {
-    ImGui::Separator();
+
+    for (int i = 0; i < 5; i++)
+        ImGui::Spacing();
+
+	ImGui::Text("Storage:");
+	ImGui::SameLine();
+    ImGui::PushItemWidth(150.);
+    if (ImGui::BeginCombo("##Storage",
+                          obs_storage[current_storage]->name.c_str()))
+    {
+        for (int i = 0; i < obs_storage.size(); i++)
+        {
+            const bool is_selected = (current_storage == i);
+            if (ImGui::Selectable(obs_storage[i]->name.c_str(), is_selected))
+            {
+                obs_storage[current_storage]->detach_all_ghosts();
+                current_storage = i;
+                set_current_ghosts(obs_storage[current_storage]);
+            }
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+	if (obs_storage[current_storage]->file_loaded)
+	{
+		ImGui::Text("%d points defined in file.",
+					(int)obs_storage[current_storage]->points.size());
+
+	}
+
     for (int i = 0; i < 5; i++)
         ImGui::Spacing();
 
     ImGuiTabBarFlags tab_bar_flags =
         ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll;
-
-    if (ImGui::BeginCombo(
-            "Observation Storage",
-            File::file_base(obs_storage[current_storage]->filename).c_str()))
-    {
-        for (int i = 0; i < obs_storage.size(); i++)
-        {
-            const bool is_selected = (current_storage == i);
-            if (ImGui::Selectable(
-                    File::file_base(obs_storage[i]->filename).c_str(),
-                    is_selected))
-            {
-// 				obs_storage[current_storage].detach_all_ghosts();
-                current_storage = i;
-            }
-			if (is_selected)
-				ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
-
-    for (int i = 0; i < 5; i++)
-        ImGui::Spacing();
-
-    if (ImGui::Button("make observations"))
-    {
-        if (!layer->observer_target.has_component<OrbitalComponent>())
-        {
-            cout << "Target does not have an Orbital Component" << endl;
-        }
-        else
-        {
-            OrbitalComponent &oc =
-                layer->observer_target.get_component<OrbitalComponent>();
-            double tmp_rotation_phase = oc.rotation_phase;
-
-            vec3 &target_rotation =
-                layer->observer_target.get_component<Transform>().rotation;
-            vec3 tmp_rotation = target_rotation;
-            vec3 &target_pos =
-                layer->observer_target.get_component<Transform>().position;
-            vec3 tmp_target_pos = target_pos;
-            vec3 &observer_pos =
-                layer->scene.observer.get_component<Transform>().position;
-            vec3 tmp_observer_pos = observer_pos;
-
-
-            for (Point p : obs_storage[current_storage]->points)
-            {
-                oc.calculate_rot_phase(p.jd);
-                target_rotation = oc.xyz_from_lbg();
-
-                target_pos = p.target;
-                observer_pos = p.observer;
-
-                make_lightcurve(layer->observer_target, layer->scene.observer,
-                                obs_storage[current_storage]->lightcurves);
-
-                make_ao_image(layer->observer_target, layer->scene.observer,
-                              obs_storage[current_storage]->ao_images);
-
-                make_radar_image(layer->observer_target, layer->scene.observer,
-                                 obs_storage[current_storage]->radar_images);
-            }
-            target_pos = tmp_target_pos;
-            observer_pos = tmp_observer_pos;
-            target_rotation = tmp_rotation;
-        }
-    }
-
-    for (int i = 0; i < 5; i++)
-        ImGui::Spacing();
 
     if (ImGui::BeginTabBar("Observations", tab_bar_flags))
     {
@@ -311,43 +194,98 @@ void ObservatoryPanel::observations_panel()
 
 void ObservatoryPanel::on_imgui_render()
 {
-    ImGui::Begin("Observatory");
+	ImGui::Begin("Observatory");
 
-    observe_button();
-    ImGui::Separator();
-    for (int i = 0; i < 10; i++)
-        ImGui::Spacing();
+    ImGui::BeginChild("Observations panel",
+                      ImVec2(ImGui::GetWindowContentRegionWidth(), 900),
+                      false, ImGuiWindowFlags_MenuBar);
 
-    vector<Entity> ents = get_scene_root_children();
-
-    target_selection_panel(ents);
-
-    for (int i = 0; i < 5; i++)
-        ImGui::Spacing();
-
-    observer_selection_panel(ents);
-
-    for (int i = 0; i < 10; i++)
-        ImGui::Spacing();
-
+	menu_bar();
     observations_panel();
+    ImGui::EndChild();
 
     ImGui::End();
 }
 
 
-void ObservatoryPanel::observe_button()
+void ObservatoryPanel::menu_bar()
 {
-    string run_btn_label;
-    if (layer->mode == Mode::EDITOR)
-        run_btn_label = "Observe";
-    else if (layer->mode == Mode::RUNTIME)
-        run_btn_label = "Stop observing";
-
-    if (ImGui::Button(run_btn_label.c_str()))
+    if (ImGui::BeginMenuBar())
     {
-        layer->toggle_mode();
+        if (ImGui::BeginMenu("Menu"))
+        {
+            if (ImGui::MenuItem("Import positions"))
+            {
+                add_obs_storage(FileDialog::open_file("*.yaml"));
+            }
+
+			bool enabled = (obs_storage[current_storage]->points.size() > 0);
+
+            if (ImGui::MenuItem("make observations", NULL, false, enabled))
+            {
+                if (!layer->observer_target.has_component<OrbitalComponent>())
+                {
+                    cout << "Target does not have an Orbital Component" << endl;
+                }
+                else
+                {
+					observe_points(obs_storage[current_storage]);
+                }
+            }
+
+            ImGui::Separator();
+            if (ImGui::MenuItem("delete all observations", NULL, false, true))
+            {
+				obs_storage[current_storage]->delete_all_observations();
+            }
+
+
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
     }
+
+
+}
+
+
+void ObservatoryPanel::observe_points(ObservationStorage* obs)
+{
+    OrbitalComponent &oc =
+        layer->observer_target.get_component<OrbitalComponent>();
+    double tmp_rotation_phase = oc.rotation_phase;
+
+    vec3 &target_rotation =
+        layer->observer_target.get_component<Transform>().rotation;
+    vec3 tmp_rotation = target_rotation;
+    vec3 &target_pos =
+        layer->observer_target.get_component<Transform>().position;
+    vec3 tmp_target_pos = target_pos;
+    vec3 &observer_pos =
+        layer->scene.observer.get_component<Transform>().position;
+    vec3 tmp_observer_pos = observer_pos;
+
+
+    for (YamlPoint p : obs->points)
+    {
+        oc.calculate_rot_phase(p.jd);
+        target_rotation = oc.xyz_from_lbg();
+
+        target_pos = p.target;
+        observer_pos = p.observer;
+
+        make_lightcurve(layer->observer_target, layer->scene.observer,
+                        obs->lightcurves);
+
+        make_ao_image(layer->observer_target, layer->scene.observer,
+                      obs->ao_images);
+
+        make_radar_image(layer->observer_target, layer->scene.observer,
+                         obs->radar_images);
+    }
+    target_pos = tmp_target_pos;
+    observer_pos = tmp_observer_pos;
+    target_rotation = tmp_rotation;
 }
 
 
@@ -377,7 +315,7 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
     ImGui::PlotLines(
         "LC", static_cast<Lightcurve *>(current_obs)->inv_mag_data(),
         static_cast<Lightcurve *>(current_obs)->size(), 0, NULL,
-        lightcurves->lcs_min, lightcurves->lcs_max, ImVec2(200.0f, 130.0f));
+        lightcurves->lcs_min, lightcurves->lcs_max, ImVec2(300.0f, 230.0f));
 
     if (ImGui::Button("Delete LC"))
     {

@@ -45,7 +45,6 @@ Observation* ObservationSeries::get_current_obs()
 		return observations[current_id];
 	else
 	{
-		WARN("currnet obs not valid");
 		return NULL;
 	}
 }

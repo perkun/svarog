@@ -21,7 +21,7 @@ string File::file_base(string filename)
 string File::remove_extension(string filename)
 {
 	int dot_pos = filename.rfind(".");
-	return filename.substr(0, dot_pos - 1);
+	return filename.substr(0, dot_pos);
 }
 
 bool File::is_extension(string filename, string ext)

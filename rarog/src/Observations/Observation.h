@@ -20,8 +20,11 @@ public:
 
 	Entity target, observer, ghost_target, ghost_observer;
 
-	vec3 target_pos, observer_pos;
-	double julian_day;
+	Transform target_transform;
+	Transform observer_transform;
+	OrbitalComponent target_orbital_component;
+
+// 	double julian_day;  // not used...
 
 	vec4 ghost_color = vec4(1,1,1,1);
 };

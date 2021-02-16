@@ -28,26 +28,18 @@ public:
 private:
 	MainLayer *layer;
 
-	void observe_button();
-
 	void make_lightcurve(Entity &target, Entity &observer, LightcurveSeries*);
 	void display_lightcurves(LightcurveSeries*);
-
 	void display_images(ImageSeries*);
-
 	void make_ao_image(Entity &target, Entity &observer, ImageSeries*);
 	void make_radar_image(Entity &target, Entity &observer, ImageSeries*);
-
 	void set_target_and_observer(Observation*);
-
-	vector<Entity> get_scene_entities();
-	vector<Entity> get_scene_root_children();
-	void append_children(vector<Entity> &ents, Entity entity);
-
-	// sub-panels functions
-	void target_selection_panel(vector<Entity>&);
-	void observer_selection_panel(vector<Entity>&);
 	void observations_panel();
+	void set_current_ghosts(ObservationStorage*);
+	void menu_bar();
+	void observe_points(ObservationStorage*);
+
+
 
 
 	int ao_size = 400;
@@ -61,8 +53,6 @@ private:
 	int current_storage = 0;
 	vector<ObservationStorage*> obs_storage;
 
-	int selected_target_idx = 0;
-	int selected_observer_idx = 0;
 
 	bool earth_tilt = true;
 };

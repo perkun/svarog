@@ -9,6 +9,7 @@
 #include "Panels/SceneHierarchyPanel.h"
 #include "Framebuffer.h"
 #include "ObservatoryPanel.h"
+#include "ObservePanel.h"
 // #include "Svarog.h"
 
 
@@ -26,6 +27,7 @@ enum class Mode {
 class MainLayer : public Layer
 {
 	friend class ObservatoryPanel;
+	friend class ObservePanel;
 public:
     MainLayer(Args args);
 	~MainLayer();
@@ -77,6 +79,7 @@ private:
 
 	SceneHierarchyPanel scene_hierarchy_panel;
 	ObservatoryPanel *observatory_panel;
+	ObservePanel observe_panel;
 
 // 	double fps;
 // 	double fps_history[100];

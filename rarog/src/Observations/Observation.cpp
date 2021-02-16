@@ -6,8 +6,10 @@ Observation::Observation(Entity &target, Entity &observer)
 {
 	this->target = target;
 	this->observer = observer;
-	target_pos = target.get_component<Transform>().position;
-	observer_pos = observer.get_component<Transform>().position;
+	target_transform = target.get_component<Transform>();
+	observer_transform = observer.get_component<Transform>();
+	if (target.has_component<OrbitalComponent>())
+		target_orbital_component = target.get_component<OrbitalComponent>();
 }
 
 

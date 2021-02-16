@@ -26,7 +26,10 @@ void ObservationStorage::save()
 
 bool ObservationStorage::load(const string filename)
 {
+	file_loaded = false;
 	this->filename = filename;
+	this->name = File::remove_extension(File::file_base(filename));
+
 
     YAML::Node data = YAML::LoadFile(filename);
     if (!data["points"])
@@ -35,7 +38,7 @@ bool ObservationStorage::load(const string filename)
 
 	for (auto yaml_point: data["points"])
 	{
-		Point p;
+		YamlPoint p;
 		p.jd = yaml_point["jd"].as<double>();
 
 		p.observer.x = yaml_point["observer_position"][0].as<float>();
@@ -49,7 +52,7 @@ bool ObservationStorage::load(const string filename)
 		points.push_back(p);
 	}
 
-
+	file_loaded = true;
 	return true;
 }
 
@@ -59,4 +62,17 @@ void ObservationStorage::detach_all_ghosts()
 	lightcurves->detach_all_ghosts();
 	ao_images->detach_all_ghosts();
 	radar_images->detach_all_ghosts();
+}
+
+
+void ObservationStorage::delete_all_observations()
+{
+    while (lightcurves->get_current_obs() != NULL)
+        lightcurves->delete_current_obs();
+
+    while (ao_images->get_current_obs() != NULL)
+        ao_images->delete_current_obs();
+
+    while (radar_images->get_current_obs() != NULL)
+        radar_images->delete_current_obs();
 }

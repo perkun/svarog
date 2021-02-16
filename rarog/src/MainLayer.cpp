@@ -177,6 +177,7 @@ void MainLayer::on_attach()
                                   COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 
     observatory_panel = new ObservatoryPanel(this);
+	observe_panel = ObservePanel(this);
 }
 
 void MainLayer::on_event(Event &e)
@@ -328,6 +329,7 @@ void MainLayer::on_imgui_render()
         ImGui::ShowDemoWindow();
 
     scene_hierarchy_panel.on_imgui_render();
+	observe_panel.on_imgui_render();
     observatory_panel->on_imgui_render();
 }
 
