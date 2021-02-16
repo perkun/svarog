@@ -19,6 +19,9 @@ void Entity::add_child(Entity &child)
 
 void Entity::detatch()
 {
+// 	if (!*this)
+// 		return;
+
     Entity &parent = get_component<SceneGraphComponent>().parent;
 
     if (!parent) // no parent

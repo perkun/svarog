@@ -9,6 +9,7 @@
 // #include "AoImage.h"
 #include "RadarImage.h"
 #include "Texture.h"
+#include "Utils/File.h"
 
 using namespace std;
 
@@ -22,19 +23,20 @@ public:
 	~ObservatoryPanel();
 
 	void on_imgui_render();
+	void add_obs_storage(string filename);
 
 private:
 	MainLayer *layer;
 
 	void observe_button();
 
-	void make_lightcurve(Entity &target, Entity &observer, LightcurveSeries&);
-	void display_lightcurves(LightcurveSeries&);
+	void make_lightcurve(Entity &target, Entity &observer, LightcurveSeries*);
+	void display_lightcurves(LightcurveSeries*);
 
-	void display_images(ImageSeries&);
+	void display_images(ImageSeries*);
 
-	void make_ao_image(Entity &target, Entity &observer, ImageSeries&);
-	void make_radar_image(Entity &target, Entity &observer, ImageSeries&);
+	void make_ao_image(Entity &target, Entity &observer, ImageSeries*);
+	void make_radar_image(Entity &target, Entity &observer, ImageSeries*);
 
 	void set_target_and_observer(Observation*);
 
@@ -47,6 +49,7 @@ private:
 	void observer_selection_panel(vector<Entity>&);
 	void observations_panel();
 
+
 	int ao_size = 400;
 	vec4 ao_bg_color = vec4(0.0, 0.0, 0.0, 1.);
 
@@ -56,7 +59,7 @@ private:
 	int radar_size = 200;
 
 	int current_storage = 0;
-	vector<ObservationStorage> obs_storage;
+	vector<ObservationStorage*> obs_storage;
 
 	int selected_target_idx = 0;
 	int selected_observer_idx = 0;

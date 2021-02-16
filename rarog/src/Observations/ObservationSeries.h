@@ -1,7 +1,6 @@
 #ifndef OBSERVATIONSERIES_H_
 #define OBSERVATIONSERIES_H_
 
-#include "MainLayer.h"
 #include "Observation.h"
 #include "Lightcurve.h"
 #include "Utils/File.h"

@@ -2,7 +2,7 @@
 #include "File.h"
 
 
-string File::get_file_extension(string filename)
+string File::file_extension(string filename)
 {
 	int dot_pos = filename.rfind(".");
 
@@ -12,7 +12,13 @@ string File::get_file_extension(string filename)
 	return filename.substr(dot_pos + 1, filename.size() - dot_pos);
 }
 
-string File::get_file_base(string filename)
+string File::file_base(string filename)
+{
+	int slash_pos = filename.rfind("/");
+	return filename.substr(slash_pos + 1, filename.size() - slash_pos);
+}
+
+string File::remove_extension(string filename)
 {
 	int dot_pos = filename.rfind(".");
 	return filename.substr(0, dot_pos - 1);
@@ -20,7 +26,7 @@ string File::get_file_base(string filename)
 
 bool File::is_extension(string filename, string ext)
 {
-	return ext.compare(File::get_file_extension(filename)) == 0;
+	return ext.compare(File::file_extension(filename)) == 0;
 }
 
 

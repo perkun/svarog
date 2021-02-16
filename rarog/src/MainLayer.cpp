@@ -23,6 +23,7 @@ MainLayer::MainLayer(Args args)
 
 MainLayer::~MainLayer()
 {
+    TRACE("MainLayer destructed");
 }
 
 
@@ -175,7 +176,7 @@ void MainLayer::on_attach()
     framebuffer = new Framebuffer(window->width, window->height,
                                   COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 
-    observatory_panel = ObservatoryPanel(this);
+    observatory_panel = new ObservatoryPanel(this);
 }
 
 void MainLayer::on_event(Event &e)
@@ -327,13 +328,14 @@ void MainLayer::on_imgui_render()
         ImGui::ShowDemoWindow();
 
     scene_hierarchy_panel.on_imgui_render();
-    observatory_panel.on_imgui_render();
+    observatory_panel->on_imgui_render();
 }
 
 void MainLayer::on_detach()
 {
     delete ms_framebuffer;
     delete framebuffer;
+	delete observatory_panel;
 }
 
 void MainLayer::toggle_mode()
@@ -401,7 +403,7 @@ void MainLayer::menu_bar()
             // 			}
 			if (ImGui::MenuItem("Import positions"))
 			{
-				string filename = FileDialog::open_file("*.yaml");
+				observatory_panel->add_obs_storage(FileDialog::open_file("*.yaml"));
 			}
 
             ImGui::Separator();

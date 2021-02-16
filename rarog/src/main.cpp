@@ -90,11 +90,13 @@ int main(int argc, char *argv[])
 	Application::shaders["radar"] = radar;
 
 
-	Application::push_layer(new MainLayer(args));
+	MainLayer *main_layer = new MainLayer(args);
+	Application::push_layer(main_layer);
 
 
 	// RENDER LOOP
 	Application::run(GlfwEventMethod::POLL);
+	Application::pop_layer(main_layer);
 	Application::destroy();
 
     return 0;

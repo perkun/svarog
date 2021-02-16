@@ -5,6 +5,12 @@
 
 using namespace std;
 
+struct Point
+{
+	double jd;
+	vec3 observer, target;
+};
+
 class ObservationStorage
 {
 public:
@@ -12,14 +18,16 @@ public:
 	~ObservationStorage();
 
 	void save();
-	void load(string filename);
+	bool load(string filename);
+	void detach_all_ghosts();
 
 	string filename = "untitled.yaml";
 
-	LightcurveSeries lightcurves;
-	ImageSeries ao_images;
-	ImageSeries radar_images;
+	LightcurveSeries *lightcurves;
+	ImageSeries *ao_images;
+	ImageSeries *radar_images;
 
+	vector<Point> points;
 
 };
 

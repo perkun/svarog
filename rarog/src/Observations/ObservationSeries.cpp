@@ -22,6 +22,9 @@ void ObservationSeries::detach_all_ghosts()
 {
     for (Observation *obs : observations)
     {
+		if (!obs)
+			continue;
+
         obs->ghost_target.detatch();
         obs->ghost_observer.detatch();
     }
@@ -41,7 +44,10 @@ Observation* ObservationSeries::get_current_obs()
 	if (size() > 0)
 		return observations[current_id];
 	else
+	{
+		WARN("currnet obs not valid");
 		return NULL;
+	}
 }
 
 
@@ -102,7 +108,7 @@ void LightcurveSeries::save_current_flux(const char *filename)
 
 void ImageSeries::save(const char *filename)
 {
-	string base =  File::get_file_base(filename);
+	string base =  File::remove_extension(filename);
 
 	string fn = base + ".png";
 
@@ -114,7 +120,7 @@ void ImageSeries::save_all(const char *filename)
 {
 	char fn[200];
 
-	string base =  File::get_file_base(filename);
+	string base =  File::remove_extension(filename);
 
 	int nr = 0;
 	for (Observation *obs : observations)

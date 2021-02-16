@@ -124,13 +124,11 @@ void push_overlay(Layer *layer)
 void pop_layer(Layer *layer)
 {
     layer_stack.pop_layer(layer);
-    layer->on_detach();
 }
 
 void pop_overlay(Layer *layer)
 {
     layer_stack.pop_overlay(layer);
-    layer->on_detach();
 }
 
 void on_event(Event &event)
