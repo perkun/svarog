@@ -22,14 +22,15 @@ ObservatoryPanel::~ObservatoryPanel()
 
 
 
-void ObservatoryPanel::add_obs_storage(string filename)
+void ObservatoryPanel::load_obs_storage(string filepath)
 {
+	if (filepath == "")
+		return;
+
     ObservationStorage *storage = new ObservationStorage;
-    if (storage->load(filename))
+    if (storage->load(filepath))
     {
-        for (int i = 0; i < obs_storage.size(); i++)
-            if (obs_storage[i]->name == storage->name)
-                storage->name = storage->name + " (c)";
+		storage->name = fix_storage_name(storage->name);
 
         obs_storage[current_storage]->detach_all_ghosts();
         obs_storage.emplace_back(storage);
@@ -40,6 +41,50 @@ void ObservatoryPanel::add_obs_storage(string filename)
         cout << "Adding Storage Failed" << endl;
 }
 
+
+void ObservatoryPanel::add_obs_storage(string name)
+{
+    ObservationStorage *storage = new ObservationStorage;
+	storage->name = fix_storage_name(name);
+
+    obs_storage[current_storage]->detach_all_ghosts();
+    obs_storage.emplace_back(storage);
+    current_storage = obs_storage.size() - 1;
+    set_current_ghosts(obs_storage[current_storage]);
+}
+
+string ObservatoryPanel::fix_storage_name(string name, bool exclude_current)
+{
+//     regex rgx("([^\(\)]+) \(([0-9]+)\)");
+    smatch matches;
+	char buff[50];
+	sprintf(buff, "(%s) ?\\(?([0-9]*)\\)?", name.c_str());
+// 	regex rgx("([a-zA-Z0-9]+) ?\\(?([0-9]*)\\)?");
+    for (int i = 0; i < obs_storage.size(); i++)
+    {
+		if (exclude_current)
+			if (i == current_storage)
+				continue;
+
+        if (regex_search(obs_storage[i]->name, matches, regex(buff)) )
+		{
+			if (matches[2].str() == "")
+				name = name + " (1)";
+			else
+			{
+				stringstream ss;
+				ss << matches[1] << " (" << stoi(matches[2].str()) +1 << ")";
+				name = ss.str();
+			}
+
+		}
+    }
+
+    // 		if (obs_storage[i]->name == name)
+    // 			name = name + " (c)";
+
+    return name;
+}
 
 
 void ObservatoryPanel::set_current_ghosts(ObservationStorage *obs)
@@ -206,7 +251,6 @@ void ObservatoryPanel::on_imgui_render()
 	menu_bar();
     observations_panel();
     ImGui::EndChild();
-
     ImGui::End();
 }
 
@@ -217,14 +261,32 @@ void ObservatoryPanel::menu_bar()
     {
         if (ImGui::BeginMenu("Menu"))
         {
-            if (ImGui::MenuItem("Import positions"))
+			if (ImGui::MenuItem("New Storage"))
+			{
+				add_obs_storage("untitled");
+			}
+
+            if (ImGui::MenuItem("Import Storage"))
             {
-                add_obs_storage(FileDialog::open_file("*.yaml"));
+                load_obs_storage(FileDialog::open_file("*.yaml"));
             }
 
-			bool enabled = (obs_storage[current_storage]->points.size() > 0);
 
-            if (ImGui::MenuItem("make observations", NULL, false, enabled))
+			if (ImGui::MenuItem("Save Storage"))
+			{
+				ObservationStorage *storage = obs_storage[current_storage];
+
+				string filename = FileDialog::save_file("*.yaml");
+				if (filename != "")
+				{
+					storage->save(filename);
+					storage->name = fix_storage_name(storage->name, true);
+				}
+			}
+            ImGui::Separator();
+
+			bool enabled = (obs_storage[current_storage]->points.size() > 0);
+            if (ImGui::MenuItem("Observe All Points", NULL, false, enabled))
             {
                 if (!layer->observer_target.has_component<OrbitalComponent>())
                 {
@@ -236,25 +298,6 @@ void ObservatoryPanel::menu_bar()
                 }
             }
 
-			if (ImGui::MenuItem("save to file"))
-			{
-				ObservationStorage *storage = obs_storage[current_storage];
-
-				string filename = FileDialog::save_file("*.yaml");
-
-				storage->save(filename);
-
-				for (int i = 0; i < obs_storage.size(); i++)
-				{
-					if (i == current_storage)
-						continue;
-					if (obs_storage[i]->name == storage->name)
-						storage->name = storage->name + " (c)";
-				}
-
-			}
-
-            ImGui::Separator();
             if (ImGui::MenuItem("delete all observations", NULL, false, true))
             {
 				obs_storage[current_storage]->delete_all_observations();
@@ -265,7 +308,6 @@ void ObservatoryPanel::menu_bar()
         }
         ImGui::EndMenuBar();
     }
-
 
 }
 

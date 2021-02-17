@@ -23,7 +23,6 @@ public:
 	~ObservatoryPanel();
 
 	void on_imgui_render();
-	void add_obs_storage(string filename);
 
 	double *julian_day;
 
@@ -41,8 +40,9 @@ private:
 	void menu_bar();
 	void observe_points(ObservationStorage*);
 
-
-
+	void add_obs_storage(string name);
+	void load_obs_storage(string filepath);
+	string fix_storage_name(string name, bool exclude_current = false);
 
 	int ao_size = 400;
 	vec4 ao_bg_color = vec4(0.0, 0.0, 0.0, 1.);
