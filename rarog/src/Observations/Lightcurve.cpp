@@ -121,3 +121,30 @@ void Lightcurve::save_mag(const char *filename)
 
     fclose(out);
 }
+
+
+void Lightcurve::serialize(YAML::Emitter &out)
+{
+	out << YAML::BeginMap;
+
+	out << YAML::Key << "jd" << YAML::Value << julian_day;
+
+	out.SetSeqFormat(YAML::Flow);
+	out << YAML::Key << "target_position" << YAML::BeginSeq;
+	out << YAML::Value << target_transform.position.x;
+	out << YAML::Value << target_transform.position.y;
+	out << YAML::Value << target_transform.position.z << YAML::EndSeq;
+
+	out << YAML::Key << "observer_position" << YAML::BeginSeq;
+	out << YAML::Value << observer_transform.position.x;
+	out << YAML::Value << observer_transform.position.y;
+	out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
+	out.SetSeqFormat(YAML::Block);
+
+	out << YAML::Key << "lc_num_points" << YAML::Value << size();
+
+	out << YAML::Key << "type";
+	out << YAML::BeginSeq <<  YAML::Value << "LC" << YAML::EndSeq;
+
+	out << YAML::EndMap;
+}

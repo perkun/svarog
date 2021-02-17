@@ -16,6 +16,9 @@ public:
 
     void construct_delay_doppler(float *radial_vel_buffer, float *depth_bufer,
                                  float *normal_buffer, int width, int height);
+
+	virtual void serialize(YAML::Emitter &out) override;
+
 };
 
 #endif /* RADARIMAGE_H_ */

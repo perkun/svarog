@@ -20,11 +20,13 @@ public:
 
 	Entity target, observer, ghost_target, ghost_observer;
 
+	virtual void serialize(YAML::Emitter &out);
+
 	Transform target_transform;
 	Transform observer_transform;
 	OrbitalComponent target_orbital_component;
 
-// 	double julian_day;  // not used...
+	double julian_day;  // not used...
 
 	vec4 ghost_color = vec4(1,1,1,1);
 };
@@ -35,8 +37,10 @@ class Image : public Observation
 public:
 	Image(Entity& target, Entity &observer, int width, int height);
 	~Image();
+	virtual void serialize(YAML::Emitter &out) override;
 
 	shared_ptr<Texture> texture;
+
 
 protected:
 	TextureSpec texture_specs;

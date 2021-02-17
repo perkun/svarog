@@ -19,6 +19,27 @@ Observation::~Observation()
 	ghost_target.destroy();
 }
 
+void Observation::serialize(YAML::Emitter &out)
+{
+	out << YAML::BeginMap;
+
+	out << YAML::Key << "jd" << YAML::Value << julian_day;
+
+	out << YAML::Key << "target_position" << YAML::BeginSeq;
+	out << YAML::Value << target_transform.position.x;
+	out << YAML::Value << target_transform.position.y;
+	out << YAML::Value << target_transform.position.z << YAML::EndSeq;
+
+	out << YAML::Key << "observer_position" << YAML::BeginSeq;
+	out << YAML::Value << observer_transform.position.x;
+	out << YAML::Value << observer_transform.position.y;
+	out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
+
+	out << YAML::Key << "type";
+	out << YAML::BeginSeq <<  YAML::Value << "GENERIC" << YAML::EndSeq;
+
+	out << YAML::EndMap;
+}
 
 void Observation::add_ghosts(Entity &gt, Entity &go)
 {
@@ -66,3 +87,29 @@ Image::Image(Entity &target, Entity &observer, int width, int height)
 Image::~Image()
 {
 }
+
+
+void Image::serialize(YAML::Emitter &out)
+{
+	out << YAML::BeginMap;
+
+	out << YAML::Key << "jd" << YAML::Value << julian_day;
+
+	out.SetSeqFormat(YAML::Flow);
+	out << YAML::Key << "target_position" << YAML::BeginSeq;
+	out << YAML::Value << target_transform.position.x;
+	out << YAML::Value << target_transform.position.y;
+	out << YAML::Value << target_transform.position.z << YAML::EndSeq;
+
+	out << YAML::Key << "observer_position" << YAML::BeginSeq;
+	out << YAML::Value << observer_transform.position.x;
+	out << YAML::Value << observer_transform.position.y;
+	out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
+	out.SetSeqFormat(YAML::Block);
+
+	out << YAML::Key << "type";
+	out << YAML::BeginSeq <<  YAML::Value << "IMAGE" << YAML::EndSeq;
+
+	out << YAML::EndMap;
+}
+

@@ -3,11 +3,12 @@
 #include "ObservatoryPanel.h"
 #include "Camera.h"
 
-ObservatoryPanel::ObservatoryPanel(MainLayer *l)
+ObservatoryPanel::ObservatoryPanel(MainLayer *l, double *julian_day)
 {
     layer = l;
 	ObservationStorage *obs = new ObservationStorage;
     obs_storage.push_back(obs);
+	this->julian_day = julian_day;
 }
 
 ObservatoryPanel::~ObservatoryPanel()
@@ -285,6 +286,9 @@ void ObservatoryPanel::observe_points(ObservationStorage* obs)
         layer->scene.observer.get_component<Transform>().position;
     vec3 tmp_observer_pos = observer_pos;
 
+	int tmp_ao_size = ao_size;
+	int tmp_lc_num_points = lc_num_points;
+
 
     for (YamlPoint p : obs->points)
     {
@@ -294,18 +298,32 @@ void ObservatoryPanel::observe_points(ObservationStorage* obs)
         target_pos = p.target;
         observer_pos = p.observer;
 
-        make_lightcurve(layer->observer_target, layer->scene.observer,
-                        obs->lightcurves);
+		if (p.obs_types & ObsType::LC)
+		{
+			lc_num_points = p.lc_num_points;
+			make_lightcurve(layer->observer_target, layer->scene.observer,
+							obs->lightcurves);
+		}
 
-        make_ao_image(layer->observer_target, layer->scene.observer,
-                      obs->ao_images);
+		if (p.obs_types & ObsType::AO)
+		{
+			ao_size = p.ao_size;
+			make_ao_image(layer->observer_target, layer->scene.observer,
+						  obs->ao_images);
+		}
 
-        make_radar_image(layer->observer_target, layer->scene.observer,
-                         obs->radar_images);
+		if (p.obs_types & ObsType::RADAR)
+		{
+			make_radar_image(layer->observer_target, layer->scene.observer,
+							 obs->radar_images);
+		}
     }
     target_pos = tmp_target_pos;
     observer_pos = tmp_observer_pos;
     target_rotation = tmp_rotation;
+
+	ao_size = tmp_ao_size;
+	lc_num_points = tmp_lc_num_points;
 }
 
 
@@ -448,6 +466,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer,
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
     lc->add_ghosts(ghost_observer, ghost_target);
+	lc->julian_day = *julian_day;
 
 
     lightcurves->push(lc);
@@ -506,12 +525,13 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
     glReadPixels(0, 0, ao_width, ao_height, GL_GREEN, GL_FLOAT, pixel_buffer_g);
     glReadPixels(0, 0, ao_width, ao_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
 
-    Image *ao = new Image(target, observer, ao_width, ao_height);
+    AoImage *ao = new AoImage(target, observer, ao_width, ao_height);
     ao->texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
 
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
     ao->add_ghosts(ghost_observer, ghost_target);
+	ao->julian_day = *julian_day;
 
     ao_images->push(ao);
     ao_images->detach_all_ghosts();
@@ -589,6 +609,7 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
     rimg->add_ghosts(ghost_observer, ghost_target);
+	rimg->julian_day = *julian_day;
 
     radar_images->push(rimg);
     radar_images->detach_all_ghosts();

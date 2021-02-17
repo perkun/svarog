@@ -13,6 +13,8 @@ public:
 		return fluxes[i];
 	}
 
+	virtual void serialize(YAML::Emitter &out) override;
+
 	void shift_fluxes(float val);
 	void make_average_zero();
 	void make_average_zero(vector<float> &data);

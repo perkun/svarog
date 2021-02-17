@@ -12,7 +12,7 @@ class SceneHierarchyPanel
 {
 public:
     SceneHierarchyPanel() = default;
-    SceneHierarchyPanel(Scene*);
+    SceneHierarchyPanel(Scene*, double*);
 	~SceneHierarchyPanel();
 
 	void on_imgui_render();
@@ -26,6 +26,7 @@ private:
 	void list_component(Entity&, const char*, const char*, OnRemoveFunction);
 
 	Scene *scene;
+	double *julian_day;
 
 	char buff[256];
 	char u_name[50];

@@ -167,7 +167,6 @@ void MainLayer::on_attach()
         EditorCamera(radians(45.), window->width / (float)window->height, 0.01,
                      500.0, vec3(6.3, -3., 5.12));
 
-    scene_hierarchy_panel = SceneHierarchyPanel(&scene);
 
     ms_framebuffer =
         new Framebuffer(window->width, window->height,
@@ -176,7 +175,9 @@ void MainLayer::on_attach()
     framebuffer = new Framebuffer(window->width, window->height,
                                   COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 
-    observatory_panel = new ObservatoryPanel(this);
+	time_panel = TimePanel(&scene);
+    scene_hierarchy_panel = SceneHierarchyPanel(&scene, &time_panel.julian_day);
+    observatory_panel = new ObservatoryPanel(this, &time_panel.julian_day);
 	observe_panel = ObservePanel(this);
 }
 
@@ -328,6 +329,7 @@ void MainLayer::on_imgui_render()
     if (show_imgui_demo)
         ImGui::ShowDemoWindow();
 
+	time_panel.on_imgui_render();
     scene_hierarchy_panel.on_imgui_render();
 	observe_panel.on_imgui_render();
     observatory_panel->on_imgui_render();
@@ -403,10 +405,6 @@ void MainLayer::menu_bar()
             // 				scene_serializer.deserialize(filename);
             // 				cout << "loading scene" << endl;
             // 			}
-			if (ImGui::MenuItem("Import positions"))
-			{
-				observatory_panel->add_obs_storage(FileDialog::open_file("*.yaml"));
-			}
 
             ImGui::Separator();
 

@@ -6,10 +6,18 @@
 
 using namespace std;
 
+enum ObsType {
+	LC = 0b1,
+	AO = 0b10,
+	RADAR = 0b100
+};
+
 struct YamlPoint
 {
 	double jd;
 	vec3 observer, target;
+	char obs_types = 0b0;
+	int lc_num_points = 360, ao_size = 400;
 };
 
 class ObservationStorage

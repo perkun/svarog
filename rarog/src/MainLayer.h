@@ -10,6 +10,7 @@
 #include "Framebuffer.h"
 #include "ObservatoryPanel.h"
 #include "ObservePanel.h"
+#include "TimePanel.h"
 // #include "Svarog.h"
 
 
@@ -80,6 +81,8 @@ private:
 	SceneHierarchyPanel scene_hierarchy_panel;
 	ObservatoryPanel *observatory_panel;
 	ObservePanel observe_panel;
+	TimePanel time_panel;
+
 
 // 	double fps;
 // 	double fps_history[100];

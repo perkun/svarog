@@ -6,9 +6,10 @@
 #include "AsteroidController.h"
 #include <glm/gtc/type_ptr.hpp>
 
-SceneHierarchyPanel::SceneHierarchyPanel(Scene *s)
+SceneHierarchyPanel::SceneHierarchyPanel(Scene *s, double *julian_day)
 {
 	scene = s;
+	this->julian_day = julian_day;
 }
 
 
@@ -332,9 +333,6 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 
 		if (entity.has_component<OrbitalComponent>())
 		{
-			static double julian_day = Time::julian_day_now();
-			static Time::CalendarDate date = Time::jd_to_date(Time::julian_day_now());
-
 			for (int i = 0; i < 5; i++)
 				ImGui::Spacing();
 
@@ -354,7 +352,8 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 
 			if (ImGui::InputDouble("P [h]", &oc.rot_period))
 			{
-				oc.calculate_rot_phase(julian_day);
+				// 	TODO  zrobić coś z tym!
+				oc.calculate_rot_phase(*julian_day);
 				t.rotation = oc.xyz_from_lbg();
 			}
 
@@ -375,83 +374,11 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 				t.rotation = oc.xyz_from_lbg();
 			}
 
-			for (int i = 0; i < 5; i++)
-				ImGui::Spacing();
-
-			if (ImGui::Button("Reset"))
+			if (ImGui::InputDouble("Rot. Epoch", &oc.jd_0))
 			{
-				oc.calculate_rot_phase(julian_day);
+				oc.calculate_rot_phase(*julian_day);
 				t.rotation = oc.xyz_from_lbg();
 			}
-
-
-			// set JD
-			ImGui::SetNextItemWidth(150);
-			if (ImGui::InputDouble("JD", &julian_day))
-			{
-				oc.calculate_rot_phase(julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			ImGui::SetNextItemWidth(150);
-			if (ImGui::InputInt("Year", &date.year))
-			{
-				date.normalize();
-				julian_day = Time::julian_day(date);
-				oc.calculate_rot_phase(julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			ImGui::SetNextItemWidth(150);
-			if (ImGui::InputInt("Month", &date.month))
-			{
-				date.normalize();
-				julian_day = Time::julian_day(date);
-				oc.calculate_rot_phase(julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			ImGui::SetNextItemWidth(150);
-			if (ImGui::InputInt("Day", &date.day))
-			{
-				date.normalize();
-				julian_day = Time::julian_day(date);
-				oc.calculate_rot_phase(julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			ImGui::SetNextItemWidth(150);
-			if (ImGui::InputInt("Hour", &date.hour))
-			{
-				date.normalize();
-				julian_day = Time::julian_day(date);
-				oc.calculate_rot_phase(julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			ImGui::SetNextItemWidth(150);
-			if (ImGui::InputInt("Min.", &date.minute))
-			{
-				date.normalize();
-				julian_day = Time::julian_day(date);
-				oc.calculate_rot_phase(julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			ImGui::SetNextItemWidth(150);
-			if (ImGui::InputFloat("Sec.", &date.second))
-			{
-				date.normalize();
-				julian_day = Time::julian_day(date);
-				oc.calculate_rot_phase(julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-// 			if (ImGui::Button("Reset"))
-// 			{
-// 				oc.calculate_rot_phase(julian_day);
-// 				t.rotation = oc.xyz_from_lbg();
-// 			}
 		}
 	}
 

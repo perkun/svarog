@@ -32,6 +32,7 @@ class Scene
 	friend class SceneLayer;
 	friend class SceneSerializer;
 	friend class SceneHierarchyPanel;
+	friend class TimePanel;
 public:
     Scene();
 	~Scene();

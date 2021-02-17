@@ -6,7 +6,7 @@
 #include "Observation.h"
 #include "ObservationSeries.h"
 #include "ObservationStorage.h"
-// #include "AoImage.h"
+#include "AoImage.h"
 #include "RadarImage.h"
 #include "Texture.h"
 #include "Utils/File.h"
@@ -19,11 +19,13 @@ class ObservatoryPanel
 {
 public:
     ObservatoryPanel() = default;
-	ObservatoryPanel(MainLayer*);
+	ObservatoryPanel(MainLayer*, double*);
 	~ObservatoryPanel();
 
 	void on_imgui_render();
 	void add_obs_storage(string filename);
+
+	double *julian_day;
 
 private:
 	MainLayer *layer;

@@ -70,12 +70,12 @@ unsigned int Texture::get_texture_id()
 
 vec2 Texture::get_dimentions()
 {
-	return vec2(width, height);
+	return vec2(specs.width, specs.height);
 }
 
 long Texture::get_size()
 {
-	return width * height;
+	return specs.width * specs.height;
 }
 
 

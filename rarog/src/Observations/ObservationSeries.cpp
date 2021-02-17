@@ -1,6 +1,10 @@
 #include "svpch.h"
 #include "ObservationSeries.h"
 
+void ObservationSeries::serialize(YAML::Emitter &out)
+{
+}
+
 
 ObservationSeries::~ObservationSeries()
 {
@@ -105,6 +109,16 @@ void LightcurveSeries::save_current_flux(const char *filename)
 }
 
 
+void LightcurveSeries::serialize(YAML::Emitter &out)
+{
+	for (int i = 0; i < observations.size(); i++)
+		static_cast<Lightcurve*>(observations[i])->serialize(out);
+}
+
+
+
+
+
 void ImageSeries::save(const char *filename)
 {
 	string base =  File::remove_extension(filename);
@@ -133,5 +147,9 @@ void ImageSeries::save_all(const char *filename)
 }
 
 
-
+void ImageSeries::serialize(YAML::Emitter &out)
+{
+	for (int i = 0; i < observations.size(); i++)
+		static_cast<Image*>(observations[i])->serialize(out);
+}
 

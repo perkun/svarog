@@ -24,6 +24,8 @@ public:
 
 	int size();
 
+	virtual void serialize(YAML::Emitter &out);
+
 protected:
 	vector<Observation*> observations;
 
@@ -40,9 +42,11 @@ public:
 	void save_current_mag(const char *filename);
 	void save_current_flux(const char *filename);
 	void push(Lightcurve*);
+	virtual void serialize(YAML::Emitter &out) override;
 
 	float lcs_min = 1e38;
 	float lcs_max = -1e38;
+
 
 private:
 
@@ -57,7 +61,7 @@ public:
 
 	void save(const char *filename);
 	void save_all(const char *filename);
-
+	virtual void serialize(YAML::Emitter &out) override;
 
 };
 

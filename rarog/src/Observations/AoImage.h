@@ -11,8 +11,10 @@ class AoImage : public Observation
 public:
 	AoImage(Entity &target, Entity &observer, int width, int height);
 	~AoImage();
+	virtual void serialize(YAML::Emitter &out) override;
 
 	shared_ptr<Texture> texture;
+
 private:
 
 };
