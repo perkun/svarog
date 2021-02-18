@@ -79,9 +79,11 @@ private:
 	bool multisampling = true;
 
 	SceneHierarchyPanel scene_hierarchy_panel;
-	ObservatoryPanel *observatory_panel;
+	ObservatoryPanel observatory_panel;
 	ObservePanel observe_panel;
 	TimePanel time_panel;
+
+	ObservationStorage obs_storage;
 
 
 // 	double fps;

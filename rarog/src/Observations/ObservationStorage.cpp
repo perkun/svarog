@@ -292,5 +292,4 @@ void ObservationStorage::delete_current()
 		if (current_id < 0)
 			current_id = 0;
 	}
-
 }

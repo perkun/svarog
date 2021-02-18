@@ -175,10 +175,10 @@ void MainLayer::on_attach()
     framebuffer = new Framebuffer(window->width, window->height,
                                   COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
 
-	time_panel = TimePanel(&scene);
+    time_panel = TimePanel(&scene);
     scene_hierarchy_panel = SceneHierarchyPanel(&scene, &time_panel.julian_day);
-    observatory_panel = new ObservatoryPanel(this, &time_panel.julian_day);
-	observe_panel = ObservePanel(this);
+    observatory_panel = ObservatoryPanel(this, &time_panel.julian_day, &obs_storage);
+    observe_panel = ObservePanel(this);
 }
 
 void MainLayer::on_event(Event &e)
@@ -332,14 +332,13 @@ void MainLayer::on_imgui_render()
 	time_panel.on_imgui_render();
     scene_hierarchy_panel.on_imgui_render();
 	observe_panel.on_imgui_render();
-    observatory_panel->on_imgui_render();
+    observatory_panel.on_imgui_render();
 }
 
 void MainLayer::on_detach()
 {
     delete ms_framebuffer;
     delete framebuffer;
-	delete observatory_panel;
 }
 
 void MainLayer::toggle_mode()
@@ -458,7 +457,53 @@ void MainLayer::menu_bar()
 
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Observations"))
+        {
+            if (ImGui::MenuItem("New Storage"))
+            {
+                obs_storage.add_new("untitled");
+            }
 
+            if (ImGui::MenuItem("Import Storage"))
+            {
+                observatory_panel.load_obs_storage(FileDialog::open_file("*.yaml"));
+            }
+
+
+            if (ImGui::MenuItem("Save Storage"))
+            {
+                string filename = FileDialog::save_file("*.yaml");
+                if (filename != "")
+                {
+                    obs_storage.save(filename);
+                }
+            }
+            ImGui::Separator();
+
+            bool enabled = (obs_storage.get_current_points_size() > 0);
+            if (ImGui::MenuItem("Observe All Points", NULL, false, enabled))
+            {
+                if (!observer_target.has_component<OrbitalComponent>())
+                {
+                    cout << "Target does not have an Orbital Component" << endl;
+                }
+                else
+                {
+                    observatory_panel.observe_points();
+                }
+            }
+
+            if (ImGui::MenuItem("Delete Observations", NULL, false, true))
+            {
+                obs_storage.delete_current_observations();
+            }
+
+            if (ImGui::MenuItem("Delete Storage", NULL, false, true))
+            {
+                obs_storage.delete_current();
+            }
+            ImGui::EndMenu();
+        }
 
         ImGui::EndMainMenuBar();
     }

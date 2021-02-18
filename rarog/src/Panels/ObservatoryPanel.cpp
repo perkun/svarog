@@ -3,16 +3,16 @@
 #include "ObservatoryPanel.h"
 #include "Camera.h"
 
-ObservatoryPanel::ObservatoryPanel(MainLayer *l, double *julian_day)
+ObservatoryPanel::ObservatoryPanel(MainLayer *l, double *julian_day,
+		ObservationStorage *obs)
 {
     layer = l;
-    obs_storage = new ObservationStorage;
+    obs_storage = obs;
     this->julian_day = julian_day;
 }
 
 ObservatoryPanel::~ObservatoryPanel()
 {
-    delete obs_storage;
 }
 
 
@@ -183,77 +183,12 @@ void ObservatoryPanel::observations_panel()
 void ObservatoryPanel::on_imgui_render()
 {
     ImGui::Begin("Observatory");
-
-    ImGui::BeginChild("Observations panel",
-                      ImVec2(ImGui::GetWindowContentRegionWidth(), 900), false,
-                      ImGuiWindowFlags_MenuBar);
-
-    menu_bar();
     observations_panel();
-    ImGui::EndChild();
     ImGui::End();
 }
 
 
-void ObservatoryPanel::menu_bar()
-{
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::BeginMenu("Menu"))
-        {
-            if (ImGui::MenuItem("New Storage"))
-            {
-                obs_storage->add_new("untitled");
-            }
-
-            if (ImGui::MenuItem("Import Storage"))
-            {
-                load_obs_storage(FileDialog::open_file("*.yaml"));
-            }
-
-
-            if (ImGui::MenuItem("Save Storage"))
-            {
-                string filename = FileDialog::save_file("*.yaml");
-                if (filename != "")
-                {
-                    obs_storage->save(filename);
-                }
-            }
-            ImGui::Separator();
-
-            bool enabled = (obs_storage->get_current_points_size() > 0);
-            if (ImGui::MenuItem("Observe All Points", NULL, false, enabled))
-            {
-                if (!layer->observer_target.has_component<OrbitalComponent>())
-                {
-                    cout << "Target does not have an Orbital Component" << endl;
-                }
-                else
-                {
-                    observe_points(obs_storage);
-                }
-            }
-
-            if (ImGui::MenuItem("Delete Observations", NULL, false, true))
-            {
-                obs_storage->delete_current_observations();
-            }
-
-            if (ImGui::MenuItem("Delete Storage", NULL, false, true))
-            {
-                obs_storage->delete_current();
-            }
-
-
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-    }
-}
-
-
-void ObservatoryPanel::observe_points(ObservationStorage *obs)
+void ObservatoryPanel::observe_points()
 {
     OrbitalComponent &oc =
         layer->observer_target.get_component<OrbitalComponent>();
@@ -273,7 +208,7 @@ void ObservatoryPanel::observe_points(ObservationStorage *obs)
     int tmp_lc_num_points = lc_num_points;
 
 
-    for (YamlPoint p : obs->get_current_points())
+    for (YamlPoint p : obs_storage->get_current_points())
     {
         oc.calculate_rot_phase(p.jd);
         target_rotation = oc.xyz_from_lbg();
@@ -285,20 +220,20 @@ void ObservatoryPanel::observe_points(ObservationStorage *obs)
         {
             lc_num_points = p.lc_num_points;
             make_lightcurve(layer->observer_target, layer->scene.observer,
-                            obs->get_current_lightcurves());
+                            obs_storage->get_current_lightcurves());
         }
 
         if (p.obs_types & ObsType::AO)
         {
             ao_size = p.ao_size;
             make_ao_image(layer->observer_target, layer->scene.observer,
-                          obs->get_current_ao_images());
+                          obs_storage->get_current_ao_images());
         }
 
         if (p.obs_types & ObsType::RADAR)
         {
             make_radar_image(layer->observer_target, layer->scene.observer,
-                             obs->get_current_radar_images());
+                             obs_storage->get_current_radar_images());
         }
     }
     target_pos = tmp_target_pos;

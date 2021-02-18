@@ -48,7 +48,6 @@ public:
 	void delete_current_observations();
 
 	void add_new(string name);
-	string fix_storage_name(string name, bool exclude_current = false);
 
 	vector<YamlPoint> get_current_points();
 	int get_current_points_size();
@@ -66,7 +65,7 @@ public:
 
 private:
 	vector<ObsPack> obs_packs;
-
+	string fix_storage_name(string name, bool exclude_current = false);
 };
 
 #endif /* OBSERVATIONSTORE_H_ */
