@@ -12,6 +12,7 @@ enum ObsType {
 	RADAR = 0b100
 };
 
+
 struct YamlPoint
 {
 	double jd;
@@ -19,6 +20,20 @@ struct YamlPoint
 	char obs_types = 0b0;
 	int lc_num_points = 360, ao_size = 400;
 };
+
+struct ObsPack
+{
+	vector<YamlPoint> points;
+
+	string filename = "untitled.yaml";
+	string name = "untitled";
+	bool file_loaded = false;
+
+	LightcurveSeries* lightcurves;
+	ImageSeries* ao_images;
+	ImageSeries* radar_images;
+};
+
 
 class ObservationStorage
 {
@@ -28,19 +43,29 @@ public:
 
 	void save(const string filepath);
 	bool load(string filename);
-	void detach_all_ghosts();
 
-	void delete_all_observations();
+	void detach_current_ghosts();
+	void delete_current_observations();
 
-	string filename = "untitled.yaml";
-	string name = "untitled";
+	void add_new(string name);
+	string fix_storage_name(string name, bool exclude_current = false);
 
-	LightcurveSeries *lightcurves;
-	ImageSeries *ao_images;
-	ImageSeries *radar_images;
+	vector<YamlPoint> get_current_points();
+	int get_current_points_size();
+	string get_current_name();
+	string get_name(int id);
 
-	vector<YamlPoint> points;
-	bool file_loaded = false;
+	void delete_current();
+
+	LightcurveSeries* get_current_lightcurves();
+	ImageSeries* get_current_ao_images();
+	ImageSeries* get_current_radar_images();
+
+	int size() { return obs_packs.size(); }
+	int current_id = 0;
+
+private:
+	vector<ObsPack> obs_packs;
 
 };
 

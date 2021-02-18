@@ -6,113 +6,54 @@
 ObservatoryPanel::ObservatoryPanel(MainLayer *l, double *julian_day)
 {
     layer = l;
-	ObservationStorage *obs = new ObservationStorage;
-    obs_storage.push_back(obs);
-	this->julian_day = julian_day;
+    obs_storage = new ObservationStorage;
+    this->julian_day = julian_day;
 }
 
 ObservatoryPanel::~ObservatoryPanel()
 {
-	for (int i = 0; i < obs_storage.size(); i++)
-	{
-		delete obs_storage[i];
-	}
+    delete obs_storage;
 }
-
-
 
 
 void ObservatoryPanel::load_obs_storage(string filepath)
 {
-	if (filepath == "")
-		return;
+    if (filepath == "")
+        return;
 
-    ObservationStorage *storage = new ObservationStorage;
-    if (storage->load(filepath))
+    if (obs_storage->load(filepath))
     {
-		storage->name = fix_storage_name(storage->name);
-
-        obs_storage[current_storage]->detach_all_ghosts();
-        obs_storage.emplace_back(storage);
-        current_storage = obs_storage.size() - 1;
-		set_current_ghosts(obs_storage[current_storage]);
+        set_current_ghosts(obs_storage);
     }
     else
         cout << "Adding Storage Failed" << endl;
 }
 
 
-void ObservatoryPanel::add_obs_storage(string name)
-{
-    ObservationStorage *storage = new ObservationStorage;
-	storage->name = fix_storage_name(name);
-
-    obs_storage[current_storage]->detach_all_ghosts();
-    obs_storage.emplace_back(storage);
-    current_storage = obs_storage.size() - 1;
-    set_current_ghosts(obs_storage[current_storage]);
-}
-
-string ObservatoryPanel::fix_storage_name(string name, bool exclude_current)
-{
-//     regex rgx("([^\(\)]+) \(([0-9]+)\)");
-    smatch matches;
-	char buff[50];
-	sprintf(buff, "(%s) ?\\(?([0-9]*)\\)?", name.c_str());
-// 	regex rgx("([a-zA-Z0-9]+) ?\\(?([0-9]*)\\)?");
-    for (int i = 0; i < obs_storage.size(); i++)
-    {
-		if (exclude_current)
-			if (i == current_storage)
-				continue;
-
-        if (regex_search(obs_storage[i]->name, matches, regex(buff)) )
-		{
-			if (matches[2].str() == "")
-				name = name + " (1)";
-			else
-			{
-				stringstream ss;
-				ss << matches[1] << " (" << stoi(matches[2].str()) +1 << ")";
-				name = ss.str();
-			}
-
-		}
-    }
-
-    // 		if (obs_storage[i]->name == name)
-    // 			name = name + " (c)";
-
-    return name;
-}
-
-
 void ObservatoryPanel::set_current_ghosts(ObservationStorage *obs)
 {
     // lc
-    if (obs->lightcurves->get_current_obs())
+    Observation *current_obs =
+        obs->get_current_lightcurves()->get_current_obs();
+    if (current_obs)
     {
-        layer->ui_scene.root_entity.add_child(
-            obs->lightcurves->get_current_obs()->ghost_target);
-        layer->ui_scene.root_entity.add_child(
-            obs->lightcurves->get_current_obs()->ghost_observer);
+        layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+        layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
     }
 
     // ao
-    if (obs->ao_images->get_current_obs())
+    current_obs = obs->get_current_ao_images()->get_current_obs();
+    if (current_obs)
     {
-        layer->ui_scene.root_entity.add_child(
-            obs->ao_images->get_current_obs()->ghost_target);
-        layer->ui_scene.root_entity.add_child(
-            obs->ao_images->get_current_obs()->ghost_observer);
+        layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+        layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
     }
     // radar
-    if (obs->radar_images->get_current_obs())
+    current_obs = obs->get_current_radar_images()->get_current_obs();
+    if (current_obs)
     {
-        layer->ui_scene.root_entity.add_child(
-            obs->radar_images->get_current_obs()->ghost_target);
-        layer->ui_scene.root_entity.add_child(
-            obs->radar_images->get_current_obs()->ghost_observer);
+        layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+        layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
     }
 }
 
@@ -139,24 +80,23 @@ void ObservatoryPanel::set_target_and_observer(Observation *obs)
 
 void ObservatoryPanel::observations_panel()
 {
-
     for (int i = 0; i < 5; i++)
         ImGui::Spacing();
 
-	ImGui::Text("Storage:");
-	ImGui::SameLine();
+    ImGui::Text("Storage:");
+    ImGui::SameLine();
     ImGui::PushItemWidth(150.);
-    if (ImGui::BeginCombo("##Storage",
-                          obs_storage[current_storage]->name.c_str()))
+    if (ImGui::BeginCombo("##Storage", obs_storage->get_current_name().c_str()))
     {
-        for (int i = 0; i < obs_storage.size(); i++)
+        for (int i = 0; i < obs_storage->size(); i++)
         {
-            const bool is_selected = (current_storage == i);
-            if (ImGui::Selectable(obs_storage[i]->name.c_str(), is_selected))
+            const bool is_selected = (obs_storage->current_id == i);
+            if (ImGui::Selectable(obs_storage->get_name(i).c_str(),
+                                  is_selected))
             {
-                obs_storage[current_storage]->detach_all_ghosts();
-                current_storage = i;
-                set_current_ghosts(obs_storage[current_storage]);
+                obs_storage->detach_current_ghosts();
+                obs_storage->current_id = i;
+                set_current_ghosts(obs_storage);
             }
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
@@ -164,18 +104,18 @@ void ObservatoryPanel::observations_panel()
         ImGui::EndCombo();
     }
 
-	if (obs_storage[current_storage]->file_loaded)
-	{
-		ImGui::Text("%d points defined in file.",
-					(int)obs_storage[current_storage]->points.size());
-
-	}
+    if (obs_storage->get_current_points_size() > 0)
+    {
+        ImGui::Text("%d points defined in file.",
+                    (int)obs_storage->get_current_points_size());
+        //
+    }
 
     for (int i = 0; i < 5; i++)
         ImGui::Spacing();
 
     ImGuiTabBarFlags tab_bar_flags =
-        ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll;
+		ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll;
 
     if (ImGui::BeginTabBar("Observations", tab_bar_flags))
     {
@@ -184,23 +124,23 @@ void ObservatoryPanel::observations_panel()
             // observations buttons
             if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
                 make_lightcurve(layer->observer_target, layer->scene.observer,
-                                obs_storage[current_storage]->lightcurves);
+                                obs_storage->get_current_lightcurves());
             ImGui::SameLine(0., 20.);
             ImGui::PushItemWidth(100.);
             ImGui::InputInt("LC num points", &lc_num_points);
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_lightcurves(obs_storage[current_storage]->lightcurves);
+            display_lightcurves(obs_storage->get_current_lightcurves());
 
             ImGui::EndTabItem();
         }
 
-        if (ImGui::BeginTabItem("AO images"))
+        if (ImGui::BeginTabItem("AO Images"))
         {
             if (ImGui::Button("Make AO image", ImVec2(150, 0)))
                 make_ao_image(layer->observer_target, layer->scene.observer,
-                              obs_storage[current_storage]->ao_images);
+                              obs_storage->get_current_ao_images());
             ImGui::SameLine(0.0, 20.0);
             ImGui::PushItemWidth(100.);
             ImGui::InputInt("AO size [px]", &ao_size, 1, 100);
@@ -215,23 +155,23 @@ void ObservatoryPanel::observations_panel()
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_images(obs_storage[current_storage]->ao_images);
+            display_images(obs_storage->get_current_ao_images());
 
             ImGui::EndTabItem();
         }
 
-        if (ImGui::BeginTabItem("Radar images"))
+        if (ImGui::BeginTabItem("Radar Images"))
         {
             if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
                 make_radar_image(layer->observer_target, layer->scene.observer,
-                                 obs_storage[current_storage]->radar_images);
+                                 obs_storage->get_current_radar_images());
 
             ImGui::InputFloat("ang. speed", &angular_speed);
 
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_images(obs_storage[current_storage]->radar_images);
+            display_images(obs_storage->get_current_radar_images());
 
             ImGui::EndTabItem();
         }
@@ -242,13 +182,13 @@ void ObservatoryPanel::observations_panel()
 
 void ObservatoryPanel::on_imgui_render()
 {
-	ImGui::Begin("Observatory");
+    ImGui::Begin("Observatory");
 
     ImGui::BeginChild("Observations panel",
-                      ImVec2(ImGui::GetWindowContentRegionWidth(), 900),
-                      false, ImGuiWindowFlags_MenuBar);
+                      ImVec2(ImGui::GetWindowContentRegionWidth(), 900), false,
+                      ImGuiWindowFlags_MenuBar);
 
-	menu_bar();
+    menu_bar();
     observations_panel();
     ImGui::EndChild();
     ImGui::End();
@@ -261,10 +201,10 @@ void ObservatoryPanel::menu_bar()
     {
         if (ImGui::BeginMenu("Menu"))
         {
-			if (ImGui::MenuItem("New Storage"))
-			{
-				add_obs_storage("untitled");
-			}
+            if (ImGui::MenuItem("New Storage"))
+            {
+                obs_storage->add_new("untitled");
+            }
 
             if (ImGui::MenuItem("Import Storage"))
             {
@@ -272,20 +212,17 @@ void ObservatoryPanel::menu_bar()
             }
 
 
-			if (ImGui::MenuItem("Save Storage"))
-			{
-				ObservationStorage *storage = obs_storage[current_storage];
-
-				string filename = FileDialog::save_file("*.yaml");
-				if (filename != "")
-				{
-					storage->save(filename);
-					storage->name = fix_storage_name(storage->name, true);
-				}
-			}
+            if (ImGui::MenuItem("Save Storage"))
+            {
+                string filename = FileDialog::save_file("*.yaml");
+                if (filename != "")
+                {
+                    obs_storage->save(filename);
+                }
+            }
             ImGui::Separator();
 
-			bool enabled = (obs_storage[current_storage]->points.size() > 0);
+            bool enabled = (obs_storage->get_current_points_size() > 0);
             if (ImGui::MenuItem("Observe All Points", NULL, false, enabled))
             {
                 if (!layer->observer_target.has_component<OrbitalComponent>())
@@ -294,13 +231,18 @@ void ObservatoryPanel::menu_bar()
                 }
                 else
                 {
-					observe_points(obs_storage[current_storage]);
+                    observe_points(obs_storage);
                 }
             }
 
-            if (ImGui::MenuItem("delete all observations", NULL, false, true))
+            if (ImGui::MenuItem("Delete Observations", NULL, false, true))
             {
-				obs_storage[current_storage]->delete_all_observations();
+                obs_storage->delete_current_observations();
+            }
+
+            if (ImGui::MenuItem("Delete Storage", NULL, false, true))
+            {
+                obs_storage->delete_current();
             }
 
 
@@ -308,11 +250,10 @@ void ObservatoryPanel::menu_bar()
         }
         ImGui::EndMenuBar();
     }
-
 }
 
 
-void ObservatoryPanel::observe_points(ObservationStorage* obs)
+void ObservatoryPanel::observe_points(ObservationStorage *obs)
 {
     OrbitalComponent &oc =
         layer->observer_target.get_component<OrbitalComponent>();
@@ -328,11 +269,11 @@ void ObservatoryPanel::observe_points(ObservationStorage* obs)
         layer->scene.observer.get_component<Transform>().position;
     vec3 tmp_observer_pos = observer_pos;
 
-	int tmp_ao_size = ao_size;
-	int tmp_lc_num_points = lc_num_points;
+    int tmp_ao_size = ao_size;
+    int tmp_lc_num_points = lc_num_points;
 
 
-    for (YamlPoint p : obs->points)
+    for (YamlPoint p : obs->get_current_points())
     {
         oc.calculate_rot_phase(p.jd);
         target_rotation = oc.xyz_from_lbg();
@@ -340,32 +281,32 @@ void ObservatoryPanel::observe_points(ObservationStorage* obs)
         target_pos = p.target;
         observer_pos = p.observer;
 
-		if (p.obs_types & ObsType::LC)
-		{
-			lc_num_points = p.lc_num_points;
-			make_lightcurve(layer->observer_target, layer->scene.observer,
-							obs->lightcurves);
-		}
+        if (p.obs_types & ObsType::LC)
+        {
+            lc_num_points = p.lc_num_points;
+            make_lightcurve(layer->observer_target, layer->scene.observer,
+                            obs->get_current_lightcurves());
+        }
 
-		if (p.obs_types & ObsType::AO)
-		{
-			ao_size = p.ao_size;
-			make_ao_image(layer->observer_target, layer->scene.observer,
-						  obs->ao_images);
-		}
+        if (p.obs_types & ObsType::AO)
+        {
+            ao_size = p.ao_size;
+            make_ao_image(layer->observer_target, layer->scene.observer,
+                          obs->get_current_ao_images());
+        }
 
-		if (p.obs_types & ObsType::RADAR)
-		{
-			make_radar_image(layer->observer_target, layer->scene.observer,
-							 obs->radar_images);
-		}
+        if (p.obs_types & ObsType::RADAR)
+        {
+            make_radar_image(layer->observer_target, layer->scene.observer,
+                             obs->get_current_radar_images());
+        }
     }
     target_pos = tmp_target_pos;
     observer_pos = tmp_observer_pos;
     target_rotation = tmp_rotation;
 
-	ao_size = tmp_ao_size;
-	lc_num_points = tmp_lc_num_points;
+    ao_size = tmp_ao_size;
+    lc_num_points = tmp_lc_num_points;
 }
 
 
@@ -423,8 +364,8 @@ void ObservatoryPanel::display_images(ImageSeries *images)
         return;
 
     Observation *current_obs = images->get_current_obs();
-	if (!current_obs)
-		cout << "IMG not valid!!!" << endl;
+    if (!current_obs)
+        cout << "IMG not valid!!!" << endl;
 
     ImGui::PushItemWidth(100.);
     if (ImGui::InputInt("Nr", &images->current_id, 1))
@@ -508,7 +449,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer,
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
     lc->add_ghosts(ghost_observer, ghost_target);
-	lc->julian_day = *julian_day;
+    lc->julian_day = *julian_day;
 
 
     lightcurves->push(lc);
@@ -573,7 +514,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
     ao->add_ghosts(ghost_observer, ghost_target);
-	ao->julian_day = *julian_day;
+    ao->julian_day = *julian_day;
 
     ao_images->push(ao);
     ao_images->detach_all_ghosts();
@@ -651,7 +592,7 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
     rimg->add_ghosts(ghost_observer, ghost_target);
-	rimg->julian_day = *julian_day;
+    rimg->julian_day = *julian_day;
 
     radar_images->push(rimg);
     radar_images->detach_all_ghosts();
