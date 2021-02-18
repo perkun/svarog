@@ -55,7 +55,7 @@ private:
 	void load_model(vec3 init_model_pos);
 
 
-	Entity light, model;
+	Entity model;
 	Entity observer_target;
 
 

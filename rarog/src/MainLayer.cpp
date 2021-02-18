@@ -13,6 +13,7 @@
 #include "ObservatoryPanel.h"
 #include "Utils/ObjHeader.h"
 #include "Utils/Time.h"
+#include "SceneSerializer.h"
 #include <glm/gtc/type_ptr.hpp>
 
 MainLayer::MainLayer(Args args)
@@ -36,33 +37,20 @@ void MainLayer::load_model(vec3 init_model_pos)
     Transform &mt = model.get_component<Transform>();
     mt.position = init_model_pos;
 
-	OrbitalComponent &oc = model.add_component<OrbitalComponent>();
-    oc.rotation_speed = 2 * M_PI / 10.;
-	mt.rotation = oc.xyz_from_lbg();
-
     if (args["model"])
     {
         string filename = args.get_value<string>("model");
 
         if (File::is_extension(filename, "obj"))
         {
-            model.add_component<MeshComponent>(make_shared<VertexArrayObject>(
-                IndexedModelObj(filename, NormalIndexing::PER_FACE)));
-
-            ObjHeader header(filename);
-
-            oc.lambda = header.get_item<float>("lambda") * M_PI / 180.;
-            oc.beta = header.get_item<float>("beta") * M_PI / 180.;
-            oc.gamma = header.get_item<float>("gamma") * M_PI / 180.;
-			oc.jd_0 = header.get_item<double>("jd_gamma0");
-			oc.rot_period = header.get_item<double>("period[h]") ;
-
-			oc.calculate_rot_phase(Time::julian_day_now());
+			MeshComponent &mc = model.add_component<MeshComponent>(filename);
+			OrbitalComponent &oc = model.add_component<OrbitalComponent>(mc.header);
 			mt.rotation = oc.xyz_from_lbg();
 		}
         else if (File::is_extension(filename, "shp"))
-            model.add_component<MeshComponent>(make_shared<VertexArrayObject>(
-                IndexedModelShp(filename, NormalIndexing::PER_FACE)));
+		{
+            model.add_component<MeshComponent>(filename);
+		}
         else
         {
             WARN("Wrong file extension, exiting");
@@ -130,7 +118,7 @@ void MainLayer::on_attach()
     rot.position = rocp.camera->position;
     rot.speed = 8.;
 
-    light = scene.create_entity("Light");
+    Entity light = scene.create_entity("Light");
     light.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.1))));
     light.add_component<Material>(Application::shaders["color_shader"])
@@ -146,6 +134,8 @@ void MainLayer::on_attach()
         //             radians(25.0), window->width / (float)window->height,
         //             0.01, 50.0));
         make_shared<OrthograficCamera>(1., 1., 0.01, 10.));
+
+	scene.light = light;
 
 
     // 	Entity box = scene.create_entity("box");
@@ -248,29 +238,30 @@ void MainLayer::on_update(double time_delta)
     {
         Entity tmp_scene_observer = scene.observer;
 
-        ASSERT(light.has_component<FramebufferComponent>(),
+        ASSERT(scene.light.has_component<FramebufferComponent>(),
                "Scene light doesn't have Framebuffer Component");
-        ASSERT(light.has_component<CameraComponent>(),
+        ASSERT(scene.light.has_component<CameraComponent>(),
                "Scene light doesn't have Camera Component");
 
-        scene.light = Entity();
+		Entity tmp_light = scene.light;
+//         scene.light = Entity();
 
-        SceneStatus &lss = light.get_component<SceneStatus>();
+        SceneStatus &lss = scene.light.get_component<SceneStatus>();
         bool tmp_render = lss.render;
         lss.render = false;
 
-        Transform &lt = light.get_component<Transform>();
-        auto lc = light.get_component<CameraComponent>().camera;
+        Transform &lt = scene.light.get_component<Transform>();
+        auto lc = scene.light.get_component<CameraComponent>().camera;
 
         lc->position = lt.position;
         lc->update_target(observer_target.get_component<Transform>().position);
         lc->aspect = 1;
 
-        auto fb = light.get_component<FramebufferComponent>().framebuffer;
+        auto fb = scene.light.get_component<FramebufferComponent>().framebuffer;
         fb->bind();
         fb->clear();
 
-        scene.observer = light;
+//         scene.observer = light;
 
         if (mode == Mode::EDITOR)
             // musi być zeby textura cieni byla aktualna,
@@ -285,9 +276,9 @@ void MainLayer::on_update(double time_delta)
 
         lss.render = tmp_render;
         scene.observer = tmp_scene_observer;
+    	scene.light = tmp_light;
     }
 
-    scene.light = light;
 
     if (multisampling)
     {
@@ -387,23 +378,30 @@ void MainLayer::menu_bar()
     {
         if (ImGui::BeginMenu("File"))
         {
-            // 			if (ImGui::MenuItem("Save scene"))
-            // 			{
-            // 				SceneSerializer scene_serializer(scene);
-            // 				string filename =
-            // FileDialog::save_file("*.scene");
-            // 				scene_serializer.serialize(filename);
-            // 				cout << "saving scene" << endl;
-            // 			}
-            //
-            // 			if (ImGui::MenuItem("Load scene"))
-            // 			{
-            // 				SceneSerializer scene_serializer(scene);
-            // 				string filename =
-            // FileDialog::open_file("*.scene");
-            // 				scene_serializer.deserialize(filename);
-            // 				cout << "loading scene" << endl;
-            // 			}
+            if (ImGui::MenuItem("Save scene"))
+            {
+                SceneSerializer scene_serializer(&scene);
+                string filename = FileDialog::save_file("*.scene");
+                scene_serializer.serialize(filename);
+                cout << "saving scene" << endl;
+            }
+
+            if (ImGui::MenuItem("Load scene"))
+            {
+				vector<Entity> children =
+					scene.root_entity.get_component<SceneGraphComponent>().children;
+				for (int i = 0; i < children.size(); i++)
+				{
+					children[i].destroy();
+				}
+
+                SceneSerializer scene_serializer(&scene);
+                string filename = FileDialog::open_file("*.scene");
+                scene_serializer.deserialize(filename);
+                cout << "loading scene" << endl;
+
+				observer_target = scene.target;
+            }
 
             ImGui::Separator();
 
@@ -466,7 +464,8 @@ void MainLayer::menu_bar()
 
             if (ImGui::MenuItem("Import Storage"))
             {
-                observatory_panel.load_obs_storage(FileDialog::open_file("*.yaml"));
+                observatory_panel.load_obs_storage(
+                    FileDialog::open_file("*.yaml"));
             }
 
 

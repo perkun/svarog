@@ -41,6 +41,7 @@ public:
 	ObservationStorage();
 	~ObservationStorage();
 
+	YAML::Node serialize();
 	void save(const string filepath);
 	bool load(string filename);
 

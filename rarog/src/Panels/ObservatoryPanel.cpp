@@ -205,12 +205,16 @@ void ObservatoryPanel::observe_points()
         layer->scene.observer.get_component<Transform>().position;
     vec3 tmp_observer_pos = observer_pos;
 
+	double tmp_julian_day = *julian_day;
+
     int tmp_ao_size = ao_size;
     int tmp_lc_num_points = lc_num_points;
 
 
     for (YamlPoint p : obs_storage->get_current_points())
     {
+		*julian_day = p.jd;
+
         oc.calculate_rot_phase(p.jd);
         target_rotation = oc.xyz_from_lbg();
 
@@ -242,6 +246,8 @@ void ObservatoryPanel::observe_points()
     observer_pos = tmp_observer_pos;
     target_rotation = tmp_rotation;
 
+	*julian_day = tmp_julian_day;
+
     ao_size = tmp_ao_size;
     lc_num_points = tmp_lc_num_points;
 }
@@ -253,6 +259,8 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
         return;
 
     Observation *current_obs = lightcurves->get_current_obs();
+
+	ImGui::Text("%lf", current_obs->julian_day);
 
     ImGui::PushItemWidth(100.);
     if (ImGui::InputInt("Lc Nr", &lightcurves->current_id, 1))
@@ -303,6 +311,9 @@ void ObservatoryPanel::display_images(ImageSeries *images)
     Observation *current_obs = images->get_current_obs();
     if (!current_obs)
         cout << "IMG not valid!!!" << endl;
+
+
+	ImGui::Text("%lf", current_obs->julian_day);
 
     ImGui::PushItemWidth(100.);
     if (ImGui::InputInt("Nr", &images->current_id, 1))

@@ -16,6 +16,11 @@ ObjHeader::~ObjHeader()
 void ObjHeader::parse(string filename)
 {
     FILE *f = fopen(filename.c_str(), "r");
+	if (f == NULL)
+	{
+		loaded = false;
+		return;
+	}
 
     char buf[1000];
     while (fgets(buf, 999, f) != NULL)
@@ -43,7 +48,7 @@ void ObjHeader::parse(string filename)
 			items[key] = value;
     }
     fclose(f);
-
+	loaded = true;
 }
 
 

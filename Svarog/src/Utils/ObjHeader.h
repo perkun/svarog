@@ -8,12 +8,13 @@ using namespace std;
 class ObjHeader
 {
 public:
-	ObjHeader() {}
+	ObjHeader() = default;
 	ObjHeader(string filename);
 	~ObjHeader();
 
 	template<typename T>
 	T get_item(string key);
+	bool loaded = false;
 
 private:
 	void parse(string filename);

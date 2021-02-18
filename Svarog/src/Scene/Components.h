@@ -9,6 +9,8 @@
 #include "ScriptableEntity.h"
 #include "Entity.h"
 #include "Utils/Time.h"
+#include "Utils/File.h"
+#include "Utils/ObjHeader.h"
 
 using namespace std;
 
@@ -26,7 +28,13 @@ class MeshComponent
 {
 public:
     MeshComponent(shared_ptr<VertexArrayObject>);
+    MeshComponent(string filename);
 	~MeshComponent();
+
+	string filename;
+	bool from_file = false;
+
+	ObjHeader header;
 
 	shared_ptr<VertexArrayObject> vao;
 };
@@ -113,11 +121,12 @@ class OrbitalComponent
 {
 public:
     OrbitalComponent();
+    OrbitalComponent(ObjHeader);
     ~OrbitalComponent();
 
     // rotation
     double jd_0 = Time::julian_day_now();
-    double rotation_phase = 0;
+    double rotation_phase = 2 * M_PI / 10;;
     float rotation_speed = 1.;
 	double rot_period = 1.;
     double lambda = 0, beta = M_PI_2, gamma = 0;

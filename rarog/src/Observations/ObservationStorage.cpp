@@ -50,12 +50,24 @@ ImageSeries* ObservationStorage::get_current_radar_images()
 }
 
 
+
 void ObservationStorage::save(const string filepath)
 {
     obs_packs[current_id].filename = filepath;
     obs_packs[current_id].name =
 		fix_storage_name(File::remove_extension(File::file_base(filepath)), true);
 
+	YAML::Emitter emitter;
+	emitter << serialize();
+
+    std::ofstream fout(filepath);
+    fout << emitter.c_str();
+    fout.close();
+}
+
+
+YAML::Node ObservationStorage::serialize()
+{
     YAML::Emitter out;
     out << YAML::BeginMap;
     out << YAML::Key << "points" << YAML::BeginSeq;
@@ -118,19 +130,10 @@ void ObservationStorage::save(const string filepath)
             }
             j++;
         }
-
-
         i++;
     }
 
-    // 3. merge
-    // 4. node to emiter, and save
-    YAML::Emitter emitter;
-    emitter << data;
-
-    std::ofstream fout(filepath);
-    fout << emitter.c_str();
-    fout.close();
+	return data;
 }
 
 void ObservationStorage::add_new(string name)

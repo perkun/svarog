@@ -55,6 +55,7 @@ public:
 	Entity root_entity;
 
 	Entity observer, selected_entity, light;
+	Entity target;
 
 	// global variable :( to modify the behaviour of draw func
 	bool check_for_shadow_casting = false;

@@ -7,6 +7,28 @@ MeshComponent::MeshComponent(shared_ptr<VertexArrayObject> vao)
 	this->vao = vao;
 }
 
+MeshComponent::MeshComponent(string filename)
+{
+    if (File::is_extension(filename, "obj"))
+    {
+        vao = make_shared<VertexArrayObject>(
+            IndexedModelObj(filename, NormalIndexing::PER_FACE));
+		from_file = true;
+		this->filename = filename;
+
+		header = ObjHeader(filename);
+    }
+    else if (File::is_extension(filename, "shp"))
+	{
+        vao = make_shared<VertexArrayObject>(
+            IndexedModelShp(filename, NormalIndexing::PER_FACE));
+		from_file = true;
+		this->filename = filename;
+	}
+    else
+        vao = make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
+}
+
 
 MeshComponent::~MeshComponent()
 {
@@ -58,6 +80,20 @@ FramebufferComponent::~FramebufferComponent()
 OrbitalComponent::OrbitalComponent() { }
 
 OrbitalComponent::~OrbitalComponent() { }
+
+OrbitalComponent::OrbitalComponent(ObjHeader header)
+{
+	if (!header.loaded)
+		return;
+
+	lambda = header.get_item<float>("lambda") * M_PI / 180.;
+	beta = header.get_item<float>("beta") * M_PI / 180.;
+	gamma = header.get_item<float>("gamma") * M_PI / 180.;
+	jd_0 = header.get_item<double>("jd_gamma0");
+	rot_period = header.get_item<double>("period[h]") ;
+
+	calculate_rot_phase(Time::julian_day_now());
+}
 
 
 vec3 OrbitalComponent::xyz_from_lbg()

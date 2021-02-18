@@ -159,17 +159,13 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 {
                     string filename = FileDialog::open_file("*.OBJ *.obj");
                     if (!filename.empty())
-                        entity.add_component<MeshComponent>(
-                            make_shared<VertexArrayObject>(IndexedModelObj(
-                                filename, NormalIndexing::PER_VERTEX)));
+                        entity.add_component<MeshComponent>(filename);
                 }
                 if (ImGui::MenuItem("Shp file"))
                 {
                     string filename = FileDialog::open_file("*.SHP *.shp");
                     if (!filename.empty())
-                        entity.add_component<MeshComponent>(
-                            make_shared<VertexArrayObject>(IndexedModelShp(
-                                filename, NormalIndexing::PER_VERTEX)));
+                        entity.add_component<MeshComponent>(filename);
                 }
 
                 ImGui::EndMenu();
@@ -258,8 +254,14 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
             if (!entity.has_component<OrbitalComponent>() &&
                 ImGui::MenuItem(buff))
             {
-                entity.add_component<OrbitalComponent>();
-            }
+				if (entity.has_component<MeshComponent>())
+				{
+					entity.add_component<OrbitalComponent>(
+							entity.get_component<MeshComponent>().header);
+				}
+				else
+					entity.add_component<OrbitalComponent>();
+			}
 
             ImGui::Spacing();
             ImGui::Separator();

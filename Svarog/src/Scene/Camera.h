@@ -18,12 +18,12 @@ public:
 	float aspect;
 	vec3 position, front, up, right;
 	float speed = 10., rotation_speed = 0.0003;
+	float view_box_z_near, view_box_z_far;
 
 protected:
 	void calculate_view();
 
 	mat4 view;
-	float view_box_z_near, view_box_z_far;
 };
 
 
