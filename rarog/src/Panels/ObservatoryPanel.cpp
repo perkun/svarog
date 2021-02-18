@@ -222,7 +222,7 @@ void ObservatoryPanel::observe_points()
             lc_num_points = p.lc_num_points;
             make_lightcurve(layer->observer_target, layer->scene.observer,
                             obs_storage->get_current_lightcurves(),
-                            tmp_lc_num_points);
+                            lc_num_points);
         }
 
         if (p.obs_types & ObsType::AO)
