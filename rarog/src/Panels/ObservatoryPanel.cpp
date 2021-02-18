@@ -4,7 +4,7 @@
 #include "Camera.h"
 
 ObservatoryPanel::ObservatoryPanel(MainLayer *l, double *julian_day,
-		ObservationStorage *obs)
+                                   ObservationStorage *obs)
 {
     layer = l;
     obs_storage = obs;
@@ -115,7 +115,7 @@ void ObservatoryPanel::observations_panel()
         ImGui::Spacing();
 
     ImGuiTabBarFlags tab_bar_flags =
-		ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll;
+        ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll;
 
     if (ImGui::BeginTabBar("Observations", tab_bar_flags))
     {
@@ -124,7 +124,8 @@ void ObservatoryPanel::observations_panel()
             // observations buttons
             if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
                 make_lightcurve(layer->observer_target, layer->scene.observer,
-                                obs_storage->get_current_lightcurves());
+                                obs_storage->get_current_lightcurves(),
+                                lc_num_points);
             ImGui::SameLine(0., 20.);
             ImGui::PushItemWidth(100.);
             ImGui::InputInt("LC num points", &lc_num_points);
@@ -140,7 +141,7 @@ void ObservatoryPanel::observations_panel()
         {
             if (ImGui::Button("Make AO image", ImVec2(150, 0)))
                 make_ao_image(layer->observer_target, layer->scene.observer,
-                              obs_storage->get_current_ao_images());
+                              obs_storage->get_current_ao_images(), ao_size);
             ImGui::SameLine(0.0, 20.0);
             ImGui::PushItemWidth(100.);
             ImGui::InputInt("AO size [px]", &ao_size, 1, 100);
@@ -164,7 +165,7 @@ void ObservatoryPanel::observations_panel()
         {
             if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
                 make_radar_image(layer->observer_target, layer->scene.observer,
-                                 obs_storage->get_current_radar_images());
+                                 obs_storage->get_current_radar_images(), 600);
 
             ImGui::InputFloat("ang. speed", &angular_speed);
 
@@ -220,20 +221,21 @@ void ObservatoryPanel::observe_points()
         {
             lc_num_points = p.lc_num_points;
             make_lightcurve(layer->observer_target, layer->scene.observer,
-                            obs_storage->get_current_lightcurves());
+                            obs_storage->get_current_lightcurves(),
+                            tmp_lc_num_points);
         }
 
         if (p.obs_types & ObsType::AO)
         {
             ao_size = p.ao_size;
             make_ao_image(layer->observer_target, layer->scene.observer,
-                          obs_storage->get_current_ao_images());
+                          obs_storage->get_current_ao_images(), ao_size);
         }
 
         if (p.obs_types & ObsType::RADAR)
         {
             make_radar_image(layer->observer_target, layer->scene.observer,
-                             obs_storage->get_current_radar_images());
+                             obs_storage->get_current_radar_images(), 600);
         }
     }
     target_pos = tmp_target_pos;
@@ -342,12 +344,12 @@ void ObservatoryPanel::display_images(ImageSeries *images)
 
 
 void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer,
-                                       LightcurveSeries *lightcurves)
+                                       LightcurveSeries *lightcurves,
+                                       int num_points)
 {
     Transform &tt = target.get_component<Transform>();
     OrbitalComponent &oc = target.get_component<OrbitalComponent>();
 
-    int num_points = lc_num_points;
     int width = 256;
     int height = 256;
     float *pixel_buffer = new float[width * height];
@@ -409,7 +411,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer,
 
 
 void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
-                                     ImageSeries *ao_images)
+                                     ImageSeries *ao_images, int ao_size)
 {
     int ao_width = ao_size;
     int ao_height = ao_size;
@@ -477,10 +479,11 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
 
 
 void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
-                                        ImageSeries *radar_images)
+                                        ImageSeries *radar_images,
+                                        int radar_frame_size)
 {
-    int frame_width = 600;
-    int frame_height = 600;
+    int frame_width = radar_frame_size;
+    int frame_height = radar_frame_size;
 
     float *pixel_buffer_r = new float[frame_width * frame_height];
     float *pixel_buffer_normal = new float[frame_width * frame_height];

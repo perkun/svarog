@@ -36,9 +36,9 @@ private:
 	void display_lightcurves(LightcurveSeries*);
 	void display_images(ImageSeries*);
 
-	void make_lightcurve(Entity &target, Entity &observer, LightcurveSeries*);
-	void make_ao_image(Entity &target, Entity &observer, ImageSeries*);
-	void make_radar_image(Entity &target, Entity &observer, ImageSeries*);
+	void make_lightcurve(Entity &target, Entity &observer, LightcurveSeries*, int);
+	void make_ao_image(Entity &target, Entity &observer, ImageSeries*, int);
+	void make_radar_image(Entity &target, Entity &observer, ImageSeries*, int);
 
 	void set_target_and_observer(Observation*);
 	void observations_panel();
