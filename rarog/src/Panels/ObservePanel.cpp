@@ -222,6 +222,8 @@ void ObservePanel::light_selection_panel(vector<Entity> &ents)
         {
             if (!ents[n].has_component<LightComponent>())
                 continue;
+            if (!ents[n].has_component<CameraComponent>())
+                continue;
 
             if (ents[n] == layer->scene.target)
                 continue;

@@ -8,8 +8,8 @@
 
 SceneHierarchyPanel::SceneHierarchyPanel(Scene *s, double *julian_day)
 {
-	scene = s;
-	this->julian_day = julian_day;
+    scene = s;
+    this->julian_day = julian_day;
 }
 
 
@@ -19,55 +19,53 @@ SceneHierarchyPanel::~SceneHierarchyPanel()
 
 void SceneHierarchyPanel::on_imgui_render()
 {
-	ImGui::Begin("Scene Hierarchy");
+    ImGui::Begin("Scene Hierarchy");
 
-// 	scene->registry.each([&](auto entityID)
-// 	{
-// 		Entity entity(entityID, &scene->registry);
-// // 		if (entity.parent == NULL)  // root
-// 			draw_entity_node(entity);
-//
-// 	});
-	draw_entity_node(scene->root_entity);
+    // 	scene->registry.each([&](auto entityID)
+    // 	{
+    // 		Entity entity(entityID, &scene->registry);
+    // // 		if (entity.parent == NULL)  // root
+    // 			draw_entity_node(entity);
+    //
+    // 	});
+    draw_entity_node(scene->root_entity);
 
-	// deselect when clicked elsewhere
-	if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
-	{
-		scene->selected_entity = Entity();
-	}
-
-
-	ImGui::End();
+    // deselect when clicked elsewhere
+    if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+    {
+        scene->selected_entity = Entity();
+    }
 
 
-	ImGui::Begin("Properties");
-	if (scene->selected_entity && scene->selected_entity.get_parent())
-	{
-		 draw_selected_properties(scene->selected_entity);
-	}
-	ImGui::End();
+    ImGui::End();
 
 
+    ImGui::Begin("Properties");
+    if (scene->selected_entity && scene->selected_entity.get_parent())
+    {
+        draw_selected_properties(scene->selected_entity);
+    }
+    ImGui::End();
 
-	// deleting
-	if (entity_to_delete)
-	{
-		if (scene->selected_entity == entity_to_delete)
-			scene->selected_entity = Entity();
 
-		if (scene->target == entity_to_delete)
-			scene->target = Entity();
+    // deleting
+    if (entity_to_delete)
+    {
+        if (scene->selected_entity == entity_to_delete)
+            scene->selected_entity = Entity();
 
-		if (scene->observer == entity_to_delete)
-			scene->observer = Entity();
+        if (scene->target == entity_to_delete)
+            scene->target = Entity();
 
-		if (scene->light == entity_to_delete)
-			scene->light = Entity();
+        if (scene->observer == entity_to_delete)
+            scene->observer = Entity();
 
-		entity_to_delete.destroy();
-		entity_to_delete = Entity();
-	}
+        if (scene->light == entity_to_delete)
+            scene->light = Entity();
 
+        entity_to_delete.destroy();
+        entity_to_delete = Entity();
+    }
 }
 
 
@@ -138,7 +136,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 IndexedLine(vec3(0.), vec3(0., 0., 2), vec4(0., 0., 1., 1.)));
             e.add_component<MeshComponent>(
                 make_shared<VertexArrayObject>(axes.indexed_model));
-			e.get_component<SceneStatus>().casting_shadow = false;
+            e.get_component<SceneStatus>().casting_shadow = false;
             entity.add_child(e);
         }
 
@@ -261,23 +259,23 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
             if (!entity.has_component<LightComponent>() &&
                 ImGui::MenuItem(buff))
             {
-				entity.add_component<LightComponent>();
-				entity.add_component<FramebufferComponent>(
-						make_shared<Framebuffer>(2048, 2048, DEPTH_ATTACHMENT));
+                entity.add_component<LightComponent>();
+                entity.add_component<FramebufferComponent>(
+                    make_shared<Framebuffer>(2048, 2048, DEPTH_ATTACHMENT));
             }
 
             sprintf(buff, "%s  Add Orbital Component", "\xef\x94\x97");
             if (!entity.has_component<OrbitalComponent>() &&
                 ImGui::MenuItem(buff))
             {
-				if (entity.has_component<MeshComponent>())
-				{
-					entity.add_component<OrbitalComponent>(
-							entity.get_component<MeshComponent>().header);
-				}
-				else
-					entity.add_component<OrbitalComponent>();
-			}
+                if (entity.has_component<MeshComponent>())
+                {
+                    entity.add_component<OrbitalComponent>(
+                        entity.get_component<MeshComponent>().header);
+                }
+                else
+                    entity.add_component<OrbitalComponent>();
+            }
 
             ImGui::Spacing();
             ImGui::Separator();
@@ -311,8 +309,8 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                                               "\xef\x92\x89", [](Entity &e) {});
         list_component<OrbitalComponent>(entity, "OrbitalComponent",
                                          "\xef\x94\x97", [](Entity &e) {});
-		list_component<LightComponent>(entity, "LightComponent",
-									   "\xef\xaf\xa6", [](Entity &e) {});
+        list_component<LightComponent>(entity, "LightComponent", "\xef\xaf\xa6",
+                                       [](Entity &e) {});
 
 
         // list children
@@ -326,157 +324,214 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 
 void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 {
-	if (entity.has_component<TagComponent>())
-	{
-		// renameing entity
-		string &tag = entity.get_component<TagComponent>().tag;
-		memset(buff, 0, sizeof(buff));
-		strcpy(buff, tag.c_str());
-		if (ImGui::InputText("Tag", buff, sizeof(buff)))
-			tag = string(buff);
-	}
-
-	if (entity.has_component<Transform>())
-	{
-		// TODO: convertions rad -> deg, and positions * multiplicant
-		Transform &t = entity.get_component<Transform>();
-
-		glm::vec3 rot_deg;
-		rot_deg = (float)(180./M_PI) * t.rotation ;
-
-		ImGui::DragFloat3("Position", glm::value_ptr(t.position), 0.1);
-		ImGui::DragFloat3("Rotation", glm::value_ptr(rot_deg), 0.1);
-		ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
-
-		t.rotation = rot_deg * (float)(M_PI / 180.0);
+    ImGuiTreeNodeFlags flags =
+        ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
 
-		if (entity.has_component<OrbitalComponent>())
-		{
-			for (int i = 0; i < 5; i++)
-				ImGui::Spacing();
+    if (entity.has_component<TagComponent>())
+    {
+        // renameing entity
+        string &tag = entity.get_component<TagComponent>().tag;
+        memset(buff, 0, sizeof(buff));
+        strcpy(buff, tag.c_str());
+        if (ImGui::InputText("Tag", buff, sizeof(buff)))
+            tag = string(buff);
+    }
 
-			OrbitalComponent &oc = entity.get_component<OrbitalComponent>();
+    if (entity.has_component<Transform>())
+    {
+        bool opened = ImGui::TreeNodeEx("Transform", flags);
+        if (opened)
+        {
+            // TODO: convertions rad -> deg, and positions * multiplicant
+            Transform &t = entity.get_component<Transform>();
 
-			ImGui::DragFloat("rot. speed", &oc.rotation_speed, 0.1f);
+            glm::vec3 rot_deg;
+            rot_deg = (float)(180. / M_PI) * t.rotation;
 
-			for (int i = 0; i < 5; i++)
-				ImGui::Spacing();
+            ImGui::DragFloat3("Position", glm::value_ptr(t.position), 0.1);
+            ImGui::DragFloat3("Rotation", glm::value_ptr(rot_deg), 0.1);
+            ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.1);
 
-			float rot_phase_deg = oc.rotation_phase * 180./M_PI;
-			if (ImGui::DragFloat("rot phase", &rot_phase_deg))
-			{
-				oc.rotation_phase = rot_phase_deg * M_PI/180.;
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			if (ImGui::InputDouble("P [h]", &oc.rot_period))
-			{
-				// 	TODO  zrobić coś z tym!
-				oc.calculate_rot_phase(*julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			for (int i = 0; i < 5; i++)
-				ImGui::Spacing();
-
-			vec3 euler_angles_deg;
-			euler_angles_deg.x = oc.lambda * 180./M_PI;
-			euler_angles_deg.y = oc.beta * 180./M_PI;
-			euler_angles_deg.z = oc.gamma * 180./M_PI;
-
-			if (ImGui::DragFloat3("Euler lbg", glm::value_ptr(euler_angles_deg)))
-			{
-				oc.lambda = euler_angles_deg.x * M_PI/180.;
-				oc.beta = euler_angles_deg.y * M_PI/180.;
-				oc.gamma = euler_angles_deg.z * M_PI/180.;
-
-				t.rotation = oc.xyz_from_lbg();
-			}
-
-			if (ImGui::InputDouble("Rot. Epoch", &oc.jd_0))
-			{
-				oc.calculate_rot_phase(*julian_day);
-				t.rotation = oc.xyz_from_lbg();
-			}
-		}
-	}
-
-	ImGui::Separator();
+            t.rotation = rot_deg * (float)(M_PI / 180.0);
+            ImGui::TreePop();
+        }
+    }
 
 
-	if (entity.has_component<Material>())
-	{
-		Material &m = entity.get_component<Material>();
-// 		for (pair<string, vec4> &uniform: m.uniforms_vec4)
-		for (auto uniform = m.uniforms_vec3.begin();
-			 uniform != m.uniforms_vec3.end(); uniform++)
-		{
-			ImGui::InputFloat3(uniform->first.c_str(),
-				glm::value_ptr(uniform->second));
-		}
+    if (entity.has_component<OrbitalComponent>())
+    {
+        bool opened = ImGui::TreeNodeEx("OrbitalComponent", flags);
+        if (opened)
+        {
+            Transform &t = entity.get_component<Transform>();
 
-		for (auto uniform = m.uniforms_vec4.begin();
-			 uniform != m.uniforms_vec4.end(); uniform++)
-		{
-			ImGui::InputFloat4(uniform->first.c_str(),
-				glm::value_ptr(uniform->second));
-		}
+            for (int i = 0; i < 5; i++)
+                ImGui::Spacing();
 
-		for (auto uniform = m.uniforms_int.begin();
-			 uniform != m.uniforms_int.end(); uniform++)
-		{
-			ImGui::InputInt(uniform->first.c_str(),
-				&uniform->second);
-		}
-		for (auto uniform = m.uniforms_float.begin();
-			 uniform != m.uniforms_float.end(); uniform++)
-		{
-			ImGui::InputFloat(uniform->first.c_str(),
-				&uniform->second);
-		}
+            OrbitalComponent &oc = entity.get_component<OrbitalComponent>();
 
-		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
-		ImGui::Text("Add uniform");
+            ImGui::DragFloat("rot. speed", &oc.rotation_speed, 0.1f);
 
-		sprintf(buff, "");
-		if (ImGui::InputText("name", buff, sizeof(buff)))
-			sprintf(u_name, buff);
-		ImGui::Text("Add: ");
-		ImGui::SameLine();
-		if (ImGui::Button("int") && strcmp(u_name, "") != 0)
-			m.uniforms_int[u_name] = 0;
-		ImGui::SameLine();
-		if (ImGui::Button("float") && strcmp(u_name, "") != 0)
-			m.uniforms_float[u_name] = 0.;
-		ImGui::SameLine();
-		if (ImGui::Button("vec3") && strcmp(u_name, "") != 0)
-			m.uniforms_vec3[u_name] = vec3(0);
-		ImGui::SameLine();
-		if (ImGui::Button("vec4") && strcmp(u_name, "") != 0)
-			m.uniforms_vec4[u_name] = vec4(0);
-// 		ImGui::SameLine();
-// 		if (ImGui::Button("Add mat4") && strcmp(u_name, "") != 0)
-// 			m.uniforms_mat4[u_name] = mat4(0);
-	}
+            for (int i = 0; i < 5; i++)
+                ImGui::Spacing();
+
+            float rot_phase_deg = oc.rotation_phase * 180. / M_PI;
+            if (ImGui::DragFloat("rot phase", &rot_phase_deg))
+            {
+                oc.rotation_phase = rot_phase_deg * M_PI / 180.;
+                t.rotation = oc.xyz_from_lbg();
+            }
+
+            if (ImGui::InputDouble("P [h]", &oc.rot_period))
+            {
+                // 	TODO  zrobić coś z tym!
+                oc.calculate_rot_phase(*julian_day);
+                t.rotation = oc.xyz_from_lbg();
+            }
+
+            for (int i = 0; i < 5; i++)
+                ImGui::Spacing();
+
+            vec3 euler_angles_deg;
+            euler_angles_deg.x = oc.lambda * 180. / M_PI;
+            euler_angles_deg.y = oc.beta * 180. / M_PI;
+            euler_angles_deg.z = oc.gamma * 180. / M_PI;
+
+            if (ImGui::DragFloat3("Euler lbg",
+                                  glm::value_ptr(euler_angles_deg)))
+            {
+                oc.lambda = euler_angles_deg.x * M_PI / 180.;
+                oc.beta = euler_angles_deg.y * M_PI / 180.;
+                oc.gamma = euler_angles_deg.z * M_PI / 180.;
+
+                t.rotation = oc.xyz_from_lbg();
+            }
+
+            if (ImGui::InputDouble("Rot. Epoch", &oc.jd_0))
+            {
+                oc.calculate_rot_phase(*julian_day);
+                t.rotation = oc.xyz_from_lbg();
+            }
+			ImGui::TreePop();
+        }
+    }
+
+
+    if (entity.has_component<CameraComponent>())
+    {
+        bool opened = ImGui::TreeNodeEx("CameraComponent", flags);
+        if (opened)
+        {
+            ImGui::Text("CameraComponent");
+
+            CameraComponent &cc = entity.get_component<CameraComponent>();
+            ImGui::PushItemWidth(150.);
+            ImGui::DragFloat("speed", &cc.camera->speed);
+            ImGui::PushItemWidth(150.);
+            ImGui::DragFloat("rotation_speed", &cc.camera->rotation_speed);
+            ImGui::PushItemWidth(150.);
+            ImGui::DragFloat("z near", &cc.camera->view_box_z_near);
+            ImGui::PushItemWidth(150.);
+            ImGui::DragFloat("z far", &cc.camera->view_box_z_far);
+
+            if (dynamic_pointer_cast<PerspectiveCamera>(cc.camera))
+            {
+                auto cam = dynamic_pointer_cast<PerspectiveCamera>(cc.camera);
+                ImGui::PushItemWidth(150.);
+                ImGui::DragFloat("FOV", &cam->fov);
+            }
+            if (dynamic_pointer_cast<OrthograficCamera>(cc.camera))
+            {
+                auto cam = dynamic_pointer_cast<OrthograficCamera>(cc.camera);
+                ImGui::PushItemWidth(150.);
+                ImGui::DragFloat("size_x", &cam->size_x);
+            }
+
+
+            ImGui::TreePop();
+        }
+    }
+
+
+
+    if (entity.has_component<Material>())
+    {
+        bool opened = ImGui::TreeNodeEx("Material", flags);
+        if (opened)
+        {
+            Material &m = entity.get_component<Material>();
+            // 		for (pair<string, vec4> &uniform: m.uniforms_vec4)
+            for (auto uniform = m.uniforms_vec3.begin();
+                 uniform != m.uniforms_vec3.end(); uniform++)
+            {
+                ImGui::InputFloat3(uniform->first.c_str(),
+                                   glm::value_ptr(uniform->second));
+            }
+
+            for (auto uniform = m.uniforms_vec4.begin();
+                 uniform != m.uniforms_vec4.end(); uniform++)
+            {
+                ImGui::InputFloat4(uniform->first.c_str(),
+                                   glm::value_ptr(uniform->second));
+            }
+
+            for (auto uniform = m.uniforms_int.begin();
+                 uniform != m.uniforms_int.end(); uniform++)
+            {
+                ImGui::InputInt(uniform->first.c_str(), &uniform->second);
+            }
+            for (auto uniform = m.uniforms_float.begin();
+                 uniform != m.uniforms_float.end(); uniform++)
+            {
+                ImGui::InputFloat(uniform->first.c_str(), &uniform->second);
+            }
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Text("Add uniform");
+
+            sprintf(buff, "");
+            if (ImGui::InputText("name", buff, sizeof(buff)))
+                sprintf(u_name, buff);
+            ImGui::Text("Add: ");
+            ImGui::SameLine();
+            if (ImGui::Button("int") && strcmp(u_name, "") != 0)
+                m.uniforms_int[u_name] = 0;
+            ImGui::SameLine();
+            if (ImGui::Button("float") && strcmp(u_name, "") != 0)
+                m.uniforms_float[u_name] = 0.;
+            ImGui::SameLine();
+            if (ImGui::Button("vec3") && strcmp(u_name, "") != 0)
+                m.uniforms_vec3[u_name] = vec3(0);
+            ImGui::SameLine();
+            if (ImGui::Button("vec4") && strcmp(u_name, "") != 0)
+                m.uniforms_vec4[u_name] = vec4(0);
+            // 		ImGui::SameLine();
+            // 		if (ImGui::Button("Add mat4") && strcmp(u_name, "") !=
+            // 0) 			m.uniforms_mat4[u_name] = mat4(0);
+            ImGui::TreePop();
+        }
+    }
 }
-
 
 
 void SceneHierarchyPanel::load_texture_from_file(Entity &entity)
 {
     string filename = FileDialog::open_file("*.jpg *.png *.jpeg");
-	if (filename.empty())
-		return;
+    if (filename.empty())
+        return;
 
     INFO("Loading texture {}", filename);
 
     if (entity.has_component<TextureComponent>())
-	{
-		entity.remove_component<TextureComponent>();
-	}
-	entity.add_component<TextureComponent>(make_shared<ImgTexture>(filename));
+    {
+        entity.remove_component<TextureComponent>();
+    }
+    entity.add_component<TextureComponent>(make_shared<ImgTexture>(filename));
 
-	if (entity.has_component<Material>())
-    	entity.get_component<Material>().uniforms_int["u_has_texture"] = 1;
+    if (entity.has_component<Material>())
+        entity.get_component<Material>().uniforms_int["u_has_texture"] = 1;
 }
