@@ -5,8 +5,9 @@ Material::Material()
 {
 }
 
-Material::Material(shared_ptr<Shader> shader) : shader(shader)
+Material::Material(string shader_name) : shader_name(shader_name)
 {
+	shader = Application::shaders[shader_name];
 }
 
 

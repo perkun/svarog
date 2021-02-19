@@ -119,8 +119,9 @@ void serialize_entity(YAML::Emitter &out, Entity entity)
         out << YAML::Key << "MeshComponent";
         out << YAML::BeginMap; // MeshComponent
 
-        out << YAML::Key << "FromFile" << mc.from_file;
+        out << YAML::Key << "ModelType" << (int)mc.model_type;
         out << YAML::Key << "Filename" << mc.filename;
+		out << YAML::Key << "DrawType" << mc.vao->draw_type;
 
         out << YAML::EndMap; // MeshComponent
     }
@@ -198,6 +199,47 @@ void serialize_entity(YAML::Emitter &out, Entity entity)
         out << YAML::EndMap;
     }
 
+	if (entity.has_component<Material>())
+	{
+		Material &mc = entity.get_component<Material>();
+
+		out << YAML::Key << "Material";
+		out << YAML::BeginMap; // Material
+		out << YAML::Key << "shader_name" << mc.shader_name;
+
+		// uniforms
+		out << YAML::Key << "Uniforms";
+		out << YAML::BeginMap; // Uniforms
+
+
+		out << YAML::Key << "Vec3";
+		out << YAML::BeginMap;
+		for (auto u: mc.uniforms_vec3)
+			out << YAML::Key << u.first << YAML::Value << u.second;
+		out << YAML::EndMap;
+
+		out << YAML::Key << "Vec4";
+		out << YAML::BeginMap;
+		for (auto u: mc.uniforms_vec4)
+			out << YAML::Key << u.first << YAML::Value << u.second;
+		out << YAML::EndMap;
+
+		out << YAML::Key << "Float";
+		out << YAML::BeginMap;
+		for (auto u: mc.uniforms_float)
+			out << YAML::Key << u.first << YAML::Value << u.second;
+		out << YAML::EndMap;
+
+		out << YAML::Key << "Int";
+		out << YAML::BeginMap;
+		for (auto u: mc.uniforms_int)
+			out << YAML::Key << u.first << YAML::Value << u.second;
+		out << YAML::EndMap;
+
+		out << YAML::EndMap;  // Uniforms
+		out << YAML::EndMap;  // Material
+	}
+
     out << YAML::EndMap; // Entity
 }
 
@@ -217,7 +259,7 @@ Entity SceneSerializer::deserialize_entity(
     if (serialized_ent["Transform"])
     {
         Transform &tr = entity.get_component<Transform>(); // should already be
-		auto node = serialized_ent["Transform"];
+        auto node = serialized_ent["Transform"];
 
         tr.scale = node["scale"].as<vec3>();
         tr.position = node["position"].as<vec3>();
@@ -226,83 +268,104 @@ Entity SceneSerializer::deserialize_entity(
 
     if (serialized_ent["MeshComponent"])
     {
-		auto node = serialized_ent["MeshComponent"];
-        if (node["FromFile"].as<bool>())
-            entity.add_component<MeshComponent>(
-                node["Filename"].as<string>());
+        auto node = serialized_ent["MeshComponent"];
+        if (node["ModelType"].as<int>() == (int)ModelType::FILE)
+            entity.add_component<MeshComponent>(node["Filename"].as<string>());
         else
-            entity.add_component<MeshComponent>(make_shared<VertexArrayObject>(
-                IndexedCube(vec3(-0.25), vec3(0.5))));
+            entity.add_component<MeshComponent>((ModelType)node["ModelType"].as<int>());
 
-		scene->target = entity;
+        entity.get_component<MeshComponent>().vao->draw_type =
+            node["DrawType"].as<unsigned int>();
 
-		entity.add_component<Material>(Application::shaders["basic_shader"]);
+        scene->target = entity;
+    }
+
+    if (serialized_ent["Material"])
+    {
+        auto node = serialized_ent["Material"];
+        if (Application::shaders.find(node["shader_name"].as<string>()) !=
+            Application::shaders.end())
+        {
+            Material &mc = entity.add_component<Material>(
+                node["shader_name"].as<string>());
+            // uniforms...
+            auto uniforms = node["Uniforms"];
+            for (auto univec3 : uniforms["Vec3"])
+                mc.uniforms_vec3[univec3.first.as<string>()] =
+                    univec3.second.as<vec3>();
+            for (auto univec4 : uniforms["Vec4"])
+                mc.uniforms_vec4[univec4.first.as<string>()] =
+                    univec4.second.as<vec4>();
+            for (auto uniint : uniforms["Int"])
+                mc.uniforms_int[uniint.first.as<string>()] =
+                    uniint.second.as<int>();
+            for (auto unifloat : uniforms["Float"])
+                mc.uniforms_float[unifloat.first.as<string>()] =
+                    unifloat.second.as<float>();
+        }
     }
 
     if (serialized_ent["OrbitalComponent"])
     {
         OrbitalComponent &oc = entity.add_component<OrbitalComponent>();
-		auto node = serialized_ent["OrbitalComponent"];
+        auto node = serialized_ent["OrbitalComponent"];
 
-		oc.jd_0 = node["jd_0"].as<double>();
-		oc.rotation_phase = node["rotation_phase"].as<double>();
-		oc.rotation_speed = node["rotation_speed"].as<double>();
-		oc.rot_period = node["rot_period"].as<double>();
-		oc.lambda = node["lambda"].as<double>();
-		oc.beta = node["beta"].as<double>();
-		oc.gamma = node["gamma"].as<double>();
-	}
+        oc.jd_0 = node["jd_0"].as<double>();
+        oc.rotation_phase = node["rotation_phase"].as<double>();
+        oc.rotation_speed = node["rotation_speed"].as<double>();
+        oc.rot_period = node["rot_period"].as<double>();
+        oc.lambda = node["lambda"].as<double>();
+        oc.beta = node["beta"].as<double>();
+        oc.gamma = node["gamma"].as<double>();
+    }
 
-	if (serialized_ent["LightComponent"])
-	{
-		auto node = serialized_ent["LightComponent"];
-		LightComponent &lc = entity.add_component<LightComponent>();
-		lc.color = node["color"].as<vec4>();
+    if (serialized_ent["LightComponent"])
+    {
+        auto node = serialized_ent["LightComponent"];
+        LightComponent &lc = entity.add_component<LightComponent>();
+        lc.color = node["color"].as<vec4>();
 
-		scene->light = entity;
-	}
+        scene->light = entity;
+    }
 
-	if (serialized_ent["FramebufferComponent"])
-	{
-		auto node = serialized_ent["FramebufferComponent"];
-		FramebufferComponent &fb = entity.add_component<FramebufferComponent>(
-				make_shared<Framebuffer>(node["width"].as<int>(),
-									     node["height"].as<int>(),
-										 node["flags"].as<char>()));
-	}
+    if (serialized_ent["FramebufferComponent"])
+    {
+        auto node = serialized_ent["FramebufferComponent"];
+        FramebufferComponent &fb =
+            entity.add_component<FramebufferComponent>(make_shared<Framebuffer>(
+                node["width"].as<int>(), node["height"].as<int>(),
+                node["flags"].as<char>()));
+    }
 
-	if (serialized_ent["CameraComponent"])
-	{
-		auto node = serialized_ent["CameraComponent"];
-		CameraComponent &cc = entity.add_component<CameraComponent>(
-				make_shared<OrthograficCamera>(
-					0.2,
-					node["aspect"].as<float>(),
-					node["z_near"].as<float>(),
-					node["z_far"].as<float>()
-					));
+    if (serialized_ent["CameraComponent"])
+    {
+        auto node = serialized_ent["CameraComponent"];
+        CameraComponent &cc = entity.add_component<CameraComponent>(
+            make_shared<OrthograficCamera>(0.2, node["aspect"].as<float>(),
+                                           node["z_near"].as<float>(),
+                                           node["z_far"].as<float>()));
 
-		cc.camera->position = node["position"].as<vec3>();
-		cc.camera->front = node["front"].as<vec3>();
-		cc.camera->up = node["up"].as<vec3>();
-		cc.camera->right = node["right"].as<vec3>();
-		cc.camera->speed = node["speed"].as<float>();
-		cc.camera->rotation_speed = node["rotation_speed"].as<float>();
+        cc.camera->position = node["position"].as<vec3>();
+        cc.camera->front = node["front"].as<vec3>();
+        cc.camera->up = node["up"].as<vec3>();
+        cc.camera->right = node["right"].as<vec3>();
+        cc.camera->speed = node["speed"].as<float>();
+        cc.camera->rotation_speed = node["rotation_speed"].as<float>();
 
-		// TODO distingush between perspective and orthografic cameras!!!
-		scene->observer = entity;
-	}
+        // TODO distingush between perspective and orthografic cameras!!!
+        scene->observer = entity;
+    }
 
-	if (serialized_ent["SceneStatus"])
-	{
-		auto node = serialized_ent["SceneStatus"];
-		SceneStatus &ss = entity.get_component<SceneStatus>();
-		ss.active = node["active"].as<bool>();
-		ss.render = node["render"].as<bool>();
-		ss.casting_shadow = node["casting_shadow"].as<bool>();
-	}
+    if (serialized_ent["SceneStatus"])
+    {
+        auto node = serialized_ent["SceneStatus"];
+        SceneStatus &ss = entity.get_component<SceneStatus>();
+        ss.active = node["active"].as<bool>();
+        ss.render = node["render"].as<bool>();
+        ss.casting_shadow = node["casting_shadow"].as<bool>();
+    }
 
-	return entity;
+    return entity;
 }
 
 void SceneSerializer::serialize(const string filepath)

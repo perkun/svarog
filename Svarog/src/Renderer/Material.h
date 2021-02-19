@@ -1,6 +1,7 @@
 #ifndef MATERIAL_H_
 #define MATERIAL_H_
 
+#include "Application.h"
 #include "Shader.h"
 
 using namespace std;
@@ -38,8 +39,10 @@ class Material
 {
 public:
 	Material();
-    Material(shared_ptr<Shader>);
+    Material(string shader_name);
 	~Material();
+
+	string shader_name;
 
 	shared_ptr<Shader> shader;
 	void set_uniforms();

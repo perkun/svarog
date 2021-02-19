@@ -2,9 +2,19 @@
 #include "Components.h"
 
 
-MeshComponent::MeshComponent(shared_ptr<VertexArrayObject> vao)
+MeshComponent::MeshComponent(shared_ptr<VertexArrayObject> v) : vao(v)
 {
-	this->vao = vao;
+}
+
+
+MeshComponent::MeshComponent(ModelType t) : model_type(t)
+{
+	if (model_type == ModelType::CUBE)
+		vao = make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
+	else if (model_type == ModelType::ICO_SPHERE)
+		vao = make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(1.)));
+	else if (model_type == ModelType::QUAD)
+		vao = make_shared<VertexArrayObject>(IndexedQuad(vec3(0.), vec3(1.)));
 }
 
 MeshComponent::MeshComponent(string filename)
@@ -13,7 +23,7 @@ MeshComponent::MeshComponent(string filename)
     {
         vao = make_shared<VertexArrayObject>(
             IndexedModelObj(filename, NormalIndexing::PER_FACE));
-		from_file = true;
+		model_type = ModelType::FILE;
 		this->filename = filename;
 
 		header = ObjHeader(filename);
@@ -22,7 +32,7 @@ MeshComponent::MeshComponent(string filename)
 	{
         vao = make_shared<VertexArrayObject>(
             IndexedModelShp(filename, NormalIndexing::PER_FACE));
-		from_file = true;
+		model_type = ModelType::FILE;
 		this->filename = filename;
 	}
     else

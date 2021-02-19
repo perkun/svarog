@@ -31,7 +31,7 @@ MainLayer::~MainLayer()
 void MainLayer::load_model(vec3 init_model_pos)
 {
     model = scene.create_entity("Model");
-    model.add_component<Material>(Application::shaders["tex_sha"])
+    model.add_component<Material>("tex_sha")
         .uniforms_int["u_has_texture"] = 0;
     model.add_component<NativeScriptComponent>().bind<AsteroidController>();
     Transform &mt = model.get_component<Transform>();
@@ -59,8 +59,7 @@ void MainLayer::load_model(vec3 init_model_pos)
         }
     }
     else
-        model.add_component<MeshComponent>(
-            make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.))));
+        model.add_component<MeshComponent>(ModelType::CUBE);
 
 	mt.scale = vec3(0.1);
 
@@ -84,7 +83,7 @@ void MainLayer::on_attach()
 	load_model(init_model_pos);
 
     grid = ui_scene.create_entity("grid");
-    grid.add_component<Material>(Application::shaders["line_shader"]);
+    grid.add_component<Material>("line_shader");
     grid.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(create_grid(10., 1., 0.2), true));
 
@@ -98,11 +97,10 @@ void MainLayer::on_attach()
         .bind<CameraController>();
 
     runtime_observer
-        .add_component<Material>(Application::shaders["color_shader"])
+        .add_component<Material>("color_shader")
         .uniforms_vec4["u_color"] =
         vec4(40 / 256., 185 / 256., 240 / 256., 1.0);
-    MeshComponent &romc = runtime_observer.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.05))));
+    MeshComponent &romc = runtime_observer.add_component<MeshComponent>(ModelType::ICO_SPHERE);
     rocp.camera->position = vec3(sqrt(2.)/2., sqrt(2.)/2., 0.);
 	if (args["observer-pos"])
 	{
@@ -112,16 +110,14 @@ void MainLayer::on_attach()
 
     rocp.camera->update_target(init_model_pos);
     // 	romc.vao->draw_type = GL_LINES;
-
-
     Transform &rot = runtime_observer.get_component<Transform>();
     rot.position = rocp.camera->position;
     rot.speed = 8.;
+	rot.scale = vec3(0.05);
 
     Entity light = scene.create_entity("Light");
-    light.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.1))));
-    light.add_component<Material>(Application::shaders["color_shader"])
+    light.add_component<MeshComponent>(ModelType::ICO_SPHERE);
+    light.add_component<Material>("color_shader")
         .uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
     light.add_component<LightComponent>();
@@ -134,6 +130,7 @@ void MainLayer::on_attach()
         //             radians(25.0), window->width / (float)window->height,
         //             0.01, 50.0));
         make_shared<OrthograficCamera>(1., 1., 0.01, 10.));
+	light.get_component<Transform>().scale = vec3(0.1);
 
 	scene.light = light;
 

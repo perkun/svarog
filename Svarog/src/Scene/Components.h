@@ -27,12 +27,13 @@ struct TagComponent
 class MeshComponent
 {
 public:
-    MeshComponent(shared_ptr<VertexArrayObject>);
+    MeshComponent(shared_ptr<VertexArrayObject> v);
+    MeshComponent(ModelType t);
     MeshComponent(string filename);
 	~MeshComponent();
 
 	string filename;
-	bool from_file = false;
+	ModelType model_type;
 
 	ObjHeader header;
 

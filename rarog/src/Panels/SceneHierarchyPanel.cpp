@@ -118,7 +118,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
         if (ImGui::MenuItem(buff))
         {
             Entity e = scene->create_entity("xyz axes");
-            e.add_component<Material>(Application::shaders["line_shader"]);
+            e.add_component<Material>("line_shader");
             Batch axes;
             axes.push_back(
                 IndexedLine(vec3(0.), vec3(2., 0., 0), vec4(1., 0., 0., 1.)));
@@ -179,7 +179,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 {
                     if (ImGui::MenuItem(element.first.c_str()))
                     {
-                        entity.add_component<Material>(element.second);
+                        entity.add_component<Material>(element.first);
                     }
                 }
                 ImGui::EndMenu();

@@ -14,6 +14,15 @@ enum class NormalIndexing
 	PER_FACE
 };
 
+enum class ModelType
+{
+	ICO_SPHERE,
+	CUBE,
+	QUAD,
+	FILE,
+	LINE
+};
+
 class IndexedModel
 {
 public:
