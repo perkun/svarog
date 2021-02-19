@@ -35,8 +35,8 @@ public:
 
 	virtual mat4 get_perspective() override;
 
-protected:
 	float fov;
+protected:
 };
 
 
@@ -49,7 +49,6 @@ public:
 	virtual mat4 get_perspective() override;
 
 	float size_x;
-
 protected:
 	float view_box_top, view_box_bottom, view_box_left, view_box_right;
 };
