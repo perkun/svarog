@@ -48,18 +48,17 @@ vector<Entity>& Entity::get_children()
 
 void Entity::destroy()
 {
-	if (!*this)
-		return;
-
-	for (Entity child: get_children())
-		child.destroy();
+	vector<Entity>& children = get_children();
+	for (int i = 0; i < children.size(); i++)
+	{
+		children[i].destroy();
+	}
 
 	string tag = get_component<TagComponent>().tag;
 
-	// 	givs segfault if exiting program with non-empty observation series...
-	// 	it is ok on deleting observations though.
-
 	detatch();
 	scene_registry_handle->destroy(entity_handle);
-	WARN("Deleted Entity {}", tag);
+	// 	givs segfault if exiting program with non-empty observation series...
+	// 	it is ok on deleting observations though.
+// 	WARN("Deleted Entity {}", tag);
 }

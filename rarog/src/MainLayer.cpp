@@ -83,7 +83,7 @@ void MainLayer::on_attach()
 
 	load_model(init_model_pos);
 
-    grid = scene.create_entity("grid");
+    grid = ui_scene.create_entity("grid");
     grid.add_component<Material>(Application::shaders["line_shader"]);
     grid.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(create_grid(10., 1., 0.2), true));
@@ -145,7 +145,6 @@ void MainLayer::on_attach()
     scene.root_entity.add_child(model);
     scene.root_entity.add_child(light);
     scene.root_entity.add_child(runtime_observer);
-    //     scene.root_entity.add_child(box);
 
     ui_scene.root_entity.add_child(grid);
 
@@ -383,17 +382,16 @@ void MainLayer::menu_bar()
                 SceneSerializer scene_serializer(&scene);
                 string filename = FileDialog::save_file("*.scene");
                 scene_serializer.serialize(filename);
-                cout << "saving scene" << endl;
             }
 
             if (ImGui::MenuItem("Load scene"))
             {
-				vector<Entity> children =
-					scene.root_entity.get_component<SceneGraphComponent>().children;
-				for (int i = 0; i < children.size(); i++)
-				{
-					children[i].destroy();
-				}
+// 				vector<Entity> children =
+// 					scene.root_entity.get_component<SceneGraphComponent>().children;
+// 				for (int i = 0; i < children.size(); i++)
+// 				{
+// 					children[i].destroy();
+// 				}
 
                 SceneSerializer scene_serializer(&scene);
                 string filename = FileDialog::open_file("*.scene");

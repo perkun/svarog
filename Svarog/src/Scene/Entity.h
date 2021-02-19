@@ -18,6 +18,7 @@ public:
     {
     }
 
+
     ~Entity();
 
     void add_child(Entity&);
@@ -85,6 +86,11 @@ public:
 	entt::entity get_handle()
 	{
 		return entity_handle;
+	}
+
+	uint32_t get_uuid()
+	{
+		return (uint32_t)entity_handle;
 	}
 
     // 	bool active = false;

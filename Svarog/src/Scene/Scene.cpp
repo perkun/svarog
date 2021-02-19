@@ -27,6 +27,18 @@ Entity Scene::create_entity(string name)
 	return entity;
 }
 
+Entity Scene::get_entity_by_uuid(unsigned int uuid)
+{
+	auto view = registry.view<SceneGraphComponent>();
+	for (auto &e: view)
+	{
+		Entity entity(e, &registry);
+		if (entity.get_uuid() == uuid)
+			return entity;
+	}
+	return Entity();
+}
+
 void Scene::controllers_events(Event &event)
 {
 	/// send event to all the controllers

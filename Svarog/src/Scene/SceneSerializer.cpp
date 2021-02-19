@@ -80,7 +80,13 @@ SceneSerializer::~SceneSerializer()
 void serialize_entity(YAML::Emitter &out, Entity entity)
 {
     out << YAML::BeginMap; // Entity
-    out << YAML::Key << "Entity" << YAML::Value << "12837192831273";
+    out << YAML::Key << "Entity" << YAML::Value << entity.get_uuid();
+
+	if (entity.has_component<SceneGraphComponent>())
+	{
+        out << YAML::Key << "parent_uuid" << YAML::Value
+			<< entity.get_component<SceneGraphComponent>().parent.get_uuid();
+	}
 
     if (entity.has_component<Transform>())
     {
@@ -195,11 +201,9 @@ void serialize_entity(YAML::Emitter &out, Entity entity)
     out << YAML::EndMap; // Entity
 }
 
-void SceneSerializer::deserialize_entity(
+Entity SceneSerializer::deserialize_entity(
     YAML::detail::iterator_value serialized_ent)
 {
-    //             uint64_t uuid = entity["Entity"].as<uint64_t>(); // TODO
-
     string name;
     auto tagComponent = serialized_ent["TagComponent"];
     if (tagComponent)
@@ -228,9 +232,11 @@ void SceneSerializer::deserialize_entity(
                 node["Filename"].as<string>());
         else
             entity.add_component<MeshComponent>(make_shared<VertexArrayObject>(
-                IndexedCube(vec3(-0.5), vec3(1.))));
+                IndexedCube(vec3(-0.25), vec3(0.5))));
 
 		scene->target = entity;
+
+		entity.add_component<Material>(Application::shaders["basic_shader"]);
     }
 
     if (serialized_ent["OrbitalComponent"])
@@ -296,8 +302,7 @@ void SceneSerializer::deserialize_entity(
 		ss.casting_shadow = node["casting_shadow"].as<bool>();
 	}
 
-	scene->root_entity.add_child(entity);
-
+	return entity;
 }
 
 void SceneSerializer::serialize(const string filepath)
@@ -306,10 +311,13 @@ void SceneSerializer::serialize(const string filepath)
     out << YAML::BeginMap;
     out << YAML::Key << "Scene" << YAML::Value << "Untitled";
     out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-    scene->registry.each([&](auto entityID) {
+    scene->registry.each([&](auto entityID)
+	{
         Entity entity(entityID, &scene->registry);
         if (!entity)
             return;
+
+		cout << entity.get_component<TagComponent>().tag << endl;
 
         serialize_entity(out, entity);
     });
@@ -327,21 +335,67 @@ bool SceneSerializer::deserialize(const string filepath)
     if (!data["Scene"])
         return false;
 
-	// TODO
-	// clear the scene!
+    auto entities = data["Entities"];
+	if (!entities)
+	{
+		WARN("Empty scene");
+		return false;
+	}
+
+	map<uint32_t, Entity> deserialized;
+	bool found_root = false;
+
+	for (auto entity : entities)
+		if (entity["TagComponent"]["tag"].as<string>() == "root")
+		{
+			found_root = true;
+			scene->root_entity.destroy();
+
+			uint32_t uuid = entity["Entity"].as<uint32_t>();
+			Entity ent = deserialize_entity(entity);
+			deserialized[uuid] = ent;
+			scene->root_entity = ent;
+		}
+
+	if (!found_root)
+	{
+		WARN("No root entity in scene!");
+		return false;
+	}
 
     string scene_name = data["Scene"].as<string>();
 
     cout << "Scene name: " << scene_name << endl;
 
-    auto entities = data["Entities"];
-    if (entities)
-    {
-        for (auto entity : entities)
-        {
-            deserialize_entity(entity);
-        }
-    }
+
+	for (auto entity : entities)
+	{
+		if (entity["TagComponent"]["tag"].as<string>() != "root")
+		{
+			uint32_t uuid = entity["Entity"].as<uint32_t>();
+			deserialized[uuid] = deserialize_entity(entity);
+		}
+	}
+
+	// scene hierarchy
+	for (auto entity : entities)
+	{
+		unsigned int uuid = entity["Entity"].as<unsigned int>();
+		unsigned int parent_uuid = entity["parent_uuid"].as<unsigned int>();
+
+		if (deserialized.find(uuid) == deserialized.end())
+			continue;
+		if (deserialized.find(parent_uuid) == deserialized.end())
+			continue;
+
+		Entity ent = deserialized[uuid];
+		Entity parent_ent = deserialized[parent_uuid];
+
+		if (ent && parent_ent)
+		{
+			parent_ent.add_child(ent);
+		}
+	}
 
     return true;
 }

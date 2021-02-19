@@ -38,6 +38,7 @@ public:
 	~Scene();
 
 	Entity create_entity(string name = "Unnamed");
+	Entity get_entity_by_uuid(unsigned int uuid);
 
 	void draw(Entity&);
 	void draw_depth_first(Entity&);

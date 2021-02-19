@@ -15,7 +15,7 @@ public:
 	bool deserialize(const string filepath);
 
 private:
-	void deserialize_entity(YAML::detail::iterator_value);
+	Entity deserialize_entity(YAML::detail::iterator_value);
 	Scene *scene;
 
 };
