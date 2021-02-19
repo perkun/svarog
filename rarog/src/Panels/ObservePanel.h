@@ -19,6 +19,7 @@ private:
 	MainLayer *layer;
 	int selected_target_idx = 0;
 	int selected_observer_idx = 0;
+	int selected_light_idx = 0;
 
 	void observe_button();
 	vector<Entity> get_scene_entities();
@@ -26,6 +27,9 @@ private:
 	void append_children(vector<Entity> &ents, Entity entity);
 	void target_selection_panel(vector<Entity>&);
 	void observer_selection_panel(vector<Entity>&);
+	void light_selection_panel(vector<Entity> &ents);
+
+	void preselect();
 
 };
 

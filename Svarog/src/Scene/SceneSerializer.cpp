@@ -173,6 +173,11 @@ void serialize_entity(YAML::Emitter &out, Entity entity)
         out << YAML::Key << "CameraComponent";
         out << YAML::BeginMap;
 
+		if (dynamic_pointer_cast<PerspectiveCamera>(cc.camera))
+			out << YAML::Key << "ProjectionType" << "Perspective";
+		if (dynamic_pointer_cast<OrthograficCamera>(cc.camera))
+			out << YAML::Key << "ProjectionType" << "Orthografic";
+
         out << YAML::Key << "aspect" << cc.camera->aspect;
         out << YAML::Key << "position" << cc.camera->position;
         out << YAML::Key << "front" << cc.camera->front;
@@ -413,6 +418,11 @@ bool SceneSerializer::deserialize(const string filepath)
 		{
 			found_root = true;
 			scene->registry.clear();
+
+			scene->observer = Entity();
+			scene->selected_entity = Entity();
+			scene->light = Entity();
+			scene->target = Entity();
 
 			uint32_t uuid = entity["Entity"].as<uint32_t>();
 			Entity ent = deserialize_entity(entity);

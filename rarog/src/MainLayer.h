@@ -56,7 +56,6 @@ private:
 
 
 	Entity model;
-	Entity observer_target;
 
 
 	bool shadow_map = true;

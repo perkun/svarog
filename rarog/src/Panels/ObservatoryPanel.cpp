@@ -63,12 +63,12 @@ void ObservatoryPanel::set_target_and_observer(Observation *obs)
     vec3 gtp = obs->target_transform.position;
     vec3 gop = obs->observer_transform.position;
 
-    layer->observer_target = obs->target;
+    layer->scene.observer = obs->target;
     layer->scene.observer = obs->observer;
-    layer->observer_target.get_component<Transform>() = obs->target_transform;
+    layer->scene.observer.get_component<Transform>() = obs->target_transform;
     layer->scene.observer.get_component<Transform>() = obs->observer_transform;
-    if (layer->observer_target.has_component<OrbitalComponent>())
-        layer->observer_target.get_component<OrbitalComponent>() =
+    if (layer->scene.observer.has_component<OrbitalComponent>())
+        layer->scene.observer.get_component<OrbitalComponent>() =
             obs->target_orbital_component;
 
     shared_ptr<Camera> camera =
@@ -123,7 +123,7 @@ void ObservatoryPanel::observations_panel()
         {
             // observations buttons
             if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
-                make_lightcurve(layer->observer_target, layer->scene.observer,
+                make_lightcurve(layer->scene.observer, layer->scene.observer,
                                 obs_storage->get_current_lightcurves(),
                                 lc_num_points);
             ImGui::SameLine(0., 20.);
@@ -140,7 +140,7 @@ void ObservatoryPanel::observations_panel()
         if (ImGui::BeginTabItem("AO Images"))
         {
             if (ImGui::Button("Make AO image", ImVec2(150, 0)))
-                make_ao_image(layer->observer_target, layer->scene.observer,
+                make_ao_image(layer->scene.observer, layer->scene.observer,
                               obs_storage->get_current_ao_images(), ao_size);
             ImGui::SameLine(0.0, 20.0);
             ImGui::PushItemWidth(100.);
@@ -164,7 +164,7 @@ void ObservatoryPanel::observations_panel()
         if (ImGui::BeginTabItem("Radar Images"))
         {
             if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
-                make_radar_image(layer->observer_target, layer->scene.observer,
+                make_radar_image(layer->scene.observer, layer->scene.observer,
                                  obs_storage->get_current_radar_images(), 600);
 
             ImGui::InputFloat("ang. speed", &angular_speed);
@@ -192,14 +192,14 @@ void ObservatoryPanel::on_imgui_render()
 void ObservatoryPanel::observe_points()
 {
     OrbitalComponent &oc =
-        layer->observer_target.get_component<OrbitalComponent>();
+        layer->scene.observer.get_component<OrbitalComponent>();
     double tmp_rotation_phase = oc.rotation_phase;
 
     vec3 &target_rotation =
-        layer->observer_target.get_component<Transform>().rotation;
+        layer->scene.observer.get_component<Transform>().rotation;
     vec3 tmp_rotation = target_rotation;
     vec3 &target_pos =
-        layer->observer_target.get_component<Transform>().position;
+        layer->scene.observer.get_component<Transform>().position;
     vec3 tmp_target_pos = target_pos;
     vec3 &observer_pos =
         layer->scene.observer.get_component<Transform>().position;
@@ -224,7 +224,7 @@ void ObservatoryPanel::observe_points()
         if (p.obs_types & ObsType::LC)
         {
             lc_num_points = p.lc_num_points;
-            make_lightcurve(layer->observer_target, layer->scene.observer,
+            make_lightcurve(layer->scene.observer, layer->scene.observer,
                             obs_storage->get_current_lightcurves(),
                             lc_num_points);
         }
@@ -232,13 +232,13 @@ void ObservatoryPanel::observe_points()
         if (p.obs_types & ObsType::AO)
         {
             ao_size = p.ao_size;
-            make_ao_image(layer->observer_target, layer->scene.observer,
+            make_ao_image(layer->scene.observer, layer->scene.observer,
                           obs_storage->get_current_ao_images(), ao_size);
         }
 
         if (p.obs_types & ObsType::RADAR)
         {
-            make_radar_image(layer->observer_target, layer->scene.observer,
+            make_radar_image(layer->scene.observer, layer->scene.observer,
                              obs_storage->get_current_radar_images(), 600);
         }
     }

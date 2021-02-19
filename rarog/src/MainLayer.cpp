@@ -146,7 +146,7 @@ void MainLayer::on_attach()
     ui_scene.root_entity.add_child(grid);
 
     scene.observer = runtime_observer;
-    observer_target = model;
+    scene.target = model;
 
 
     editor_camera =
@@ -230,17 +230,12 @@ void MainLayer::on_update(double time_delta)
 
     ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
-    if (shadow_map) // render to shadowmap
+    if (shadow_map && scene.light) // render to shadowmap
     {
-        Entity tmp_scene_observer = scene.observer;
-
         ASSERT(scene.light.has_component<FramebufferComponent>(),
                "Scene light doesn't have Framebuffer Component");
         ASSERT(scene.light.has_component<CameraComponent>(),
                "Scene light doesn't have Camera Component");
-
-		Entity tmp_light = scene.light;
-//         scene.light = Entity();
 
         SceneStatus &lss = scene.light.get_component<SceneStatus>();
         bool tmp_render = lss.render;
@@ -250,14 +245,16 @@ void MainLayer::on_update(double time_delta)
         auto lc = scene.light.get_component<CameraComponent>().camera;
 
         lc->position = lt.position;
-        lc->update_target(observer_target.get_component<Transform>().position);
+		if (scene.target)
+			lc->update_target(scene.target.get_component<Transform>().position);
         lc->aspect = 1;
 
         auto fb = scene.light.get_component<FramebufferComponent>().framebuffer;
         fb->bind();
         fb->clear();
 
-//         scene.observer = light;
+		Entity tmp_scene_observer = scene.observer;
+        scene.observer = scene.light;
 
         if (mode == Mode::EDITOR)
             // musi być zeby textura cieni byla aktualna,
@@ -272,7 +269,6 @@ void MainLayer::on_update(double time_delta)
 
         lss.render = tmp_render;
         scene.observer = tmp_scene_observer;
-    	scene.light = tmp_light;
     }
 
 
@@ -348,6 +344,12 @@ void MainLayer::set_editor_mode()
 
 void MainLayer::set_runtime_mode()
 {
+	if (!scene.observer || !scene.target)
+		return;
+
+	if (!scene.observer.has_component<CameraComponent>())
+		return;
+
     mode = Mode::RUNTIME;
     // 		scene.observer.get_component<CameraComponent>().camera->update_target(
     // 			model.get_component<Transform>().position);
@@ -359,7 +361,7 @@ void MainLayer::set_runtime_mode()
     shared_ptr<Camera> camera =
         scene.observer.get_component<CameraComponent>().camera;
     camera->position = scene.observer.get_component<Transform>().position;
-    camera->update_target(observer_target.get_component<Transform>().position);
+    camera->update_target(scene.target.get_component<Transform>().position);
 
     scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
 }
@@ -395,7 +397,7 @@ void MainLayer::menu_bar()
                 scene_serializer.deserialize(filename);
                 cout << "loading scene" << endl;
 
-				observer_target = scene.target;
+				scene.target = scene.target;
             }
 
             ImGui::Separator();
@@ -477,7 +479,7 @@ void MainLayer::menu_bar()
             bool enabled = (obs_storage.get_current_points_size() > 0);
             if (ImGui::MenuItem("Observe All Points", NULL, false, enabled))
             {
-                if (!observer_target.has_component<OrbitalComponent>())
+                if (!scene.target.has_component<OrbitalComponent>())
                 {
                     cout << "Target does not have an Orbital Component" << endl;
                 }

@@ -54,6 +54,16 @@ void SceneHierarchyPanel::on_imgui_render()
 	{
 		if (scene->selected_entity == entity_to_delete)
 			scene->selected_entity = Entity();
+
+		if (scene->target == entity_to_delete)
+			scene->target = Entity();
+
+		if (scene->observer == entity_to_delete)
+			scene->observer = Entity();
+
+		if (scene->light == entity_to_delete)
+			scene->light = Entity();
+
 		entity_to_delete.destroy();
 		entity_to_delete = Entity();
 	}
@@ -247,6 +257,15 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 ImGui::EndMenu();
             }
 
+            sprintf(buff, "%s  Add Light Component", "\xef\xaf\xa6");
+            if (!entity.has_component<LightComponent>() &&
+                ImGui::MenuItem(buff))
+            {
+				entity.add_component<LightComponent>();
+				entity.add_component<FramebufferComponent>(
+						make_shared<Framebuffer>(2048, 2048, DEPTH_ATTACHMENT));
+            }
+
             sprintf(buff, "%s  Add Orbital Component", "\xef\x94\x97");
             if (!entity.has_component<OrbitalComponent>() &&
                 ImGui::MenuItem(buff))
@@ -292,6 +311,8 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                                               "\xef\x92\x89", [](Entity &e) {});
         list_component<OrbitalComponent>(entity, "OrbitalComponent",
                                          "\xef\x94\x97", [](Entity &e) {});
+		list_component<LightComponent>(entity, "LightComponent",
+									   "\xef\xaf\xa6", [](Entity &e) {});
 
 
         // list children

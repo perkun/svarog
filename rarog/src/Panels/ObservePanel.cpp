@@ -6,13 +6,21 @@
 ObservePanel::ObservePanel(MainLayer *layer) : layer(layer)
 {
     // pteselect target and observer from leyer and layer.scene
+	preselect();
+
+}
+
+void ObservePanel::preselect()
+{
     vector<Entity> ents = get_scene_entities();
     for (int i = 0; i < ents.size(); i++)
     {
         if (ents[i] == layer->scene.observer)
             selected_observer_idx = i;
-        if (ents[i] == layer->observer_target)
+        if (ents[i] == layer->scene.target)
             selected_target_idx = i;
+        if (ents[i] == layer->scene.light)
+            selected_light_idx = i;
     }
 
 }
@@ -25,8 +33,14 @@ ObservePanel::~ObservePanel()
 void ObservePanel::on_imgui_render()
 {
     vector<Entity> ents = get_scene_root_children();
-    auto cam = dynamic_pointer_cast<OrthograficCamera>(
-        layer->scene.observer.get_component<CameraComponent>().camera);
+
+	shared_ptr<OrthograficCamera> cam = NULL;
+	if (layer->scene.observer)
+		if (layer->scene.observer.has_component<CameraComponent>())
+		{
+			cam = dynamic_pointer_cast<OrthograficCamera>(
+					layer->scene.observer.get_component<CameraComponent>().camera);
+		}
 
     ImGui::Begin("Observe");
     observe_button();
@@ -37,12 +51,18 @@ void ObservePanel::on_imgui_render()
 
     // observer camera fov
     ImGui::PushItemWidth(150.);
-	ImGui::SameLine();
-	ImGui::Text("FOV:");
-	ImGui::SameLine();
-    ImGui::DragFloat("##camera fov", &(cam->size_x), 0.02, 0.1, 100.);
-	ImGui::End();
+	if (cam)
+	{
+		ImGui::SameLine();
+		ImGui::Text("FOV:");
+		ImGui::SameLine();
+		ImGui::DragFloat("##camera fov", &(cam->size_x), 0.02, 0.1, 100.);
+	}
 
+	ImGui::SameLine();
+	light_selection_panel(ents);
+
+	ImGui::End();
 }
 
 void ObservePanel::observe_button()
@@ -54,10 +74,11 @@ void ObservePanel::observe_button()
         run_btn_label = "Stop observing";
 
     ImGui::PushItemWidth(150.);
-    if (ImGui::Button(run_btn_label.c_str()))
-    {
-        layer->toggle_mode();
-    }
+	if (ImGui::Button(run_btn_label.c_str()))
+	{
+		if (layer->scene.observer)
+			layer->toggle_mode();
+	}
 }
 
 void ObservePanel::append_children(vector<Entity> &ents, Entity entity)
@@ -92,6 +113,12 @@ void ObservePanel::target_selection_panel(vector<Entity> &ents)
     if (ents.size() == 0)
         return;
 
+	if (selected_target_idx >= ents.size() || selected_target_idx < 0)
+	{
+		selected_target_idx = 0;
+		layer->scene.target = ents[selected_target_idx];
+	}
+
 	ImGui::Text("Target:");
 	ImGui::SameLine();
     ImGui::PushItemWidth(150.);
@@ -111,10 +138,11 @@ void ObservePanel::target_selection_panel(vector<Entity> &ents)
                     is_selected))
             {
                 selected_target_idx = n;
-                layer->observer_target = ents[n];
-                layer->scene.observer.get_component<CameraComponent>()
-                    .camera->update_target(
-                        ents[n].get_component<Transform>().position);
+                layer->scene.target = ents[n];
+				if (layer->scene.observer.has_component<CameraComponent>())
+					layer->scene.observer.get_component<CameraComponent>()
+						.camera->update_target(
+								ents[n].get_component<Transform>().position);
             }
             // Set the initial focus when opening the combo (scrolling +
             // keyboard navigation focus)
@@ -131,6 +159,12 @@ void ObservePanel::observer_selection_panel(vector<Entity> &ents)
     if (ents.size() == 0)
         return;
 
+	if (selected_observer_idx >= ents.size() || selected_observer_idx < 0)
+	{
+		selected_observer_idx = 0;
+		layer->scene.observer = ents[selected_observer_idx];
+	}
+
 	ImGui::Text("Observer:");
 	ImGui::SameLine();
     ImGui::PushItemWidth(150.);
@@ -145,7 +179,7 @@ void ObservePanel::observer_selection_panel(vector<Entity> &ents)
             if (!ents[n].has_component<CameraComponent>())
                 continue;
 
-            if (ents[n] == layer->observer_target)
+            if (ents[n] == layer->scene.target)
                 continue;
 
             const bool is_selected = (selected_observer_idx == n);
@@ -165,4 +199,47 @@ void ObservePanel::observer_selection_panel(vector<Entity> &ents)
     }
 }
 
+void ObservePanel::light_selection_panel(vector<Entity> &ents)
+{
+    if (ents.size() == 0)
+        return;
 
+	if (selected_light_idx >= ents.size() || selected_light_idx < 0)
+		selected_light_idx = 0;
+
+
+
+	ImGui::Text("Light:");
+	ImGui::SameLine();
+    ImGui::PushItemWidth(150.);
+    if (ImGui::BeginCombo("##Light:",
+                          ents[selected_light_idx]
+                              .get_component<TagComponent>()
+                              .tag.c_str(),
+                          0))
+    {
+        for (int n = 0; n < ents.size(); n++)
+        {
+            if (!ents[n].has_component<LightComponent>())
+                continue;
+
+            if (ents[n] == layer->scene.target)
+                continue;
+
+            const bool is_selected = (selected_light_idx == n);
+            if (ImGui::Selectable(
+                    ents[n].get_component<TagComponent>().tag.c_str(),
+                    is_selected))
+            {
+                selected_light_idx = n;
+                layer->scene.light = ents[n];
+            }
+            // Set the initial focus when opening the combo (scrolling +
+            // keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+}
