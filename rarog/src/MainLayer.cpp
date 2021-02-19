@@ -32,7 +32,6 @@ void MainLayer::load_model(vec3 init_model_pos)
 {
     model = scene.create_entity("Model");
     model.add_component<Material>("tex_sha").uniforms_int["u_has_texture"] = 0;
-    model.add_component<NativeScriptComponent>().bind<AsteroidController>();
     Transform &mt = model.get_component<Transform>();
     mt.position = init_model_pos;
 
