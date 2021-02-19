@@ -43,6 +43,7 @@ public:
 	void on_window_resize_event(WindowResizeEvent&);
 
 private:
+	void create_default_scene();
 	IndexedModel create_grid(float size, float sep, float alpha);
 	// GUI functions
 	void scene_window();

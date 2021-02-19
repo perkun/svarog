@@ -18,7 +18,7 @@
 
 MainLayer::MainLayer(Args args)
 {
-	this->args = args;
+    this->args = args;
     TRACE("MainLayer constructed");
 }
 
@@ -31,8 +31,7 @@ MainLayer::~MainLayer()
 void MainLayer::load_model(vec3 init_model_pos)
 {
     model = scene.create_entity("Model");
-    model.add_component<Material>("tex_sha")
-        .uniforms_int["u_has_texture"] = 0;
+    model.add_component<Material>("tex_sha").uniforms_int["u_has_texture"] = 0;
     model.add_component<NativeScriptComponent>().bind<AsteroidController>();
     Transform &mt = model.get_component<Transform>();
     mt.position = init_model_pos;
@@ -43,14 +42,15 @@ void MainLayer::load_model(vec3 init_model_pos)
 
         if (File::is_extension(filename, "obj"))
         {
-			MeshComponent &mc = model.add_component<MeshComponent>(filename);
-			OrbitalComponent &oc = model.add_component<OrbitalComponent>(mc.header);
-			mt.rotation = oc.xyz_from_lbg();
-		}
+            MeshComponent &mc = model.add_component<MeshComponent>(filename);
+            OrbitalComponent &oc =
+                model.add_component<OrbitalComponent>(mc.header);
+            mt.rotation = oc.xyz_from_lbg();
+        }
         else if (File::is_extension(filename, "shp"))
-		{
+        {
             model.add_component<MeshComponent>(filename);
-		}
+        }
         else
         {
             WARN("Wrong file extension, exiting");
@@ -61,31 +61,21 @@ void MainLayer::load_model(vec3 init_model_pos)
     else
         model.add_component<MeshComponent>(ModelType::CUBE);
 
-	mt.scale = vec3(0.1);
+    mt.scale = vec3(0.1);
 
-	// position
-	if (args["model-pos"])
-	{
-		vector<float> pos = args.get_vec_values<float>("model-pos");
-		mt.position = vec3(pos[0], pos[1], pos[2]);
-	}
-
+    // position
+    if (args["model-pos"])
+    {
+        vector<float> pos = args.get_vec_values<float>("model-pos");
+        mt.position = vec3(pos[0], pos[1], pos[2]);
+    }
 }
 
 
-void MainLayer::on_attach()
+void MainLayer::create_default_scene()
 {
-    auto window = Application::get_window();
-    Renderer::set_line_width(2.);
-    Renderer::enable_blend();
     vec3 init_model_pos(0., 1., 0.);
-
-	load_model(init_model_pos);
-
-    grid = ui_scene.create_entity("grid");
-    grid.add_component<Material>("line_shader");
-    grid.add_component<MeshComponent>(
-        make_shared<VertexArrayObject>(create_grid(10., 1., 0.2), true));
+    load_model(init_model_pos);
 
     Entity runtime_observer = scene.create_entity("Observer");
     CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
@@ -96,29 +86,28 @@ void MainLayer::on_attach()
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
-    runtime_observer
-        .add_component<Material>("color_shader")
+    runtime_observer.add_component<Material>("color_shader")
         .uniforms_vec4["u_color"] =
         vec4(40 / 256., 185 / 256., 240 / 256., 1.0);
-    MeshComponent &romc = runtime_observer.add_component<MeshComponent>(ModelType::ICO_SPHERE);
-    rocp.camera->position = vec3(sqrt(2.)/2., sqrt(2.)/2., 0.);
-	if (args["observer-pos"])
-	{
-		vector<float> pos = args.get_vec_values<float>("observer-pos");
-		rocp.camera->position = vec3(pos[0], pos[1], pos[2]);
-	}
+    MeshComponent &romc =
+        runtime_observer.add_component<MeshComponent>(ModelType::ICO_SPHERE);
+    rocp.camera->position = vec3(sqrt(2.) / 2., sqrt(2.) / 2., 0.);
+    if (args["observer-pos"])
+    {
+        vector<float> pos = args.get_vec_values<float>("observer-pos");
+        rocp.camera->position = vec3(pos[0], pos[1], pos[2]);
+    }
 
     rocp.camera->update_target(init_model_pos);
     // 	romc.vao->draw_type = GL_LINES;
     Transform &rot = runtime_observer.get_component<Transform>();
     rot.position = rocp.camera->position;
     rot.speed = 8.;
-	rot.scale = vec3(0.05);
+    rot.scale = vec3(0.05);
 
     Entity light = scene.create_entity("Light");
     light.add_component<MeshComponent>(ModelType::ICO_SPHERE);
-    light.add_component<Material>("color_shader")
-        .uniforms_vec4["u_color"] =
+    light.add_component<Material>("color_shader").uniforms_vec4["u_color"] =
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
     light.add_component<LightComponent>();
 
@@ -130,30 +119,52 @@ void MainLayer::on_attach()
         //             radians(25.0), window->width / (float)window->height,
         //             0.01, 50.0));
         make_shared<OrthograficCamera>(1., 1., 0.01, 10.));
-	light.get_component<Transform>().scale = vec3(0.1);
+    light.get_component<Transform>().scale = vec3(0.1);
 
-	scene.light = light;
-
-
-    // 	Entity box = scene.create_entity("box");
-    // 	box.add_component<Material>(Application::shaders["basic_shader"]);
-    // 	box.add_component<MeshComponent>(make_shared<VertexArrayObject>(IndexedCube()));
+    scene.light = light;
 
     scene.root_entity.add_child(model);
     scene.root_entity.add_child(light);
     scene.root_entity.add_child(runtime_observer);
 
-    ui_scene.root_entity.add_child(grid);
-
     scene.observer = runtime_observer;
     scene.target = model;
+}
 
+
+void MainLayer::on_attach()
+{
+    auto window = Application::get_window();
+    Renderer::set_line_width(2.);
+    Renderer::enable_blend();
+
+	if (args["scene"])
+	{
+		SceneSerializer scene_serializer(&scene);
+		string filename = args.get_value<string>("scene");
+
+		if (File::is_extension(filename, "scene"))
+			scene_serializer.deserialize(filename);
+		else
+		{
+			cout << "Wrong Scene file extension" << endl;
+			create_default_scene();
+		}
+	}
+	else
+		create_default_scene();
+
+
+
+    grid = ui_scene.create_entity("grid");
+    grid.add_component<Material>("line_shader");
+    grid.add_component<MeshComponent>(
+        make_shared<VertexArrayObject>(create_grid(10., 1., 0.2), true));
+    ui_scene.root_entity.add_child(grid);
 
     editor_camera =
         EditorCamera(radians(45.), window->width / (float)window->height, 0.01,
                      500.0, vec3(6.3, -3., 5.12));
-
-
     ms_framebuffer =
         new Framebuffer(window->width, window->height,
                         COLOR_ATTACHMENT | DEPTH_ATTACHMENT | MULTISAMPLING);
@@ -163,7 +174,8 @@ void MainLayer::on_attach()
 
     time_panel = TimePanel(&scene);
     scene_hierarchy_panel = SceneHierarchyPanel(&scene, &time_panel.julian_day);
-    observatory_panel = ObservatoryPanel(this, &time_panel.julian_day, &obs_storage);
+    observatory_panel =
+        ObservatoryPanel(this, &time_panel.julian_day, &obs_storage);
     observe_panel = ObservePanel(this);
 }
 
@@ -245,15 +257,15 @@ void MainLayer::on_update(double time_delta)
         auto lc = scene.light.get_component<CameraComponent>().camera;
 
         lc->position = lt.position;
-		if (scene.target)
-			lc->update_target(scene.target.get_component<Transform>().position);
+        if (scene.target)
+            lc->update_target(scene.target.get_component<Transform>().position);
         lc->aspect = 1;
 
         auto fb = scene.light.get_component<FramebufferComponent>().framebuffer;
         fb->bind();
         fb->clear();
 
-		Entity tmp_scene_observer = scene.observer;
+        Entity tmp_scene_observer = scene.observer;
         scene.observer = scene.light;
 
         if (mode == Mode::EDITOR)
@@ -263,7 +275,7 @@ void MainLayer::on_update(double time_delta)
             // cieniach
             scene.on_update_editor(time_delta, editor_camera);
         else if (mode == Mode::RUNTIME)
-			scene.on_update_shadow();
+            scene.on_update_shadow();
 
         fb->bind_depth_texture(1);
 
@@ -294,8 +306,8 @@ void MainLayer::on_update(double time_delta)
         scene.on_update_runtime(time_delta);
     }
 
-	if (multisampling)
-		Framebuffer::blit(ms_framebuffer, framebuffer);
+    if (multisampling)
+        Framebuffer::blit(ms_framebuffer, framebuffer);
     Renderer::bind_default_framebuffer();
 }
 
@@ -312,9 +324,9 @@ void MainLayer::on_imgui_render()
     if (show_imgui_demo)
         ImGui::ShowDemoWindow();
 
-	time_panel.on_imgui_render();
+    time_panel.on_imgui_render();
     scene_hierarchy_panel.on_imgui_render();
-	observe_panel.on_imgui_render();
+    observe_panel.on_imgui_render();
     observatory_panel.on_imgui_render();
 }
 
@@ -344,11 +356,11 @@ void MainLayer::set_editor_mode()
 
 void MainLayer::set_runtime_mode()
 {
-	if (!scene.observer || !scene.target)
-		return;
+    if (!scene.observer || !scene.target)
+        return;
 
-	if (!scene.observer.has_component<CameraComponent>())
-		return;
+    if (!scene.observer.has_component<CameraComponent>())
+        return;
 
     mode = Mode::RUNTIME;
     // 		scene.observer.get_component<CameraComponent>().camera->update_target(
@@ -385,19 +397,10 @@ void MainLayer::menu_bar()
 
             if (ImGui::MenuItem("Load scene"))
             {
-// 				vector<Entity> children =
-// 					scene.root_entity.get_component<SceneGraphComponent>().children;
-// 				for (int i = 0; i < children.size(); i++)
-// 				{
-// 					children[i].destroy();
-// 				}
-
                 SceneSerializer scene_serializer(&scene);
                 string filename = FileDialog::open_file("*.scene");
                 scene_serializer.deserialize(filename);
                 cout << "loading scene" << endl;
-
-				scene.target = scene.target;
             }
 
             ImGui::Separator();
