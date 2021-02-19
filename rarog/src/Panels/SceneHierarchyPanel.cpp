@@ -142,18 +142,15 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
             {
                 if (ImGui::MenuItem("Cube"))
                 {
-                    entity.add_component<MeshComponent>(
-                        make_shared<VertexArrayObject>(IndexedCube()));
+                    entity.add_component<MeshComponent>(ModelType::CUBE);
                 }
                 if (ImGui::MenuItem("Ico Sphere"))
                 {
-                    entity.add_component<MeshComponent>(
-                        make_shared<VertexArrayObject>(IndexedIcoSphere()));
+                    entity.add_component<MeshComponent>(ModelType::ICO_SPHERE);
                 }
                 if (ImGui::MenuItem("Quad"))
                 {
-                    entity.add_component<MeshComponent>(
-                        make_shared<VertexArrayObject>(IndexedQuad()));
+                    entity.add_component<MeshComponent>(ModelType::QUAD);
                 }
                 if (ImGui::MenuItem("Obj file"))
                 {

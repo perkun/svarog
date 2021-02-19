@@ -412,7 +412,7 @@ bool SceneSerializer::deserialize(const string filepath)
 		if (entity["TagComponent"]["tag"].as<string>() == "root")
 		{
 			found_root = true;
-			scene->root_entity.destroy();
+			scene->registry.clear();
 
 			uint32_t uuid = entity["Entity"].as<uint32_t>();
 			Entity ent = deserialize_entity(entity);
