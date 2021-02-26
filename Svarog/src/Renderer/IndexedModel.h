@@ -34,6 +34,7 @@ public:
 	vector<unsigned int> indices;
 
 	unsigned int draw_type = GL_TRIANGLES;
+	float get_r_max() const;
 };
 
 class IndexedIcoSphere : public IndexedModel
@@ -124,8 +125,6 @@ protected:
 	vector<vec2> tex;
 	vector<vec3> nor;
 	vector<uvec3> pos_idxs;
-
-
 };
 
 

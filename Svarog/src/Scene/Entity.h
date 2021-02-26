@@ -59,9 +59,10 @@ public:
     }
 
     template <typename T>
-	void replace_component(T new_component)
+	T& replace_component(T new_component)
     {
         scene_registry_handle->replace<T>(entity_handle, new_component);
+        return scene_registry_handle->get<T>(entity_handle);
     }
 
     operator bool() const

@@ -16,6 +16,7 @@ public:
 	~SceneHierarchyPanel();
 
 	void on_imgui_render();
+	static void add_asteroid_from_file(Entity&, string);
 
 private:
 	void draw_entity_node(Entity&);

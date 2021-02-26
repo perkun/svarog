@@ -20,8 +20,11 @@ int main(int argc, char *argv[])
 
 	Parser parser;
 
+	parser.add_flag('e', "empty", "Empty scene");
+
 	parser.add_option('m', "model", "path to OBJ model", false, "");
 	parser.add_option('s', "scene", "load scene on startup", false, "");
+
 	parser.add_vec_option("model-pos", "xyz of the model", 3, false);
 	parser.add_vec_option("observer-pos", "xyz of the observer", 3, false);
 

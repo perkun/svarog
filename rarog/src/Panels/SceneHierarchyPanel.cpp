@@ -17,6 +17,37 @@ SceneHierarchyPanel::~SceneHierarchyPanel()
 {
 }
 
+
+void SceneHierarchyPanel::add_asteroid_from_file(Entity &model, string filename)
+{
+    model.add_component<Material>("tex_sha").uniforms_int["u_has_texture"] = 0;
+    Transform &mt = model.get_component<Transform>();
+
+    if (File::is_extension(filename, "obj"))
+    {
+		if (model.has_component<MeshComponent>())
+			model.remove_component<MeshComponent>();
+		if (model.has_component<OrbitalComponent>())
+			model.remove_component<OrbitalComponent>();
+		if (model.has_component<NativeScriptComponent>())
+			model.remove_component<NativeScriptComponent>();
+
+        MeshComponent &mc = model.add_component<MeshComponent>(filename);
+        OrbitalComponent &oc = model.add_component<OrbitalComponent>(mc.header);
+		model.add_component<NativeScriptComponent>().bind<AsteroidController>();
+        mt.rotation = oc.xyz_from_lbg();
+    }
+    else if (File::is_extension(filename, "shp"))
+    {
+        model.add_component<MeshComponent>(filename);
+    }
+    else
+    {
+        WARN("Wrong file extension, exiting");
+        cout << "File extension not recognised" << endl;
+    }
+}
+
 void SceneHierarchyPanel::on_imgui_render()
 {
     ImGui::Begin("Scene Hierarchy");
@@ -139,6 +170,18 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
             e.get_component<SceneStatus>().casting_shadow = false;
             entity.add_child(e);
         }
+
+		sprintf(buff, "%s  Load Asteroid from file", "\xef\x81\xa7");
+		if (ImGui::MenuItem(buff))
+		{
+			string filename = FileDialog::open_file("\"*.shp\" \"*.obj\"");
+			if (filename != "")
+			{
+				Entity e = scene->create_entity("Unnamed Entity");
+				add_asteroid_from_file(e, filename);
+				entity.add_child(e);
+			}
+		}
 
         ImGui::Separator();
 

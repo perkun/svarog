@@ -53,12 +53,6 @@ private:
 	void set_editor_mode();
 	void set_runtime_mode();
 
-	void load_model(vec3 init_model_pos);
-
-
-	Entity model;
-
-
 	bool shadow_map = true;
 	bool show_imgui_demo = false;
 	bool show_scene_options = true;

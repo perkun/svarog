@@ -28,53 +28,32 @@ MainLayer::~MainLayer()
 }
 
 
-void MainLayer::load_model(vec3 init_model_pos)
+void MainLayer::create_default_scene()
 {
-    model = scene.create_entity("Model");
-    model.add_component<Material>("tex_sha").uniforms_int["u_has_texture"] = 0;
-    Transform &mt = model.get_component<Transform>();
-    mt.position = init_model_pos;
-
+    vec3 init_model_pos(0., 1., 0.);
+    Entity model = scene.create_entity("Model");
     if (args["model"])
-    {
-        string filename = args.get_value<string>("model");
-
-        if (File::is_extension(filename, "obj"))
-        {
-            MeshComponent &mc = model.add_component<MeshComponent>(filename);
-            OrbitalComponent &oc =
-                model.add_component<OrbitalComponent>(mc.header);
-            mt.rotation = oc.xyz_from_lbg();
-        }
-        else if (File::is_extension(filename, "shp"))
-        {
-            model.add_component<MeshComponent>(filename);
-        }
-        else
-        {
-            WARN("Wrong file extension, exiting");
-            cout << "File extension not recognised" << endl;
-            Application::stop();
-        }
-    }
+        SceneHierarchyPanel::add_asteroid_from_file(
+            model, args.get_value<string>("model"));
     else
+	{
         model.add_component<MeshComponent>(ModelType::CUBE);
+		model.add_component<Material>("tex_sha").uniforms_int["u_has_texture"] = 0;
+		model.add_component<NativeScriptComponent>().bind<AsteroidController>();
+		model.add_component<OrbitalComponent>();
+	}
 
+    Transform &mt = model.get_component<Transform>();
     mt.scale = vec3(0.1);
 
-    // position
     if (args["model-pos"])
     {
         vector<float> pos = args.get_vec_values<float>("model-pos");
         mt.position = vec3(pos[0], pos[1], pos[2]);
     }
-}
+    else
+        mt.position = init_model_pos;
 
-
-void MainLayer::create_default_scene()
-{
-    vec3 init_model_pos(0., 1., 0.);
-    load_model(init_model_pos);
 
     Entity runtime_observer = scene.create_entity("Observer");
     CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
@@ -150,7 +129,7 @@ void MainLayer::on_attach()
 			create_default_scene();
 		}
 	}
-	else
+	else if (!args["empty"])
 		create_default_scene();
 
 

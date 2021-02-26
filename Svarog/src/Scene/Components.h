@@ -36,6 +36,7 @@ public:
 	ModelType model_type;
 
 	ObjHeader header;
+	float r_max = 1;
 
 	shared_ptr<VertexArrayObject> vao;
 };

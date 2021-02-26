@@ -123,7 +123,7 @@ void ObservatoryPanel::observations_panel()
         {
             // observations buttons
             if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
-                make_lightcurve(layer->scene.observer, layer->scene.observer,
+                make_lightcurve(layer->scene.target, layer->scene.observer,
                                 obs_storage->get_current_lightcurves(),
                                 lc_num_points);
             ImGui::SameLine(0., 20.);
@@ -140,7 +140,7 @@ void ObservatoryPanel::observations_panel()
         if (ImGui::BeginTabItem("AO Images"))
         {
             if (ImGui::Button("Make AO image", ImVec2(150, 0)))
-                make_ao_image(layer->scene.observer, layer->scene.observer,
+                make_ao_image(layer->scene.target, layer->scene.observer,
                               obs_storage->get_current_ao_images(), ao_size);
             ImGui::SameLine(0.0, 20.0);
             ImGui::PushItemWidth(100.);
@@ -164,7 +164,7 @@ void ObservatoryPanel::observations_panel()
         if (ImGui::BeginTabItem("Radar Images"))
         {
             if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
-                make_radar_image(layer->scene.observer, layer->scene.observer,
+                make_radar_image(layer->scene.target, layer->scene.observer,
                                  obs_storage->get_current_radar_images(), 600);
 
             ImGui::InputFloat("ang. speed", &angular_speed);
@@ -359,6 +359,12 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer,
                                        int num_points)
 {
     Transform &tt = target.get_component<Transform>();
+	if (!target.has_component<OrbitalComponent>())
+	{
+		cout << "target does not have orbital component" << endl;
+		return;
+	}
+
     OrbitalComponent &oc = target.get_component<OrbitalComponent>();
 
     int width = 256;

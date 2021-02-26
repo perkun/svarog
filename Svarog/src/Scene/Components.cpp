@@ -15,6 +15,7 @@ MeshComponent::MeshComponent(ModelType t) : model_type(t)
 		vao = make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(1.)));
 	else if (model_type == ModelType::QUAD)
 		vao = make_shared<VertexArrayObject>(IndexedQuad(vec3(0.), vec3(1.)));
+	r_max = 1;
 }
 
 MeshComponent::MeshComponent(string filename)
@@ -37,6 +38,8 @@ MeshComponent::MeshComponent(string filename)
 	}
     else
         vao = make_shared<VertexArrayObject>(IndexedCube(vec3(-0.5), vec3(1.)));
+
+	r_max = vao->r_max;
 }
 
 

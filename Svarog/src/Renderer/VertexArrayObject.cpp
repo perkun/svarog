@@ -2,6 +2,7 @@
 #include "VertexArrayObject.h"
 
 
+
 // VertexArrayObject::VertexArrayObject(VertexLayout vl)
 // {
 // 	vertices_layout = vl;
@@ -43,6 +44,8 @@ void VertexArrayObject::create(const IndexedModel &indexed_model)
 // 	indexed_model.layout.calculate_stride_and_elem_offsets();
 	num_draw_elements = indexed_model.indices.size() * 3;
 	draw_type = indexed_model.draw_type;
+
+	r_max = indexed_model.get_r_max();
 
     // create VAO
     glGenVertexArrays(1, &vao_id);

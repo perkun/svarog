@@ -29,6 +29,7 @@ public:
 	int num_draw_elements;
 	bool blend = false;
 	unsigned int draw_type = GL_TRIANGLES;
+	float r_max = 1.0;
 
 private:
 	bool created = false;

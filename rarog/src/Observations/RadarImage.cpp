@@ -2,14 +2,14 @@
 #include "RadarImage.h"
 
 
-
 void RadarImage::construct_delay_doppler(float *radial_vel_buffer,
-                                          float *depth_bufer,
-                                          float *normal_buffer, int width,
-                                          int height)
+                                         float *depth_bufer,
+                                         float *normal_buffer,
+                                         int radial_vel_width,
+                                         int radial_vel_height)
 {
-    int radar_width = texture_specs.width;
-    int radar_height = texture_specs.height;
+    int delay_dopler_width = texture_specs.width;
+    int delay_dopler_height = texture_specs.height;
 
     // find min and max vr and d
     float d_max = depth_bufer[0];
@@ -17,7 +17,7 @@ void RadarImage::construct_delay_doppler(float *radial_vel_buffer,
     float vr_min = radial_vel_buffer[0];
     float vr_max = radial_vel_buffer[0];
 
-    for (int i = 0; i < width * height; i++)
+    for (int i = 0; i < radial_vel_width * radial_vel_height; i++)
     {
         if (radial_vel_buffer[i] > vr_max)
             vr_max = radial_vel_buffer[i];
@@ -41,37 +41,37 @@ void RadarImage::construct_delay_doppler(float *radial_vel_buffer,
     d_max = 1.;
 
 
-    float *delay_doppler = new float[radar_width * radar_height];
-    for (int i = 0; i < radar_width * radar_height; i++)
+    float *delay_doppler = new float[delay_dopler_width * delay_dopler_height];
+    for (int i = 0; i < delay_dopler_width * delay_dopler_height; i++)
         delay_doppler[i] = 0.;
 
-    for (int i = 0; i < width * height; i++)
+    for (int i = 0; i < radial_vel_width * radial_vel_height; i++)
     {
         if (depth_bufer[i] == 0.) // background
             continue;
 
-        int vr = floor(radar_width * (radial_vel_buffer[i] - vr_min) /
+        int vr = floor(delay_dopler_width * (radial_vel_buffer[i] - vr_min) /
                        (vr_max - vr_min));
         int d =
-            floor(radar_height * (depth_bufer[i] - d_min) / (d_max - d_min));
+            floor(delay_dopler_height * (depth_bufer[i] - d_min) / (d_max - d_min));
 
         // 		if (i == 200*400 + 170)
         // 			TRACE("vr, d: {}, {}", vr, d);
 
-        if (d < 0 || d >= radar_height)
+        if (d < 0 || d >= delay_dopler_height)
             continue;
-        if (vr < 0 || vr >= radar_width)
+        if (vr < 0 || vr >= delay_dopler_width)
             continue;
 
-        delay_doppler[d * radar_width + vr] += normal_buffer[i];
+        delay_doppler[d * delay_dopler_width + vr] += normal_buffer[i];
     }
 
     // normalize delay_doppler
     float dd_max = delay_doppler[0];
-    for (int i = 0; i < radar_width * radar_height; i++)
+    for (int i = 0; i < delay_dopler_width * delay_dopler_height; i++)
         if (delay_doppler[i] > dd_max)
             dd_max = delay_doppler[i];
-    for (int i = 0; i < radar_width * radar_height; i++)
+    for (int i = 0; i < delay_dopler_width * delay_dopler_height; i++)
         delay_doppler[i] /= dd_max;
 
     texture->update(delay_doppler, delay_doppler, delay_doppler);
