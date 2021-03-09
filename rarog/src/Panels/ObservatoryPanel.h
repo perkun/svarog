@@ -46,6 +46,7 @@ private:
 	void set_current_ghosts(ObservationStorage*);
 
 	int ao_size = 400;
+	int dd_size = 200;
 	vec4 ao_bg_color = vec4(0.0, 0.0, 0.0, 1.);
 
 	int lc_num_points = 360;

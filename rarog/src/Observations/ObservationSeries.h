@@ -4,6 +4,7 @@
 #include "Observation.h"
 #include "Lightcurve.h"
 #include "Utils/File.h"
+#include "Texture.h"
 
 using namespace std;
 
@@ -21,6 +22,8 @@ public:
 	Observation* get_current_obs();
 	void delete_current_obs();
 	void delete_all();
+
+	FitsHeader make_fits_header(Observation*);
 
 	int size();
 
@@ -59,8 +62,10 @@ public:
 	ImageSeries() {}
 	~ImageSeries() {}
 
-	void save(const char *filename);
-	void save_all(const char *filename);
+	void save_png(const char *filename);
+	void save_fits_greyscale(const char *filename);
+	void save_all_png(const char *filename);
+	void save_all_fits(const char *filename);
 	virtual void serialize(YAML::Emitter &out) override;
 
 };

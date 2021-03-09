@@ -165,7 +165,10 @@ void ObservatoryPanel::observations_panel()
         {
             if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
                 make_radar_image(layer->scene.target, layer->scene.observer,
-                                 obs_storage->get_current_radar_images(), 600);
+                                 obs_storage->get_current_radar_images(), dd_size);
+            ImGui::SameLine(0.0, 20.0);
+            ImGui::PushItemWidth(100.);
+            ImGui::InputInt("size [px]", &dd_size, 1, 100);
 
             ImGui::InputFloat("ang. speed", &angular_speed);
 
@@ -239,7 +242,7 @@ void ObservatoryPanel::observe_points()
         if (p.obs_types & ObsType::RADAR)
         {
             make_radar_image(layer->scene.observer, layer->scene.observer,
-                             obs_storage->get_current_radar_images(), 600);
+                             obs_storage->get_current_radar_images(), 200);
         }
     }
     target_pos = tmp_target_pos;
@@ -313,7 +316,7 @@ void ObservatoryPanel::display_images(ImageSeries *images)
         cout << "IMG not valid!!!" << endl;
 
 
-	ImGui::Text("%lf", current_obs->julian_day);
+    ImGui::Text("%lf", current_obs->julian_day);
 
     ImGui::PushItemWidth(100.);
     if (ImGui::InputInt("Nr", &images->current_id, 1))
@@ -346,11 +349,24 @@ void ObservatoryPanel::display_images(ImageSeries *images)
         }
     }
 
-    if (ImGui::Button("Save to png"))
-        images->save(FileDialog::save_file("*.png").c_str());
+    ImGui::Text("Save");
+    ImGui::SameLine();
+    if (ImGui::Button("single png"))
+        images->save_png(FileDialog::save_file("*.png").c_str());
 
-    if (ImGui::Button("Save all"))
-        images->save_all(FileDialog::save_file("*.png").c_str());
+    ImGui::SameLine();
+    if (ImGui::Button("all pngs"))
+        images->save_all_png(FileDialog::save_file("*.png").c_str());
+
+
+    ImGui::Text("Save");
+    ImGui::SameLine();
+    if (ImGui::Button("single fits"))
+        images->save_fits_greyscale(FileDialog::save_file("*.fits").c_str());
+
+    ImGui::SameLine();
+    if (ImGui::Button("all fits"))
+        images->save_all_fits(FileDialog::save_file("*.fits").c_str());
 }
 
 
@@ -497,10 +513,10 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
 
 void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
                                         ImageSeries *radar_images,
-                                        int radar_frame_size)
+                                        int dd_size)
 {
-    int frame_width = radar_frame_size;
-    int frame_height = radar_frame_size;
+    int frame_width = dd_size * 3;
+    int frame_height = dd_size * 3;
 
     float *pixel_buffer_r = new float[frame_width * frame_height];
     float *pixel_buffer_normal = new float[frame_width * frame_height];
@@ -538,11 +554,10 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
     glReadPixels(0, 0, frame_width, frame_height, GL_BLUE, GL_FLOAT,
                  pixel_buffer_depth);
 
-    RadarImage *rimg = new RadarImage(target, observer, 200, 200);
+    RadarImage *rimg = new RadarImage(target, observer, dd_size, dd_size);
     rimg->construct_delay_doppler(pixel_buffer_r, pixel_buffer_depth,
                                   pixel_buffer_normal, frame_width,
                                   frame_height);
-
 
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");

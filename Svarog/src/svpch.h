@@ -17,6 +17,7 @@
 #include <random>
 #include <fstream>
 #include <regex>
+#include <fitsio.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
