@@ -2,6 +2,7 @@
 #define OBSERVATIONSERIES_H_
 
 #include "Observation.h"
+#include "Image.h"
 #include "Lightcurve.h"
 #include "Utils/File.h"
 #include "Texture.h"
@@ -22,8 +23,6 @@ public:
 	Observation* get_current_obs();
 	void delete_current_obs();
 	void delete_all();
-
-	FitsHeader make_fits_header(Observation*);
 
 	int size();
 

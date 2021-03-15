@@ -123,55 +123,16 @@ void ImageSeries::save_png(const char *filename)
 {
 	string base =  File::remove_extension(filename);
 	string fn = base + ".png";
-	static_cast<Image*>(get_current_obs())->texture->save_png(fn.c_str());
+	static_cast<Image*>(get_current_obs())->save_png(fn.c_str());
 }
 
-FitsHeader ObservationSeries::make_fits_header(Observation *obs)
-{
-	FitsHeader header;
-
-    header.push("obs_x", obs->observer_transform.position.x,
-                "observer x position [au]");
-    header.push("obs_y", obs->observer_transform.position.y,
-                "observer y position [au]");
-    header.push("obs_z", obs->observer_transform.position.z,
-                "observer z position [au]");
-
-    header.push("pos_x", obs->target_transform.position.x,
-                "tarteg x position [au]");
-    header.push("pos_y", obs->target_transform.position.y,
-                "tarteg y position [au]");
-    header.push("pos_z", obs->target_transform.position.z,
-                "tarteg z position [au]");
-
-    header.push("lambda", obs->target_orbital_component.lambda,
-                "lambda angle [rad]");
-    header.push("beta", obs->target_orbital_component.beta, "beta angle [rad]");
-    header.push("gamma", obs->target_orbital_component.gamma,
-                "gamma angle [rad]");
-
-    header.push("phase", obs->target_orbital_component.rotation_phase,
-                "rotation phase [rad]");
-
-    header.push("period", obs->target_orbital_component.rot_period,
-                "rotation period [h]");
-
-    header.push("jd_0", obs->target_orbital_component.jd_0,
-                "reference eopch for gamma=0 [julian day]");
-
-    header.push("jd", obs->julian_day, "image epoch");
-
-	return header;
-}
 
 void ImageSeries::save_fits_greyscale(const char *filename)
 {
-    FitsHeader header = make_fits_header(get_current_obs());
-
     string base = File::remove_extension(filename);
     string fn = base + ".fits";
-    static_cast<Image *>(get_current_obs())
-        ->texture->save_fits_greyscale(fn.c_str(), header);
+    static_cast<Image *>(get_current_obs()) ->save_fits_greyscale(fn.c_str(),
+                                       get_current_obs()->get_fits_header());
 }
 
 
@@ -183,7 +144,7 @@ void ImageSeries::save_all_png(const char *filename)
 	for (Observation *obs : observations)
 	{
 		sprintf(fn, "%s_%03d.png", base.c_str(), nr);
-		static_cast<Image*>(obs)->texture->save_png(fn);
+		static_cast<Image*>(obs)->save_png(fn);
 		nr++;
 	}
 }
@@ -191,16 +152,16 @@ void ImageSeries::save_all_png(const char *filename)
 void ImageSeries::save_all_fits(const char *filename)
 {
 
-	char fn[200];
-	string base =  File::remove_extension(filename);
-	int nr = 0;
-	for (Observation *obs : observations)
-	{
-    	FitsHeader header = make_fits_header(obs);
-		sprintf(fn, "%s_%03d.fits", base.c_str(), nr);
-		static_cast<Image*>(obs)->texture->save_fits_greyscale(fn, header);
-		nr++;
-	}
+    char fn[200];
+    string base = File::remove_extension(filename);
+    int nr = 0;
+    for (Observation *obs : observations)
+    {
+        sprintf(fn, "%s_%03d.fits", base.c_str(), nr);
+        static_cast<Image *>(obs)->save_fits_greyscale(
+            fn, obs->get_fits_header());
+        nr++;
+    }
 }
 
 void ImageSeries::serialize(YAML::Emitter &out)

@@ -6,8 +6,7 @@
 #include "Observation.h"
 #include "ObservationSeries.h"
 #include "ObservationStorage.h"
-#include "AoImage.h"
-#include "RadarImage.h"
+#include "Image.h"
 #include "Texture.h"
 #include "Utils/File.h"
 

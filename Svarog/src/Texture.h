@@ -3,6 +3,7 @@
 
 #include "stb_image.h"
 #include "stb_image_write.h"
+#include <longnam.h>
 
 using namespace std;
 using namespace glm;
@@ -21,78 +22,6 @@ struct TextureSpec
 };
 
 
-class FitsHeaderEntry
-{
-public:
-	FitsHeaderEntry() {}
-	~FitsHeaderEntry() {}
-
-	string key, comment;
-	virtual void write(fitsfile *file) {}
-};
-
-class FitsHeaderEntryFloat : public FitsHeaderEntry
-{
-public:
-	FitsHeaderEntryFloat(string k, float v, string c)
-	{
-		key = k;
-		value = v;
-		comment = c;
-	}
-
-	float value;
-	virtual void write(fitsfile *file) override {
-		int status = 0;
-		fits_update_key_fixflt(file, key.c_str(),
-				value, 6, comment.c_str(), &status);
-	}
-};
-
-
-class FitsHeaderEntryDouble : public FitsHeaderEntry
-{
-public:
-	FitsHeaderEntryDouble(string k, double v, string c)
-	{
-		key = k;
-		value = v;
-		comment = c;
-	}
-
-	double value;
-
-	virtual void write(fitsfile *file) override {
-		int status = 0;
-		fits_update_key_fixdbl(file, key.c_str(),
-				value, 15, comment.c_str(), &status);
-	}
-};
-
-class FitsHeader
-{
-public:
-	void push(string key, float value, string comment)
-	{
-		auto hef = make_shared<FitsHeaderEntryFloat>(key, value, comment);
-		entries.emplace_back(hef);
-	}
-
-	void push(string key, double value, string comment)
-	{
-		auto hef = make_shared<FitsHeaderEntryDouble>(key, value, comment);
-		entries.emplace_back(hef);
-	}
-
-        void write(fitsfile *file)
-	{
-		for (auto he : entries)
-			he->write(file);
-	}
-
-private:
-	vector< shared_ptr<FitsHeaderEntry> > entries;
-};
 
 
 class Texture
@@ -115,10 +44,6 @@ public:
 	void bind(unsigned int slot = 0);
 	vec2 get_dimentions();
 	long get_size();
-
-	void save_png(const char *filename);
-	void save_fits_greyscale(const char *filename, FitsHeader& header);
-
 
 protected:
 	Texture() {}

@@ -1,13 +1,13 @@
 #ifndef OBSERVATION_H_
 #define OBSERVATION_H_
 
-#include "Texture.h"
 #include "Material.h"
 #include "Components.h"
 #include "IndexedModel.h"
 #include "Application.h"
 #include "Transform.h"
 #include "Entity.h"
+#include "FitsHeader.h"
 
 using namespace std;
 
@@ -29,22 +29,13 @@ public:
 	double julian_day;  // not used...
 
 	vec4 ghost_color = vec4(1,1,1,1);
-};
 
-
-class Image : public Observation
-{
-public:
-	Image(Entity& target, Entity &observer, int width, int height);
-	~Image();
-	virtual void serialize(YAML::Emitter &out) override;
-
-	shared_ptr<Texture> texture;
-
+	virtual FitsHeader get_fits_header();
 
 protected:
-	TextureSpec texture_specs;
+	void push_basic_header_info(FitsHeader &header);
 
 };
+
 
 #endif /* OBSERVATION_H_ */

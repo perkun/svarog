@@ -19,6 +19,48 @@ Observation::~Observation()
 	ghost_target.destroy();
 }
 
+
+FitsHeader Observation::get_fits_header()
+{
+	FitsHeader header;
+	push_basic_header_info(header);
+	return header;
+}
+
+void Observation::push_basic_header_info(FitsHeader &header)
+{
+    header.push("obs_x", observer_transform.position.x,
+                 "observer x position [au]");
+    header.push("obs_y", observer_transform.position.y,
+                 "observer y position [au]");
+    header.push("obs_z", observer_transform.position.z,
+                 "observer z position [au]");
+
+    header.push("pos_x", target_transform.position.x,
+                 "tarteg x position [au]");
+    header.push("pos_y", target_transform.position.y,
+                 "tarteg y position [au]");
+    header.push("pos_z", target_transform.position.z,
+                 "tarteg z position [au]");
+
+    header.push("lambda", target_orbital_component.lambda,
+                 "lambda angle [rad]");
+    header.push("beta", target_orbital_component.beta, "beta angle [rad]");
+    header.push("gamma", target_orbital_component.gamma, "gamma angle [rad]");
+
+    header.push("phase", target_orbital_component.rotation_phase,
+                 "rotation phase [rad]");
+
+    header.push("period", target_orbital_component.rot_period,
+                 "rotation period [h]");
+
+    header.push("jd_0", target_orbital_component.jd_0,
+                 "reference eopch for gamma=0 [julian day]");
+
+    header.push("jd", julian_day, "image epoch");
+}
+
+
 void Observation::serialize(YAML::Emitter &out)
 {
 	out << YAML::BeginMap;
@@ -63,53 +105,4 @@ void Observation::add_ghosts(Entity &gt, Entity &go)
     gtt.position = target.get_component<Transform>().position;
 }
 
-
-Image::Image(Entity &target, Entity &observer, int width, int height)
-	: Observation(target, observer)
-{
-
-	texture_specs.target = GL_TEXTURE_2D;
-	texture_specs.level = 0;
-	texture_specs.internal_format = GL_RGB32F;
-	texture_specs.width = width;
-	texture_specs.height = height;
-	texture_specs.depth = 1;
-	texture_specs.border = 0;
-	texture_specs.format = GL_RGB;
-	texture_specs.type = GL_FLOAT;
-
-	texture = make_shared<Texture>(texture_specs);
-
-	ghost_color = vec4(237 / 256., 84 / 256., 84 / 256., 0.2);
-}
-
-
-Image::~Image()
-{
-}
-
-
-void Image::serialize(YAML::Emitter &out)
-{
-	out << YAML::BeginMap;
-
-	out << YAML::Key << "jd" << YAML::Value << julian_day;
-
-	out.SetSeqFormat(YAML::Flow);
-	out << YAML::Key << "target_position" << YAML::BeginSeq;
-	out << YAML::Value << target_transform.position.x;
-	out << YAML::Value << target_transform.position.y;
-	out << YAML::Value << target_transform.position.z << YAML::EndSeq;
-
-	out << YAML::Key << "observer_position" << YAML::BeginSeq;
-	out << YAML::Value << observer_transform.position.x;
-	out << YAML::Value << observer_transform.position.y;
-	out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
-	out.SetSeqFormat(YAML::Block);
-
-	out << YAML::Key << "type";
-	out << YAML::BeginSeq <<  YAML::Value << "IMAGE" << YAML::EndSeq;
-
-	out << YAML::EndMap;
-}
 

@@ -479,7 +479,9 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
     glReadPixels(0, 0, ao_width, ao_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
 
     AoImage *ao = new AoImage(target, observer, ao_width, ao_height);
-    ao->texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
+//     ao->texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
+	ao->update_data(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
+	ao->update_texture();
 
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
@@ -516,8 +518,8 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
                                         int dd_size)
 {
 
-    int frame_width = dd_size * 3;
-    int frame_height = dd_size * 3;
+    int frame_width = dd_size * 5;
+    int frame_height = dd_size * 5;
 
     float *pixel_buffer_r = new float[frame_width * frame_height];
     float *pixel_buffer_normal = new float[frame_width * frame_height];
@@ -569,10 +571,12 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
     glReadPixels(0, 0, frame_width, frame_height, GL_BLUE, GL_FLOAT,
                  pixel_buffer_depth);
 
-    RadarImage *rimg = new RadarImage(target, observer, dd_size, dd_size);
+    RadarImage *rimg =
+        new RadarImage(target, observer, dd_size, dd_size, near, far, -1, 1);
     rimg->construct_delay_doppler(pixel_buffer_r, pixel_buffer_depth,
                                   pixel_buffer_normal, frame_width,
                                   frame_height);
+    rimg->update_texture();
 
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
