@@ -195,14 +195,14 @@ void ObservatoryPanel::on_imgui_render()
 void ObservatoryPanel::observe_points()
 {
     OrbitalComponent &oc =
-        layer->scene.observer.get_component<OrbitalComponent>();
+        layer->scene.target.get_component<OrbitalComponent>();
     double tmp_rotation_phase = oc.rotation_phase;
 
     vec3 &target_rotation =
-        layer->scene.observer.get_component<Transform>().rotation;
+        layer->scene.target.get_component<Transform>().rotation;
     vec3 tmp_rotation = target_rotation;
     vec3 &target_pos =
-        layer->scene.observer.get_component<Transform>().position;
+        layer->scene.target.get_component<Transform>().position;
     vec3 tmp_target_pos = target_pos;
     vec3 &observer_pos =
         layer->scene.observer.get_component<Transform>().position;
@@ -227,7 +227,7 @@ void ObservatoryPanel::observe_points()
         if (p.obs_types & ObsType::LC)
         {
             lc_num_points = p.lc_num_points;
-            make_lightcurve(layer->scene.observer, layer->scene.observer,
+            make_lightcurve(layer->scene.target, layer->scene.observer,
                             obs_storage->get_current_lightcurves(),
                             lc_num_points);
         }
@@ -235,13 +235,13 @@ void ObservatoryPanel::observe_points()
         if (p.obs_types & ObsType::AO)
         {
             ao_size = p.ao_size;
-            make_ao_image(layer->scene.observer, layer->scene.observer,
+            make_ao_image(layer->scene.target, layer->scene.observer,
                           obs_storage->get_current_ao_images(), ao_size);
         }
 
         if (p.obs_types & ObsType::RADAR)
         {
-            make_radar_image(layer->scene.observer, layer->scene.observer,
+            make_radar_image(layer->scene.target, layer->scene.observer,
                              obs_storage->get_current_radar_images(), 200);
         }
     }
