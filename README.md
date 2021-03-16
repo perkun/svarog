@@ -40,9 +40,9 @@ as a fiery falcon.
 	* Perlin noise
 	* fraktale
 	* catmull-clark
-	* lalacian smoothing
+	* laplacian smoothing
 	* normalizacja
-	* liczenie wspł. tektóry
+	* liczenie wspł. tekstóry
 * formaty plików
 	* OBJ
 	* SHP

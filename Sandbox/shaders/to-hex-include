@@ -1,6 +1,0 @@
-#!/bin/bash
-# created by perkun on 06/11/2020
-
-for i in $(ls *.vs *.fs *.gs); do
-	xxd -i $i > ${i}.include
-done
