@@ -3,6 +3,17 @@
 
 void ObservationSeries::serialize(YAML::Emitter &out)
 {
+	for (int i = 0; i < observations.size(); i++)
+		observations[i]->serialize(out);
+}
+
+void ObservationSeries::serialize(YAML::Emitter &out, string filepath)
+{
+
+    for (int i = 0; i < observations.size(); i++)
+    {
+        observations[i]->serialize(out, i, filepath);
+    }
 }
 
 
@@ -106,75 +117,107 @@ void LightcurveSeries::push(Lightcurve *lc)
 }
 
 
-void LightcurveSeries::save_current_mag(const char *filename)
-{
-	static_cast<Lightcurve*>(get_current_obs())->save_mag(filename);
-}
+// void LightcurveSeries::save_current_mag(const char *filename)
+// {
+// 	static_cast<Lightcurve*>(get_current_obs())->save_mag(filename);
+// }
+//
+// void LightcurveSeries::save_current_flux(const char *filename)
+// {
+// 	static_cast<Lightcurve*>(get_current_obs())->save_flux(filename);
+// }
+//
+//
+//
+// void LightcurveSeries::save_all_flux(const char *filename)
+// {
+//     char fn[200];
+//     string base = File::remove_extension(filename);
+//     int nr = 0;
+//     for (Observation *obs : observations)
+//     {
+//         sprintf(fn, "%s_flux_%03d.dat", base.c_str(), nr);
+//         static_cast<Lightcurve *>(obs)->save_flux(fn);
+//         nr++;
+//     }
+// }
+//
+//
+// void LightcurveSeries::save_all_mag(const char *filename)
+// {
+//     char fn[200];
+//     string base = File::remove_extension(filename);
+//     int nr = 0;
+//     for (Observation *obs : observations)
+//     {
+//         sprintf(fn, "%s_mag_%03d.dat", base.c_str(), nr);
+//         static_cast<Lightcurve *>(obs)->save_mag(fn);
+//         nr++;
+//     }
+// }
 
-void LightcurveSeries::save_current_flux(const char *filename)
-{
-	static_cast<Lightcurve*>(get_current_obs())->save_flux(filename);
-}
 
 
-void LightcurveSeries::serialize(YAML::Emitter &out)
-{
-	for (int i = 0; i < observations.size(); i++)
-		static_cast<Lightcurve*>(observations[i])->serialize(out);
-}
+// void LightcurveSeries::serialize(YAML::Emitter &out)
+// {
+// 	for (int i = 0; i < observations.size(); i++)
+// 		static_cast<Lightcurve*>(observations[i])->serialize(out);
+// }
 
 
 
 
 
-void ImageSeries::save_png(const char *filename)
-{
-	string base =  File::remove_extension(filename);
-	string fn = base + ".png";
-	static_cast<Image*>(get_current_obs())->save_png(fn.c_str());
-}
+// void ImageSeries::save_png(const char *filename)
+// {
+// 	string base =  File::remove_extension(filename);
+// 	string fn = base + ".png";
+// 	static_cast<Image*>(get_current_obs())->save_png(fn.c_str());
+// }
+//
+//
+// void ImageSeries::save_fits_greyscale(const char *filename)
+// {
+//     string base = File::remove_extension(filename);
+//     string fn = base + ".fits";
+//     static_cast<Image *>(get_current_obs()) ->save_fits_greyscale(fn.c_str(),
+//                                        get_current_obs()->get_fits_header());
+// }
+//
+//
+// void ImageSeries::save_all_png(const char *filename)
+// {
+//     char fn[200];
+//     string base = File::remove_extension(filename);
+//     int nr = 0;
+//     for (Observation *obs : observations)
+//     {
+//         sprintf(fn, "%s_%s_%03d.png", base.c_str(), obs->get_obs_type().c_str(),
+//                 nr);
+//         static_cast<Image *>(obs)->save_png(fn);
+//         nr++;
+//     }
+// }
+//
+// void ImageSeries::save_all_fits(const char *filename)
+// {
+//
+//     char fn[200];
+//     string base = File::remove_extension(filename);
+//     int nr = 0;
+//     for (Observation *obs : observations)
+//     {
+//         sprintf(fn, "%s_%s_%03d.fits", base.c_str(),
+//                 obs->get_obs_type().c_str(), nr);
+//         static_cast<Image *>(obs)->save_fits_greyscale(fn,
+//                                                        obs->get_fits_header());
+//         nr++;
+//     }
+// }
 
-
-void ImageSeries::save_fits_greyscale(const char *filename)
-{
-    string base = File::remove_extension(filename);
-    string fn = base + ".fits";
-    static_cast<Image *>(get_current_obs()) ->save_fits_greyscale(fn.c_str(),
-                                       get_current_obs()->get_fits_header());
-}
-
-
-void ImageSeries::save_all_png(const char *filename)
-{
-	char fn[200];
-	string base =  File::remove_extension(filename);
-	int nr = 0;
-	for (Observation *obs : observations)
-	{
-		sprintf(fn, "%s_%03d.png", base.c_str(), nr);
-		static_cast<Image*>(obs)->save_png(fn);
-		nr++;
-	}
-}
-
-void ImageSeries::save_all_fits(const char *filename)
-{
-
-    char fn[200];
-    string base = File::remove_extension(filename);
-    int nr = 0;
-    for (Observation *obs : observations)
-    {
-        sprintf(fn, "%s_%03d.fits", base.c_str(), nr);
-        static_cast<Image *>(obs)->save_fits_greyscale(
-            fn, obs->get_fits_header());
-        nr++;
-    }
-}
-
-void ImageSeries::serialize(YAML::Emitter &out)
-{
-	for (int i = 0; i < observations.size(); i++)
-		static_cast<Image*>(observations[i])->serialize(out);
-}
+// void ImageSeries::serialize(YAML::Emitter &out)
+// {
+// 	for (int i = 0; i < observations.size(); i++)
+// 		static_cast<Image*>(observations[i])->serialize(out);
+// }
 

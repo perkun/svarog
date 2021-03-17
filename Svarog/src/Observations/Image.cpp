@@ -40,29 +40,45 @@ Image::~Image()
 }
 
 
-void Image::serialize(YAML::Emitter &out)
+void Image::serialize(YAML::Emitter &out, int id, string filename)
 {
-	out << YAML::BeginMap;
+    out << YAML::BeginMap;
 
-	out << YAML::Key << "jd" << YAML::Value << julian_day;
+    out << YAML::Key << "jd" << YAML::Value << julian_day;
 
-	out.SetSeqFormat(YAML::Flow);
-	out << YAML::Key << "target_position" << YAML::BeginSeq;
-	out << YAML::Value << target_transform.position.x;
-	out << YAML::Value << target_transform.position.y;
-	out << YAML::Value << target_transform.position.z << YAML::EndSeq;
+    out.SetSeqFormat(YAML::Flow);
+    out << YAML::Key << "target_position" << YAML::BeginSeq;
+    out << YAML::Value << target_transform.position.x;
+    out << YAML::Value << target_transform.position.y;
+    out << YAML::Value << target_transform.position.z << YAML::EndSeq;
 
-	out << YAML::Key << "observer_position" << YAML::BeginSeq;
-	out << YAML::Value << observer_transform.position.x;
-	out << YAML::Value << observer_transform.position.y;
-	out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
-	out.SetSeqFormat(YAML::Block);
+    out << YAML::Key << "observer_position" << YAML::BeginSeq;
+    out << YAML::Value << observer_transform.position.x;
+    out << YAML::Value << observer_transform.position.y;
+    out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
+    out.SetSeqFormat(YAML::Block);
 
-	out << YAML::Key << "type";
-	out << YAML::BeginSeq <<  YAML::Value << "IMAGE" << YAML::EndSeq;
+    out << YAML::Key << "type";
+    out << YAML::BeginSeq << YAML::Value << get_obs_type_string() << YAML::EndSeq;
 
-	out << YAML::EndMap;
+    if (filename != "")
+    {
+        char fn[200];
+        string base = File::remove_extension(filename);
+        sprintf(fn, "%s_%s_%03d", base.c_str(), get_obs_type_string().c_str(), id);
+
+        out << YAML::Key << get_obs_type_string() + "_image" << YAML::Value
+            << string(fn) + ".png";
+        out << YAML::Key << get_obs_type_string() + "_fits" << YAML::Value
+            << string(fn) + ".fits";
+
+        save_png(fn);
+        save_fits_greyscale(fn, get_fits_header());
+    }
+
+    out << YAML::EndMap;
 }
+
 
 FitsHeader Image::get_fits_header()
 {
@@ -73,8 +89,9 @@ FitsHeader Image::get_fits_header()
 	return header;
 }
 
-void Image::save_png(const char* filename)
+void Image::save_png(string filename)
 {
+	filename = File::remove_extension(filename) + ".png";
     stbi_flip_vertically_on_write(1);
     int channels = 3;
 //     if (texture_format == GL_RGBA)
@@ -102,16 +119,17 @@ void Image::save_png(const char* filename)
         png_data[i*channels + 2] = (unsigned char)(data_b[i] * 255);
     }
 
-    stbi_write_png(filename, width, height, channels, png_data,
+    stbi_write_png(filename.c_str(), width, height, channels, png_data,
                    width * channels);
 
     delete[] png_data;
 }
 
 
-void Image::save_fits_greyscale(const char *filename, const FitsHeader &header)
+void Image::save_fits_greyscale(string filename, const FitsHeader &header)
 
 {
+	filename = File::remove_extension(filename) + ".fits";
     int status = 0, bitpix, num_axis;
     long axis_dim[10], fpixel[2] = {1, 1};
 
@@ -121,7 +139,7 @@ void Image::save_fits_greyscale(const char *filename, const FitsHeader &header)
     num_axis = 2;
 
     fitsfile *out;
-    fits_create_file(&out, filename, &status);
+    fits_create_file(&out, filename.c_str(), &status);
     if (status != 0)
     {
         cout << "status: " << status << " coud not create file " << filename
@@ -184,6 +202,12 @@ void Image::update_texture()
 }
 
 
+string Image::get_obs_type_string()
+{
+	return string("image");
+}
+
+
 AoImage::AoImage(Entity &target, Entity &observer, int width, int height,
 				 bool create_texture)
 	: Image(target, observer, width, height, create_texture)
@@ -197,33 +221,6 @@ AoImage::~AoImage()
 }
 
 
-void AoImage::serialize(YAML::Emitter &out)
-{
-	out << YAML::BeginMap;
-
-	out << YAML::Key << "jd" << YAML::Value << julian_day;
-
-	out.SetSeqFormat(YAML::Flow);
-	out << YAML::Key << "target_position" << YAML::BeginSeq;
-	out << YAML::Value << target_transform.position.x;
-	out << YAML::Value << target_transform.position.y;
-	out << YAML::Value << target_transform.position.z << YAML::EndSeq;
-
-	out << YAML::Key << "observer_position" << YAML::BeginSeq;
-	out << YAML::Value << observer_transform.position.x;
-	out << YAML::Value << observer_transform.position.y;
-	out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
-	out.SetSeqFormat(YAML::Block);
-
-	out << YAML::Key << "ao_size" << YAML::Value << texture->get_dimentions().x;
-
-	out << YAML::Key << "type";
-	out << YAML::BeginSeq <<  YAML::Value << "AO" << YAML::EndSeq;
-
-	out << YAML::EndMap;
-
-}
-
 FitsHeader AoImage::get_fits_header()
 {
 	FitsHeader header;
@@ -231,6 +228,12 @@ FitsHeader AoImage::get_fits_header()
 
 	header.push("type", "Adaptive Optics", "observation type");
 	return header;
+}
+
+
+string AoImage::get_obs_type_string()
+{
+	return string("ao");
 }
 
 RadarImage::RadarImage(Entity &target, Entity &observer, int width, int height,
@@ -289,30 +292,6 @@ void RadarImage::construct_delay_doppler(float *radial_vel_buffer,
     delete[] delay_doppler;
 }
 
-void RadarImage::serialize(YAML::Emitter &out)
-{
-	out << YAML::BeginMap;
-
-	out << YAML::Key << "jd" << YAML::Value << julian_day;
-
-	out.SetSeqFormat(YAML::Flow);
-	out << YAML::Key << "target_position" << YAML::BeginSeq;
-	out << YAML::Value << target_transform.position.x;
-	out << YAML::Value << target_transform.position.y;
-	out << YAML::Value << target_transform.position.z << YAML::EndSeq;
-
-	out << YAML::Key << "observer_position" << YAML::BeginSeq;
-	out << YAML::Value << observer_transform.position.x;
-	out << YAML::Value << observer_transform.position.y;
-	out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
-	out.SetSeqFormat(YAML::Block);
-
-
-	out << YAML::Key << "type";
-	out << YAML::BeginSeq <<  YAML::Value << "RADAR" << YAML::EndSeq;
-
-	out << YAML::EndMap;
-}
 
 FitsHeader RadarImage::get_fits_header()
 {
@@ -351,3 +330,9 @@ FitsHeader RadarImage::get_fits_header()
 	return header;
 
 }
+
+string RadarImage::get_obs_type_string()
+{
+	return string("radar");
+}
+

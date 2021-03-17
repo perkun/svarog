@@ -297,12 +297,12 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
         }
     }
 
-    if (ImGui::Button("Save magnitudes"))
-        lightcurves->save_current_mag(FileDialog::save_file("*").c_str());
-
-    ImGui::SameLine();
-    if (ImGui::Button("Save flux"))
-        lightcurves->save_current_flux(FileDialog::save_file("*").c_str());
+//     if (ImGui::Button("Save magnitudes"))
+//         lightcurves->save_current_mag(FileDialog::save_file("*").c_str());
+//
+//     ImGui::SameLine();
+//     if (ImGui::Button("Save flux"))
+//         lightcurves->save_current_flux(FileDialog::save_file("*").c_str());
 }
 
 
@@ -349,24 +349,24 @@ void ObservatoryPanel::display_images(ImageSeries *images)
         }
     }
 
-    ImGui::Text("Save");
-    ImGui::SameLine();
-    if (ImGui::Button("single png"))
-        images->save_png(FileDialog::save_file("*.png").c_str());
-
-    ImGui::SameLine();
-    if (ImGui::Button("all pngs"))
-        images->save_all_png(FileDialog::save_file("*.png").c_str());
-
-
-    ImGui::Text("Save");
-    ImGui::SameLine();
-    if (ImGui::Button("single fits"))
-        images->save_fits_greyscale(FileDialog::save_file("*.fits").c_str());
-
-    ImGui::SameLine();
-    if (ImGui::Button("all fits"))
-        images->save_all_fits(FileDialog::save_file("*.fits").c_str());
+//     ImGui::Text("Save");
+//     ImGui::SameLine();
+//     if (ImGui::Button("single png"))
+//         images->save_png(FileDialog::save_file("*.png").c_str());
+//
+//     ImGui::SameLine();
+//     if (ImGui::Button("all pngs"))
+//         images->save_all_png(FileDialog::save_file("*.png").c_str());
+//
+//
+//     ImGui::Text("Save");
+//     ImGui::SameLine();
+//     if (ImGui::Button("single fits"))
+//         images->save_fits_greyscale(FileDialog::save_file("*.fits").c_str());
+//
+//     ImGui::SameLine();
+//     if (ImGui::Button("all fits"))
+//         images->save_all_fits(FileDialog::save_file("*.fits").c_str());
 }
 
 

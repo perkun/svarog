@@ -393,7 +393,7 @@ void SceneSerializer::serialize(const string filepath)
     out << YAML::EndSeq;
     out << YAML::EndMap;
 
-    std::ofstream fout(filepath);
+    std::ofstream fout(File::remove_extension(filepath) + ".scene");
     fout << out.c_str();
 }
 

@@ -19,8 +19,8 @@ void Entity::add_child(Entity &child)
 
 void Entity::detatch()
 {
-// 	if (!*this)
-// 		return;
+	if (!*this)
+		return;
 
     Entity &parent = get_component<SceneGraphComponent>().parent;
 
@@ -48,6 +48,9 @@ vector<Entity>& Entity::get_children()
 
 void Entity::destroy()
 {
+	if (!*this)
+		return;
+
 	vector<Entity>& children = get_children();
 	for (int i = 0; i < children.size(); i++)
 	{

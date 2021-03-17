@@ -41,8 +41,8 @@ public:
 	ObservationStorage();
 	~ObservationStorage();
 
-	YAML::Node serialize();
-	void save(const string filepath);
+	YAML::Node serialize(bool export_obs, string filepath = "");
+	void save_current(const string filepath, bool export_obs = false);
 	bool load(string filename);
 
 	void detach_current_ghosts();

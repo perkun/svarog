@@ -13,7 +13,7 @@ public:
 		return fluxes[i];
 	}
 
-	virtual void serialize(YAML::Emitter &out) override;
+	virtual void serialize(YAML::Emitter &out, int id = 0, string filename = "") override;
 
 	void shift_fluxes(float val);
 	void make_average_zero();
@@ -27,13 +27,15 @@ public:
 	float calculate_min_inv_mag();
 	float calculate_max_inv_mag();
 
-	void save_flux(const char *filename);
-	void save_mag(const char *filename);
+	void save_flux(string filename);
+	void save_mag(string filename);
 	size_t size() { return fluxes.size(); }
 
 	float* fluxes_data() { return fluxes.data(); }
 	float* mag_data() { return magnitudes.data(); }
 	float* inv_mag_data() { return inverse_magnitudes.data(); }
+
+	virtual string get_obs_type_string() override;
 
 	float min, max;
 

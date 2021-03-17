@@ -99,18 +99,20 @@ float Lightcurve::calculate_max_inv_mag()
 }
 
 
-void Lightcurve::save_flux(const char *filename)
+void Lightcurve::save_flux(string filename)
 {
-    FILE *out = fopen(filename, "w");
+	filename = File::remove_extension(filename) + ".dat";
+    FILE *out = fopen(filename.c_str(), "w");
 // 	vector<float> tmp_fluxes = fluxes;
 // 	make_average_zero(tmp_fluxes);
     for (int i = 0; i < fluxes.size(); i++)
         fprintf(out, "%f\t%f\n", (float)i / fluxes.size(), fluxes[i]);
     fclose(out);
 }
-void Lightcurve::save_mag(const char *filename)
+void Lightcurve::save_mag(string filename)
 {
-    FILE *out = fopen(filename, "w");
+	filename = File::remove_extension(filename) + ".dat";
+    FILE *out = fopen(filename.c_str(), "w");
 // 	vector<float> magnitudes = fluxes;
 // 	for (float &m: magnitudes)
 // 		m = -2.5 * log10(m);
@@ -123,7 +125,12 @@ void Lightcurve::save_mag(const char *filename)
 }
 
 
-void Lightcurve::serialize(YAML::Emitter &out)
+string Lightcurve::get_obs_type_string()
+{
+	return string("lc");
+}
+
+void Lightcurve::serialize(YAML::Emitter &out, int id, string filename)
 {
 	out << YAML::BeginMap;
 
@@ -144,7 +151,22 @@ void Lightcurve::serialize(YAML::Emitter &out)
 	out << YAML::Key << "lc_num_points" << YAML::Value << size();
 
 	out << YAML::Key << "type";
-	out << YAML::BeginSeq <<  YAML::Value << "LC" << YAML::EndSeq;
+	out << YAML::BeginSeq <<  YAML::Value << get_obs_type_string() << YAML::EndSeq;
+
+	if (filename != "")
+	{
+		char fn[200];
+		string base = File::remove_extension(filename);
+		sprintf(fn, "%s_flux_%03d", base.c_str(), id);
+		out << YAML::Key << "flux_data" << YAML::Value << filename + ".dat";
+		save_flux(fn);
+
+		sprintf(fn, "%s_mag_%03d", base.c_str(), id);
+		out << YAML::Key << "mag_data" << YAML::Value << filename + ".dat";
+		save_mag(fn);
+	}
+
 
 	out << YAML::EndMap;
 }
+

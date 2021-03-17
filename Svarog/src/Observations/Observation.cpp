@@ -1,7 +1,6 @@
 #include "svpch.h"
 #include "Observation.h"
 
-
 Observation::Observation(Entity &target, Entity &observer)
 {
 	this->target = target;
@@ -37,11 +36,11 @@ void Observation::push_basic_header_info(FitsHeader &header)
                  "observer z position [au]");
 
     header.push("pos_x", target_transform.position.x,
-                 "tarteg x position [au]");
+                 "target x position [au]");
     header.push("pos_y", target_transform.position.y,
-                 "tarteg y position [au]");
+                 "target y position [au]");
     header.push("pos_z", target_transform.position.z,
-                 "tarteg z position [au]");
+                 "target z position [au]");
 
     header.push("lambda", target_orbital_component.lambda,
                  "lambda angle [rad]");
@@ -61,7 +60,7 @@ void Observation::push_basic_header_info(FitsHeader &header)
 }
 
 
-void Observation::serialize(YAML::Emitter &out)
+void Observation::serialize(YAML::Emitter &out, int id, string filename)
 {
 	out << YAML::BeginMap;
 
@@ -80,8 +79,11 @@ void Observation::serialize(YAML::Emitter &out)
 	out << YAML::Key << "type";
 	out << YAML::BeginSeq <<  YAML::Value << "GENERIC" << YAML::EndSeq;
 
+
 	out << YAML::EndMap;
 }
+
+
 
 void Observation::add_ghosts(Entity &gt, Entity &go)
 {
@@ -103,6 +105,11 @@ void Observation::add_ghosts(Entity &gt, Entity &go)
         make_shared<VertexArrayObject>(IndexedCube(vec3(-.025), vec3(0.05))));
     Transform &gtt = ghost_target.get_component<Transform>();
     gtt.position = target.get_component<Transform>().position;
+}
+
+string Observation::get_obs_type_string()
+{
+	return string("generic");
 }
 
 

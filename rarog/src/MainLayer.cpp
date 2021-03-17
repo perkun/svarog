@@ -443,16 +443,25 @@ void MainLayer::menu_bar()
             if (ImGui::MenuItem("Import Storage"))
             {
                 observatory_panel.load_obs_storage(
-                    FileDialog::open_file("*.yaml"));
+                    FileDialog::open_file("*.storage"));
             }
 
 
             if (ImGui::MenuItem("Save Storage"))
             {
-                string filename = FileDialog::save_file("*.yaml");
+                string filename = FileDialog::save_file("*.storage");
                 if (filename != "")
                 {
-                    obs_storage.save(filename);
+                    obs_storage.save_current(filename);
+                }
+            }
+
+            if (ImGui::MenuItem("Save Storage & export obs."))
+            {
+                string filename = FileDialog::save_file("*.storage");
+                if (filename != "")
+                {
+                    obs_storage.save_current(filename, true);
                 }
             }
             ImGui::Separator();
@@ -470,6 +479,7 @@ void MainLayer::menu_bar()
                 }
             }
 
+            ImGui::Separator();
             if (ImGui::MenuItem("Delete Observations", NULL, false, true))
             {
                 obs_storage.delete_current_observations();

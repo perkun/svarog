@@ -85,30 +85,39 @@ ImageSeries* ObservationStorage::get_radar_images(string name)
 
 
 
-void ObservationStorage::save(const string filepath)
+void ObservationStorage::save_current(const string filepath, bool export_obs)
 {
-    obs_packs[current_id].filename = filepath;
+    obs_packs[current_id].filename = File::remove_extension(filepath) + ".storage";
     obs_packs[current_id].name =
 		fix_storage_name(File::remove_extension(File::file_base(filepath)), true);
 
 	YAML::Emitter emitter;
-	emitter << serialize();
+	emitter << serialize(export_obs, filepath);
 
-    std::ofstream fout(filepath);
+    std::ofstream fout(obs_packs[current_id].filename );
     fout << emitter.c_str();
     fout.close();
 }
 
 
-YAML::Node ObservationStorage::serialize()
+YAML::Node ObservationStorage::serialize(bool export_obs, string filepath)
 {
     YAML::Emitter out;
     out << YAML::BeginMap;
     out << YAML::Key << "points" << YAML::BeginSeq;
 
-    obs_packs[current_id].lightcurves->serialize(out);
-    obs_packs[current_id].ao_images->serialize(out);
-    obs_packs[current_id].radar_images->serialize(out);
+	if (export_obs)
+	{
+		obs_packs[current_id].lightcurves->serialize(out, filepath);
+		obs_packs[current_id].ao_images->serialize(out, filepath);
+		obs_packs[current_id].radar_images->serialize(out, filepath);
+	}
+	else
+	{
+		obs_packs[current_id].lightcurves->serialize(out);
+		obs_packs[current_id].ao_images->serialize(out);
+		obs_packs[current_id].radar_images->serialize(out);
+	}
 
     out << YAML::EndSeq;
     out << YAML::EndMap;
@@ -255,11 +264,11 @@ bool ObservationStorage::load(const string filename)
         if (yaml_point["type"])
         {
             for (auto t : yaml_point["type"])
-                if (t.as<string>() == "LC")
+                if (t.as<string>() == "lc")
                     p.obs_types |= ObsType::LC;
-                else if (t.as<string>() == "AO")
+                else if (t.as<string>() == "ao")
                     p.obs_types |= ObsType::AO;
-                else if (t.as<string>() == "RADAR")
+                else if (t.as<string>() == "radar")
                     p.obs_types |= ObsType::RADAR;
         }
         else

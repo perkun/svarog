@@ -20,7 +20,7 @@ public:
 
 	Entity target, observer, ghost_target, ghost_observer;
 
-	virtual void serialize(YAML::Emitter &out);
+	virtual void serialize(YAML::Emitter &out, int id = 0, string filename = "");
 
 	Transform target_transform;
 	Transform observer_transform;
@@ -31,6 +31,7 @@ public:
 	vec4 ghost_color = vec4(1,1,1,1);
 
 	virtual FitsHeader get_fits_header();
+	virtual string get_obs_type_string();
 
 protected:
 	void push_basic_header_info(FitsHeader &header);

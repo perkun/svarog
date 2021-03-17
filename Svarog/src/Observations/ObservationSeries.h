@@ -27,7 +27,8 @@ public:
 
 	int size();
 
-	virtual void serialize(YAML::Emitter &out);
+	void serialize(YAML::Emitter &out);
+	void serialize(YAML::Emitter &out, string storage_name);
 
 protected:
 	vector<Observation*> observations;
@@ -42,10 +43,14 @@ public:
 	LightcurveSeries() {}
 	~LightcurveSeries() {}
 
-	void save_current_mag(const char *filename);
-	void save_current_flux(const char *filename);
+// 	void save_current_mag(const char *filename);
+// 	void save_current_flux(const char *filename);
+// 	void save_all_flux(const char *filename);
+// 	void save_all_mag(const char *filename);
+
 	void push(Lightcurve*);
-	virtual void serialize(YAML::Emitter &out) override;
+// 	virtual void serialize(YAML::Emitter &out) override;
+// 	virtual void serialize(YAML::Emitter &out, string storage_name) override;
 
 	float lcs_min = 1e38;
 	float lcs_max = -1e38;
@@ -62,11 +67,12 @@ public:
 	ImageSeries() {}
 	~ImageSeries() {}
 
-	void save_png(const char *filename);
-	void save_fits_greyscale(const char *filename);
-	void save_all_png(const char *filename);
-	void save_all_fits(const char *filename);
-	virtual void serialize(YAML::Emitter &out) override;
+// 	void save_png(const char *filename);
+// 	void save_fits_greyscale(const char *filename);
+// 	void save_all_png(const char *filename);
+// 	void save_all_fits(const char *filename);
+// 	virtual void serialize(YAML::Emitter &out) override;
+// 	virtual void serialize(YAML::Emitter &out, string storage_name) override;
 
 };
 

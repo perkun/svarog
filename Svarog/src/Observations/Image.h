@@ -12,7 +12,8 @@ public:
     Image(Entity &target, Entity &observer, int width, int height,
           bool create_texture = true);
     ~Image();
-    virtual void serialize(YAML::Emitter &out) override;
+    virtual void serialize(YAML::Emitter &out, int id = 0,
+                           string filename = "") override;
     virtual FitsHeader get_fits_header() override;
 
     int width, height;
@@ -25,8 +26,10 @@ public:
     void update_data(float *dr, float *dg, float *db);
     void update_texture();
 
-    void save_png(const char *filename);
-    void save_fits_greyscale(const char *filename, const FitsHeader &header);
+    void save_png(string filename);
+    void save_fits_greyscale(string filename, const FitsHeader &header);
+
+	virtual string get_obs_type_string() override;
 
 protected:
     TextureSpec texture_specs;
@@ -39,9 +42,8 @@ public:
 	AoImage(Entity &target, Entity &observer, int width, int height,
 			bool create_texture = true);
 	~AoImage();
-	virtual void serialize(YAML::Emitter &out) override;
 	virtual FitsHeader get_fits_header() override;
-
+	virtual string get_obs_type_string() override;
 private:
 
 };
@@ -59,9 +61,8 @@ public:
     void construct_delay_doppler(float *radial_vel_buffer, float *depth_bufer,
                                  float *normal_buffer, int width, int height);
 
-    virtual void serialize(YAML::Emitter &out) override;
-
     virtual FitsHeader get_fits_header() override;
+	virtual string get_obs_type_string() override;
 };
 
 
