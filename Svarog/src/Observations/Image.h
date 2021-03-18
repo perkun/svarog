@@ -14,15 +14,6 @@ public:
     ~Image();
     virtual void serialize(YAML::Emitter &out, int id = 0,
                            string filename = "") override;
-    virtual FitsHeader get_fits_header() override;
-
-    int width, height;
-    int texture_format;
-    float *data_r, *data_g, *data_b;
-
-	bool texture_created = false;
-    shared_ptr<Texture> texture;
-
     void update_data(float *dr, float *dg, float *db);
     void update_texture();
 
@@ -31,7 +22,17 @@ public:
 
 	virtual string get_obs_type_string() override;
 
+	virtual FitsHeader get_fits_header() = 0;
+
+    int width, height;
+    int texture_format;
+    float *data_r, *data_g, *data_b;
+
+	bool texture_created = false;
+    shared_ptr<Texture> texture;
+
 protected:
+	void push_basic_header_info(FitsHeader &header);
     TextureSpec texture_specs;
 };
 

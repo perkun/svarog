@@ -25,7 +25,7 @@ struct ObsPack
 {
 	vector<YamlPoint> points;
 
-	string filename = "untitled.yaml";
+	string filename = "untitled.storage";
 	string name = "untitled";
 	bool file_loaded = false;
 
@@ -41,14 +41,14 @@ public:
 	ObservationStorage();
 	~ObservationStorage();
 
-	YAML::Node serialize(bool export_obs, string filepath = "");
 	void save_current(const string filepath, bool export_obs = false);
-	bool load(string filename);
+	void save(int id, const string filepath, bool export_obs = false);
+	int load(string filename);
 
 	void detach_current_ghosts();
 	void delete_current_observations();
 
-	void add_new(string name);
+	int add_new(string name);
 
 	vector<YamlPoint> get_current_points();
 	int get_current_points_size();
@@ -61,9 +61,9 @@ public:
 	ImageSeries* get_current_ao_images();
 	ImageSeries* get_current_radar_images();
 
-	LightcurveSeries* get_lightcurves(string name);
-	ImageSeries* get_ao_images(string name);
-	ImageSeries* get_radar_images(string name);
+	LightcurveSeries* get_lightcurves(int id);
+	ImageSeries* get_ao_images(int id);
+	ImageSeries* get_radar_images(int id);
 
 	int size() { return obs_packs.size(); }
 	int current_id = 0;
@@ -71,6 +71,7 @@ public:
 private:
 	vector<ObsPack> obs_packs;
 	string fix_storage_name(string name, bool exclude_current = false);
+	YAML::Node serialize(int id, bool export_obs, string filepath = "");
 };
 
 #endif /* OBSERVATIONSTORE_H_ */

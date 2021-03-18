@@ -21,7 +21,7 @@ void ObservatoryPanel::load_obs_storage(string filepath)
     if (filepath == "")
         return;
 
-    if (obs_storage->load(filepath))
+    if (obs_storage->load(filepath) != -1)
     {
         set_current_ghosts(obs_storage);
     }
@@ -479,7 +479,6 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
     glReadPixels(0, 0, ao_width, ao_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
 
     AoImage *ao = new AoImage(target, observer, ao_width, ao_height);
-//     ao->texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
 	ao->update_data(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
 	ao->update_texture();
 

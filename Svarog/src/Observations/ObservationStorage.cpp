@@ -50,57 +50,74 @@ ImageSeries* ObservationStorage::get_current_radar_images()
 }
 
 
-LightcurveSeries* ObservationStorage::get_lightcurves(string name)
+LightcurveSeries* ObservationStorage::get_lightcurves(int id)
 {
-	for (int i = 0; i < obs_packs.size(); i++)
-	{
-		if (obs_packs[i].name == name)
-			return obs_packs[i].lightcurves;
-	}
-	return NULL;
+// 	for (int i = 0; i < obs_packs.size(); i++)
+// 	{
+// 		if (obs_packs[i].name == name)
+// 			return obs_packs[i].lightcurves;
+// 	}
+	if (id < 0 || id >= size())
+		return NULL;
+	else
+		return obs_packs[id].lightcurves;
 }
 
 
-ImageSeries* ObservationStorage::get_ao_images(string name)
+ImageSeries* ObservationStorage::get_ao_images(int id)
 {
-	for (int i = 0; i < obs_packs.size(); i++)
-	{
-		if (obs_packs[i].name == name)
-			return obs_packs[i].ao_images;
-	}
-	return NULL;
+// 	for (int i = 0; i < obs_packs.size(); i++)
+// 	{
+// 		if (obs_packs[i].name == name)
+// 			return obs_packs[i].ao_images;
+// 	}
+// 	return NULL;
+
+	if (id < 0 || id >= size())
+		return NULL;
+	else
+		return obs_packs[id].ao_images;
 }
 
 
-ImageSeries* ObservationStorage::get_radar_images(string name)
+ImageSeries* ObservationStorage::get_radar_images(int id)
 {
-	for (int i = 0; i < obs_packs.size(); i++)
-	{
-		if (obs_packs[i].name == name)
-			return obs_packs[i].radar_images;
-	}
-	return NULL;
+// 	for (int i = 0; i < obs_packs.size(); i++)
+// 	{
+// 		if (obs_packs[i].name == name)
+// 			return obs_packs[i].radar_images;
+// 	}
+// 	return NULL;
+
+	if (id < 0 || id >= size())
+		return NULL;
+	else
+		return obs_packs[id].radar_images;
 }
-
-
 
 
 void ObservationStorage::save_current(const string filepath, bool export_obs)
 {
-    obs_packs[current_id].filename = File::remove_extension(filepath) + ".storage";
-    obs_packs[current_id].name =
+	save(current_id, filepath, export_obs);
+}
+
+
+void ObservationStorage::save(int id, const string filepath, bool export_obs)
+{
+    obs_packs[id].filename = File::remove_extension(filepath) + ".storage";
+    obs_packs[id].name =
 		fix_storage_name(File::remove_extension(File::file_base(filepath)), true);
 
 	YAML::Emitter emitter;
-	emitter << serialize(export_obs, filepath);
+	emitter << serialize(id, export_obs, filepath);
 
-    std::ofstream fout(obs_packs[current_id].filename );
+    std::ofstream fout(obs_packs[id].filename );
     fout << emitter.c_str();
     fout.close();
 }
 
 
-YAML::Node ObservationStorage::serialize(bool export_obs, string filepath)
+YAML::Node ObservationStorage::serialize(int id, bool export_obs, string filepath)
 {
     YAML::Emitter out;
     out << YAML::BeginMap;
@@ -108,15 +125,15 @@ YAML::Node ObservationStorage::serialize(bool export_obs, string filepath)
 
 	if (export_obs)
 	{
-		obs_packs[current_id].lightcurves->serialize(out, filepath);
-		obs_packs[current_id].ao_images->serialize(out, filepath);
-		obs_packs[current_id].radar_images->serialize(out, filepath);
+		obs_packs[id].lightcurves->serialize(out, filepath);
+		obs_packs[id].ao_images->serialize(out, filepath);
+		obs_packs[id].radar_images->serialize(out, filepath);
 	}
 	else
 	{
-		obs_packs[current_id].lightcurves->serialize(out);
-		obs_packs[current_id].ao_images->serialize(out);
-		obs_packs[current_id].radar_images->serialize(out);
+		obs_packs[id].lightcurves->serialize(out);
+		obs_packs[id].ao_images->serialize(out);
+		obs_packs[id].radar_images->serialize(out);
 	}
 
     out << YAML::EndSeq;
@@ -179,20 +196,20 @@ YAML::Node ObservationStorage::serialize(bool export_obs, string filepath)
 	return data;
 }
 
-void ObservationStorage::add_new(string name)
+int ObservationStorage::add_new(string name)
 {
 	name = fix_storage_name(name);
 
 	obs_packs.emplace_back(ObsPack());
-	obs_packs[size() - 1].lightcurves = new LightcurveSeries;
-	obs_packs[size() - 1].ao_images = new ImageSeries;
-	obs_packs[size() - 1].radar_images = new ImageSeries;
+    current_id = size() -1;
+	obs_packs[current_id].lightcurves = new LightcurveSeries;
+	obs_packs[current_id].ao_images = new ImageSeries;
+	obs_packs[current_id].radar_images = new ImageSeries;
 
-	obs_packs[size() -1].name = name;
+	obs_packs[current_id].name = name;
 
     detach_current_ghosts();
-    current_id = size() -1;
-//     set_current_ghosts(obs_storage[current_storage]);
+	return current_id;
 }
 
 
@@ -237,11 +254,11 @@ string ObservationStorage::fix_storage_name(string name, bool exclude_current)
 }
 
 
-bool ObservationStorage::load(const string filename)
+int ObservationStorage::load(const string filename)
 {
     YAML::Node data = YAML::LoadFile(filename);
     if (!data["points"])
-        return false;
+        return -1;
 
 	detach_current_ghosts();
 	add_new(File::remove_extension(File::file_base(filename)));
@@ -285,7 +302,7 @@ bool ObservationStorage::load(const string filename)
     }
 
     obs_packs[current_id].file_loaded = true;
-    return true;
+    return current_id;
 }
 
 
