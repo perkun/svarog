@@ -221,8 +221,8 @@ void ObservatoryPanel::observe_points()
         oc.calculate_rot_phase(p.jd);
         target_rotation = oc.xyz_from_lbg();
 
-        target_pos = p.target;
-        observer_pos = p.observer;
+        target_pos = p.target_pos;
+        observer_pos = p.observer_pos;
 
         if (p.obs_types & ObsType::LC)
         {
@@ -479,6 +479,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
     glReadPixels(0, 0, ao_width, ao_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
 
     AoImage *ao = new AoImage(target, observer, ao_width, ao_height);
+//     ao->texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
 	ao->update_data(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
 	ao->update_texture();
 

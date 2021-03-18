@@ -16,7 +16,7 @@ enum ObsType {
 struct YamlPoint
 {
 	double jd;
-	vec3 observer, target;
+	vec3 observer_pos, target_pos;
 	char obs_types = 0b0;
 	int lc_num_points = 360, ao_size = 400;
 };

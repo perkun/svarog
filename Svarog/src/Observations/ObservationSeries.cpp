@@ -7,12 +7,12 @@ void ObservationSeries::serialize(YAML::Emitter &out)
 		observations[i]->serialize(out);
 }
 
-void ObservationSeries::serialize(YAML::Emitter &out, string filepath)
+void ObservationSeries::serialize(YAML::Emitter &out, string storage_name)
 {
 
     for (int i = 0; i < observations.size(); i++)
     {
-        observations[i]->serialize(out, i, filepath);
+        observations[i]->serialize(out, i, storage_name);
     }
 }
 

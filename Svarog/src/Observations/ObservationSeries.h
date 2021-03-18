@@ -22,6 +22,7 @@ public:
 	void push(Observation* obs);
 	Observation* get_current_obs();
 	Observation* get_obs(int id);
+
 	void delete_current_obs();
 	void delete_all();
 

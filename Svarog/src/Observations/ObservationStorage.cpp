@@ -270,13 +270,13 @@ int ObservationStorage::load(const string filename)
         YamlPoint p;
         p.jd = yaml_point["jd"].as<double>();
 
-        p.observer.x = yaml_point["observer_position"][0].as<float>();
-        p.observer.y = yaml_point["observer_position"][1].as<float>();
-        p.observer.z = yaml_point["observer_position"][2].as<float>();
+        p.observer_pos.x = yaml_point["observer_position"][0].as<float>();
+        p.observer_pos.y = yaml_point["observer_position"][1].as<float>();
+        p.observer_pos.z = yaml_point["observer_position"][2].as<float>();
 
-        p.target.x = yaml_point["target_position"][0].as<float>();
-        p.target.y = yaml_point["target_position"][1].as<float>();
-        p.target.z = yaml_point["target_position"][2].as<float>();
+        p.target_pos.x = yaml_point["target_position"][0].as<float>();
+        p.target_pos.y = yaml_point["target_position"][1].as<float>();
+        p.target_pos.z = yaml_point["target_position"][2].as<float>();
 
         if (yaml_point["type"])
         {
