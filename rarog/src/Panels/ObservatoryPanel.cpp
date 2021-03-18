@@ -4,7 +4,7 @@
 #include "Camera.h"
 
 ObservatoryPanel::ObservatoryPanel(MainLayer *l, double *julian_day,
-                                   ObservationStorage *obs)
+                                   ObsStoragePack *obs)
 {
     layer = l;
     obs_storage = obs;
@@ -21,16 +21,26 @@ void ObservatoryPanel::load_obs_storage(string filepath)
     if (filepath == "")
         return;
 
-    if (obs_storage->load(filepath) != -1)
-    {
-        set_current_ghosts(obs_storage);
-    }
-    else
+	vector<ObsPoint> obs_points = ObsStoragePack::import_obs_points(filepath);
+	if (obs_points.size() > 0)
+	{
+		obs_storage->add_new(File::remove_extension(File::file_base(filepath)));
+		observe_obs_points(obs_points);
+	}
+	else
         cout << "Adding Storage Failed" << endl;
+
+
+//     if (obs_storage->load(filepath) != -1)
+//     {
+//         set_current_ghosts(obs_storage);
+//     }
+//     else
+//         cout << "Adding Storage Failed" << endl;
 }
 
 
-void ObservatoryPanel::set_current_ghosts(ObservationStorage *obs)
+void ObservatoryPanel::set_current_ghosts(ObsStoragePack *obs)
 {
     // lc
     Observation *current_obs =
@@ -63,10 +73,12 @@ void ObservatoryPanel::set_target_and_observer(Observation *obs)
     vec3 gtp = obs->target_transform.position;
     vec3 gop = obs->observer_transform.position;
 
-    layer->scene.observer = obs->target;
+    layer->scene.target = obs->target;
     layer->scene.observer = obs->observer;
-    layer->scene.observer.get_component<Transform>() = obs->target_transform;
+
+    layer->scene.target.get_component<Transform>() = obs->target_transform;
     layer->scene.observer.get_component<Transform>() = obs->observer_transform;
+
     if (layer->scene.observer.has_component<OrbitalComponent>())
         layer->scene.observer.get_component<OrbitalComponent>() =
             obs->target_orbital_component;
@@ -102,13 +114,6 @@ void ObservatoryPanel::observations_panel()
                 ImGui::SetItemDefaultFocus();
         }
         ImGui::EndCombo();
-    }
-
-    if (obs_storage->get_current_points_size() > 0)
-    {
-        ImGui::Text("%d points defined in file.",
-                    (int)obs_storage->get_current_points_size());
-        //
     }
 
     for (int i = 0; i < 5; i++)
@@ -192,7 +197,7 @@ void ObservatoryPanel::on_imgui_render()
 }
 
 
-void ObservatoryPanel::observe_points()
+void ObservatoryPanel::observe_obs_points(const vector<ObsPoint> obs_points)
 {
     OrbitalComponent &oc =
         layer->scene.target.get_component<OrbitalComponent>();
@@ -214,7 +219,7 @@ void ObservatoryPanel::observe_points()
     int tmp_lc_num_points = lc_num_points;
 
 
-    for (YamlPoint p : obs_storage->get_current_points())
+    for (ObsPoint p : obs_points)
     {
 		*julian_day = p.jd;
 
@@ -242,7 +247,7 @@ void ObservatoryPanel::observe_points()
         if (p.obs_types & ObsType::RADAR)
         {
             make_radar_image(layer->scene.target, layer->scene.observer,
-                             obs_storage->get_current_radar_images(), 200);
+                             obs_storage->get_current_radar_images(), radar_size);
         }
     }
     target_pos = tmp_target_pos;
@@ -536,19 +541,21 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
     shared_ptr<Camera> tmp_cam = camera_comp.camera;
 
 
-	// create view box that fits the target perfectly
+    // create view box that fits the target perfectly
     Transform &tt = target.get_component<Transform>();
     Transform &ot = observer.get_component<Transform>();
-	MeshComponent &mc = target.get_component<MeshComponent>();
+    MeshComponent &mc = target.get_component<MeshComponent>();
 
-	float max_scale = glm::max(tt.scale.x, tt.scale.y);
-	max_scale = glm::max(max_scale, tt.scale.z);
+    float max_scale = glm::max(tt.scale.x, tt.scale.y);
+    max_scale = glm::max(max_scale, tt.scale.z);
 
-	float near = glm::length(tt.position - ot.position) - (max_scale * mc.r_max);
-	float far = glm::length(tt.position - ot.position) + (max_scale * mc.r_max);
+    float near =
+        glm::length(tt.position - ot.position) - (max_scale * mc.r_max);
+    float far = glm::length(tt.position - ot.position) + (max_scale * mc.r_max);
 
-// 	TRACE("near: {}, far: {}, rmax: {}", near, far, mc.r_max);
-    camera_comp.camera = make_shared<OrthograficCamera>(mc.r_max, 1., near, far);
+//    	TRACE("near: {}, far: {}, rmax: {}", near, far, mc.r_max);
+    camera_comp.camera =
+        make_shared<OrthograficCamera>(max_scale * mc.r_max, 1., near, far);
 
 
     Mode prev_mode = layer->mode;

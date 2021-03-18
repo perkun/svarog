@@ -13,7 +13,7 @@ enum ObsType {
 };
 
 
-struct YamlPoint
+struct ObsPoint
 {
 	double jd;
 	vec3 observer_pos, target_pos;
@@ -21,37 +21,25 @@ struct YamlPoint
 	int lc_num_points = 360, ao_size = 400;
 };
 
-struct ObsPack
-{
-	vector<YamlPoint> points;
-
-	string filename = "untitled.storage";
-	string name = "untitled";
-	bool file_loaded = false;
-
-	LightcurveSeries* lightcurves;
-	ImageSeries* ao_images;
-	ImageSeries* radar_images;
-};
 
 
-class ObservationStorage
+class ObsStoragePack
 {
 public:
-	ObservationStorage();
-	~ObservationStorage();
+	ObsStoragePack();
+	~ObsStoragePack();
+
+	static vector<ObsPoint> import_obs_points(string filename);
 
 	void save_current(const string filepath, bool export_obs = false);
 	void save(int id, const string filepath, bool export_obs = false);
-	int load(string filename);
+// 	int load(string filename);
 
 	void detach_current_ghosts();
 	void delete_current_observations();
 
 	int add_new(string name);
 
-	vector<YamlPoint> get_current_points();
-	int get_current_points_size();
 	string get_current_name();
 	string get_name(int id);
 
@@ -65,11 +53,20 @@ public:
 	ImageSeries* get_ao_images(int id);
 	ImageSeries* get_radar_images(int id);
 
-	int size() { return obs_packs.size(); }
+	int size() { return obs_storages.size(); }
 	int current_id = 0;
 
 private:
-	vector<ObsPack> obs_packs;
+	struct ObsStorage
+	{
+		string name = "untitled";
+
+		LightcurveSeries* lightcurves;
+		ImageSeries* ao_images;
+		ImageSeries* radar_images;
+	};
+
+	vector<ObsStorage> obs_storages;
 	string fix_storage_name(string name, bool exclude_current = false);
 	YAML::Node serialize(int id, bool export_obs, string filepath = "");
 };

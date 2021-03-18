@@ -320,7 +320,7 @@ void RadarImage::construct_delay_doppler(float *radial_vel_buffer,
 
 FitsHeader RadarImage::get_fits_header()
 {
-	vec2 tex_dim = texture->get_dimentions();
+// 	vec2 tex_dim = texture->get_dimentions();
 	double c = 299792458.0; // m/s
 	double wavelen = 0.1259632; // 2.38 GHz (arecibo)
 
@@ -338,15 +338,15 @@ FitsHeader RadarImage::get_fits_header()
 	header.push("WCSAXES", 2, "");
 	header.push("WCSNAME", "delay-Doppler", "");
 
-	header.push("CRPIX1", tex_dim[0]/2., "");
+	header.push("CRPIX1", width/2., "");
 	header.push("CRVAL1", 0.0, "");
-	header.push("CDELT1", 2.0 / wavelen * (max_vr - min_vr)/tex_dim[0], "");
+	header.push("CDELT1", 2.0 / wavelen * (max_vr - min_vr)/width, "");
 	header.push("CTYPE1", "DOPPLER", "Doppler Shift");
 	header.push("CUNIT1", "Hz", "");
 
 	header.push("CRPIX2", 0, "");
 	header.push("CRVAL2", 2.0 / c * 1e9 * min_depth, "");
-	header.push("CDELT2", 2.0 / c * 1e9 * (max_depth - min_depth)/tex_dim[1], "");
+	header.push("CDELT2", 2.0 / c * 1e9 * (max_depth - min_depth)/height, "");
 	header.push("CTYPE2", "DELAY", "Round-Trip Time Delay");
 	header.push("CUNIT2", "us", "");
 

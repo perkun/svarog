@@ -153,7 +153,7 @@ void MainLayer::on_attach()
     time_panel = TimePanel(&scene);
     scene_hierarchy_panel = SceneHierarchyPanel(&scene, &time_panel.julian_day);
     observatory_panel =
-        ObservatoryPanel(this, &time_panel.julian_day, &obs_storage);
+        ObservatoryPanel(this, &time_panel.julian_day, &obs_pack);
     observe_panel = ObservePanel(this);
 }
 
@@ -437,7 +437,7 @@ void MainLayer::menu_bar()
         {
             if (ImGui::MenuItem("New Storage"))
             {
-                obs_storage.add_new("untitled");
+                obs_pack.add_new("untitled");
             }
 
             if (ImGui::MenuItem("Import Storage"))
@@ -452,7 +452,7 @@ void MainLayer::menu_bar()
                 string filename = FileDialog::save_file("*.storage");
                 if (filename != "")
                 {
-                    obs_storage.save_current(filename);
+                    obs_pack.save_current(filename);
                 }
             }
 
@@ -461,33 +461,19 @@ void MainLayer::menu_bar()
                 string filename = FileDialog::save_file("*.storage");
                 if (filename != "")
                 {
-                    obs_storage.save_current(filename, true);
-                }
-            }
-            ImGui::Separator();
-
-            bool enabled = (obs_storage.get_current_points_size() > 0);
-            if (ImGui::MenuItem("Observe All Points", NULL, false, enabled))
-            {
-                if (!scene.target.has_component<OrbitalComponent>())
-                {
-                    cout << "Target does not have an Orbital Component" << endl;
-                }
-                else
-                {
-                    observatory_panel.observe_points();
+                    obs_pack.save_current(filename, true);
                 }
             }
 
             ImGui::Separator();
             if (ImGui::MenuItem("Delete Observations", NULL, false, true))
             {
-                obs_storage.delete_current_observations();
+                obs_pack.delete_current_observations();
             }
 
             if (ImGui::MenuItem("Delete Storage", NULL, false, true))
             {
-                obs_storage.delete_current();
+                obs_pack.delete_current();
             }
             ImGui::EndMenu();
         }

@@ -2,55 +2,54 @@
 #include "ObservationStorage.h"
 
 
-ObservationStorage::ObservationStorage()
+ObsStoragePack::ObsStoragePack()
 {
 	current_id = 0;
-	obs_packs.emplace_back(ObsPack());
+	obs_storages.emplace_back(ObsStorage());
 
-	obs_packs[current_id].lightcurves = new LightcurveSeries;
-	obs_packs[current_id].ao_images = new ImageSeries;
-	obs_packs[current_id].radar_images = new ImageSeries;
+	obs_storages[current_id].lightcurves = new LightcurveSeries;
+	obs_storages[current_id].ao_images = new ImageSeries;
+	obs_storages[current_id].radar_images = new ImageSeries;
 }
 
 
-ObservationStorage::~ObservationStorage()
+ObsStoragePack::~ObsStoragePack()
 {
-	for (int i = 0; i < obs_packs.size(); i++)
+	for (int i = 0; i < obs_storages.size(); i++)
 	{
-		delete obs_packs[i].lightcurves;
-		delete obs_packs[i].ao_images;
-		delete obs_packs[i].radar_images;
+		delete obs_storages[i].lightcurves;
+		delete obs_storages[i].ao_images;
+		delete obs_storages[i].radar_images;
 	}
-
 }
 
-LightcurveSeries* ObservationStorage::get_current_lightcurves()
+LightcurveSeries* ObsStoragePack::get_current_lightcurves()
 {
-	if (obs_packs.size() > 0 && current_id >= 0 && current_id < obs_packs.size())
-		return obs_packs[current_id].lightcurves;
+	if (obs_storages.size() > 0 && current_id >= 0 && current_id < obs_storages.size())
+		return obs_storages[current_id].lightcurves;
 	else
 		return NULL;
 }
 
-ImageSeries* ObservationStorage::get_current_ao_images()
+ImageSeries* ObsStoragePack::get_current_ao_images()
 {
-	if (obs_packs.size() > 0 && current_id >= 0 && current_id < obs_packs.size())
-		return obs_packs[current_id].ao_images;
-	else
-		return NULL;
-}
-
-
-ImageSeries* ObservationStorage::get_current_radar_images()
-{
-	if (obs_packs.size() > 0 && current_id >= 0 && current_id < obs_packs.size())
-		return obs_packs[current_id].radar_images;
+	if (obs_storages.size() > 0 && current_id >= 0 && current_id < obs_storages.size())
+		return obs_storages[current_id].ao_images;
 	else
 		return NULL;
 }
 
 
-LightcurveSeries* ObservationStorage::get_lightcurves(int id)
+ImageSeries* ObsStoragePack::get_current_radar_images()
+{
+	if (obs_storages.size() > 0 && current_id >= 0 && current_id < obs_storages.size())
+		return obs_storages[current_id].radar_images;
+	else
+		return NULL;
+}
+
+
+LightcurveSeries* ObsStoragePack::get_lightcurves(int id)
 {
 // 	for (int i = 0; i < obs_packs.size(); i++)
 // 	{
@@ -60,11 +59,11 @@ LightcurveSeries* ObservationStorage::get_lightcurves(int id)
 	if (id < 0 || id >= size())
 		return NULL;
 	else
-		return obs_packs[id].lightcurves;
+		return obs_storages[id].lightcurves;
 }
 
 
-ImageSeries* ObservationStorage::get_ao_images(int id)
+ImageSeries* ObsStoragePack::get_ao_images(int id)
 {
 // 	for (int i = 0; i < obs_packs.size(); i++)
 // 	{
@@ -76,11 +75,11 @@ ImageSeries* ObservationStorage::get_ao_images(int id)
 	if (id < 0 || id >= size())
 		return NULL;
 	else
-		return obs_packs[id].ao_images;
+		return obs_storages[id].ao_images;
 }
 
 
-ImageSeries* ObservationStorage::get_radar_images(int id)
+ImageSeries* ObsStoragePack::get_radar_images(int id)
 {
 // 	for (int i = 0; i < obs_packs.size(); i++)
 // 	{
@@ -92,32 +91,32 @@ ImageSeries* ObservationStorage::get_radar_images(int id)
 	if (id < 0 || id >= size())
 		return NULL;
 	else
-		return obs_packs[id].radar_images;
+		return obs_storages[id].radar_images;
 }
 
 
-void ObservationStorage::save_current(const string filepath, bool export_obs)
+void ObsStoragePack::save_current(const string filepath, bool export_obs)
 {
 	save(current_id, filepath, export_obs);
 }
 
 
-void ObservationStorage::save(int id, const string filepath, bool export_obs)
+void ObsStoragePack::save(int id, const string filepath, bool export_obs)
 {
-    obs_packs[id].filename = File::remove_extension(filepath) + ".storage";
-    obs_packs[id].name =
+    string filename = File::remove_extension(filepath) + ".storage";
+    obs_storages[id].name =
 		fix_storage_name(File::remove_extension(File::file_base(filepath)), true);
 
 	YAML::Emitter emitter;
 	emitter << serialize(id, export_obs, filepath);
 
-    std::ofstream fout(obs_packs[id].filename );
+    std::ofstream fout(filename);
     fout << emitter.c_str();
     fout.close();
 }
 
 
-YAML::Node ObservationStorage::serialize(int id, bool export_obs, string filepath)
+YAML::Node ObsStoragePack::serialize(int id, bool export_obs, string filepath)
 {
     YAML::Emitter out;
     out << YAML::BeginMap;
@@ -125,15 +124,15 @@ YAML::Node ObservationStorage::serialize(int id, bool export_obs, string filepat
 
 	if (export_obs)
 	{
-		obs_packs[id].lightcurves->serialize(out, filepath);
-		obs_packs[id].ao_images->serialize(out, filepath);
-		obs_packs[id].radar_images->serialize(out, filepath);
+		obs_storages[id].lightcurves->serialize(out, filepath);
+		obs_storages[id].ao_images->serialize(out, filepath);
+		obs_storages[id].radar_images->serialize(out, filepath);
 	}
 	else
 	{
-		obs_packs[id].lightcurves->serialize(out);
-		obs_packs[id].ao_images->serialize(out);
-		obs_packs[id].radar_images->serialize(out);
+		obs_storages[id].lightcurves->serialize(out);
+		obs_storages[id].ao_images->serialize(out);
+		obs_storages[id].radar_images->serialize(out);
 	}
 
     out << YAML::EndSeq;
@@ -196,38 +195,38 @@ YAML::Node ObservationStorage::serialize(int id, bool export_obs, string filepat
 	return data;
 }
 
-int ObservationStorage::add_new(string name)
+int ObsStoragePack::add_new(string name)
 {
 	name = fix_storage_name(name);
 
-	obs_packs.emplace_back(ObsPack());
+	obs_storages.emplace_back(ObsStorage());
     current_id = size() -1;
-	obs_packs[current_id].lightcurves = new LightcurveSeries;
-	obs_packs[current_id].ao_images = new ImageSeries;
-	obs_packs[current_id].radar_images = new ImageSeries;
+	obs_storages[current_id].lightcurves = new LightcurveSeries;
+	obs_storages[current_id].ao_images = new ImageSeries;
+	obs_storages[current_id].radar_images = new ImageSeries;
 
-	obs_packs[current_id].name = name;
+	obs_storages[current_id].name = name;
 
     detach_current_ghosts();
 	return current_id;
 }
 
 
-string ObservationStorage::get_current_name()
+string ObsStoragePack::get_current_name()
 {
-	return obs_packs[current_id].name;
+	return obs_storages[current_id].name;
 }
 
-string ObservationStorage::get_name(int id)
+string ObsStoragePack::get_name(int id)
 {
-	if (obs_packs.size() > 0 && id >= 0 && id < obs_packs.size())
-		return obs_packs[id].name;
+	if (obs_storages.size() > 0 && id >= 0 && id < obs_storages.size())
+		return obs_storages[id].name;
 	else
 		return string("");
 }
 
 
-string ObservationStorage::fix_storage_name(string name, bool exclude_current)
+string ObsStoragePack::fix_storage_name(string name, bool exclude_current)
 {
     smatch matches;
 	char buff[50];
@@ -238,7 +237,7 @@ string ObservationStorage::fix_storage_name(string name, bool exclude_current)
 			if (i == current_id)
 				continue;
 
-        if (regex_search(obs_packs[i].name, matches, regex(buff)) )
+        if (regex_search(obs_storages[i].name, matches, regex(buff)) )
 		{
 			if (matches[2].str() == "")
 				name = name + " (1)";
@@ -254,20 +253,16 @@ string ObservationStorage::fix_storage_name(string name, bool exclude_current)
 }
 
 
-int ObservationStorage::load(const string filename)
+vector<ObsPoint> ObsStoragePack::import_obs_points(const string filename)
 {
     YAML::Node data = YAML::LoadFile(filename);
     if (!data["points"])
-        return -1;
+        return vector<ObsPoint>();
 
-	detach_current_ghosts();
-	add_new(File::remove_extension(File::file_base(filename)));
-    obs_packs[current_id].file_loaded = false;
-    obs_packs[current_id].filename = filename;
-
+	vector<ObsPoint> points;
     for (auto yaml_point : data["points"])
     {
-        YamlPoint p;
+        ObsPoint p;
         p.jd = yaml_point["jd"].as<double>();
 
         p.observer_pos.x = yaml_point["observer_position"][0].as<float>();
@@ -291,42 +286,29 @@ int ObservationStorage::load(const string filename)
         else
             p.obs_types |= ObsType::LC;
 
-		if (yaml_point["lc_num_points"])
-			p.lc_num_points = yaml_point["lc_num_points"].as<int>();
+        if (yaml_point["lc_num_points"])
+            p.lc_num_points = yaml_point["lc_num_points"].as<int>();
 
-		if (yaml_point["ao_size"])
-			p.ao_size = yaml_point["ao_size"].as<int>();
+        if (yaml_point["ao_size"])
+            p.ao_size = yaml_point["ao_size"].as<int>();
 
 
-        obs_packs[current_id].points.push_back(p);
+        points.push_back(p);
     }
 
-    obs_packs[current_id].file_loaded = true;
-    return current_id;
+    return points;
 }
 
 
-vector<YamlPoint> ObservationStorage::get_current_points()
+void ObsStoragePack::detach_current_ghosts()
 {
-	 return obs_packs[current_id].points;
+    obs_storages[current_id].lightcurves->detach_all_ghosts();
+    obs_storages[current_id].ao_images->detach_all_ghosts();
+    obs_storages[current_id].radar_images->detach_all_ghosts();
 }
 
 
-int ObservationStorage::get_current_points_size()
-{
-	 return obs_packs[current_id].points.size();
-}
-
-
-void ObservationStorage::detach_current_ghosts()
-{
-    obs_packs[current_id].lightcurves->detach_all_ghosts();
-    obs_packs[current_id].ao_images->detach_all_ghosts();
-    obs_packs[current_id].radar_images->detach_all_ghosts();
-}
-
-
-void ObservationStorage::delete_current_observations()
+void ObsStoragePack::delete_current_observations()
 {
     while (get_current_lightcurves()->get_current_obs() != NULL)
         get_current_lightcurves()->delete_current_obs();
@@ -339,17 +321,17 @@ void ObservationStorage::delete_current_observations()
 }
 
 
-void ObservationStorage::delete_current()
+void ObsStoragePack::delete_current()
 {
 	if (size() == 1)
 		delete_current_observations();
 	else
 	{
-		delete obs_packs[current_id].lightcurves;
-		delete obs_packs[current_id].ao_images;
-		delete obs_packs[current_id].radar_images;
+		delete obs_storages[current_id].lightcurves;
+		delete obs_storages[current_id].ao_images;
+		delete obs_storages[current_id].radar_images;
 
-		obs_packs.erase(obs_packs.begin() + current_id);
+		obs_storages.erase(obs_storages.begin() + current_id);
 		current_id--;
 
 		if (current_id < 0)

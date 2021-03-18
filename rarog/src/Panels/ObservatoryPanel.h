@@ -18,13 +18,13 @@ class ObservatoryPanel
 {
 public:
     ObservatoryPanel() = default;
-	ObservatoryPanel(MainLayer*, double*, ObservationStorage*);
+	ObservatoryPanel(MainLayer*, double*, ObsStoragePack*);
 	~ObservatoryPanel();
 
 	void on_imgui_render();
 
 	void load_obs_storage(string filepath);
-	void observe_points();
+	void observe_obs_points(const vector<ObsPoint> obs_points);
 
 	double *julian_day;
 
@@ -42,7 +42,7 @@ private:
 	void set_target_and_observer(Observation*);
 	void observations_panel();
 
-	void set_current_ghosts(ObservationStorage*);
+	void set_current_ghosts(ObsStoragePack*);
 
 	int ao_size = 400;
 	int dd_size = 200;
@@ -53,7 +53,7 @@ private:
 	float angular_speed = 10; // rot speed, sort of
 	int radar_size = 200;
 
-	ObservationStorage *obs_storage;
+	ObsStoragePack *obs_storage;
 
 	bool earth_tilt = true;
 };

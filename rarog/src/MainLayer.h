@@ -77,7 +77,7 @@ private:
 	ObservePanel observe_panel;
 	TimePanel time_panel;
 
-	ObservationStorage obs_storage;
+	ObsStoragePack obs_pack;
 
 
 // 	double fps;
