@@ -54,7 +54,8 @@ public:
 	void remove_component()
     {
         if (!has_component<T>())
-            cout << "Entity does not have this component" << endl;
+			return;
+//             cout << "Entity does not have this component" << endl;
         scene_registry_handle->remove<T>(entity_handle);
     }
 
