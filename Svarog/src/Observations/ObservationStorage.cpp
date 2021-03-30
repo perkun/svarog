@@ -292,6 +292,23 @@ vector<ObsPoint> ObsStoragePack::import_obs_points(const string filename)
         if (yaml_point["ao_size"])
             p.ao_size = yaml_point["ao_size"].as<int>();
 
+		if (yaml_point["radar_image"])
+			p.radar_image_filename = yaml_point["radar_image"].as<string>();
+
+		if (yaml_point["radar_fits"])
+			p.radar_fits_filename = yaml_point["radar_fits"].as<string>();
+
+		if (yaml_point["ao_image"])
+			p.ao_image_filename = yaml_point["ao_image"].as<string>();
+
+		if (yaml_point["ao_fits"])
+			p.ao_fits_filename = yaml_point["ao_fits"].as<string>();
+
+		if (yaml_point["mag_data"])
+			p.mag_filename = yaml_point["mag_data"].as<string>();
+
+		if (yaml_point["flux_data"])
+			p.flux_filename = yaml_point["flux_data"].as<string>();
 
         points.push_back(p);
     }

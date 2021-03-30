@@ -3,9 +3,11 @@ bin/*
 data/*
 compile_commands.json
 .clangd
+.cache
 graph.dot
 **/Makefile
 *.make
 *.include
 my_makefile
 imgui.ini
+euler_quaternions.ipynb

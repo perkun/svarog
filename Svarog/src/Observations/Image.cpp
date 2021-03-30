@@ -73,7 +73,7 @@ void Image::serialize(YAML::Emitter &out, int id, string filename)
             << string(fn) + ".fits";
 
         save_png(fn);
-        save_fits_greyscale(fn, get_fits_header());
+        save_fits_greyscale(fn);
     }
 
     out << YAML::EndMap;
@@ -151,7 +151,7 @@ void Image::save_png(string filename)
 }
 
 
-void Image::save_fits_greyscale(string filename, const FitsHeader &header)
+void Image::save_fits_greyscale(string filename)
 
 {
 	filename = File::remove_extension(filename) + ".fits";
@@ -164,6 +164,7 @@ void Image::save_fits_greyscale(string filename, const FitsHeader &header)
     num_axis = 2;
 
     fitsfile *out;
+	filename = "!" + filename; // ! - override
     fits_create_file(&out, filename.c_str(), &status);
     if (status != 0)
     {
@@ -195,6 +196,7 @@ void Image::save_fits_greyscale(string filename, const FitsHeader &header)
 	fits_write_pix(out, TFLOAT, fpixel, axis_dim[0]*axis_dim[1],
 			fits_data, &status);
 
+	FitsHeader header = get_fits_header();
 	header.write(out);
 
 	fits_close_file(out, &status);

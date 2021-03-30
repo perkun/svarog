@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "RadarLayer.h"
 #include "ObservationStorage.h"
+#include "Fits.h"
 
 
 using namespace std;
@@ -39,23 +40,47 @@ int main(int argc, char *argv[])
 
 
 	int obs_id = obs_pack.add_new("obs");
+
+
 	vector<ObsPoint> obs_points =
 		ObsStoragePack::import_obs_points("../../../data/radar/eros_flyby.storage");
+
+
+
 
 	OrbitalComponent &target_oc =
 		radar_layer->model.get_component<OrbitalComponent>();
 	Transform &target_t = radar_layer->model.get_component<Transform>();
 	Transform &observer_t = radar_layer->observer.get_component<Transform>();
 
+
 	for (ObsPoint p : obs_points)
 	{
-		target_t.position = p.target_pos;
-		observer_t.position = p.observer_pos;
+		// read stuff from FITS
 
-		target_oc.calculate_rot_phase(p.jd);
+		Fits2DFloat fits(p.radar_fits_filename);
+
+		target_t.position = vec3(fits.read_header_key_double("POS_X"),
+								 fits.read_header_key_double("POS_Y"),
+								 fits.read_header_key_double("POS_Z"));
+
+		observer_t.position = vec3(fits.read_header_key_double("OBS_X"),
+                              	   fits.read_header_key_double("OBS_Y"),
+                              	   fits.read_header_key_double("OBS_Z"));
+		target_oc.jd_0 = fits.read_header_key_double("JD_0");
+		target_oc.lambda = fits.read_header_key_double("LAMBDA");
+		target_oc.beta = fits.read_header_key_double("BETA");
+		target_oc.gamma = fits.read_header_key_double("GAMMA");
+		target_oc.rot_period = fits.read_header_key_double("PERIOD");
+
+		double jd = fits.read_header_key_double("JD");
+
+		target_oc.calculate_rot_phase(jd);
 		target_t.rotation = target_oc.xyz_from_lbg();
 
-		radar_layer->make_radar_image(obs_pack.get_radar_images(obs_id), p.jd);
+		radar_layer->make_radar_image(obs_pack.get_radar_images(obs_id), jd);
+
+		fits.close();
 	}
 
 	obs_pack.save_current( "../../../data/radar/obs", true);

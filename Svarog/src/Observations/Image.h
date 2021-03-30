@@ -18,7 +18,7 @@ public:
     void update_texture();
 
     void save_png(string filename);
-    void save_fits_greyscale(string filename, const FitsHeader &header);
+    void save_fits_greyscale(string filename);
 
 	virtual string get_obs_type_string() override;
 
