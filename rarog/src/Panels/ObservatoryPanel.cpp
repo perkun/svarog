@@ -402,12 +402,12 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
                                IM_COL32(200, 200, 200, 40));
     }
 
-    float *mags = lc->inv_mag_data();
+//     vector<LcPoint> *points = lc->get_points();
 
-    float lc_range = (lightcurves->lcs_max - lightcurves->lcs_min);
+    float lc_range = (lightcurves->lcs_inv_mag_max - lightcurves->lcs_inv_mag_min);
 	float margin = 0.1 * lc_range;
-    float min = lightcurves->lcs_min - margin,
-          max = lightcurves->lcs_max + margin;
+    float min = lightcurves->lcs_inv_mag_min - margin,
+          max = lightcurves->lcs_inv_mag_max + margin;
 	lc_range += 2*margin;
 
     float lc_size = lc->size();
@@ -416,10 +416,10 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
         draw_list->AddLine(
             ImVec2(origin.x + i * canvas_sz.x / lc_size,
                    origin.y + canvas_sz.y -
-                       ((mags[i] - min) * canvas_sz.y / lc_range)),
+                       ((lc->operator[](i).inv_mag - min) * canvas_sz.y / lc_range)),
             ImVec2(origin.x + (i + 1) * canvas_sz.x / lc_size,
                    origin.y + canvas_sz.y -
-                       ((mags[i + 1] - min) * canvas_sz.y / lc_range)),
+                       ((lc->operator[](i + 1).inv_mag - min) * canvas_sz.y / lc_range)),
             IM_COL32(255, 124, 14, 255), 2.0f);
 
     draw_list->PopClipRect();
@@ -533,7 +533,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer,
         double flux = 0.0;
         for (int j = 0; j < width * height; j++)
             flux += pixel_buffer[j];
-        lc->push_flux(flux);
+        lc->push_flux((double)i/num_points * 2*M_PI, flux);
     }
 
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");

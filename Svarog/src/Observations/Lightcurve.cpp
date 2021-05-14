@@ -4,9 +4,7 @@
 Lightcurve::Lightcurve(Entity &target, Entity &observer, unsigned int size)
 	: Observation(target, observer)
 {
-    fluxes.reserve(size);
-    magnitudes.reserve(size);
-    inverse_magnitudes.reserve(size);
+    points.reserve(size);
 	ghost_color = vec4(32 / 256., 172 / 256., 64 / 256., 0.2);
 }
 
@@ -16,85 +14,102 @@ Lightcurve::~Lightcurve()
 
 void Lightcurve::shift_fluxes(float val)
 {
-    for (float &f : fluxes)
-        f += val;
+    for (LcPoint &p : points)
+	{
+        p.flux += val;
+	}
 }
 
 void Lightcurve::make_average_zero()
 {
-	make_average_zero(fluxes);
-	make_average_zero(magnitudes);
-	make_average_zero(inverse_magnitudes);
+	LcPoint avg;
+	for (LcPoint &p: points)
+	{
+		avg.flux += p.flux;
+		avg.mag += p.mag;
+		avg.inv_mag += p.inv_mag;
+	}
+	avg.flux /= points.size();
+	avg.mag /= points.size();
+	avg.inv_mag /= points.size();
+
+	for (LcPoint &p: points)
+	{
+		p.flux -= avg.flux;
+		p.mag -= avg.mag;
+		p.inv_mag -= avg.inv_mag;
+	}
 }
 
-void Lightcurve::make_average_zero(vector<float> &data)
-{
-    float avg = 0.;
-    for (float f : data)
-        avg += f;
-    avg /= data.size();
+// void Lightcurve::make_average_zero(vector<float> &data)
+// {
+//     float avg = 0.;
+//     for (float f : data)
+//         avg += f;
+//     avg /= data.size();
+//
+// 	for (float &v: data)
+// 		v -= avg;
+// }
 
-	for (float &v: data)
-		v -= avg;
-}
-
-void Lightcurve::push_flux(float val)
+void Lightcurve::push_flux(double phase, double flux)
 {
-    fluxes.emplace_back(val);
-	magnitudes.emplace_back(-2.5 * log10(val));
-	inverse_magnitudes.emplace_back(2.5 * log10(val));
+	points.emplace_back(LcPoint(phase, flux));
+//     fluxes.emplace_back(val);
+// 	magnitudes.emplace_back(-2.5 * log10(val));
+// 	inverse_magnitudes.emplace_back(2.5 * log10(val));
 }
 
 float Lightcurve::calculate_min_flux()
 {
-    min = fluxes[0];
-    for (int i = 1; i < fluxes.size(); i++)
-        if (fluxes[i] < min)
-            min = fluxes[i];
+    float min = points[0].flux;
+    for (int i = 1; i < points.size(); i++)
+        if (points[i].flux < min)
+            min = points[i].flux;
     return min;
 }
 float Lightcurve::calculate_max_flux()
 {
-    max = fluxes[0];
-    for (int i = 1; i < fluxes.size(); i++)
-        if (fluxes[i] > max)
-            max = fluxes[i];
+    float max = points[0].flux;
+    for (int i = 1; i < points.size(); i++)
+        if (points[i].flux > max)
+            max = points[i].flux;
     return max;
 }
 
 
 float Lightcurve::calculate_min_mag()
 {
-    min = magnitudes[0];
-    for (int i = 1; i < magnitudes.size(); i++)
-        if (magnitudes[i] < min)
-            min = magnitudes[i];
+    float min = points[0].mag;
+    for (int i = 1; i < points.size(); i++)
+        if (points[i].mag < min)
+            min = points[i].mag;
     return min;
 }
 float Lightcurve::calculate_max_mag()
 {
-    max = magnitudes[0];
-    for (int i = 1; i < magnitudes.size(); i++)
-        if (magnitudes[i] > max)
-            max = magnitudes[i];
+    float max = points[0].mag;
+    for (int i = 1; i < points.size(); i++)
+        if (points[i].mag > max)
+            max = points[i].mag;
     return max;
 }
 
 
 float Lightcurve::calculate_min_inv_mag()
 {
-    min = inverse_magnitudes[0];
-    for (int i = 1; i < inverse_magnitudes.size(); i++)
-        if (inverse_magnitudes[i] < min)
-            min = inverse_magnitudes[i];
+    float min = points[0].inv_mag;
+    for (int i = 1; i < points.size(); i++)
+        if (points[i].inv_mag < min)
+            min = points[i].inv_mag;
     return min;
 }
 float Lightcurve::calculate_max_inv_mag()
 {
-    max = inverse_magnitudes[0];
-    for (int i = 1; i < inverse_magnitudes.size(); i++)
-        if (inverse_magnitudes[i] > max)
-            max = inverse_magnitudes[i];
+    float max = points[0].inv_mag;
+    for (int i = 1; i < points.size(); i++)
+        if (points[i].inv_mag > max)
+            max = points[i].inv_mag;
     return max;
 }
 
@@ -105,8 +120,9 @@ void Lightcurve::save_flux(string filename)
     FILE *out = fopen(filename.c_str(), "w");
 // 	vector<float> tmp_fluxes = fluxes;
 // 	make_average_zero(tmp_fluxes);
-    for (int i = 0; i < fluxes.size(); i++)
-        fprintf(out, "%f\t%f\n", (float)i / fluxes.size(), fluxes[i]);
+//     for (int i = 0; i < points.size(); i++)
+	for (LcPoint &p: points)
+        fprintf(out, "%f\t%f\n", p.phase, p.flux);
     fclose(out);
 }
 void Lightcurve::save_mag(string filename)
@@ -118,8 +134,11 @@ void Lightcurve::save_mag(string filename)
 // 		m = -2.5 * log10(m);
 // 	make_average_zero(magnitudes);
 
-    for (int i = 0; i < magnitudes.size(); i++)
-        fprintf(out, "%f\t%f\n", (float)i / magnitudes.size(), magnitudes[i]);
+//     for (int i = 0; i < magnitudes.size(); i++)
+//         fprintf(out, "%f\t%f\n", (float)i / magnitudes.size(), magnitudes[i]);
+
+	for (LcPoint &p: points)
+        fprintf(out, "%f\t%f\n", p.phase, p.mag);
 
     fclose(out);
 }

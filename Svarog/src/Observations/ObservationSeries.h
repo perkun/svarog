@@ -53,8 +53,8 @@ public:
 // 	virtual void serialize(YAML::Emitter &out) override;
 // 	virtual void serialize(YAML::Emitter &out, string storage_name) override;
 
-	float lcs_min = 1e38;
-	float lcs_max = -1e38;
+	float lcs_inv_mag_min = 1e38;
+	float lcs_inv_mag_max = -1e38;
 
 
 private:

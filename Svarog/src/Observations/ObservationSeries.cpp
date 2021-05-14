@@ -106,10 +106,10 @@ void LightcurveSeries::push(Lightcurve *lc)
     lc->make_average_zero();
     float min = lc->calculate_min_inv_mag();
     float max = lc->calculate_max_inv_mag();
-    if (min < lcs_min)
-        lcs_min = min;
-    if (max > lcs_max)
-        lcs_max = max;
+    if (min < lcs_inv_mag_min)
+        lcs_inv_mag_min = min;
+    if (max > lcs_inv_mag_max)
+        lcs_inv_mag_max = max;
 
 
     observations.push_back(lc);
