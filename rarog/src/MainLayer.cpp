@@ -446,6 +446,11 @@ void MainLayer::menu_bar()
                     FileDialog::open_file("*.storage"));
             }
 
+            if (ImGui::MenuItem("Import LC file"))
+            {
+                observatory_panel.load_lc_file(FileDialog::open_file("*.txt"));
+            }
+
 
             if (ImGui::MenuItem("Save Storage"))
             {

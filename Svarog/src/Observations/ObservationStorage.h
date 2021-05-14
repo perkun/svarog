@@ -49,10 +49,12 @@ public:
 	void delete_current();
 
 	LightcurveSeries* get_current_lightcurves();
+	LightcurveSeries* get_current_obs_lightcurves();
 	ImageSeries* get_current_ao_images();
 	ImageSeries* get_current_radar_images();
 
 	LightcurveSeries* get_lightcurves(int id);
+	LightcurveSeries* get_obs_lightcurves(int id);
 	ImageSeries* get_ao_images(int id);
 	ImageSeries* get_radar_images(int id);
 
@@ -64,6 +66,7 @@ private:
 	{
 		string name = "untitled";
 
+		LightcurveSeries* obs_lightcurves;
 		LightcurveSeries* lightcurves;
 		ImageSeries* ao_images;
 		ImageSeries* radar_images;

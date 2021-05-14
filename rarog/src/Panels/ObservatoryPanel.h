@@ -24,6 +24,7 @@ public:
 	void on_imgui_render();
 
 	void load_obs_storage(string filepath);
+	void load_lc_file(string filepath);
 	void observe_obs_points(const vector<ObsPoint> obs_points);
 
 	double *julian_day;

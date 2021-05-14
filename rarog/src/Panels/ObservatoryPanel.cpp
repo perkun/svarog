@@ -40,6 +40,56 @@ void ObservatoryPanel::load_obs_storage(string filepath)
 }
 
 
+void ObservatoryPanel::load_lc_file(string filepath)
+{
+	char line[1000];
+	int num_lcs = 0;
+	vector<ObsPoint> obs_points;
+
+	FILE *in = fopen(filepath.c_str(), "r");
+
+	fgets(line, 999, in);
+	sscanf(line, "%d", &num_lcs);
+
+	for (int i = 0; i < num_lcs; i++)
+	{
+		fgets(line, 999, in);
+		int type = 0;
+		int num_pts = 0;
+		sscanf(line, "%d %d", &num_pts, &type);
+
+		for (int j = 0; j < num_pts; j++)
+		{
+			double jd, flux;
+			dvec3 sun, earth;
+			fgets(line, 999, in);
+			sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf", &jd, &flux,
+					&sun.x, &sun.y, &sun.z, &earth.x, &earth.y, &earth.z);
+
+			if (j == 0)
+			{
+				ObsPoint p;
+				p.jd = jd;
+				p.observer_pos = earth - sun;
+				p.target_pos = -sun;
+				p.obs_type = ObsType::LC;
+
+				obs_points.push_back(p);
+			}
+		}
+	}
+	fclose(in);
+
+	if (obs_points.size() > 0)
+	{
+		obs_storage->add_new(File::remove_extension(File::file_base(filepath)));
+		observe_obs_points(obs_points);
+	}
+	else
+        cout << "Adding Storage Failed" << endl;
+}
+
+
 void ObservatoryPanel::set_current_ghosts(ObsStoragePack *obs)
 {
     // lc
@@ -288,9 +338,9 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
 
     Lightcurve *lc = static_cast<Lightcurve *>(current_obs);
 
-    ImGui::PlotLines("LC", lc->inv_mag_data(), lc->size(), 0, NULL,
-                     lightcurves->lcs_min, lightcurves->lcs_max,
-                     ImVec2(300.0f, 230.0f));
+//     ImGui::PlotLines("LC", lc->inv_mag_data(), lc->size(), 0, NULL,
+//                      lightcurves->lcs_min, lightcurves->lcs_max,
+//                      ImVec2(300.0f, 230.0f));
 
     if (ImGui::Button("Delete LC"))
     {
@@ -302,6 +352,77 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
             layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
         }
     }
+
+    static ImVec2 scrolling(0.0f, 0.0f);
+    static bool opt_enable_grid = true;
+
+    ImGui::Checkbox("Enable grid", &opt_enable_grid);
+
+
+    // Using InvisibleButton() as a convenience 1) it will advance the
+    // layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
+    ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(); // ImDrawList API uses
+                                                    // screen coordinates!
+    ImVec2 canvas_sz =
+        ImGui::GetContentRegionAvail(); // Resize canvas to what's available
+    if (canvas_sz.x < 50.0f)
+        canvas_sz.x = 50.0f;
+//     if (canvas_sz.y < 50.0f)
+//         canvas_sz.y = 50.0f;
+	canvas_sz.y = 3/4.0 * canvas_sz.x;
+
+    ImVec2 canvas_p1 =
+        ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
+
+    // Draw border and background color
+    ImGuiIO &io = ImGui::GetIO();
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
+    draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
+    draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
+
+    // This will catch our interactions
+    const ImVec2 origin(canvas_p0.x + scrolling.x,
+                        canvas_p0.y + scrolling.y); // Lock scrolled origin
+
+
+    // Draw grid + all lines in the canvas
+    draw_list->PushClipRect(canvas_p0, canvas_p1, true);
+    if (opt_enable_grid)
+    {
+        const float GRID_STEP = 64.0f;
+        for (float x = fmodf(scrolling.x, GRID_STEP); x < canvas_sz.x;
+             x += GRID_STEP)
+            draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y),
+                               ImVec2(canvas_p0.x + x, canvas_p1.y),
+                               IM_COL32(200, 200, 200, 40));
+        for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y;
+             y += GRID_STEP)
+            draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y),
+                               ImVec2(canvas_p1.x, canvas_p0.y + y),
+                               IM_COL32(200, 200, 200, 40));
+    }
+
+    float *mags = lc->inv_mag_data();
+
+    float lc_range = (lightcurves->lcs_max - lightcurves->lcs_min);
+	float margin = 0.1 * lc_range;
+    float min = lightcurves->lcs_min - margin,
+          max = lightcurves->lcs_max + margin;
+	lc_range += 2*margin;
+
+    float lc_size = lc->size();
+
+    for (int i = 0; i < lc->size() - 1; i++)
+        draw_list->AddLine(
+            ImVec2(origin.x + i * canvas_sz.x / lc_size,
+                   origin.y + canvas_sz.y -
+                       ((mags[i] - min) * canvas_sz.y / lc_range)),
+            ImVec2(origin.x + (i + 1) * canvas_sz.x / lc_size,
+                   origin.y + canvas_sz.y -
+                       ((mags[i + 1] - min) * canvas_sz.y / lc_range)),
+            IM_COL32(255, 124, 14, 255), 2.0f);
+
+    draw_list->PopClipRect();
 }
 
 

@@ -31,6 +31,15 @@ LightcurveSeries* ObsStoragePack::get_current_lightcurves()
 		return NULL;
 }
 
+
+LightcurveSeries* ObsStoragePack::get_current_obs_lightcurves()
+{
+	if (obs_storages.size() > 0 && current_id >= 0 && current_id < obs_storages.size())
+		return obs_storages[current_id].obs_lightcurves;
+	else
+		return NULL;
+}
+
 ImageSeries* ObsStoragePack::get_current_ao_images()
 {
 	if (obs_storages.size() > 0 && current_id >= 0 && current_id < obs_storages.size())
@@ -51,15 +60,19 @@ ImageSeries* ObsStoragePack::get_current_radar_images()
 
 LightcurveSeries* ObsStoragePack::get_lightcurves(int id)
 {
-// 	for (int i = 0; i < obs_packs.size(); i++)
-// 	{
-// 		if (obs_packs[i].name == name)
-// 			return obs_packs[i].lightcurves;
-// 	}
 	if (id < 0 || id >= size())
 		return NULL;
 	else
 		return obs_storages[id].lightcurves;
+}
+
+
+LightcurveSeries* ObsStoragePack::get_obs_lightcurves(int id)
+{
+	if (id < 0 || id >= size())
+		return NULL;
+	else
+		return obs_storages[id].obs_lightcurves;
 }
 
 
