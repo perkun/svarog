@@ -12,7 +12,7 @@ struct CalendarDate
 		: year(y), month(mo), day(d), hour(h), minute(mi), second(sec) {}
 
 	int year, month, day, hour, minute;
-	float second;
+	double second;
 
 	void normalize()
 	{

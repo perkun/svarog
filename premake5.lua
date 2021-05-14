@@ -63,7 +63,7 @@ project "rarog"
 
 	filter "configurations:Release"
 		-- defines...
-		optimize "on"
+		optimize "On"
 		defines "SV_RELEASE"
 		defines "SPDLOG_COMPILED_LIB"
 
@@ -121,7 +121,7 @@ project "radar"
 
 	filter "configurations:Release"
 		-- defines...
-		optimize "on"
+		optimize "On"
 		defines "SV_RELEASE"
 		defines "SPDLOG_COMPILED_LIB"
 

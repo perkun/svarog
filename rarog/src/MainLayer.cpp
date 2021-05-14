@@ -456,15 +456,6 @@ void MainLayer::menu_bar()
                 }
             }
 
-            if (ImGui::MenuItem("Save Storage & export obs."))
-            {
-                string filename = FileDialog::save_file("*.storage");
-                if (filename != "")
-                {
-                    obs_pack.save_current(filename, true);
-                }
-            }
-
             ImGui::Separator();
             if (ImGui::MenuItem("Delete Observations", NULL, false, true))
             {

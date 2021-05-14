@@ -5,12 +5,18 @@
 #include "ObservationStorage.h"
 #include "Fits.h"
 
-
 using namespace std;
-
 
 #define WIN_W 600
 #define WIN_H 600
+
+struct RadarInfo
+{
+	vec3 target_pos, observer_pos;
+	double jd, jd_0, lambda, beta, gamma, rot_period;
+	string obs_filename;
+	// TODO wcs data
+};
 
 void init_app();
 OrbitalComponent get_orbital_component_from_scene(string filepath);
@@ -46,44 +52,56 @@ int main(int argc, char *argv[])
 		ObsStoragePack::import_obs_points("../../../data/radar/eros_flyby.storage");
 
 
-
-
-	OrbitalComponent &target_oc =
-		radar_layer->model.get_component<OrbitalComponent>();
-	Transform &target_t = radar_layer->model.get_component<Transform>();
-	Transform &observer_t = radar_layer->observer.get_component<Transform>();
-
-
+	// import meta data from fits files
+	vector<RadarInfo> radar_info;
 	for (ObsPoint p : obs_points)
 	{
 		// read stuff from FITS
-
 		Fits2DFloat fits(p.radar_fits_filename);
+		RadarInfo ri;
+		ri.target_pos = vec3(fits.read_header_key_double("POS_X"),
+							 fits.read_header_key_double("POS_Y"),
+							 fits.read_header_key_double("POS_Z"));
+		ri. observer_pos = vec3(fits.read_header_key_double("OBS_X"),
+                            	fits.read_header_key_double("OBS_Y"),
+                                fits.read_header_key_double("OBS_Z"));
+		ri.jd_0 = fits.read_header_key_double("JD_0");
+		ri.lambda = fits.read_header_key_double("LAMBDA");
+		ri.beta = fits.read_header_key_double("BETA");
+		ri.gamma = fits.read_header_key_double("GAMMA");
+		ri.rot_period = fits.read_header_key_double("PERIOD");
+		ri.jd = fits.read_header_key_double("JD");
 
-		target_t.position = vec3(fits.read_header_key_double("POS_X"),
-								 fits.read_header_key_double("POS_Y"),
-								 fits.read_header_key_double("POS_Z"));
+		ri.obs_filename = p.radar_fits_filename;
 
-		observer_t.position = vec3(fits.read_header_key_double("OBS_X"),
-                              	   fits.read_header_key_double("OBS_Y"),
-                              	   fits.read_header_key_double("OBS_Z"));
-		target_oc.jd_0 = fits.read_header_key_double("JD_0");
-		target_oc.lambda = fits.read_header_key_double("LAMBDA");
-		target_oc.beta = fits.read_header_key_double("BETA");
-		target_oc.gamma = fits.read_header_key_double("GAMMA");
-		target_oc.rot_period = fits.read_header_key_double("PERIOD");
-
-		double jd = fits.read_header_key_double("JD");
-
-		target_oc.calculate_rot_phase(jd);
-		target_t.rotation = target_oc.xyz_from_lbg();
-
-		radar_layer->make_radar_image(obs_pack.get_radar_images(obs_id), jd);
-
+		radar_info.emplace_back(ri);
 		fits.close();
 	}
 
-	obs_pack.save_current( "../../../data/radar/obs", true);
+	// orbital component stuff from first fits file
+	OrbitalComponent &target_oc =
+		radar_layer->model.get_component<OrbitalComponent>();
+	target_oc.lambda = radar_info[0].lambda;
+	target_oc.beta = radar_info[0].beta;
+	target_oc.gamma = radar_info[0].gamma;
+	target_oc.jd_0 = radar_info[0].jd_0;
+	target_oc.rot_period = radar_info[0].rot_period;
+
+	Transform &target_t = radar_layer->model.get_component<Transform>();
+	Transform &observer_t = radar_layer->observer.get_component<Transform>();
+
+	for (RadarInfo ri : radar_info)
+	{
+		observer_t.position = ri.observer_pos;
+		target_t.position = ri.target_pos;
+		// orbital component laded once from first radar fits
+		target_oc.calculate_rot_phase(ri.jd);
+		target_t.rotation = target_oc.xyz_from_lbg();
+		radar_layer->make_radar_image(obs_pack.get_radar_images(obs_id), ri.jd);
+	}
+
+
+	obs_pack.save_current( "../../../data/radar/synth", true);
 
 	radar_layer->on_detach();
 	Application::destroy();
@@ -120,6 +138,8 @@ void init_app()
 	Application::shaders["basic_shader"] = basic_shader;
 	Application::shaders["radar"] = radar;
 }
+
+// vector<RadarInfo>
 
 
 OrbitalComponent get_orbital_component_from_scene(string filepath)

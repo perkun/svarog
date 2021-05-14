@@ -229,7 +229,7 @@ void ObservatoryPanel::observe_obs_points(const vector<ObsPoint> obs_points)
         target_pos = p.target_pos;
         observer_pos = p.observer_pos;
 
-        if (p.obs_types & ObsType::LC)
+        if (p.obs_type & ObsType::LC)
         {
             lc_num_points = p.lc_num_points;
             make_lightcurve(layer->scene.target, layer->scene.observer,
@@ -237,14 +237,14 @@ void ObservatoryPanel::observe_obs_points(const vector<ObsPoint> obs_points)
                             lc_num_points);
         }
 
-        if (p.obs_types & ObsType::AO)
+        if (p.obs_type & ObsType::AO)
         {
             ao_size = p.ao_size;
             make_ao_image(layer->scene.target, layer->scene.observer,
                           obs_storage->get_current_ao_images(), ao_size);
         }
 
-        if (p.obs_types & ObsType::RADAR)
+        if (p.obs_type & ObsType::RADAR)
         {
             make_radar_image(layer->scene.target, layer->scene.observer,
                              obs_storage->get_current_radar_images(), radar_size);
@@ -268,7 +268,7 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
 
     Observation *current_obs = lightcurves->get_current_obs();
 
-	ImGui::Text("%lf", current_obs->julian_day);
+    ImGui::Text("%lf", current_obs->julian_day);
 
     ImGui::PushItemWidth(100.);
     if (ImGui::InputInt("Lc Nr", &lightcurves->current_id, 1))
@@ -286,10 +286,11 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
     if (ImGui::Button("set lc positions"))
         set_target_and_observer(current_obs);
 
-    ImGui::PlotLines(
-        "LC", static_cast<Lightcurve *>(current_obs)->inv_mag_data(),
-        static_cast<Lightcurve *>(current_obs)->size(), 0, NULL,
-        lightcurves->lcs_min, lightcurves->lcs_max, ImVec2(300.0f, 230.0f));
+    Lightcurve *lc = static_cast<Lightcurve *>(current_obs);
+
+    ImGui::PlotLines("LC", lc->inv_mag_data(), lc->size(), 0, NULL,
+                     lightcurves->lcs_min, lightcurves->lcs_max,
+                     ImVec2(300.0f, 230.0f));
 
     if (ImGui::Button("Delete LC"))
     {
@@ -301,13 +302,6 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
             layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
         }
     }
-
-//     if (ImGui::Button("Save magnitudes"))
-//         lightcurves->save_current_mag(FileDialog::save_file("*").c_str());
-//
-//     ImGui::SameLine();
-//     if (ImGui::Button("Save flux"))
-//         lightcurves->save_current_flux(FileDialog::save_file("*").c_str());
 }
 
 

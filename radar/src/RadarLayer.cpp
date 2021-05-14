@@ -61,7 +61,6 @@ void RadarLayer::load_model(string filename)
     Transform &mt = model.get_component<Transform>();
     mt.rotation = oc.xyz_from_lbg();
 	mt.position = vec3(0., 3., 0.);
-
 }
 
 

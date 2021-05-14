@@ -277,14 +277,14 @@ vector<ObsPoint> ObsStoragePack::import_obs_points(const string filename)
         {
             for (auto t : yaml_point["type"])
                 if (t.as<string>() == "lc")
-                    p.obs_types |= ObsType::LC;
+                    p.obs_type |= ObsType::LC;
                 else if (t.as<string>() == "ao")
-                    p.obs_types |= ObsType::AO;
+                    p.obs_type |= ObsType::AO;
                 else if (t.as<string>() == "radar")
-                    p.obs_types |= ObsType::RADAR;
+                    p.obs_type |= ObsType::RADAR;
         }
         else
-            p.obs_types |= ObsType::LC;
+            p.obs_type |= ObsType::LC;
 
         if (yaml_point["lc_num_points"])
             p.lc_num_points = yaml_point["lc_num_points"].as<int>();

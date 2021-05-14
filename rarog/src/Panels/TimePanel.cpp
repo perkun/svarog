@@ -56,7 +56,7 @@ void TimePanel::draw_time_selection()
 		set_rotations(date);
 
     ImGui::SetNextItemWidth(150);
-    if (ImGui::InputFloat("Sec.", &date.second))
+    if (ImGui::InputDouble("Sec.", &date.second))
 		set_rotations(date);
 }
 
