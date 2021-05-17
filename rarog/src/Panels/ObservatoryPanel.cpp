@@ -7,7 +7,9 @@ ObservatoryPanel::ObservatoryPanel(MainLayer *l, double *julian_day,
                                    ObsStoragePack *obs)
 {
     layer = l;
+
     obs_storage = obs;
+
     this->julian_day = julian_day;
 }
 
@@ -29,92 +31,98 @@ void ObservatoryPanel::load_obs_storage(string filepath)
 	}
 	else
         cout << "Adding Storage Failed" << endl;
-
-
-//     if (obs_storage->load(filepath) != -1)
-//     {
-//         set_current_ghosts(obs_storage);
-//     }
-//     else
-//         cout << "Adding Storage Failed" << endl;
 }
 
 
 void ObservatoryPanel::load_lc_file(string filepath)
 {
-	char line[1000];
-	int num_lcs = 0;
-	vector<ObsPoint> obs_points;
+    char line[1000];
+    int num_lcs = 0;
+    vector<ObsPoint> obs_points;
 
-	FILE *in = fopen(filepath.c_str(), "r");
+    FILE *in = fopen(filepath.c_str(), "r");
 
-	fgets(line, 999, in);
-	sscanf(line, "%d", &num_lcs);
+    fgets(line, 999, in);
+    sscanf(line, "%d", &num_lcs);
 
-	for (int i = 0; i < num_lcs; i++)
-	{
-		fgets(line, 999, in);
-		int type = 0;
-		int num_pts = 0;
-		sscanf(line, "%d %d", &num_pts, &type);
+    if (num_lcs > 0)
+    {
+        obs_storage->add_new(File::remove_extension(File::file_base(filepath)));
+        obs_storage->add_series<LightcurveSeries>("obs_lightcurves");
+    }
+    else
+        return;
 
-		for (int j = 0; j < num_pts; j++)
-		{
-			double jd, flux;
-			dvec3 sun, earth;
-			fgets(line, 999, in);
-			sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf", &jd, &flux,
-					&sun.x, &sun.y, &sun.z, &earth.x, &earth.y, &earth.z);
+    OrbitalComponent &oc =
+        layer->scene.target.get_component<OrbitalComponent>();
+
+    for (int i = 0; i < num_lcs; i++)
+    {
+        fgets(line, 999, in);
+        int type = 0;
+        int num_pts = 0;
+        sscanf(line, "%d %d", &num_pts, &type);
+
+        Lightcurve *lc =
+            new Lightcurve(layer->scene.target, layer->scene.observer, num_pts);
+
+		double phase_offset = 0;
+        for (int j = 0; j < num_pts; j++)
+        {
+            double jd, flux;
+            dvec3 sun, earth;
+            fgets(line, 999, in);
+            sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf", &jd, &flux, &sun.x,
+                   &sun.y, &sun.z, &earth.x, &earth.y, &earth.z);
 
 			if (j == 0)
-			{
-				ObsPoint p;
-				p.jd = jd;
-				p.observer_pos = earth - sun;
-				p.target_pos = -sun;
-				p.obs_type = ObsType::LC;
+				phase_offset = oc.calculate_rot_phase(jd) + (oc.gamma);
+			double phase = oc.calculate_rot_phase(jd) + phase_offset;
+			while (phase >= 2*M_PI)
+				phase -= 2*M_PI;
+			while (phase < 0)
+				phase += 2* M_PI;
 
-				obs_points.push_back(p);
-			}
-		}
-	}
-	fclose(in);
+            lc->push_flux(phase, flux);
 
-	if (obs_points.size() > 0)
-	{
-		obs_storage->add_new(File::remove_extension(File::file_base(filepath)));
-		observe_obs_points(obs_points);
-	}
-	else
+
+            if (j == 0)
+            {
+                lc->julian_day = jd;
+
+                ObsPoint p;
+                p.jd = jd;
+                p.observer_pos = earth - sun;
+                p.target_pos = -sun;
+                p.obs_type = ObsType::LC;
+
+                obs_points.push_back(p);
+            }
+        }
+
+        lc->sort();
+        obs_storage->get_series<LightcurveSeries>("obs_lightcurves")->push(lc);
+    }
+    fclose(in);
+
+    if (obs_points.size() > 0)
+    {
+        observe_obs_points(obs_points);
+    }
+    else
         cout << "Adding Storage Failed" << endl;
 }
 
 
 void ObservatoryPanel::set_current_ghosts(ObsStoragePack *obs)
 {
-    // lc
-    Observation *current_obs =
-        obs->get_current_lightcurves()->get_current_obs();
-    if (current_obs)
-    {
-        layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
-        layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
-    }
-
-    // ao
-    current_obs = obs->get_current_ao_images()->get_current_obs();
-    if (current_obs)
-    {
-        layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
-        layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
-    }
-    // radar
-    current_obs = obs->get_current_radar_images()->get_current_obs();
-    if (current_obs)
-    {
-        layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
-        layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
-    }
+    obs->current_obs_lambda([this](Observation *current_obs) {
+        if (current_obs->ghost_target && current_obs->ghost_observer)
+        {
+            layer->ui_scene.root_entity.add_child(current_obs->ghost_target);
+            layer->ui_scene.root_entity.add_child(current_obs->ghost_observer);
+        }
+    });
 }
 
 
@@ -178,16 +186,25 @@ void ObservatoryPanel::observations_panel()
         {
             // observations buttons
             if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
-                make_lightcurve(layer->scene.target, layer->scene.observer,
-                                obs_storage->get_current_lightcurves(),
-                                lc_num_points);
+            {
+                if (!obs_storage->get_series<LightcurveSeries>("lightcurves"))
+                    obs_storage->add_series<LightcurveSeries>("lightcurves");
+
+                make_lightcurve(
+                    layer->scene.target, layer->scene.observer,
+                    obs_storage->get_series<LightcurveSeries>("lightcurves"),
+                    lc_num_points);
+            }
             ImGui::SameLine(0., 20.);
             ImGui::PushItemWidth(100.);
             ImGui::InputInt("LC num points", &lc_num_points);
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_lightcurves(obs_storage->get_current_lightcurves());
+            display_lightcurves(
+                obs_storage->get_series<LightcurveSeries>("lightcurves"),
+                obs_storage->get_series<LightcurveSeries>("obs_lightcurves"));
+
 
             ImGui::EndTabItem();
         }
@@ -195,8 +212,13 @@ void ObservatoryPanel::observations_panel()
         if (ImGui::BeginTabItem("AO Images"))
         {
             if (ImGui::Button("Make AO image", ImVec2(150, 0)))
+			{
+                if (!obs_storage->get_series<ImageSeries>("ao_images"))
+                    obs_storage->add_series<ImageSeries>("ao_images");
                 make_ao_image(layer->scene.target, layer->scene.observer,
-                              obs_storage->get_current_ao_images(), ao_size);
+                              obs_storage->get_series<ImageSeries>("ao_images"),
+                              ao_size);
+			}
             ImGui::SameLine(0.0, 20.0);
             ImGui::PushItemWidth(100.);
             ImGui::InputInt("AO size [px]", &ao_size, 1, 100);
@@ -211,7 +233,7 @@ void ObservatoryPanel::observations_panel()
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_images(obs_storage->get_current_ao_images());
+            display_images(obs_storage->get_series<ImageSeries>("ao_images"));
 
             ImGui::EndTabItem();
         }
@@ -219,8 +241,15 @@ void ObservatoryPanel::observations_panel()
         if (ImGui::BeginTabItem("Radar Images"))
         {
             if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
-                make_radar_image(layer->scene.target, layer->scene.observer,
-                                 obs_storage->get_current_radar_images(), dd_size);
+			{
+                if (!obs_storage->get_series<ImageSeries>("radar_images"))
+                    obs_storage->add_series<ImageSeries>("radar_images");
+
+                make_radar_image(
+                    layer->scene.target, layer->scene.observer,
+                    obs_storage->get_series<ImageSeries>("radar_images"),
+                    dd_size);
+			}
             ImGui::SameLine(0.0, 20.0);
             ImGui::PushItemWidth(100.);
             ImGui::InputInt("size [px]", &dd_size, 1, 100);
@@ -230,7 +259,8 @@ void ObservatoryPanel::observations_panel()
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_images(obs_storage->get_current_radar_images());
+            display_images(
+                obs_storage->get_series<ImageSeries>("radar_images"));
 
             ImGui::EndTabItem();
         }
@@ -256,14 +286,13 @@ void ObservatoryPanel::observe_obs_points(const vector<ObsPoint> obs_points)
     vec3 &target_rotation =
         layer->scene.target.get_component<Transform>().rotation;
     vec3 tmp_rotation = target_rotation;
-    vec3 &target_pos =
-        layer->scene.target.get_component<Transform>().position;
+    vec3 &target_pos = layer->scene.target.get_component<Transform>().position;
     vec3 tmp_target_pos = target_pos;
     vec3 &observer_pos =
         layer->scene.observer.get_component<Transform>().position;
     vec3 tmp_observer_pos = observer_pos;
 
-	double tmp_julian_day = *julian_day;
+    double tmp_julian_day = *julian_day;
 
     int tmp_ao_size = ao_size;
     int tmp_lc_num_points = lc_num_points;
@@ -271,9 +300,9 @@ void ObservatoryPanel::observe_obs_points(const vector<ObsPoint> obs_points)
 
     for (ObsPoint p : obs_points)
     {
-		*julian_day = p.jd;
+        *julian_day = p.jd;
 
-        oc.calculate_rot_phase(p.jd);
+        oc.set_rot_phase_at_jd(p.jd);
         target_rotation = oc.xyz_from_lbg();
 
         target_pos = p.target_pos;
@@ -281,44 +310,64 @@ void ObservatoryPanel::observe_obs_points(const vector<ObsPoint> obs_points)
 
         if (p.obs_type & ObsType::LC)
         {
+            if (!obs_storage->get_series<LightcurveSeries>("lightcurves"))
+                obs_storage->add_series<LightcurveSeries>("lightcurves");
+
             lc_num_points = p.lc_num_points;
-            make_lightcurve(layer->scene.target, layer->scene.observer,
-                            obs_storage->get_current_lightcurves(),
-                            lc_num_points);
+            make_lightcurve(
+                layer->scene.target, layer->scene.observer,
+                obs_storage->get_series<LightcurveSeries>("lightcurves"),
+                lc_num_points);
         }
 
         if (p.obs_type & ObsType::AO)
         {
+            if (!obs_storage->get_series<ImageSeries>("ao_images"))
+                obs_storage->add_series<ImageSeries>("ao_images");
+
             ao_size = p.ao_size;
             make_ao_image(layer->scene.target, layer->scene.observer,
-                          obs_storage->get_current_ao_images(), ao_size);
+                          obs_storage->get_series<ImageSeries>("ao_images"),
+                          ao_size);
         }
 
         if (p.obs_type & ObsType::RADAR)
         {
-            make_radar_image(layer->scene.target, layer->scene.observer,
-                             obs_storage->get_current_radar_images(), radar_size);
+            if (!obs_storage->get_series<ImageSeries>("radar_images"))
+                obs_storage->add_series<ImageSeries>("radar_images");
+
+            make_radar_image(
+                layer->scene.target, layer->scene.observer,
+                obs_storage->get_series<ImageSeries>("radar_images"),
+                radar_size);
         }
     }
     target_pos = tmp_target_pos;
     observer_pos = tmp_observer_pos;
     target_rotation = tmp_rotation;
 
-	*julian_day = tmp_julian_day;
+    *julian_day = tmp_julian_day;
 
     ao_size = tmp_ao_size;
     lc_num_points = tmp_lc_num_points;
 }
 
 
-void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
+void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves,
+										   LightcurveSeries *obs_lightcurves)
 {
+    if (lightcurves == NULL)
+        return;
+
     if (lightcurves->size() == 0)
         return;
 
     Observation *current_obs = lightcurves->get_current_obs();
 
     ImGui::Text("%lf", current_obs->julian_day);
+    ImGui::SameLine(0., 20.);
+	if (ImGui::Button("set time"))
+		layer->time_panel.set_rotations(current_obs->julian_day);
 
     ImGui::PushItemWidth(100.);
     if (ImGui::InputInt("Lc Nr", &lightcurves->current_id, 1))
@@ -338,9 +387,9 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
 
     Lightcurve *lc = static_cast<Lightcurve *>(current_obs);
 
-//     ImGui::PlotLines("LC", lc->inv_mag_data(), lc->size(), 0, NULL,
-//                      lightcurves->lcs_min, lightcurves->lcs_max,
-//                      ImVec2(300.0f, 230.0f));
+    //     ImGui::PlotLines("LC", lc->inv_mag_data(), lc->size(), 0, NULL,
+    //                      lightcurves->lcs_min, lightcurves->lcs_max,
+    //                      ImVec2(300.0f, 230.0f));
 
     if (ImGui::Button("Delete LC"))
     {
@@ -367,9 +416,9 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
         ImGui::GetContentRegionAvail(); // Resize canvas to what's available
     if (canvas_sz.x < 50.0f)
         canvas_sz.x = 50.0f;
-//     if (canvas_sz.y < 50.0f)
-//         canvas_sz.y = 50.0f;
-	canvas_sz.y = 3/4.0 * canvas_sz.x;
+    //     if (canvas_sz.y < 50.0f)
+    //         canvas_sz.y = 50.0f;
+    canvas_sz.y = 3 / 4.0 * canvas_sz.x;
 
     ImVec2 canvas_p1 =
         ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
@@ -402,25 +451,43 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
                                IM_COL32(200, 200, 200, 40));
     }
 
-//     vector<LcPoint> *points = lc->get_points();
+    //     vector<LcPoint> *points = lc->get_points();
 
-    float lc_range = (lightcurves->lcs_inv_mag_max - lightcurves->lcs_inv_mag_min);
-	float margin = 0.1 * lc_range;
+    float lc_range =
+        (lightcurves->lcs_inv_mag_max - lightcurves->lcs_inv_mag_min);
+    float margin = 0.1 * lc_range;
     float min = lightcurves->lcs_inv_mag_min - margin,
           max = lightcurves->lcs_inv_mag_max + margin;
-	lc_range += 2*margin;
+    lc_range += 2 * margin;
 
     float lc_size = lc->size();
 
     for (int i = 0; i < lc->size() - 1; i++)
         draw_list->AddLine(
-            ImVec2(origin.x + (*lc)[i].phase/2/M_PI * canvas_sz.x,
+            ImVec2(origin.x + (*lc)[i].phase / 2 / M_PI * canvas_sz.x,
                    origin.y + canvas_sz.y -
                        (((*lc)[i].inv_mag - min) * canvas_sz.y / lc_range)),
-            ImVec2(origin.x + (*lc)[i+1].phase/2/M_PI * canvas_sz.x,
+            ImVec2(origin.x + (*lc)[i + 1].phase / 2 / M_PI * canvas_sz.x,
                    origin.y + canvas_sz.y -
-                       (((*lc)[i+1].inv_mag - min) * canvas_sz.y / lc_range)),
+                       (((*lc)[i + 1].inv_mag - min) * canvas_sz.y / lc_range)),
             IM_COL32(255, 124, 14, 255), 2.0f);
+
+    if (obs_lightcurves != NULL)
+    {
+        Lightcurve *obs_lc = static_cast<Lightcurve *>(
+            obs_lightcurves->get_obs(lightcurves->current_id));
+
+        for (int i = 0; i < obs_lc->size() - 1; i++)
+            draw_list->AddLine(
+                ImVec2(origin.x + (*obs_lc)[i].phase / 2 / M_PI * canvas_sz.x,
+                       origin.y + canvas_sz.y -
+                           (((*obs_lc)[i].inv_mag - min) * canvas_sz.y / lc_range)),
+                ImVec2(origin.x + (*obs_lc)[i + 1].phase / 2 / M_PI * canvas_sz.x,
+                       origin.y + canvas_sz.y -
+                           (((*obs_lc)[i + 1].inv_mag - min) * canvas_sz.y /
+                            lc_range)),
+                IM_COL32(124, 124, 200, 255), 2.0f);
+    }
 
     draw_list->PopClipRect();
 }
@@ -428,6 +495,9 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
 
 void ObservatoryPanel::display_images(ImageSeries *images)
 {
+	if (images == NULL)
+		return;
+
     if (images->size() == 0)
         return;
 

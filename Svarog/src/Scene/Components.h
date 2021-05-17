@@ -135,7 +135,8 @@ public:
 
     // xyz euler from lbg
     vec3 xyz_from_lbg();
-	void calculate_rot_phase(double julian_day);
+	void set_rot_phase_at_jd(double julian_day);
+	double calculate_rot_phase(double julian_day) const;
 
     // orbital elements
     double semimajor_axis, eccentricity, inclination, ascending_node, periapsis,

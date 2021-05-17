@@ -55,6 +55,8 @@ public:
 	float calculate_min_inv_mag();
 	float calculate_max_inv_mag();
 
+	void sort();
+
 	void save_flux(string filename);
 	void save_mag(string filename);
 	size_t size() { return points.size(); }

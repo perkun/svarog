@@ -105,7 +105,7 @@ OrbitalComponent::OrbitalComponent(ObjHeader header)
 	jd_0 = header.get_item<double>("jd_gamma0");
 	rot_period = header.get_item<double>("period[h]") ;
 
-	calculate_rot_phase(Time::julian_day_now());
+	set_rot_phase_at_jd(Time::julian_day_now());
 }
 
 
@@ -133,19 +133,26 @@ vec3 OrbitalComponent::xyz_from_lbg()
     return glm::eulerAngles(ql * qb * qg);
 }
 
-
-void OrbitalComponent::calculate_rot_phase(double julian_day)
+double OrbitalComponent::calculate_rot_phase(double julian_day) const
 {
     if (rot_period == 0.)
     {
-        rotation_phase = 0.;
-        return;
+        return 0;
     }
 
-    rotation_phase = (julian_day - jd_0) / (rot_period / 24.0) * 2 * M_PI;
+	double rp = (julian_day - jd_0) / (rot_period / 24.0) * 2 * M_PI;
 
-    while (rotation_phase < 0)
-        rotation_phase += 2 * M_PI;
-    while (rotation_phase >= 2 * M_PI)
-        rotation_phase -= 2 * M_PI;
+    while (rp < 0)
+        rp += 2 * M_PI;
+    while (rp >= 2 * M_PI)
+        rp -= 2 * M_PI;
+
+    return rp;
 }
+
+void OrbitalComponent::set_rot_phase_at_jd(double julian_day)
+{
+	rotation_phase = calculate_rot_phase(julian_day);
+}
+
+

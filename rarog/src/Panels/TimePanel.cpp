@@ -72,7 +72,7 @@ void TimePanel::set_rotations(double julian_day)
 		if (entity.has_component<OrbitalComponent>())
 		{
 			OrbitalComponent &oc = entity.get_component<OrbitalComponent>();
-			oc.calculate_rot_phase(julian_day);
+			oc.set_rot_phase_at_jd(julian_day);
 			entity.get_component<Transform>().rotation = oc.xyz_from_lbg();
 		}
 

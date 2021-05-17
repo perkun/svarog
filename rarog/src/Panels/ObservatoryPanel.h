@@ -33,7 +33,7 @@ private:
 	char buff[100];
 	MainLayer *layer;
 
-	void display_lightcurves(LightcurveSeries*);
+	void display_lightcurves(LightcurveSeries*, LightcurveSeries* obs=NULL);
 	void display_images(ImageSeries*);
 
 	void make_lightcurve(Entity &target, Entity &observer, LightcurveSeries*, int);

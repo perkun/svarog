@@ -429,7 +429,7 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
             if (ImGui::InputDouble("P [h]", &oc.rot_period))
             {
                 // 	TODO  zrobić coś z tym!
-                oc.calculate_rot_phase(*julian_day);
+                oc.set_rot_phase_at_jd(*julian_day);
                 t.rotation = oc.xyz_from_lbg();
             }
 
@@ -453,7 +453,7 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
 
             if (ImGui::InputDouble("Rot. Epoch", &oc.jd_0))
             {
-                oc.calculate_rot_phase(*julian_day);
+                oc.set_rot_phase_at_jd(*julian_day);
                 t.rotation = oc.xyz_from_lbg();
             }
 			ImGui::TreePop();

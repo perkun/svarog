@@ -18,11 +18,12 @@ public:
 	double julian_day;
 	Time::CalendarDate date;
 
+	void set_rotations(double julian_day);
+	void set_rotations(Time::CalendarDate date);
+
 private:
 	Scene *scene;
 	void draw_time_selection();
-	void set_rotations(double julian_day);
-	void set_rotations(Time::CalendarDate date);
 
 };
 

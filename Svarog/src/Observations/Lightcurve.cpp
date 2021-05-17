@@ -189,3 +189,9 @@ void Lightcurve::serialize(YAML::Emitter &out, int id, string filename)
 	out << YAML::EndMap;
 }
 
+
+void Lightcurve::sort()
+{
+    std::sort(points.begin(), points.end(),
+         [](const LcPoint &a, const LcPoint &b) { return a.phase > b.phase; });
+}

@@ -29,52 +29,59 @@ struct ObsPoint
 class ObsStoragePack
 {
 public:
-	ObsStoragePack();
-	~ObsStoragePack();
+    ObsStoragePack();
+    ~ObsStoragePack();
 
-	static vector<ObsPoint> import_obs_points(string filename);
+    static vector<ObsPoint> import_obs_points(string filename);
 
-	void save_current(const string filepath, bool export_obs = false);
-	void save(int id, const string filepath, bool export_obs = false);
-// 	int load(string filename);
+    void save_current(const string filepath, bool export_obs = false);
+    void save(int id, const string filepath, bool export_obs = false);
+    // 	int load(string filename);
 
-	void detach_current_ghosts();
-	void delete_current_observations();
+    void detach_current_ghosts();
+    void delete_current_observations();
 
-	int add_new(string name);
+    int add_new(string name);
 
-	string get_current_name();
-	string get_name(int id);
+    string get_current_name();
+    string get_name(int id);
 
-	void delete_current();
+    void delete_current();
 
-	LightcurveSeries* get_current_lightcurves();
-	LightcurveSeries* get_current_obs_lightcurves();
-	ImageSeries* get_current_ao_images();
-	ImageSeries* get_current_radar_images();
+    template <typename T> void add_series(string name)
+    {
+        // TODO check if name exists
+        obs_storages[current_id].storage[name] = new T;
+        cout << "storage " << name << " added" << endl;
+    }
 
-	LightcurveSeries* get_lightcurves(int id);
-	LightcurveSeries* get_obs_lightcurves(int id);
-	ImageSeries* get_ao_images(int id);
-	ImageSeries* get_radar_images(int id);
+    template <typename T> T *get_series(string name)
+    {
+        if (obs_storages[current_id].storage.find(name) !=
+            obs_storages[current_id].storage.end())
+            return static_cast<T *>(obs_storages[current_id].storage[name]);
 
-	int size() { return obs_storages.size(); }
-	int current_id = 0;
+		return NULL;
+    }
+
+    int size()
+    {
+        return obs_storages.size();
+    }
+    int current_id = 0;
+
+	void current_obs_lambda(const function<void(Observation *)> &func);
 
 private:
-	struct ObsStorage
-	{
-		string name = "untitled";
+    struct ObsStorage
+    {
+        string name = "untitled";
+        map<string, ObservationSeries *> storage;
+    };
 
-		LightcurveSeries* obs_lightcurves;
-		LightcurveSeries* lightcurves;
-		ImageSeries* ao_images;
-		ImageSeries* radar_images;
-	};
-
-	vector<ObsStorage> obs_storages;
-	string fix_storage_name(string name, bool exclude_current = false);
-	YAML::Node serialize(int id, bool export_obs, string filepath = "");
+    vector<ObsStorage> obs_storages;
+    string fix_storage_name(string name, bool exclude_current = false);
+    YAML::Node serialize(int id, bool export_obs, string filepath = "");
 };
 
 #endif /* OBSERVATIONSTORE_H_ */

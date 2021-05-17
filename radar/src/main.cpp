@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 		observer_t.position = ri.observer_pos;
 		target_t.position = ri.target_pos;
 		// orbital component laded once from first radar fits
-		target_oc.calculate_rot_phase(ri.jd);
+		target_oc.set_rot_phase_at_jd(ri.jd);
 		target_t.rotation = target_oc.xyz_from_lbg();
 		radar_layer->make_radar_image(obs_pack.get_radar_images(obs_id), ri.jd);
 	}
