@@ -414,12 +414,12 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves)
 
     for (int i = 0; i < lc->size() - 1; i++)
         draw_list->AddLine(
-            ImVec2(origin.x + lc->operator[](i).phase/2/M_PI * canvas_sz.x,
+            ImVec2(origin.x + (*lc)[i].phase/2/M_PI * canvas_sz.x,
                    origin.y + canvas_sz.y -
-                       ((lc->operator[](i).inv_mag - min) * canvas_sz.y / lc_range)),
-            ImVec2(origin.x + lc->operator[](i+1).phase/2/M_PI * canvas_sz.x,
+                       (((*lc)[i].inv_mag - min) * canvas_sz.y / lc_range)),
+            ImVec2(origin.x + (*lc)[i+1].phase/2/M_PI * canvas_sz.x,
                    origin.y + canvas_sz.y -
-                       ((lc->operator[](i + 1).inv_mag - min) * canvas_sz.y / lc_range)),
+                       (((*lc)[i+1].inv_mag - min) * canvas_sz.y / lc_range)),
             IM_COL32(255, 124, 14, 255), 2.0f);
 
     draw_list->PopClipRect();
