@@ -20,7 +20,7 @@ SceneHierarchyPanel::~SceneHierarchyPanel()
 
 void SceneHierarchyPanel::add_asteroid_from_file(Entity &model, string filename)
 {
-    model.add_component<Material>("tex_sha").uniforms_int["u_has_texture"] = 0;
+    model.add_component<Material>("tex_sha_ls").uniforms_int["u_has_texture"] = 0;
     Transform &mt = model.get_component<Transform>();
 
     if (File::is_extension(filename, "obj"))

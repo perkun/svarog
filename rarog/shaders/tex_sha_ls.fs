@@ -37,18 +37,26 @@ void main()
 
 	vec3 light_direction = normalize(light_position_eye - vertex_position_eye);
 
-	float d = dot(normal_eye, light_direction );
-	d = max(d, 0);
-	d = d * clamp(shadow_factor, 0.1, 1.0);
+	float mi_0 = dot(normal_eye, light_direction );
+	mi_0 = max(mi_0, 0);
+
+	float mi = dot(normal_eye, vec3(0., 0., 1.));
+	mi = max(mi, 0);
+
+	float LSL = 0.1;
+	float flux = (1.0 - LSL) * mi_0 / (mi_0 + mi);
+	flux += LSL*mi_0;
+	flux *= shadow_factor;
+	flux = clamp(flux, 0.0, 1.0);
 
 	if (u_has_texture == 1)
 	{
 		color = texture(u_texture, v_tex_coord);
-		color = vec4( color.xyz * d, color.w);
+		color = vec4( color.xyz * flux, color.w);
 	}
 	else if (u_has_texture == 0)
 	{
- 		color = vec4(d, d, d, 1.0);
+ 		color = vec4(flux, flux, flux, 1.0);
 	}
 }
 

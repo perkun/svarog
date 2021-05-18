@@ -38,7 +38,7 @@ void MainLayer::create_default_scene()
     else
 	{
         model.add_component<MeshComponent>(ModelType::CUBE);
-		model.add_component<Material>("tex_sha").uniforms_int["u_has_texture"] = 0;
+		model.add_component<Material>("tex_sha_ls").uniforms_int["u_has_texture"] = 0;
 		model.add_component<NativeScriptComponent>().bind<AsteroidController>();
 		model.add_component<OrbitalComponent>();
 	}

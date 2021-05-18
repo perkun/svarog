@@ -36,6 +36,13 @@ void ObservatoryPanel::load_obs_storage(string filepath)
 
 void ObservatoryPanel::load_lc_file(string filepath)
 {
+	/// The lightcurves are in phase space. The 0 phase in the plot is the phase
+	/// of the model as it would be observed at this time. So, the observed points
+	/// always start at 0
+
+	if (filepath == "")
+		return;
+
     char line[1000];
     int num_lcs = 0;
     vector<ObsPoint> obs_points;
@@ -67,6 +74,7 @@ void ObservatoryPanel::load_lc_file(string filepath)
             new Lightcurve(layer->scene.target, layer->scene.observer, num_pts);
 
 		double phase_offset = 0;
+		double jd_start = 0;
         for (int j = 0; j < num_pts; j++)
         {
             double jd, flux;
@@ -75,19 +83,9 @@ void ObservatoryPanel::load_lc_file(string filepath)
             sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf", &jd, &flux, &sun.x,
                    &sun.y, &sun.z, &earth.x, &earth.y, &earth.z);
 
-			if (j == 0)
-				phase_offset = oc.calculate_rot_phase(jd) + (oc.gamma);
-			double phase = oc.calculate_rot_phase(jd) + phase_offset;
-			while (phase >= 2*M_PI)
-				phase -= 2*M_PI;
-			while (phase < 0)
-				phase += 2* M_PI;
-
-            lc->push_flux(phase, flux);
-
-
             if (j == 0)
             {
+				jd_start = jd;
                 lc->julian_day = jd;
 
                 ObsPoint p;
@@ -98,6 +96,15 @@ void ObservatoryPanel::load_lc_file(string filepath)
 
                 obs_points.push_back(p);
             }
+
+			double phase = (jd - jd_start) / (oc.rot_period / 24.) *2 * M_PI;
+			while (phase >= 2*M_PI)
+				phase -= 2*M_PI;
+			while (phase < 0)
+				phase += 2* M_PI;
+
+            lc->push_flux(phase, flux);
+
         }
 
         lc->sort();
@@ -366,8 +373,8 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves,
 
     ImGui::Text("%lf", current_obs->julian_day);
     ImGui::SameLine(0., 20.);
-	if (ImGui::Button("set time"))
-		layer->time_panel.set_rotations(current_obs->julian_day);
+    if (ImGui::Button("set time"))
+        layer->time_panel.set_rotations(current_obs->julian_day);
 
     ImGui::PushItemWidth(100.);
     if (ImGui::InputInt("Lc Nr", &lightcurves->current_id, 1))
@@ -477,16 +484,23 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves,
         Lightcurve *obs_lc = static_cast<Lightcurve *>(
             obs_lightcurves->get_obs(lightcurves->current_id));
 
-        for (int i = 0; i < obs_lc->size() - 1; i++)
-            draw_list->AddLine(
-                ImVec2(origin.x + (*obs_lc)[i].phase / 2 / M_PI * canvas_sz.x,
-                       origin.y + canvas_sz.y -
-                           (((*obs_lc)[i].inv_mag - min) * canvas_sz.y / lc_range)),
-                ImVec2(origin.x + (*obs_lc)[i + 1].phase / 2 / M_PI * canvas_sz.x,
-                       origin.y + canvas_sz.y -
-                           (((*obs_lc)[i + 1].inv_mag - min) * canvas_sz.y /
-                            lc_range)),
-                IM_COL32(124, 124, 200, 255), 2.0f);
+        if (obs_lc != NULL)
+        {
+
+            for (int i = 0; i < obs_lc->size() - 1; i++)
+                draw_list->AddLine(
+                    ImVec2(origin.x +
+                               (*obs_lc)[i].phase / 2 / M_PI * canvas_sz.x,
+                           origin.y + canvas_sz.y -
+                               (((*obs_lc)[i].inv_mag - min) * canvas_sz.y /
+                                lc_range)),
+                    ImVec2(origin.x +
+                               (*obs_lc)[i + 1].phase / 2 / M_PI * canvas_sz.x,
+                           origin.y + canvas_sz.y -
+                               (((*obs_lc)[i + 1].inv_mag - min) * canvas_sz.y /
+                                lc_range)),
+                    IM_COL32(124, 124, 200, 255), 2.0f);
+        }
     }
 
     draw_list->PopClipRect();
@@ -603,6 +617,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer,
         double flux = 0.0;
         for (int j = 0; j < width * height; j++)
             flux += pixel_buffer[j];
+// 		printf("%.16lf\n", flux);
         lc->push_flux((double)i/num_points * 2*M_PI, flux);
     }
 

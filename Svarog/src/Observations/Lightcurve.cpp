@@ -33,6 +33,8 @@ void Lightcurve::make_average_zero()
 	avg.mag /= points.size();
 	avg.inv_mag /= points.size();
 
+// 	printf("%.16lf %.16lf %.16lf\n", avg.flux, avg.mag, avg.inv_mag);
+
 	for (LcPoint &p: points)
 	{
 		p.flux -= avg.flux;

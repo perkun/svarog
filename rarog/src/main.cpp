@@ -57,6 +57,9 @@ int main(int argc, char *argv[])
     tex_sha_vs[tex_sha_vs_len-1] = 0;
     tex_sha_fs[tex_sha_fs_len-1] = 0;
 
+	#include "../shaders/tex_sha_ls.fs.include"
+    tex_sha_ls_fs[tex_sha_ls_fs_len-1] = 0;
+
 	#include "../shaders/radar.vs.include"
 	#include "../shaders/radar.fs.include"
     radar_vs[radar_vs_len-1] = 0;
@@ -82,6 +85,10 @@ int main(int argc, char *argv[])
     tex_sha->create_shader((char *)(void *)tex_sha_vs,
                            (char *)(void *)tex_sha_fs);
 
+    shared_ptr<Shader> tex_sha_ls = make_shared<Shader>();
+    tex_sha_ls->create_shader((char *)(void *)tex_sha_vs,
+                           (char *)(void *)tex_sha_ls_fs);
+
     shared_ptr<Shader> radar = make_shared<Shader>();
     radar->create_shader((char *)(void *)radar_vs,
                          (char *)(void *)radar_fs);
@@ -91,6 +98,7 @@ int main(int argc, char *argv[])
 	Application::shaders["flat_shader"] = flat_shader;
 	Application::shaders["line_shader"] = line_shader;
 	Application::shaders["tex_sha"] = tex_sha;
+	Application::shaders["tex_sha_ls"] = tex_sha_ls;
 	Application::shaders["radar"] = radar;
 
 

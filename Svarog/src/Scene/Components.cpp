@@ -133,6 +133,7 @@ vec3 OrbitalComponent::xyz_from_lbg()
     return glm::eulerAngles(ql * qb * qg);
 }
 
+
 double OrbitalComponent::calculate_rot_phase(double julian_day) const
 {
     if (rot_period == 0.)
@@ -149,6 +150,7 @@ double OrbitalComponent::calculate_rot_phase(double julian_day) const
 
     return rp;
 }
+
 
 void OrbitalComponent::set_rot_phase_at_jd(double julian_day)
 {
