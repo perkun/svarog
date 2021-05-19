@@ -51,13 +51,13 @@ YAML::Node ObsStoragePack::serialize(int id, bool export_obs, string filepath)
 	{
 		for (auto elem : obs_pack[id].series_map)
 		{
-			elem.second->serialize(out, filepath +  "_" + elem.first);
+			elem.second->serialize(out, elem.first, filepath);
 		}
 	}
 	else
 	{
 		for (auto elem : obs_pack[id].series_map)
-			elem.second->serialize(out);
+			elem.second->serialize(out, elem.first);
 	}
 
     out << YAML::EndSeq;
@@ -68,54 +68,54 @@ YAML::Node ObsStoragePack::serialize(int id, bool export_obs, string filepath)
     YAML::Node ps = data["points"];
 
     // 2. check for overlaping points
-    int psize = data["points"].size();
-    for (int i = 0; i < psize;)
-    {
-        for (int j = i + 1; j < psize;)
-        {
-            if (ps[i]["jd"].as<double>() == ps[j]["jd"].as<double>() &&
-                ps[i]["target_position"][0].as<double>() ==
-                    ps[j]["target_position"][0].as<double>() &&
-                ps[i]["target_position"][1].as<double>() ==
-                    ps[j]["target_position"][1].as<double>() &&
-                ps[i]["target_position"][2].as<double>() ==
-                    ps[j]["target_position"][2].as<double>() &&
-
-                ps[i]["observer_position"][0].as<double>() ==
-                    ps[j]["observer_position"][0].as<double>() &&
-                ps[i]["observer_position"][1].as<double>() ==
-                    ps[j]["observer_position"][1].as<double>() &&
-                ps[i]["observer_position"][2].as<double>() ==
-                    ps[j]["observer_position"][2].as<double>() )
-            {
-				bool skip = false;
-				for (int k = 0; k < ps[i]["type"].size(); k++)
-					if (ps[j]["type"][0].as<string>() == ps[i]["type"][k].as<string>())
-						skip = true;
-				if (skip)
-				{
-					j++;
-					continue;
-				}
-
-                // merge fields
-                for (auto it = ps[j].begin(); it != ps[j].end(); ++it)
-                {
-                    if (!ps[i][it->first.as<string>().c_str()].IsDefined())
-                        ps[i][it->first.as<string>().c_str()] =
-                            ps[j][it->first.as<string>().c_str()];
-                }
-                // add type (should only be one in ps[j]???)
-                ps[i]["type"].push_back(ps[j]["type"][0]);
-
-                ps.remove(j);
-                psize--;
-                continue;
-            }
-            j++;
-        }
-        i++;
-    }
+//     int psize = data["points"].size();
+//     for (int i = 0; i < psize;)
+//     {
+//         for (int j = i + 1; j < psize;)
+//         {
+//             if (ps[i]["jd"].as<double>() == ps[j]["jd"].as<double>() &&
+//                 ps[i]["target_position"][0].as<double>() ==
+//                     ps[j]["target_position"][0].as<double>() &&
+//                 ps[i]["target_position"][1].as<double>() ==
+//                     ps[j]["target_position"][1].as<double>() &&
+//                 ps[i]["target_position"][2].as<double>() ==
+//                     ps[j]["target_position"][2].as<double>() &&
+//
+//                 ps[i]["observer_position"][0].as<double>() ==
+//                     ps[j]["observer_position"][0].as<double>() &&
+//                 ps[i]["observer_position"][1].as<double>() ==
+//                     ps[j]["observer_position"][1].as<double>() &&
+//                 ps[i]["observer_position"][2].as<double>() ==
+//                     ps[j]["observer_position"][2].as<double>() )
+//             {
+// 				bool skip = false;
+// 				for (int k = 0; k < ps[i]["type"].size(); k++)
+// 					if (ps[j]["type"][0].as<string>() == ps[i]["type"][k].as<string>())
+// 						skip = true;
+// 				if (skip)
+// 				{
+// 					j++;
+// 					continue;
+// 				}
+//
+//                 // merge fields
+//                 for (auto it = ps[j].begin(); it != ps[j].end(); ++it)
+//                 {
+//                     if (!ps[i][it->first.as<string>().c_str()].IsDefined())
+//                         ps[i][it->first.as<string>().c_str()] =
+//                             ps[j][it->first.as<string>().c_str()];
+//                 }
+//                 // add type (should only be one in ps[j]???)
+//                 ps[i]["type"].push_back(ps[j]["type"][0]);
+//
+//                 ps.remove(j);
+//                 psize--;
+//                 continue;
+//             }
+//             j++;
+//         }
+//         i++;
+//     }
 
 	return data;
 }
@@ -181,62 +181,154 @@ vector<ObsPoint> ObsStoragePack::deserialize_storage(const string filename)
     if (!data["points"])
         return vector<ObsPoint>();
 
-	vector<ObsPoint> points;
-    for (auto yaml_point : data["points"])
+
+    add_new_storage(File::remove_extension(File::file_base(filename)));
+
+    vector<ObsPoint> points;
+    for (auto yaml_obs : data["points"])
     {
         ObsPoint p;
-        p.jd = yaml_point["jd"].as<double>();
+        p.jd = yaml_obs["jd"].as<double>();
 
-        p.observer_pos.x = yaml_point["observer_position"][0].as<float>();
-        p.observer_pos.y = yaml_point["observer_position"][1].as<float>();
-        p.observer_pos.z = yaml_point["observer_position"][2].as<float>();
+        p.observer_pos.x = yaml_obs["observer_position"][0].as<float>();
+        p.observer_pos.y = yaml_obs["observer_position"][1].as<float>();
+        p.observer_pos.z = yaml_obs["observer_position"][2].as<float>();
 
-        p.target_pos.x = yaml_point["target_position"][0].as<float>();
-        p.target_pos.y = yaml_point["target_position"][1].as<float>();
-        p.target_pos.z = yaml_point["target_position"][2].as<float>();
+        p.target_pos.x = yaml_obs["target_position"][0].as<float>();
+        p.target_pos.y = yaml_obs["target_position"][1].as<float>();
+        p.target_pos.z = yaml_obs["target_position"][2].as<float>();
 
-        if (yaml_point["type"])
+        if (yaml_obs["type"])
         {
-            for (auto t : yaml_point["type"])
-                if (t.as<string>() == "lc")
-                    p.obs_type |= ObsType::LC;
-                else if (t.as<string>() == "ao")
-                    p.obs_type |= ObsType::AO;
-                else if (t.as<string>() == "radar")
-                    p.obs_type |= ObsType::RADAR;
+            if (yaml_obs["type"].as<string>() == "lc")
+                p.obs_type |= ObsType::LC;
+            else if (yaml_obs["type"].as<string>() == "ao")
+                p.obs_type |= ObsType::AO;
+            else if (yaml_obs["type"].as<string>() == "radar")
+                p.obs_type |= ObsType::RADAR;
         }
         else
             p.obs_type |= ObsType::LC;
 
-        if (yaml_point["lc_num_points"])
-            p.lc_num_points = yaml_point["lc_num_points"].as<int>();
+        if (yaml_obs["lc_num_points"])
+            p.lc_num_points = yaml_obs["lc_num_points"].as<int>();
 
-        if (yaml_point["ao_size"])
-            p.ao_size = yaml_point["ao_size"].as<int>();
+        if (yaml_obs["ao_size"])
+            p.ao_size = yaml_obs["ao_size"].as<int>();
 
-		if (yaml_point["radar_image"])
-			p.radar_image_filename = yaml_point["radar_image"].as<string>();
+        if (yaml_obs["radar_image"])
+            p.radar_image_filename = yaml_obs["radar_image"].as<string>();
 
-		if (yaml_point["radar_fits"])
-			p.radar_fits_filename = yaml_point["radar_fits"].as<string>();
+        if (yaml_obs["radar_fits"])
+            p.radar_fits_filename = yaml_obs["radar_fits"].as<string>();
 
-		if (yaml_point["ao_image"])
-			p.ao_image_filename = yaml_point["ao_image"].as<string>();
+        if (yaml_obs["ao_image"])
+            p.ao_image_filename = yaml_obs["ao_image"].as<string>();
 
-		if (yaml_point["ao_fits"])
-			p.ao_fits_filename = yaml_point["ao_fits"].as<string>();
+        if (yaml_obs["ao_fits"])
+            p.ao_fits_filename = yaml_obs["ao_fits"].as<string>();
 
-		if (yaml_point["mag_data"])
-			p.mag_filename = yaml_point["mag_data"].as<string>();
+        if (yaml_obs["mag_data"])
+            p.mag_filename = yaml_obs["mag_data"].as<string>();
 
-		if (yaml_point["flux_data"])
-			p.flux_filename = yaml_point["flux_data"].as<string>();
+        if (yaml_obs["flux_data"])
+            p.flux_filename = yaml_obs["flux_data"].as<string>();
+
+        if (yaml_obs["storage_name"])
+            p.storage_name = yaml_obs["storage_name"].as<string>();
 
         points.push_back(p);
     }
 
+
     return points;
 }
+
+vector<ObsPoint> ObsStoragePack::deserialize_damit_lc(string filepath,
+													  Entity &target,
+													  Entity &observer)
+{
+    /// The lightcurves are in phase space. The 0 phase in the plot is the phase
+    /// of the model as it would be observed at this time. So, the observed
+    /// points always start at 0
+
+	if (filepath == "")
+        return vector<ObsPoint>();
+
+    char line[1000];
+    int num_lcs = 0;
+    vector<ObsPoint> obs_points;
+
+    FILE *in = fopen(filepath.c_str(), "r");
+
+    fgets(line, 999, in);
+    sscanf(line, "%d", &num_lcs);
+
+    if (num_lcs > 0)
+    {
+        add_new_storage(File::remove_extension(File::file_base(filepath)));
+        add_series<LightcurveSeries>("obs_lightcurves");
+    }
+    else
+        return vector<ObsPoint>();
+
+    OrbitalComponent &oc =
+        target.get_component<OrbitalComponent>();
+
+    for (int i = 0; i < num_lcs; i++)
+    {
+        fgets(line, 999, in);
+        int type = 0;
+        int num_pts = 0;
+        sscanf(line, "%d %d", &num_pts, &type);
+
+        Lightcurve *lc =
+            new Lightcurve(target, observer, num_pts);
+
+		double phase_offset = 0;
+		double jd_start = 0;
+        for (int j = 0; j < num_pts; j++)
+        {
+            double jd, flux;
+            dvec3 sun, earth;
+            fgets(line, 999, in);
+            sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf", &jd, &flux, &sun.x,
+                   &sun.y, &sun.z, &earth.x, &earth.y, &earth.z);
+
+            if (j == 0)
+            {
+				jd_start = jd;
+                lc->julian_day = jd;
+
+                ObsPoint p;
+                p.jd = jd;
+                p.observer_pos = earth - sun;
+                p.target_pos = -sun;
+                p.obs_type = ObsType::LC;
+				p.storage_name = "lightcurves";
+
+                obs_points.push_back(p);
+            }
+
+			double phase = (jd - jd_start) / (oc.rot_period / 24.) *2 * M_PI;
+			while (phase >= 2*M_PI)
+				phase -= 2*M_PI;
+			while (phase < 0)
+				phase += 2* M_PI;
+
+            lc->push_flux(phase, flux);
+
+        }
+
+        lc->sort();
+        get_series<LightcurveSeries>("obs_lightcurves")->push(lc);
+    }
+    fclose(in);
+
+	return obs_points;
+
+}
+
 
 void ObsStoragePack::detach_all_ghosts()
 {

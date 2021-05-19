@@ -57,10 +57,7 @@ void MainLayer::create_default_scene()
 
     Entity runtime_observer = scene.create_entity("Observer");
     CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
-        //         make_shared<PerspectiveCamera>(
-        //             radians(45.0), window->width / (float)window->height,
-        //             0.01, 500.0));
-        make_shared<OrthograficCamera>(0.2, 1.0, 0.1, 10.));
+        make_shared<OrthograficCamera>(0.25, 1.0, 0.1, 10.));
     runtime_observer.add_component<NativeScriptComponent>()
         .bind<CameraController>();
 
@@ -442,13 +439,13 @@ void MainLayer::menu_bar()
 
             if (ImGui::MenuItem("Import Storage"))
             {
-                load_obs_storage(
-                    FileDialog::open_file("*.storage"));
+                string fn = FileDialog::open_file("*.storage");
+                load_obs_storage(fn);
             }
 
             if (ImGui::MenuItem("Import LC file"))
             {
-                load_lc_file(FileDialog::open_file("*.txt"));
+                load_damit_lc(FileDialog::open_file("*.txt"));
             }
 
 
@@ -902,124 +899,39 @@ void MainLayer::load_obs_storage(string filepath)
     if (filepath == "")
         return;
 
-	vector<ObsPoint> obs_points = ObsStoragePack::deserialize_storage(filepath);
-	if (obs_points.size() > 0)
-	{
-		obs_pack.add_new_storage(File::remove_extension(File::file_base(filepath)));
-		observe_obs_points(obs_points);
-	}
-	else
-        cout << "Adding Storage Failed" << endl;
+    vector<ObsPoint> obs_points = obs_pack.deserialize_storage(filepath);
+    observe_obs_points(obs_points);
 }
 
 
-void MainLayer::load_lc_file(string filepath)
+void MainLayer::load_damit_lc(string filepath)
 {
-	/// The lightcurves are in phase space. The 0 phase in the plot is the phase
-	/// of the model as it would be observed at this time. So, the observed points
-	/// always start at 0
+    vector<ObsPoint> obs_points =
+        obs_pack.deserialize_damit_lc(filepath, scene.target, scene.observer);
+    observe_obs_points(obs_points);
+}
 
-	if (filepath == "")
-		return;
 
-    char line[1000];
-    int num_lcs = 0;
-    vector<ObsPoint> obs_points;
-
-    FILE *in = fopen(filepath.c_str(), "r");
-
-    fgets(line, 999, in);
-    sscanf(line, "%d", &num_lcs);
-
-    if (num_lcs > 0)
-    {
-        obs_pack.add_new_storage(File::remove_extension(File::file_base(filepath)));
-        obs_pack.add_series<LightcurveSeries>("obs_lightcurves");
-    }
-    else
+void MainLayer::observe_obs_points(const vector<ObsPoint> &obs_points)
+{
+    if (obs_points.size() == 0)
         return;
 
-    OrbitalComponent &oc =
-        scene.target.get_component<OrbitalComponent>();
-
-    for (int i = 0; i < num_lcs; i++)
-    {
-        fgets(line, 999, in);
-        int type = 0;
-        int num_pts = 0;
-        sscanf(line, "%d %d", &num_pts, &type);
-
-        Lightcurve *lc =
-            new Lightcurve(scene.target, scene.observer, num_pts);
-
-		double phase_offset = 0;
-		double jd_start = 0;
-        for (int j = 0; j < num_pts; j++)
-        {
-            double jd, flux;
-            dvec3 sun, earth;
-            fgets(line, 999, in);
-            sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf", &jd, &flux, &sun.x,
-                   &sun.y, &sun.z, &earth.x, &earth.y, &earth.z);
-
-            if (j == 0)
-            {
-				jd_start = jd;
-                lc->julian_day = jd;
-
-                ObsPoint p;
-                p.jd = jd;
-                p.observer_pos = earth - sun;
-                p.target_pos = -sun;
-                p.obs_type = ObsType::LC;
-
-                obs_points.push_back(p);
-            }
-
-			double phase = (jd - jd_start) / (oc.rot_period / 24.) *2 * M_PI;
-			while (phase >= 2*M_PI)
-				phase -= 2*M_PI;
-			while (phase < 0)
-				phase += 2* M_PI;
-
-            lc->push_flux(phase, flux);
-
-        }
-
-        lc->sort();
-        obs_pack.get_series<LightcurveSeries>("obs_lightcurves")->push(lc);
-    }
-    fclose(in);
-
-    if (obs_points.size() > 0)
-    {
-        observe_obs_points(obs_points);
-    }
-    else
-        cout << "Adding Storage Failed" << endl;
-}
-
-
-void MainLayer::observe_obs_points(const vector<ObsPoint> obs_points)
-{
-    OrbitalComponent &oc =
-        scene.target.get_component<OrbitalComponent>();
+    OrbitalComponent &oc = scene.target.get_component<OrbitalComponent>();
     double tmp_rotation_phase = oc.rotation_phase;
 
-    vec3 &target_rotation =
-        scene.target.get_component<Transform>().rotation;
+    vec3 &target_rotation = scene.target.get_component<Transform>().rotation;
     vec3 tmp_rotation = target_rotation;
     vec3 &target_pos = scene.target.get_component<Transform>().position;
     vec3 tmp_target_pos = target_pos;
-    vec3 &observer_pos =
-        scene.observer.get_component<Transform>().position;
+    vec3 &observer_pos = scene.observer.get_component<Transform>().position;
     vec3 tmp_observer_pos = observer_pos;
 
     double tmp_julian_day = time_panel.julian_day;
 
-	vec4 ao_bg_color = vec4(0., 0., 0., 1.);
-	bool earth_tilt = true;
-	float angular_speed = 10.0;
+    vec4 ao_bg_color = vec4(0., 0., 0., 1.);
+    bool earth_tilt = true;
+    float angular_speed = 10.0;
 
 
     for (ObsPoint p : obs_points)
@@ -1034,31 +946,57 @@ void MainLayer::observe_obs_points(const vector<ObsPoint> obs_points)
 
         if (p.obs_type & ObsType::LC)
         {
-            if (!obs_pack.get_series<LightcurveSeries>("lightcurves"))
-                obs_pack.add_series<LightcurveSeries>("lightcurves");
+			LightcurveSeries *lcs =
+				obs_pack.get_series<LightcurveSeries>(p.storage_name);
+			if (lcs == NULL)
+				lcs = obs_pack.add_series<LightcurveSeries>(p.storage_name);
 
-            make_lightcurve(
-                obs_pack.get_series<LightcurveSeries>("lightcurves"),
-                p.lc_num_points);
+            if (p.flux_filename == "")
+            {
+                make_lightcurve(
+                    obs_pack.get_series<LightcurveSeries>(p.storage_name),
+                    p.lc_num_points);
+            }
+            else
+            {
+                Lightcurve *lightcurve =
+                    new Lightcurve(scene.target, scene.observer, p.lc_num_points);
+				Entity ghost_observer = ui_scene.create_entity("ghost observer");
+				Entity ghost_target = ui_scene.create_entity("ghost target");
+				lightcurve->add_ghosts(ghost_observer, ghost_target, "flat_shader");
+
+				lightcurve->julian_day = p.jd;
+
+                FILE *in = fopen(p.flux_filename.c_str(), "r");
+                char line[1000];
+                while (fgets(line, 999, in))
+                {
+                    double phase, flux;
+                    sscanf(line, "%lf %lf", &phase, &flux);
+                    lightcurve->push_flux(phase, flux); /// ehh...
+                }
+                fclose(in);
+
+                lcs->push(lightcurve);
+            }
         }
 
         if (p.obs_type & ObsType::AO)
         {
-            if (!obs_pack.get_series<ImageSeries>("ao_images"))
-                obs_pack.add_series<ImageSeries>("ao_images");
+            if (!obs_pack.get_series<ImageSeries>(p.storage_name))
+                obs_pack.add_series<ImageSeries>(p.storage_name);
 
-            make_ao_image(obs_pack.get_series<ImageSeries>("ao_images"),
+            make_ao_image(obs_pack.get_series<ImageSeries>(p.storage_name),
                           p.ao_size, earth_tilt, ao_bg_color);
         }
 
         if (p.obs_type & ObsType::RADAR)
         {
-            if (!obs_pack.get_series<ImageSeries>("radar_images"))
-                obs_pack.add_series<ImageSeries>("radar_images");
+            if (!obs_pack.get_series<ImageSeries>(p.storage_name))
+                obs_pack.add_series<ImageSeries>(p.storage_name);
 
-            make_radar_image(
-                obs_pack.get_series<ImageSeries>("radar_images"),
-                p.radar_size, angular_speed);
+            make_radar_image(obs_pack.get_series<ImageSeries>(p.storage_name),
+                             p.radar_size, angular_speed);
         }
     }
     target_pos = tmp_target_pos;

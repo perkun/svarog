@@ -40,7 +40,7 @@ Image::~Image()
 }
 
 
-void Image::serialize(YAML::Emitter &out, int id, string filename)
+void Image::serialize(YAML::Emitter &out, string storage_name, int id, string filepath)
 {
     out << YAML::BeginMap;
 
@@ -58,15 +58,14 @@ void Image::serialize(YAML::Emitter &out, int id, string filename)
     out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
     out.SetSeqFormat(YAML::Block);
 
-    out << YAML::Key << "type";
-    out << YAML::BeginSeq << YAML::Value << get_obs_type_string() << YAML::EndSeq;
+    out << YAML::Key << "type" << YAML::Value << get_obs_type_string();
+    out << YAML::Key << "storage_name" << YAML::Value << storage_name;
 
-    if (filename != "")
+    if (filepath != "")
     {
         char fn[200];
-        string base = File::remove_extension(filename);
-        sprintf(fn, "%s_%03d", base.c_str(), id);
-
+        string base = File::remove_extension(filepath);
+        sprintf(fn, "%s_%s_%03d", base.c_str(), storage_name.c_str(), id);
         out << YAML::Key << get_obs_type_string() + "_image" << YAML::Value
             << string(fn) + ".png";
         out << YAML::Key << get_obs_type_string() + "_fits" << YAML::Value
@@ -78,7 +77,6 @@ void Image::serialize(YAML::Emitter &out, int id, string filename)
 
     out << YAML::EndMap;
 }
-
 
 
 void Image::push_basic_header_info(FitsHeader &header)

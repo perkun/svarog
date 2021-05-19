@@ -19,7 +19,7 @@ public:
 	void add_ghosts(Entity& ghost_target, Entity &ghost_observer, string shader_name);
 
 
-	virtual void serialize(YAML::Emitter &out, int id = 0,
+	virtual void serialize(YAML::Emitter &out, string storage_name, int id = 0,
 						   string filename = "") = 0;
 
 	Entity target, observer, ghost_target, ghost_observer;

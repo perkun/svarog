@@ -1,19 +1,20 @@
 #include "svpch.h"
 #include "ObservationSeries.h"
 
-void ObservationSeries::serialize(YAML::Emitter &out)
-{
-	for (int i = 0; i < observations.size(); i++)
-		observations[i]->serialize(out);
-}
-
 void ObservationSeries::serialize(YAML::Emitter &out, string storage_name)
 {
+	for (int i = 0; i < observations.size(); i++)
+		observations[i]->serialize(out, storage_name);
+}
 
-    for (int i = 0; i < observations.size(); i++)
-    {
-        observations[i]->serialize(out, i, storage_name);
-    }
+void ObservationSeries::serialize(YAML::Emitter &out, string storage_name,
+								  string filepath)
+{
+
+	for (int i = 0; i < observations.size(); i++)
+	{
+		observations[i]->serialize(out, storage_name, i, filepath);
+	}
 }
 
 
@@ -35,20 +36,20 @@ void ObservationSeries::delete_all()
 
 void ObservationSeries::detach_all_ghosts()
 {
-    for (Observation *obs : observations)
-    {
+	for (Observation *obs : observations)
+	{
 		if (!obs)
 			continue;
 
-        obs->ghost_target.detatch();
-        obs->ghost_observer.detatch();
-    }
+		obs->ghost_target.detatch();
+		obs->ghost_observer.detatch();
+	}
 }
 
 void ObservationSeries::push(Observation *obs)
 {
 	observations.push_back(obs);
-    current_id = observations.size() - 1;
+	current_id = observations.size() - 1;
 }
 
 
@@ -91,10 +92,10 @@ int ObservationSeries::size()
 
 void ObservationSeries::validate_current_id()
 {
-    if (current_id < 0)
-        current_id = 0;
-    else if (current_id >= observations.size())
-        current_id = observations.size() - 1;
+	if (current_id < 0)
+		current_id = 0;
+	else if (current_id >= observations.size())
+		current_id = observations.size() - 1;
 }
 
 
@@ -103,17 +104,17 @@ void ObservationSeries::validate_current_id()
 
 void LightcurveSeries::push(Lightcurve *lc)
 {
-    lc->make_average_zero();
-    float min = lc->calculate_min_inv_mag();
-    float max = lc->calculate_max_inv_mag();
-    if (min < lcs_inv_mag_min)
-        lcs_inv_mag_min = min;
-    if (max > lcs_inv_mag_max)
-        lcs_inv_mag_max = max;
+	lc->make_average_zero();
+	float min = lc->calculate_min_inv_mag();
+	float max = lc->calculate_max_inv_mag();
+	if (min < lcs_inv_mag_min)
+		lcs_inv_mag_min = min;
+	if (max > lcs_inv_mag_max)
+		lcs_inv_mag_max = max;
 
 
-    observations.push_back(lc);
-    current_id = observations.size() - 1;
+	observations.push_back(lc);
+	current_id = observations.size() - 1;
 }
 
 

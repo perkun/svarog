@@ -28,8 +28,8 @@ public:
 
 	int size();
 
-	void serialize(YAML::Emitter &out);
 	void serialize(YAML::Emitter &out, string storage_name);
+	void serialize(YAML::Emitter &out, string storage_name, string filepath);
 
 protected:
 	vector<Observation*> observations;

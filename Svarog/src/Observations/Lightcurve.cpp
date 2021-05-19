@@ -25,11 +25,11 @@ void Lightcurve::make_average_zero()
 	LcPoint avg;
 	for (LcPoint &p: points)
 	{
-		avg.flux += p.flux;
+// 		avg.flux += p.flux;
 		avg.mag += p.mag;
 		avg.inv_mag += p.inv_mag;
 	}
-	avg.flux /= points.size();
+// 	avg.flux /= points.size();
 	avg.mag /= points.size();
 	avg.inv_mag /= points.size();
 
@@ -37,7 +37,7 @@ void Lightcurve::make_average_zero()
 
 	for (LcPoint &p: points)
 	{
-		p.flux -= avg.flux;
+// 		p.flux -= avg.flux;
 		p.mag -= avg.mag;
 		p.inv_mag -= avg.inv_mag;
 	}
@@ -149,44 +149,47 @@ string Lightcurve::get_obs_type_string()
 	return string("lc");
 }
 
-void Lightcurve::serialize(YAML::Emitter &out, int id, string filename)
+void Lightcurve::serialize(YAML::Emitter &out, string storage_name, int id, string filepath)
 {
-	out << YAML::BeginMap;
+    out << YAML::BeginMap;
 
-	out << YAML::Key << "jd" << YAML::Value << julian_day;
+    out << YAML::Key << "jd" << YAML::Value << julian_day;
 
-	out.SetSeqFormat(YAML::Flow);
-	out << YAML::Key << "target_position" << YAML::BeginSeq;
-	out << YAML::Value << target_transform.position.x;
-	out << YAML::Value << target_transform.position.y;
-	out << YAML::Value << target_transform.position.z << YAML::EndSeq;
+    out.SetSeqFormat(YAML::Flow);
+    out << YAML::Key << "target_position" << YAML::BeginSeq;
+    out << YAML::Value << target_transform.position.x;
+    out << YAML::Value << target_transform.position.y;
+    out << YAML::Value << target_transform.position.z << YAML::EndSeq;
 
-	out << YAML::Key << "observer_position" << YAML::BeginSeq;
-	out << YAML::Value << observer_transform.position.x;
-	out << YAML::Value << observer_transform.position.y;
-	out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
-	out.SetSeqFormat(YAML::Block);
+    out << YAML::Key << "observer_position" << YAML::BeginSeq;
+    out << YAML::Value << observer_transform.position.x;
+    out << YAML::Value << observer_transform.position.y;
+    out << YAML::Value << observer_transform.position.z << YAML::EndSeq;
+    out.SetSeqFormat(YAML::Block);
 
-	out << YAML::Key << "lc_num_points" << YAML::Value << size();
+    out << YAML::Key << "lc_num_points" << YAML::Value << size();
 
-	out << YAML::Key << "type";
-	out << YAML::BeginSeq <<  YAML::Value << get_obs_type_string() << YAML::EndSeq;
+    out << YAML::Key << "type" << YAML::Value << get_obs_type_string();
+    out << YAML::Key << "storage_name" << YAML::Value << storage_name;
 
-	if (filename != "")
-	{
-		char fn[200];
-		string base = File::remove_extension(filename);
-		sprintf(fn, "%s_flux_%03d.dat", base.c_str(), id);
-		out << YAML::Key << "flux_data" << YAML::Value << fn;
-		save_flux(fn);
+    if (filepath != "")
+    {
+        char fn[200];
+        string base = File::remove_extension(filepath);
+        sprintf(fn, "%s_%s_flux_%03d.dat", base.c_str(), storage_name.c_str(),
+                id);
 
-		sprintf(fn, "%s_mag_%03d", base.c_str(), id);
-		out << YAML::Key << "mag_data" << YAML::Value << fn;
-		save_mag(fn);
-	}
+        out << YAML::Key << "flux_data" << YAML::Value << fn;
+        save_flux(fn);
+
+        sprintf(fn, "%s_%s_mag_%03d.dat", base.c_str(), storage_name.c_str(),
+                id);
+        out << YAML::Key << "mag_data" << YAML::Value << fn;
+        save_mag(fn);
+    }
 
 
-	out << YAML::EndMap;
+    out << YAML::EndMap;
 }
 
 

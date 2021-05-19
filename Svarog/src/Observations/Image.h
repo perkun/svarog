@@ -12,7 +12,7 @@ public:
     Image(Entity &target, Entity &observer, int width, int height,
           bool create_texture = true);
     ~Image();
-    virtual void serialize(YAML::Emitter &out, int id = 0,
+    virtual void serialize(YAML::Emitter &out, string storage_name, int id = 0,
                            string filename = "") override;
     void update_data(float *dr, float *dg, float *db);
     void update_texture();

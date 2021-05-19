@@ -1,6 +1,7 @@
 #include "svpch.h"
 #include "Observation.h"
 
+
 Observation::Observation(Entity &target, Entity &observer)
 {
 	this->target = target;
