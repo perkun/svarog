@@ -153,7 +153,7 @@ void MainLayer::on_attach()
     time_panel = TimePanel(&scene);
     scene_hierarchy_panel = SceneHierarchyPanel(&scene, &time_panel.julian_day);
     observatory_panel =
-        ObservatoryPanel(this, &obs_pack);
+        ObservatoryPanel(this);
     observe_panel = ObservePanel(this);
 }
 

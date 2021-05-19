@@ -35,7 +35,7 @@ class ObservatoryPanel
 {
 public:
     ObservatoryPanel() = default;
-	ObservatoryPanel(MainLayer*, ObsStoragePack*);
+	ObservatoryPanel(MainLayer*);
 	~ObservatoryPanel();
 
 	void on_imgui_render();

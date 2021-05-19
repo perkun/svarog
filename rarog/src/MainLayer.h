@@ -63,8 +63,8 @@ private:
 	void observe_obs_points(const vector<ObsPoint> obs_points);
 
 	void set_target_and_observer(Observation*);
-	void set_current_ghosts();
 	void set_ghosts(Observation*);
+	void set_current_ghosts();
 
 	bool shadow_map = true;
 	bool show_imgui_demo = false;

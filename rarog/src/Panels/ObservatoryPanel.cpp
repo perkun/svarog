@@ -3,10 +3,10 @@
 #include "ObservatoryPanel.h"
 #include "Camera.h"
 
-ObservatoryPanel::ObservatoryPanel(MainLayer *l, ObsStoragePack *obs)
+ObservatoryPanel::ObservatoryPanel(MainLayer *l)
 {
     layer = l;
-    obs_storage = obs;
+    obs_storage = &layer->obs_pack;
 }
 
 ObservatoryPanel::~ObservatoryPanel()
