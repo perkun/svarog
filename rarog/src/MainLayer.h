@@ -53,6 +53,19 @@ private:
 	void set_editor_mode();
 	void set_runtime_mode();
 
+	// observations
+	void make_lightcurve(LightcurveSeries*, int num_points);
+	void make_ao_image(ImageSeries*, int, bool, vec4);
+	void make_radar_image(ImageSeries*, int, float);
+
+	void load_obs_storage(string filepath);
+	void load_lc_file(string filepath);
+	void observe_obs_points(const vector<ObsPoint> obs_points);
+
+	void set_target_and_observer(Observation*);
+	void set_current_ghosts();
+	void set_ghosts(Observation*);
+
 	bool shadow_map = true;
 	bool show_imgui_demo = false;
 	bool show_scene_options = true;

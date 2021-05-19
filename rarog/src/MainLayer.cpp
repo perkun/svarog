@@ -153,7 +153,7 @@ void MainLayer::on_attach()
     time_panel = TimePanel(&scene);
     scene_hierarchy_panel = SceneHierarchyPanel(&scene, &time_panel.julian_day);
     observatory_panel =
-        ObservatoryPanel(this, &time_panel.julian_day, &obs_pack);
+        ObservatoryPanel(this, &obs_pack);
     observe_panel = ObservePanel(this);
 }
 
@@ -442,13 +442,13 @@ void MainLayer::menu_bar()
 
             if (ImGui::MenuItem("Import Storage"))
             {
-                observatory_panel.load_obs_storage(
+                load_obs_storage(
                     FileDialog::open_file("*.storage"));
             }
 
             if (ImGui::MenuItem("Import LC file"))
             {
-                observatory_panel.load_lc_file(FileDialog::open_file("*.txt"));
+                load_lc_file(FileDialog::open_file("*.txt"));
             }
 
 
@@ -640,4 +640,462 @@ IndexedModel MainLayer::create_grid(float size, float sep, float alpha)
                     vec4(28. / 256, 157. / 256, 51. / 256, alpha)));
 
     return grid_batch.indexed_model;
+}
+
+
+void MainLayer::make_lightcurve(LightcurveSeries *lightcurves, int num_points)
+{
+	Entity &target = scene.target;
+	Entity &observer = scene.observer;
+    Transform &tt = target.get_component<Transform>();
+	if (!target.has_component<OrbitalComponent>())
+	{
+		cout << "target does not have orbital component" << endl;
+		return;
+	}
+
+    OrbitalComponent &oc = target.get_component<OrbitalComponent>();
+
+    int width = 256;
+    int height = 256;
+    float *pixel_buffer = new float[width * height];
+    Lightcurve *lc = new Lightcurve(target, observer, num_points);
+    vec4 bg_color = Application::get_bg_color();
+
+    observer.get_component<CameraComponent>().camera->update_target(
+        tt.position);
+
+    Mode prev_mode = mode;
+    set_runtime_mode();
+
+    Application::set_bg_color(vec4(0., 0., 0., 1.));
+    scene.on_resize(width, height);
+    ms_framebuffer->resize(width, height);
+    framebuffer->resize(width, height);
+
+    for (int i = 0; i < num_points; i++)
+    {
+        if (oc.rotation_speed != 0)
+            on_update(2 * M_PI / num_points / oc.rotation_speed);
+        else
+            on_update(2 * M_PI / num_points);
+
+        framebuffer->bind();
+        glReadPixels(0, 0, width, height, GL_RED, GL_FLOAT, pixel_buffer);
+
+        double flux = 0.0;
+        for (int j = 0; j < width * height; j++)
+            flux += pixel_buffer[j];
+// 		printf("%.16lf\n", flux);
+        lc->push_flux((double)i/num_points * 2*M_PI, flux);
+    }
+
+    Entity ghost_observer = ui_scene.create_entity("ghost observer");
+    Entity ghost_target = ui_scene.create_entity("ghost target");
+    lc->add_ghosts(ghost_observer, ghost_target, "flat_shader");
+
+    lc->julian_day = time_panel.julian_day;
+
+
+    lightcurves->push(lc);
+    lightcurves->detach_all_ghosts();
+
+    ui_scene.root_entity.add_child(lc->ghost_target);
+    ui_scene.root_entity.add_child(lc->ghost_observer);
+
+
+    scene.on_resize(viewport_panel_size.x,
+                           viewport_panel_size.y);
+    ms_framebuffer->resize(viewport_panel_size.x,
+                                  viewport_panel_size.y);
+    framebuffer->resize(viewport_panel_size.x,
+                               viewport_panel_size.y);
+
+    Application::set_bg_color(bg_color);
+    if (prev_mode == Mode::EDITOR)
+        set_editor_mode();
+    delete[] pixel_buffer;
+}
+
+
+void MainLayer::make_ao_image(ImageSeries *ao_images, int ao_size, bool earth_tilt,
+		vec4 bg_color)
+{
+	Entity &target = scene.target;
+	Entity &observer = scene.observer;
+    int ao_width = ao_size;
+    int ao_height = ao_size;
+
+    float *pixel_buffer_r = new float[ao_width * ao_height];
+    float *pixel_buffer_g = new float[ao_width * ao_height];
+    float *pixel_buffer_b = new float[ao_width * ao_height];
+
+    // 	AoImage ao_image(width, height);
+    vec4 tmp_bg_color = Application::get_bg_color();
+
+    observer.get_component<CameraComponent>().camera->update_target(
+        target.get_component<Transform>().position);
+
+    Mode prev_mode = mode;
+    set_runtime_mode();
+
+    Application::set_bg_color(bg_color);
+    scene.on_resize(ao_width, ao_height);
+    ms_framebuffer->resize(ao_width, ao_height);
+    framebuffer->resize(ao_width, ao_height);
+
+    if (earth_tilt)
+        observer.get_component<CameraComponent>().camera->up =
+            vec3(0., 0.39774, 0.917498);
+
+    // make image
+    on_update(0.);
+    framebuffer->bind();
+    glReadPixels(0, 0, ao_width, ao_height, GL_RED, GL_FLOAT, pixel_buffer_r);
+    glReadPixels(0, 0, ao_width, ao_height, GL_GREEN, GL_FLOAT, pixel_buffer_g);
+    glReadPixels(0, 0, ao_width, ao_height, GL_BLUE, GL_FLOAT, pixel_buffer_b);
+
+    AoImage *ao = new AoImage(target, observer, ao_width, ao_height);
+//     ao->texture->update(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
+	ao->update_data(pixel_buffer_r, pixel_buffer_g, pixel_buffer_b);
+	ao->update_texture();
+
+    Entity ghost_observer = ui_scene.create_entity("ghost observer");
+    Entity ghost_target = ui_scene.create_entity("ghost target");
+    ao->add_ghosts(ghost_observer, ghost_target, "flat_shader");
+    ao->julian_day = time_panel.julian_day;
+
+    ao_images->push(ao);
+    ao_images->detach_all_ghosts();
+
+    ui_scene.root_entity.add_child(ao->ghost_target);
+    ui_scene.root_entity.add_child(ao->ghost_observer);
+
+
+    scene.on_resize(viewport_panel_size.x,
+                           viewport_panel_size.y);
+    ms_framebuffer->resize(viewport_panel_size.x,
+                                  viewport_panel_size.y);
+    framebuffer->resize(viewport_panel_size.x,
+                               viewport_panel_size.y);
+
+    Application::set_bg_color(tmp_bg_color);
+
+    if (prev_mode == Mode::EDITOR)
+        set_editor_mode();
+
+    delete[] pixel_buffer_r;
+    delete[] pixel_buffer_g;
+    delete[] pixel_buffer_b;
+}
+
+
+void MainLayer::make_radar_image(ImageSeries *radar_images, int dd_size, float angular_speed)
+{
+    Entity &target = scene.target;
+    Entity &observer = scene.observer;
+
+    int frame_width = dd_size * 5;
+    int frame_height = dd_size * 5;
+
+    float *pixel_buffer_r = new float[frame_width * frame_height];
+    float *pixel_buffer_normal = new float[frame_width * frame_height];
+    float *pixel_buffer_depth = new float[frame_width * frame_height];
+
+    vec4 tmp_bg_color = Application::get_bg_color();
+
+    Material &mat = target.get_component<Material>();
+    shared_ptr<Shader> tmp_shader = mat.shader;
+    mat.shader = Application::shaders["radar"];
+    mat.uniforms_float["u_factor"] = angular_speed;
+
+    CameraComponent &camera_comp = observer.get_component<CameraComponent>();
+    shared_ptr<Camera> tmp_cam = camera_comp.camera;
+
+
+    // create view box that fits the target perfectly
+    Transform &tt = target.get_component<Transform>();
+    Transform &ot = observer.get_component<Transform>();
+    MeshComponent &mc = target.get_component<MeshComponent>();
+
+    float max_scale = glm::max(tt.scale.x, tt.scale.y);
+    max_scale = glm::max(max_scale, tt.scale.z);
+
+    float near =
+        glm::length(tt.position - ot.position) - (max_scale * mc.r_max);
+    float far = glm::length(tt.position - ot.position) + (max_scale * mc.r_max);
+
+    //    	TRACE("near: {}, far: {}, rmax: {}", near, far, mc.r_max);
+    camera_comp.camera =
+        make_shared<OrthograficCamera>(max_scale * mc.r_max, 1., near, far);
+
+
+    Mode prev_mode = mode;
+    set_runtime_mode();
+
+    scene.on_resize(frame_width, frame_height);
+
+    multisampling = false;
+    framebuffer->resize(frame_width, frame_height);
+    Application::set_bg_color(vec4(0, 0, 0, 0));
+
+    framebuffer->clear();
+
+    on_update(0.);
+    framebuffer->bind();
+    glReadPixels(0, 0, frame_width, frame_height, GL_RED, GL_FLOAT,
+                 pixel_buffer_r);
+    glReadPixels(0, 0, frame_width, frame_height, GL_GREEN, GL_FLOAT,
+                 pixel_buffer_normal);
+    glReadPixels(0, 0, frame_width, frame_height, GL_BLUE, GL_FLOAT,
+                 pixel_buffer_depth);
+
+    RadarImage *rimg =
+        new RadarImage(target, observer, dd_size, dd_size, near, far, -1, 1);
+    rimg->construct_delay_doppler(pixel_buffer_r, pixel_buffer_depth,
+                                  pixel_buffer_normal, frame_width,
+                                  frame_height);
+    rimg->update_texture();
+
+    Entity ghost_observer = ui_scene.create_entity("ghost observer");
+    Entity ghost_target = ui_scene.create_entity("ghost target");
+    rimg->add_ghosts(ghost_observer, ghost_target, "flat_shader");
+    rimg->julian_day = time_panel.julian_day;
+
+    radar_images->push(rimg);
+    radar_images->detach_all_ghosts();
+
+    ui_scene.root_entity.add_child(rimg->ghost_target);
+    ui_scene.root_entity.add_child(rimg->ghost_observer);
+
+    target.get_component<Material>().shader = tmp_shader;
+    Application::set_bg_color(tmp_bg_color);
+    scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
+    ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+    framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+
+    if (prev_mode == Mode::EDITOR)
+        set_editor_mode();
+
+    multisampling = true;
+
+    camera_comp.camera = tmp_cam;
+
+    delete[] pixel_buffer_r;
+    delete[] pixel_buffer_depth;
+    delete[] pixel_buffer_normal;
+}
+
+
+
+void MainLayer::load_obs_storage(string filepath)
+{
+    if (filepath == "")
+        return;
+
+	vector<ObsPoint> obs_points = ObsStoragePack::import_obs_points(filepath);
+	if (obs_points.size() > 0)
+	{
+		obs_pack.add_new(File::remove_extension(File::file_base(filepath)));
+		observe_obs_points(obs_points);
+	}
+	else
+        cout << "Adding Storage Failed" << endl;
+}
+
+
+void MainLayer::load_lc_file(string filepath)
+{
+	/// The lightcurves are in phase space. The 0 phase in the plot is the phase
+	/// of the model as it would be observed at this time. So, the observed points
+	/// always start at 0
+
+	if (filepath == "")
+		return;
+
+    char line[1000];
+    int num_lcs = 0;
+    vector<ObsPoint> obs_points;
+
+    FILE *in = fopen(filepath.c_str(), "r");
+
+    fgets(line, 999, in);
+    sscanf(line, "%d", &num_lcs);
+
+    if (num_lcs > 0)
+    {
+        obs_pack.add_new(File::remove_extension(File::file_base(filepath)));
+        obs_pack.add_series<LightcurveSeries>("obs_lightcurves");
+    }
+    else
+        return;
+
+    OrbitalComponent &oc =
+        scene.target.get_component<OrbitalComponent>();
+
+    for (int i = 0; i < num_lcs; i++)
+    {
+        fgets(line, 999, in);
+        int type = 0;
+        int num_pts = 0;
+        sscanf(line, "%d %d", &num_pts, &type);
+
+        Lightcurve *lc =
+            new Lightcurve(scene.target, scene.observer, num_pts);
+
+		double phase_offset = 0;
+		double jd_start = 0;
+        for (int j = 0; j < num_pts; j++)
+        {
+            double jd, flux;
+            dvec3 sun, earth;
+            fgets(line, 999, in);
+            sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf", &jd, &flux, &sun.x,
+                   &sun.y, &sun.z, &earth.x, &earth.y, &earth.z);
+
+            if (j == 0)
+            {
+				jd_start = jd;
+                lc->julian_day = jd;
+
+                ObsPoint p;
+                p.jd = jd;
+                p.observer_pos = earth - sun;
+                p.target_pos = -sun;
+                p.obs_type = ObsType::LC;
+
+                obs_points.push_back(p);
+            }
+
+			double phase = (jd - jd_start) / (oc.rot_period / 24.) *2 * M_PI;
+			while (phase >= 2*M_PI)
+				phase -= 2*M_PI;
+			while (phase < 0)
+				phase += 2* M_PI;
+
+            lc->push_flux(phase, flux);
+
+        }
+
+        lc->sort();
+        obs_pack.get_series<LightcurveSeries>("obs_lightcurves")->push(lc);
+    }
+    fclose(in);
+
+    if (obs_points.size() > 0)
+    {
+        observe_obs_points(obs_points);
+    }
+    else
+        cout << "Adding Storage Failed" << endl;
+}
+
+
+void MainLayer::observe_obs_points(const vector<ObsPoint> obs_points)
+{
+    OrbitalComponent &oc =
+        scene.target.get_component<OrbitalComponent>();
+    double tmp_rotation_phase = oc.rotation_phase;
+
+    vec3 &target_rotation =
+        scene.target.get_component<Transform>().rotation;
+    vec3 tmp_rotation = target_rotation;
+    vec3 &target_pos = scene.target.get_component<Transform>().position;
+    vec3 tmp_target_pos = target_pos;
+    vec3 &observer_pos =
+        scene.observer.get_component<Transform>().position;
+    vec3 tmp_observer_pos = observer_pos;
+
+    double tmp_julian_day = time_panel.julian_day;
+
+	vec4 ao_bg_color = vec4(0., 0., 0., 1.);
+	bool earth_tilt = true;
+	float angular_speed = 10.0;
+
+
+    for (ObsPoint p : obs_points)
+    {
+        time_panel.julian_day = p.jd;
+
+        oc.set_rot_phase_at_jd(p.jd);
+        target_rotation = oc.xyz_from_lbg();
+
+        target_pos = p.target_pos;
+        observer_pos = p.observer_pos;
+
+        if (p.obs_type & ObsType::LC)
+        {
+            if (!obs_pack.get_series<LightcurveSeries>("lightcurves"))
+                obs_pack.add_series<LightcurveSeries>("lightcurves");
+
+            make_lightcurve(
+                obs_pack.get_series<LightcurveSeries>("lightcurves"),
+                p.lc_num_points);
+        }
+
+        if (p.obs_type & ObsType::AO)
+        {
+            if (!obs_pack.get_series<ImageSeries>("ao_images"))
+                obs_pack.add_series<ImageSeries>("ao_images");
+
+            make_ao_image(obs_pack.get_series<ImageSeries>("ao_images"),
+                          p.ao_size, earth_tilt, ao_bg_color);
+        }
+
+        if (p.obs_type & ObsType::RADAR)
+        {
+            if (!obs_pack.get_series<ImageSeries>("radar_images"))
+                obs_pack.add_series<ImageSeries>("radar_images");
+
+            make_radar_image(
+                obs_pack.get_series<ImageSeries>("radar_images"),
+                p.radar_size, angular_speed);
+        }
+    }
+    target_pos = tmp_target_pos;
+    observer_pos = tmp_observer_pos;
+    target_rotation = tmp_rotation;
+
+    time_panel.julian_day = tmp_julian_day;
+}
+
+
+void MainLayer::set_target_and_observer(Observation *obs)
+{
+    vec3 gtp = obs->target_transform.position;
+    vec3 gop = obs->observer_transform.position;
+
+    scene.target = obs->target;
+    scene.observer = obs->observer;
+
+    scene.target.get_component<Transform>() = obs->target_transform;
+    scene.observer.get_component<Transform>() = obs->observer_transform;
+
+    if (scene.observer.has_component<OrbitalComponent>())
+        scene.observer.get_component<OrbitalComponent>() =
+            obs->target_orbital_component;
+
+    shared_ptr<Camera> camera =
+        scene.observer.get_component<CameraComponent>().camera;
+    camera->position = gop;
+    camera->update_target(gtp);
+}
+
+
+void MainLayer::set_current_ghosts()
+{
+    obs_pack.current_obs_lambda([this](Observation *current_obs) {
+        if (current_obs->ghost_target && current_obs->ghost_observer)
+        {
+            ui_scene.root_entity.add_child(current_obs->ghost_target);
+            ui_scene.root_entity.add_child(current_obs->ghost_observer);
+        }
+    });
+}
+
+
+void MainLayer::set_ghosts(Observation* obs)
+{
+    ui_scene.root_entity.add_child(obs->ghost_target);
+    ui_scene.root_entity.add_child(obs->ghost_observer);
 }

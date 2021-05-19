@@ -127,7 +127,7 @@ int ObsStoragePack::add_new(string name)
 
 	obs_storages[current_id].name = name;
 
-    detach_current_ghosts();
+    detach_all_ghosts();
 	return current_id;
 }
 
@@ -236,6 +236,12 @@ vector<ObsPoint> ObsStoragePack::import_obs_points(const string filename)
     return points;
 }
 
+void ObsStoragePack::detach_all_ghosts()
+{
+    for (ObsStorage &obs_storage : obs_storages)
+        for (auto elem : obs_storage.storage)
+            elem.second->detach_all_ghosts();
+}
 
 void ObsStoragePack::detach_current_ghosts()
 {
