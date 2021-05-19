@@ -22,13 +22,13 @@ Observation::~Observation()
 
 
 
-void Observation::add_ghosts(Entity &gt, Entity &go)
+void Observation::add_ghosts(Entity &gt, Entity &go, string shader_name)
 {
 	ghost_target = gt;
 	ghost_observer = go;
 
     ghost_observer
-        .add_component<Material>("flat_shader")
+        .add_component<Material>(shader_name)
         .uniforms_vec4["u_color"] = ghost_color;
     ghost_observer.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedIcoSphere(vec3(0.), vec3(0.03))));
@@ -36,7 +36,7 @@ void Observation::add_ghosts(Entity &gt, Entity &go)
     got.position = observer.get_component<Transform>().position;
 
     ghost_target
-        .add_component<Material>("flat_shader")
+        .add_component<Material>(shader_name)
         .uniforms_vec4["u_color"] = ghost_color;
     ghost_target.add_component<MeshComponent>(
         make_shared<VertexArrayObject>(IndexedCube(vec3(-.025), vec3(0.05))));

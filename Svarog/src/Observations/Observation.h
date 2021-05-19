@@ -16,7 +16,7 @@ class Observation
 public:
 	Observation(Entity& target, Entity &observer);
 	virtual ~Observation();
-	void add_ghosts(Entity& ghost_target, Entity &ghost_observer);
+	void add_ghosts(Entity& ghost_target, Entity &ghost_observer, string shader_name);
 
 
 	virtual void serialize(YAML::Emitter &out, int id = 0,

@@ -623,7 +623,7 @@ void ObservatoryPanel::make_lightcurve(Entity &target, Entity &observer,
 
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
-    lc->add_ghosts(ghost_observer, ghost_target);
+    lc->add_ghosts(ghost_observer, ghost_target, "flat_shader");
     lc->julian_day = *julian_day;
 
 
@@ -690,7 +690,7 @@ void ObservatoryPanel::make_ao_image(Entity &target, Entity &observer,
 
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
-    ao->add_ghosts(ghost_observer, ghost_target);
+    ao->add_ghosts(ghost_observer, ghost_target, "flat_shader");
     ao->julian_day = *julian_day;
 
     ao_images->push(ao);
@@ -787,7 +787,7 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
 
     Entity ghost_observer = layer->ui_scene.create_entity("ghost observer");
     Entity ghost_target = layer->ui_scene.create_entity("ghost target");
-    rimg->add_ghosts(ghost_observer, ghost_target);
+    rimg->add_ghosts(ghost_observer, ghost_target, "flat_shader");
     rimg->julian_day = *julian_day;
 
     radar_images->push(rimg);
