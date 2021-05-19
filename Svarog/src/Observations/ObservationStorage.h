@@ -48,11 +48,11 @@ public:
 
     void delete_current();
 
-    template <typename T> void add_series(string name)
+    template <typename T> T* add_series(string name)
     {
         // TODO check if name exists
         obs_storages[current_id].storage[name] = new T;
-        cout << "storage " << name << " added" << endl;
+		return static_cast<T *>(obs_storages[current_id].storage[name]);
     }
 
     template <typename T> T *get_series(string name)

@@ -14,6 +14,23 @@ using namespace std;
 
 class MainLayer;
 
+class ImGuiCanvas
+{
+public:
+    ImGuiCanvas() {}
+    ~ImGuiCanvas() {}
+
+    void prepare();
+    void add_line(double x1, double y1, double x2, double y2,
+					double x_min, double x_max,
+					double y_min, double y_max, ImU32 color);
+	void draw();
+private:
+	ImDrawList *draw_list;
+	ImVec2 origin;
+	ImVec2 canvas_sz;
+};
+
 class ObservatoryPanel
 {
 public:
@@ -33,7 +50,7 @@ private:
 	char buff[100];
 	MainLayer *layer;
 
-	void display_lightcurves(LightcurveSeries*, LightcurveSeries* obs=NULL);
+	void lightcurves_tab();
 	void display_images(ImageSeries*);
 
 	void make_lightcurve(Entity &target, Entity &observer, LightcurveSeries*, int);

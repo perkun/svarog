@@ -191,83 +191,75 @@ void ObservatoryPanel::observations_panel()
     {
         if (ImGui::BeginTabItem("Lightcurves"))
         {
-            // observations buttons
-            if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
-            {
-                if (!obs_storage->get_series<LightcurveSeries>("lightcurves"))
-                    obs_storage->add_series<LightcurveSeries>("lightcurves");
-
-                make_lightcurve(
-                    layer->scene.target, layer->scene.observer,
-                    obs_storage->get_series<LightcurveSeries>("lightcurves"),
-                    lc_num_points);
-            }
-            ImGui::SameLine(0., 20.);
-            ImGui::PushItemWidth(100.);
-            ImGui::InputInt("LC num points", &lc_num_points);
-            for (int i = 0; i < 10; i++)
-                ImGui::Spacing();
-
-            display_lightcurves(
-                obs_storage->get_series<LightcurveSeries>("lightcurves"),
-                obs_storage->get_series<LightcurveSeries>("obs_lightcurves"));
-
-
+            lightcurves_tab();
             ImGui::EndTabItem();
         }
 
         if (ImGui::BeginTabItem("AO Images"))
         {
-            if (ImGui::Button("Make AO image", ImVec2(150, 0)))
-			{
-                if (!obs_storage->get_series<ImageSeries>("ao_images"))
-                    obs_storage->add_series<ImageSeries>("ao_images");
-                make_ao_image(layer->scene.target, layer->scene.observer,
-                              obs_storage->get_series<ImageSeries>("ao_images"),
-                              ao_size);
-			}
-            ImGui::SameLine(0.0, 20.0);
             ImGui::PushItemWidth(100.);
             ImGui::InputInt("AO size [px]", &ao_size, 1, 100);
 
+            ImGui::SameLine(0.0, 20.0);
             ImGui::Text("bg color");
             ImGui::SameLine();
             ImGui::ColorEdit4("ao_bg_color", (float *)&ao_bg_color,
                               ImGuiColorEditFlags_NoInputs |
                                   ImGuiColorEditFlags_NoLabel);
+
+            ImGui::SameLine(0.0, 20.0);
             ImGui::Checkbox("Earth tilt", &earth_tilt);
+
+            ImGui::Spacing();
+
+            ImageSeries *images =
+                obs_storage->get_series<ImageSeries>("ao_images");
+
+            if (ImGui::Button("Make AO image", ImVec2(150, 0)))
+            {
+                if (images == NULL)
+                    images = obs_storage->add_series<ImageSeries>("ao_images");
+                make_ao_image(layer->scene.target, layer->scene.observer,
+                              images, ao_size);
+            }
 
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_images(obs_storage->get_series<ImageSeries>("ao_images"));
+            if (images != NULL)
+                display_images(images);
 
             ImGui::EndTabItem();
         }
 
         if (ImGui::BeginTabItem("Radar Images"))
         {
+            ImGui::PushItemWidth(100.);
+            ImGui::InputInt("size [px]", &dd_size, 1, 100);
+            ImGui::SameLine(0.0, 20.0);
+
+            ImGui::InputFloat("ang. speed", &angular_speed);
+
+            ImGui::Spacing();
+
+            ImageSeries *images =
+                obs_storage->get_series<ImageSeries>("radar_images");
+
             if (ImGui::Button("Make Radar image", ImVec2(150, 0)))
-			{
-                if (!obs_storage->get_series<ImageSeries>("radar_images"))
-                    obs_storage->add_series<ImageSeries>("radar_images");
+            {
+                if (images == NULL)
+                    images = obs_storage->add_series<ImageSeries>("radar_images");
 
                 make_radar_image(
                     layer->scene.target, layer->scene.observer,
-                    obs_storage->get_series<ImageSeries>("radar_images"),
-                    dd_size);
-			}
-            ImGui::SameLine(0.0, 20.0);
-            ImGui::PushItemWidth(100.);
-            ImGui::InputInt("size [px]", &dd_size, 1, 100);
-
-            ImGui::InputFloat("ang. speed", &angular_speed);
+                    images, dd_size);
+            }
 
             for (int i = 0; i < 10; i++)
                 ImGui::Spacing();
 
-            display_images(
-                obs_storage->get_series<ImageSeries>("radar_images"));
+			if (images != NULL)
+				display_images(images);
 
             ImGui::EndTabItem();
         }
@@ -360,14 +352,36 @@ void ObservatoryPanel::observe_obs_points(const vector<ObsPoint> obs_points)
 }
 
 
-void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves,
-										   LightcurveSeries *obs_lightcurves)
+void ObservatoryPanel::lightcurves_tab()
 {
+    LightcurveSeries *lightcurves =
+        obs_storage->get_series<LightcurveSeries>("lightcurves");
+
+
+    if (ImGui::Button("Make lightcurve", ImVec2(150, 0)))
+    {
+        if (lightcurves == NULL)
+            lightcurves =
+                obs_storage->add_series<LightcurveSeries>("lightcurves");
+
+        make_lightcurve(layer->scene.target, layer->scene.observer, lightcurves,
+                        lc_num_points);
+    }
+
+    ImGui::SameLine(0., 20.);
+    ImGui::PushItemWidth(100.);
+    ImGui::InputInt("LC num points", &lc_num_points);
+
+    if (lc_num_points <= 0)
+        lc_num_points = 1;
+
+    for (int i = 0; i < 10; i++)
+        ImGui::Spacing();
+
     if (lightcurves == NULL)
         return;
 
-    if (lightcurves->size() == 0)
-        return;
+    ////////////////////////////////////////////////////
 
     Observation *current_obs = lightcurves->get_current_obs();
 
@@ -392,11 +406,6 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves,
     if (ImGui::Button("set lc positions"))
         set_target_and_observer(current_obs);
 
-    Lightcurve *lc = static_cast<Lightcurve *>(current_obs);
-
-    //     ImGui::PlotLines("LC", lc->inv_mag_data(), lc->size(), 0, NULL,
-    //                      lightcurves->lcs_min, lightcurves->lcs_max,
-    //                      ImVec2(300.0f, 230.0f));
 
     if (ImGui::Button("Delete LC"))
     {
@@ -409,75 +418,30 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves,
         }
     }
 
-    static ImVec2 scrolling(0.0f, 0.0f);
-    static bool opt_enable_grid = true;
+    ImGuiCanvas canvas;
 
-    ImGui::Checkbox("Enable grid", &opt_enable_grid);
-
-
-    // Using InvisibleButton() as a convenience 1) it will advance the
-    // layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
-    ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(); // ImDrawList API uses
-                                                    // screen coordinates!
-    ImVec2 canvas_sz =
-        ImGui::GetContentRegionAvail(); // Resize canvas to what's available
-    if (canvas_sz.x < 50.0f)
-        canvas_sz.x = 50.0f;
-    //     if (canvas_sz.y < 50.0f)
-    //         canvas_sz.y = 50.0f;
-    canvas_sz.y = 3 / 4.0 * canvas_sz.x;
-
-    ImVec2 canvas_p1 =
-        ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
-
-    // Draw border and background color
-    ImGuiIO &io = ImGui::GetIO();
-    ImDrawList *draw_list = ImGui::GetWindowDrawList();
-    draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
-    draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
-
-    // This will catch our interactions
-    const ImVec2 origin(canvas_p0.x + scrolling.x,
-                        canvas_p0.y + scrolling.y); // Lock scrolled origin
+    canvas.prepare();
 
 
-    // Draw grid + all lines in the canvas
-    draw_list->PushClipRect(canvas_p0, canvas_p1, true);
-    if (opt_enable_grid)
-    {
-        const float GRID_STEP = 64.0f;
-        for (float x = fmodf(scrolling.x, GRID_STEP); x < canvas_sz.x;
-             x += GRID_STEP)
-            draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y),
-                               ImVec2(canvas_p0.x + x, canvas_p1.y),
-                               IM_COL32(200, 200, 200, 40));
-        for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y;
-             y += GRID_STEP)
-            draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y),
-                               ImVec2(canvas_p1.x, canvas_p0.y + y),
-                               IM_COL32(200, 200, 200, 40));
-    }
+    float min = lightcurves->lcs_inv_mag_min,
+          max = lightcurves->lcs_inv_mag_max;
+    float margin = 0.1 * (max - min);
+    min -= margin;
+    max += margin;
 
-    //     vector<LcPoint> *points = lc->get_points();
 
-    float lc_range =
-        (lightcurves->lcs_inv_mag_max - lightcurves->lcs_inv_mag_min);
-    float margin = 0.1 * lc_range;
-    float min = lightcurves->lcs_inv_mag_min - margin,
-          max = lightcurves->lcs_inv_mag_max + margin;
-    lc_range += 2 * margin;
-
+    Lightcurve *lc = static_cast<Lightcurve *>(current_obs);
     float lc_size = lc->size();
 
     for (int i = 0; i < lc->size() - 1; i++)
-        draw_list->AddLine(
-            ImVec2(origin.x + (*lc)[i].phase / 2 / M_PI * canvas_sz.x,
-                   origin.y + canvas_sz.y -
-                       (((*lc)[i].inv_mag - min) * canvas_sz.y / lc_range)),
-            ImVec2(origin.x + (*lc)[i + 1].phase / 2 / M_PI * canvas_sz.x,
-                   origin.y + canvas_sz.y -
-                       (((*lc)[i + 1].inv_mag - min) * canvas_sz.y / lc_range)),
-            IM_COL32(255, 124, 14, 255), 2.0f);
+        canvas.add_line((*lc)[i].phase, (*lc)[i].inv_mag,
+                        (*lc)[i + 1].phase, (*lc)[i + 1].inv_mag,
+					    0, 2*M_PI,
+                        min, max, IM_COL32(255, 124, 14, 255));
+
+
+    LightcurveSeries *obs_lightcurves =
+        obs_storage->get_series<LightcurveSeries>("obs_lightcurves");
 
     if (obs_lightcurves != NULL)
     {
@@ -486,24 +450,16 @@ void ObservatoryPanel::display_lightcurves(LightcurveSeries *lightcurves,
 
         if (obs_lc != NULL)
         {
-
             for (int i = 0; i < obs_lc->size() - 1; i++)
-                draw_list->AddLine(
-                    ImVec2(origin.x +
-                               (*obs_lc)[i].phase / 2 / M_PI * canvas_sz.x,
-                           origin.y + canvas_sz.y -
-                               (((*obs_lc)[i].inv_mag - min) * canvas_sz.y /
-                                lc_range)),
-                    ImVec2(origin.x +
-                               (*obs_lc)[i + 1].phase / 2 / M_PI * canvas_sz.x,
-                           origin.y + canvas_sz.y -
-                               (((*obs_lc)[i + 1].inv_mag - min) * canvas_sz.y /
-                                lc_range)),
-                    IM_COL32(124, 124, 200, 255), 2.0f);
+                canvas.add_line(
+                    (*obs_lc)[i].phase, (*obs_lc)[i].inv_mag,
+                    (*obs_lc)[i + 1].phase , (*obs_lc)[i + 1].inv_mag,
+					0, 2*M_PI,
+                    min, max, IM_COL32(124, 124, 200, 255));
         }
     }
 
-    draw_list->PopClipRect();
+    canvas.draw();
 }
 
 
@@ -553,24 +509,6 @@ void ObservatoryPanel::display_images(ImageSeries *images)
         }
     }
 
-//     ImGui::Text("Save");
-//     ImGui::SameLine();
-//     if (ImGui::Button("single png"))
-//         images->save_png(FileDialog::save_file("*.png").c_str());
-//
-//     ImGui::SameLine();
-//     if (ImGui::Button("all pngs"))
-//         images->save_all_png(FileDialog::save_file("*.png").c_str());
-//
-//
-//     ImGui::Text("Save");
-//     ImGui::SameLine();
-//     if (ImGui::Button("single fits"))
-//         images->save_fits_greyscale(FileDialog::save_file("*.fits").c_str());
-//
-//     ImGui::SameLine();
-//     if (ImGui::Button("all fits"))
-//         images->save_all_fits(FileDialog::save_file("*.fits").c_str());
 }
 
 
@@ -815,4 +753,77 @@ void ObservatoryPanel::make_radar_image(Entity &target, Entity &observer,
     delete[] pixel_buffer_r;
     delete[] pixel_buffer_depth;
     delete[] pixel_buffer_normal;
+}
+
+
+void ImGuiCanvas::prepare()
+{
+    static ImVec2 scrolling(0.0f, 0.0f);
+    static bool opt_enable_grid = true;
+
+    ImGui::Checkbox("Enable grid", &opt_enable_grid);
+
+
+    // Using InvisibleButton() as a convenience 1) it will advance the
+    // layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
+    ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(); // ImDrawList API uses
+                                                    // screen coordinates!
+    canvas_sz = ImGui::GetContentRegionAvail();
+
+    if (canvas_sz.x < 50.0f)
+        canvas_sz.x = 50.0f;
+    canvas_sz.y = 3 / 4.0 * canvas_sz.x;
+
+    ImVec2 canvas_p1 =
+        ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
+
+    // Draw border and background color
+    ImGuiIO &io = ImGui::GetIO();
+
+    draw_list = ImGui::GetWindowDrawList();
+
+    draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
+    draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
+
+    origin = ImVec2(canvas_p0.x + scrolling.x,
+                    canvas_p0.y + scrolling.y); // Lock scrolled origin
+                                                //
+    // Draw grid + all lines in the canvas
+    draw_list->PushClipRect(canvas_p0, canvas_p1, true);
+    if (opt_enable_grid)
+    {
+        const float GRID_STEP = 64.0f;
+        for (float x = fmodf(scrolling.x, GRID_STEP); x < canvas_sz.x;
+             x += GRID_STEP)
+            draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y),
+                               ImVec2(canvas_p0.x + x, canvas_p1.y),
+                               IM_COL32(200, 200, 200, 40));
+        for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y;
+             y += GRID_STEP)
+            draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y),
+                               ImVec2(canvas_p1.x, canvas_p0.y + y),
+                               IM_COL32(200, 200, 200, 40));
+    }
+}
+
+
+void ImGuiCanvas::add_line(double x1, double y1, double x2, double y2,
+						   double x_min, double x_max,
+						   double y_min, double y_max, ImU32 color)
+{
+    double y_range = y_max - y_min;
+    double x_range = x_max - x_min;
+
+    draw_list->AddLine(
+        ImVec2(origin.x + (x1 - x_min)/x_range * canvas_sz.x,
+               origin.y + canvas_sz.y - ((y1 - y_min) * canvas_sz.y / y_range)),
+        ImVec2(origin.x + (x2 - x_min)/x_range * canvas_sz.x,
+               origin.y + canvas_sz.y - ((y2 - y_min) * canvas_sz.y / y_range)),
+        color, 2.0f);
+}
+
+
+void ImGuiCanvas::draw()
+{
+    draw_list->PopClipRect();
 }
