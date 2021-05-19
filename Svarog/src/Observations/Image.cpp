@@ -65,15 +65,15 @@ void Image::serialize(YAML::Emitter &out, int id, string filename)
     {
         char fn[200];
         string base = File::remove_extension(filename);
-        sprintf(fn, "%s_%s_%03d", base.c_str(), get_obs_type_string().c_str(), id);
+        sprintf(fn, "%s_%03d", base.c_str(), id);
 
         out << YAML::Key << get_obs_type_string() + "_image" << YAML::Value
             << string(fn) + ".png";
         out << YAML::Key << get_obs_type_string() + "_fits" << YAML::Value
             << string(fn) + ".fits";
 
-        save_png(fn);
-        save_fits_greyscale(fn);
+        save_png(string(fn) + ".png");
+        save_fits_greyscale(string(fn) + ".fits");
     }
 
     out << YAML::EndMap;
@@ -116,7 +116,6 @@ void Image::push_basic_header_info(FitsHeader &header)
 
 void Image::save_png(string filename)
 {
-	filename = File::remove_extension(filename) + ".png";
     stbi_flip_vertically_on_write(1);
     int channels = 3;
 //     if (texture_format == GL_RGBA)
@@ -154,7 +153,6 @@ void Image::save_png(string filename)
 void Image::save_fits_greyscale(string filename)
 
 {
-	filename = File::remove_extension(filename) + ".fits";
     int status = 0, bitpix, num_axis;
     long axis_dim[10], fpixel[2] = {1, 1};
 

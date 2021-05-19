@@ -45,11 +45,11 @@ int main(int argc, char *argv[])
 		radar_layer->load_model("../../../data/eros.obj");
 
 
-	int obs_id = obs_pack.add_new("obs");
+	int obs_id = obs_pack.add_new_storage("obs");
 
 
 	vector<ObsPoint> obs_points =
-		ObsStoragePack::import_obs_points("../../../data/radar/eros_flyby.storage");
+		ObsStoragePack::deserialize_storage("../../../data/radar/eros_flyby.storage");
 
 
 	// import meta data from fits files

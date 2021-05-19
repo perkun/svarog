@@ -118,7 +118,6 @@ float Lightcurve::calculate_max_inv_mag()
 
 void Lightcurve::save_flux(string filename)
 {
-	filename = File::remove_extension(filename) + ".dat";
     FILE *out = fopen(filename.c_str(), "w");
 // 	vector<float> tmp_fluxes = fluxes;
 // 	make_average_zero(tmp_fluxes);
@@ -129,7 +128,6 @@ void Lightcurve::save_flux(string filename)
 }
 void Lightcurve::save_mag(string filename)
 {
-	filename = File::remove_extension(filename) + ".dat";
     FILE *out = fopen(filename.c_str(), "w");
 // 	vector<float> magnitudes = fluxes;
 // 	for (float &m: magnitudes)
@@ -178,12 +176,12 @@ void Lightcurve::serialize(YAML::Emitter &out, int id, string filename)
 	{
 		char fn[200];
 		string base = File::remove_extension(filename);
-		sprintf(fn, "%s_flux_%03d", base.c_str(), id);
-		out << YAML::Key << "flux_data" << YAML::Value << filename + ".dat";
+		sprintf(fn, "%s_flux_%03d.dat", base.c_str(), id);
+		out << YAML::Key << "flux_data" << YAML::Value << fn;
 		save_flux(fn);
 
 		sprintf(fn, "%s_mag_%03d", base.c_str(), id);
-		out << YAML::Key << "mag_data" << YAML::Value << filename + ".dat";
+		out << YAML::Key << "mag_data" << YAML::Value << fn;
 		save_mag(fn);
 	}
 
@@ -195,5 +193,5 @@ void Lightcurve::serialize(YAML::Emitter &out, int id, string filename)
 void Lightcurve::sort()
 {
     std::sort(points.begin(), points.end(),
-         [](const LcPoint &a, const LcPoint &b) { return a.phase > b.phase; });
+         [](const LcPoint &a, const LcPoint &b) { return a.phase < b.phase; });
 }

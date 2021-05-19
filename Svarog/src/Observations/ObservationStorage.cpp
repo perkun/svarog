@@ -5,15 +5,15 @@
 ObsStoragePack::ObsStoragePack()
 {
 	current_id = 0;
-	obs_storages.emplace_back(ObsStorage());
+	obs_pack.emplace_back(ObsStorage());
 }
 
 
 ObsStoragePack::~ObsStoragePack()
 {
-	for (int i = 0; i < obs_storages.size(); i++)
+	for (int i = 0; i < obs_pack.size(); i++)
 	{
-		for (auto elem : obs_storages[i].storage)
+		for (auto elem : obs_pack[i].series_map)
 			delete elem.second;
 	}
 }
@@ -29,7 +29,7 @@ void ObsStoragePack::save_current(const string filepath, bool export_obs)
 void ObsStoragePack::save(int id, const string filepath, bool export_obs)
 {
     string filename = File::remove_extension(filepath) + ".storage";
-    obs_storages[id].name =
+    obs_pack[id].name =
 		fix_storage_name(File::remove_extension(File::file_base(filepath)), true);
 
 	YAML::Emitter emitter;
@@ -49,12 +49,14 @@ YAML::Node ObsStoragePack::serialize(int id, bool export_obs, string filepath)
 
 	if (export_obs)
 	{
-		for (auto elem : obs_storages[id].storage)
-			elem.second->serialize(out, filepath);
+		for (auto elem : obs_pack[id].series_map)
+		{
+			elem.second->serialize(out, filepath +  "_" + elem.first);
+		}
 	}
 	else
 	{
-		for (auto elem : obs_storages[id].storage)
+		for (auto elem : obs_pack[id].series_map)
 			elem.second->serialize(out);
 	}
 
@@ -118,14 +120,14 @@ YAML::Node ObsStoragePack::serialize(int id, bool export_obs, string filepath)
 	return data;
 }
 
-int ObsStoragePack::add_new(string name)
+int ObsStoragePack::add_new_storage(string name)
 {
 	name = fix_storage_name(name);
 
-	obs_storages.emplace_back(ObsStorage());
+	obs_pack.emplace_back(ObsStorage());
     current_id = size() -1;
 
-	obs_storages[current_id].name = name;
+	obs_pack[current_id].name = name;
 
     detach_all_ghosts();
 	return current_id;
@@ -134,13 +136,13 @@ int ObsStoragePack::add_new(string name)
 
 string ObsStoragePack::get_current_name()
 {
-	return obs_storages[current_id].name;
+	return obs_pack[current_id].name;
 }
 
 string ObsStoragePack::get_name(int id)
 {
-	if (obs_storages.size() > 0 && id >= 0 && id < obs_storages.size())
-		return obs_storages[id].name;
+	if (obs_pack.size() > 0 && id >= 0 && id < obs_pack.size())
+		return obs_pack[id].name;
 	else
 		return string("");
 }
@@ -157,7 +159,7 @@ string ObsStoragePack::fix_storage_name(string name, bool exclude_current)
 			if (i == current_id)
 				continue;
 
-        if (regex_search(obs_storages[i].name, matches, regex(buff)) )
+        if (regex_search(obs_pack[i].name, matches, regex(buff)) )
 		{
 			if (matches[2].str() == "")
 				name = name + " (1)";
@@ -173,7 +175,7 @@ string ObsStoragePack::fix_storage_name(string name, bool exclude_current)
 }
 
 
-vector<ObsPoint> ObsStoragePack::import_obs_points(const string filename)
+vector<ObsPoint> ObsStoragePack::deserialize_storage(const string filename)
 {
     YAML::Node data = YAML::LoadFile(filename);
     if (!data["points"])
@@ -238,22 +240,22 @@ vector<ObsPoint> ObsStoragePack::import_obs_points(const string filename)
 
 void ObsStoragePack::detach_all_ghosts()
 {
-    for (ObsStorage &obs_storage : obs_storages)
-        for (auto elem : obs_storage.storage)
+    for (ObsStorage &obs_storage : obs_pack)
+        for (auto elem : obs_storage.series_map)
             elem.second->detach_all_ghosts();
 }
 
 void ObsStoragePack::detach_current_ghosts()
 {
 
-	for (auto elem : obs_storages[current_id].storage)
+	for (auto elem : obs_pack[current_id].series_map)
 		elem.second->detach_all_ghosts();
 }
 
 
 void ObsStoragePack::delete_current_observations()
 {
-	for (auto elem : obs_storages[current_id].storage)
+	for (auto elem : obs_pack[current_id].series_map)
 		while (elem.second->get_current_obs() != NULL)
 			elem.second->delete_current_obs();
 }
@@ -265,10 +267,10 @@ void ObsStoragePack::delete_current()
 		delete_current_observations();
 	else
 	{
-		for (auto elem : obs_storages[current_id].storage)
+		for (auto elem : obs_pack[current_id].series_map)
 			delete elem.second;
 
-		obs_storages.erase(obs_storages.begin() + current_id);
+		obs_pack.erase(obs_pack.begin() + current_id);
 		current_id--;
 
 		if (current_id < 0)
@@ -279,7 +281,7 @@ void ObsStoragePack::delete_current()
 
 void ObsStoragePack::current_obs_lambda(const function<void(Observation *)> &func)
 {
-	for (auto elem: obs_storages[current_id].storage)
+	for (auto elem: obs_pack[current_id].series_map)
 	{
 		func(elem.second->get_current_obs());
 	}

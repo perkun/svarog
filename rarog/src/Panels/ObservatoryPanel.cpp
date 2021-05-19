@@ -292,11 +292,6 @@ void ObservatoryPanel::display_images(ImageSeries *images)
 
 
 
-
-
-
-
-
 void ImGuiCanvas::prepare()
 {
     static ImVec2 scrolling(0.0f, 0.0f);

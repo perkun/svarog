@@ -32,7 +32,7 @@ public:
     ObsStoragePack();
     ~ObsStoragePack();
 
-    static vector<ObsPoint> import_obs_points(string filename);
+    static vector<ObsPoint> deserialize_storage(string filename);
 
     void save_current(const string filepath, bool export_obs = false);
     void save(int id, const string filepath, bool export_obs = false);
@@ -42,7 +42,7 @@ public:
 	void detach_all_ghosts();
     void delete_current_observations();
 
-    int add_new(string name);
+    int add_new_storage(string name);
 
     string get_current_name();
     string get_name(int id);
@@ -52,22 +52,22 @@ public:
     template <typename T> T* add_series(string name)
     {
         // TODO check if name exists
-        obs_storages[current_id].storage[name] = new T;
-		return static_cast<T *>(obs_storages[current_id].storage[name]);
+        obs_pack[current_id].series_map[name] = new T;
+		return static_cast<T *>(obs_pack[current_id].series_map[name]);
     }
 
     template <typename T> T *get_series(string name)
     {
-        if (obs_storages[current_id].storage.find(name) !=
-            obs_storages[current_id].storage.end())
-            return static_cast<T *>(obs_storages[current_id].storage[name]);
+        if (obs_pack[current_id].series_map.find(name) !=
+            obs_pack[current_id].series_map.end())
+            return static_cast<T *>(obs_pack[current_id].series_map[name]);
 
 		return NULL;
     }
 
     int size()
     {
-        return obs_storages.size();
+        return obs_pack.size();
     }
     int current_id = 0;
 
@@ -77,10 +77,10 @@ private:
     struct ObsStorage
     {
         string name = "untitled";
-        map<string, ObservationSeries *> storage;
+        map<string, ObservationSeries *> series_map;
     };
 
-    vector<ObsStorage> obs_storages;
+    vector<ObsStorage> obs_pack;
     string fix_storage_name(string name, bool exclude_current = false);
     YAML::Node serialize(int id, bool export_obs, string filepath = "");
 };

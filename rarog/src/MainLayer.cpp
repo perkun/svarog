@@ -437,7 +437,7 @@ void MainLayer::menu_bar()
         {
             if (ImGui::MenuItem("New Storage"))
             {
-                obs_pack.add_new("untitled");
+                obs_pack.add_new_storage("untitled");
             }
 
             if (ImGui::MenuItem("Import Storage"))
@@ -458,6 +458,15 @@ void MainLayer::menu_bar()
                 if (filename != "")
                 {
                     obs_pack.save_current(filename);
+                }
+            }
+
+            if (ImGui::MenuItem("Save Storage and Export"))
+            {
+                string filename = FileDialog::save_file("*.storage");
+                if (filename != "")
+                {
+                    obs_pack.save_current(filename, true);
                 }
             }
 
@@ -893,10 +902,10 @@ void MainLayer::load_obs_storage(string filepath)
     if (filepath == "")
         return;
 
-	vector<ObsPoint> obs_points = ObsStoragePack::import_obs_points(filepath);
+	vector<ObsPoint> obs_points = ObsStoragePack::deserialize_storage(filepath);
 	if (obs_points.size() > 0)
 	{
-		obs_pack.add_new(File::remove_extension(File::file_base(filepath)));
+		obs_pack.add_new_storage(File::remove_extension(File::file_base(filepath)));
 		observe_obs_points(obs_points);
 	}
 	else
@@ -924,7 +933,7 @@ void MainLayer::load_lc_file(string filepath)
 
     if (num_lcs > 0)
     {
-        obs_pack.add_new(File::remove_extension(File::file_base(filepath)));
+        obs_pack.add_new_storage(File::remove_extension(File::file_base(filepath)));
         obs_pack.add_series<LightcurveSeries>("obs_lightcurves");
     }
     else
