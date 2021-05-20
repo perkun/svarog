@@ -86,24 +86,31 @@ void MainLayer::create_default_scene()
         vec4(245. / 256, 144. / 256, 17. / 256, 1.0);
     light.add_component<LightComponent>();
 
-    light.add_component<FramebufferComponent>(
-        make_shared<Framebuffer>(2048, 2048, DEPTH_ATTACHMENT));
+	FramebufferSpecification light_fb_specs;
+	light_fb_specs.attachments = {
+		FramebufferTextureFormat::RGBA32F,
+		FramebufferTextureFormat::DEPTH32FSTENCIL8};
+	light_fb_specs.width = 2048;
+	light_fb_specs.height = 2048;
 
-    light.add_component<CameraComponent>(
-        //         make_shared<PerspectiveCamera>(
-        //             radians(25.0), window->width / (float)window->height,
-        //             0.01, 50.0));
-        make_shared<OrthograficCamera>(1., 1., 0.01, 10.));
-    light.get_component<Transform>().scale = vec3(0.1);
+	light.add_component<FramebufferComponent>(
+			make_shared<Framebuffer>(light_fb_specs));
 
-    scene.light = light;
+	light.add_component<CameraComponent>(
+			//         make_shared<PerspectiveCamera>(
+			//             radians(25.0), window->width / (float)window->height,
+			//             0.01, 50.0));
+		make_shared<OrthograficCamera>(1., 1., 0.01, 10.));
+	light.get_component<Transform>().scale = vec3(0.1);
 
-    scene.root_entity.add_child(model);
-    scene.root_entity.add_child(light);
-    scene.root_entity.add_child(runtime_observer);
+	scene.light = light;
 
-    scene.observer = runtime_observer;
-    scene.target = model;
+	scene.root_entity.add_child(model);
+	scene.root_entity.add_child(light);
+	scene.root_entity.add_child(runtime_observer);
+
+	scene.observer = runtime_observer;
+	scene.target = model;
 }
 
 
@@ -140,12 +147,28 @@ void MainLayer::on_attach()
     editor_camera =
         EditorCamera(radians(45.), window->width / (float)window->height, 0.01,
                      500.0, vec3(6.3, -3., 5.12));
-    ms_framebuffer =
-        new Framebuffer(window->width, window->height,
-                        COLOR_ATTACHMENT | DEPTH_ATTACHMENT | MULTISAMPLING);
 
-    framebuffer = new Framebuffer(window->width, window->height,
-                                  COLOR_ATTACHMENT | DEPTH_ATTACHMENT);
+
+	FramebufferSpecification ms_fb_specs;
+	ms_fb_specs.attachments = {
+		FramebufferTextureFormat::RGBA32F,
+		FramebufferTextureFormat::DEPTH32FSTENCIL8};
+	ms_fb_specs.width = window->width;
+	ms_fb_specs.height = window->height;
+	ms_fb_specs.samples = 4;
+
+    ms_framebuffer =
+        new Framebuffer(ms_fb_specs);
+
+	FramebufferSpecification fb_specs;
+	fb_specs.attachments = {
+		FramebufferTextureFormat::RGBA32F,
+		FramebufferTextureFormat::DEPTH32FSTENCIL8};
+	fb_specs.width = window->width;
+	fb_specs.height = window->height;
+	fb_specs.samples = 1;
+
+    framebuffer = new Framebuffer(fb_specs);
 
     time_panel = TimePanel(&scene);
     scene_hierarchy_panel = SceneHierarchyPanel(&scene, &time_panel.julian_day);

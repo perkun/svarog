@@ -160,7 +160,7 @@ void serialize_entity(YAML::Emitter &out, Entity entity)
         out << YAML::Key << "FramebufferComponent";
         out << YAML::BeginMap;
 
-        out << YAML::Key << "flags" << fc.framebuffer->specification.flags;
+//         out << YAML::Key << "flags" << fc.framebuffer->specification.flags;
         out << YAML::Key << "width" << fc.framebuffer->specification.width;
         out << YAML::Key << "height" << fc.framebuffer->specification.height;
 
@@ -334,13 +334,23 @@ Entity SceneSerializer::deserialize_entity(
     }
 
     if (serialized_ent["FramebufferComponent"])
-    {
-        auto node = serialized_ent["FramebufferComponent"];
-        FramebufferComponent &fb =
-            entity.add_component<FramebufferComponent>(make_shared<Framebuffer>(
-                node["width"].as<int>(), node["height"].as<int>(),
-                node["flags"].as<char>()));
-    }
+	{
+		auto node = serialized_ent["FramebufferComponent"];
+		//
+		// TODO read/write specs!
+		//
+		FramebufferSpecification fb_specs;
+		fb_specs.attachments = {
+			FramebufferTextureFormat::RGBA32F,
+			FramebufferTextureFormat::DEPTH32FSTENCIL8};
+
+		fb_specs.width = node["width"].as<int>();
+		fb_specs.height = node["height"].as<int>();
+
+		FramebufferComponent &fb =
+			entity.add_component<FramebufferComponent>(make_shared<Framebuffer>(
+fb_specs));
+	}
 
     if (serialized_ent["CameraComponent"])
     {

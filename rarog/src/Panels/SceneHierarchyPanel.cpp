@@ -303,8 +303,17 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
                 ImGui::MenuItem(buff))
             {
                 entity.add_component<LightComponent>();
+
+
+				FramebufferSpecification light_fb_specs;
+				light_fb_specs.attachments = {
+					FramebufferTextureFormat::RGBA32F,
+					FramebufferTextureFormat::DEPTH32FSTENCIL8};
+				light_fb_specs.width = 2048;
+				light_fb_specs.height = 2048;
+
                 entity.add_component<FramebufferComponent>(
-                    make_shared<Framebuffer>(2048, 2048, DEPTH_ATTACHMENT));
+                    make_shared<Framebuffer>(light_fb_specs));
             }
 
             sprintf(buff, "%s  Add Orbital Component", "\xef\x94\x97");
