@@ -1,5 +1,6 @@
 #version 330 core
 layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 color2;
 
 in vec3 normal_eye;
 in vec2 v_tex_coord;
@@ -58,5 +59,6 @@ void main()
 	{
  		color = vec4(flux, flux, flux, 1.0);
 	}
+	color2 = vec4(0.9, 0.12, 0.1, 1.0);
 }
 

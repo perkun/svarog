@@ -152,6 +152,7 @@ void MainLayer::on_attach()
 	FramebufferSpecification ms_fb_specs;
 	ms_fb_specs.attachments = {
 		FramebufferTextureFormat::RGBA32F,
+		FramebufferTextureFormat::RGBA32F,
 		FramebufferTextureFormat::DEPTH32FSTENCIL8};
 	ms_fb_specs.width = window->width;
 	ms_fb_specs.height = window->height;
@@ -162,6 +163,7 @@ void MainLayer::on_attach()
 
 	FramebufferSpecification fb_specs;
 	fb_specs.attachments = {
+		FramebufferTextureFormat::RGBA32F,
 		FramebufferTextureFormat::RGBA32F,
 		FramebufferTextureFormat::DEPTH32FSTENCIL8};
 	fb_specs.width = window->width;
@@ -305,7 +307,7 @@ void MainLayer::on_update(double time_delta)
     }
 
     if (multisampling)
-        Framebuffer::blit(ms_framebuffer, framebuffer);
+        Framebuffer::blit(ms_framebuffer, framebuffer, 0, 0);
     Renderer::bind_default_framebuffer();
 }
 
@@ -533,7 +535,7 @@ void MainLayer::scene_window()
         Renderer::bind_default_framebuffer();
     }
 
-    long int tex_id = framebuffer->get_color_attachment_id();
+    long int tex_id = framebuffer->get_color_attachment_id(0);
     ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
                  ImVec2(1, 0));
 

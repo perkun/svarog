@@ -71,7 +71,8 @@ struct FramebufferSpecification
 class Framebuffer
 {
 	public:
-		static void blit(Framebuffer *ms_framebuffer, Framebuffer *framebuffer);
+		static void blit(Framebuffer *ms_framebuffer, Framebuffer *framebuffer,
+				int, int);
 		static GLenum texture_target(bool multisampled);
 		static void create_textures(bool multisampled, unsigned int *out_id, unsigned int count);
 		static void bind_texture(bool multisampled, unsigned int id);

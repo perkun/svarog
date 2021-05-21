@@ -4,10 +4,15 @@
 static const uint32_t s_MaxFramebufferSize = 8192;
 
 
-void Framebuffer::blit(Framebuffer *ms_framebuffer, Framebuffer *framebuffer)
+void Framebuffer::blit(Framebuffer *ms_framebuffer, Framebuffer *framebuffer,
+		int ms_color_attachment_index, int fb_color_attachment_index)
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, ms_framebuffer->id);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer->id);
+
+	glReadBuffer(GL_COLOR_ATTACHMENT0 + ms_color_attachment_index);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0 + fb_color_attachment_index);
+
 	glBlitFramebuffer(0, 0,
 			framebuffer->specification.width,
 			framebuffer->specification.height,
