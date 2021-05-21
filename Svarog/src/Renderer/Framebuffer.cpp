@@ -59,7 +59,8 @@ void Framebuffer::create_textures(bool multisampled, unsigned int *out_id, unsig
 	glCreateTextures(texture_target(multisampled), count, out_id);
 }
 
-void Framebuffer::attach_color_texture(unsigned int id, int samples, GLenum format,
+void Framebuffer::attach_color_texture(unsigned int id, int samples,
+		GLenum internal_format, GLenum format,
 		unsigned int width, unsigned int height, int index)
 {
 	bool multisampled = samples > 1;
@@ -71,7 +72,7 @@ void Framebuffer::attach_color_texture(unsigned int id, int samples, GLenum form
 		glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER,
 				GL_LINEAR);
 
-		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format,
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internal_format,
 				width, height, GL_TRUE);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index,
@@ -85,7 +86,7 @@ void Framebuffer::attach_color_texture(unsigned int id, int samples, GLenum form
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA,
+		glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format,
 				GL_UNSIGNED_BYTE, nullptr);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index,
@@ -161,12 +162,17 @@ void Framebuffer::invalidate() {
 			{
 				case FramebufferTextureFormat::RGBA8:
 					attach_color_texture(color_attachments[i], specification.samples,
-							GL_RGBA8, specification.width, specification.height, i);
+							GL_RGBA8, GL_RGBA, specification.width, specification.height, i);
 					break;
 
 				case FramebufferTextureFormat::RGBA32F:
 					attach_color_texture(color_attachments[i], specification.samples,
-							GL_RGBA32F, specification.width, specification.height, i);
+							GL_RGBA32F, GL_RGBA, specification.width, specification.height, i);
+					break;
+
+				case FramebufferTextureFormat::RED_INTEGER:
+					attach_color_texture(color_attachments[i], specification.samples,
+							GL_R32I, GL_RED_INTEGER, specification.width, specification.height, i);
 					break;
 			}
 

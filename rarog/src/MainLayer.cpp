@@ -152,7 +152,7 @@ void MainLayer::on_attach()
 	FramebufferSpecification ms_fb_specs;
 	ms_fb_specs.attachments = {
 		FramebufferTextureFormat::RGBA32F,
-		FramebufferTextureFormat::RGBA32F,
+		FramebufferTextureFormat::RED_INTEGER,
 		FramebufferTextureFormat::DEPTH32FSTENCIL8};
 	ms_fb_specs.width = window->width;
 	ms_fb_specs.height = window->height;
@@ -164,7 +164,7 @@ void MainLayer::on_attach()
 	FramebufferSpecification fb_specs;
 	fb_specs.attachments = {
 		FramebufferTextureFormat::RGBA32F,
-		FramebufferTextureFormat::RGBA32F,
+		FramebufferTextureFormat::RED_INTEGER,
 		FramebufferTextureFormat::DEPTH32FSTENCIL8};
 	fb_specs.width = window->width;
 	fb_specs.height = window->height;
@@ -311,6 +311,18 @@ void MainLayer::on_update(double time_delta)
         Framebuffer::blit(ms_framebuffer, framebuffer, 0, 0);
         Framebuffer::blit(ms_framebuffer, framebuffer, 1, 1);
 	}
+
+
+	const FramebufferSpecification &specs = framebuffer->get_specification();
+	int *pixel_buffer = new int[specs.width * specs.height];
+	framebuffer->bind();
+	glReadBuffer(GL_COLOR_ATTACHMENT0 + 1);
+	glReadPixels(0, 0, specs.width, specs.height, GL_RED_INTEGER, GL_INT, pixel_buffer);
+// 	glReadPixels(0, 0, specs.width, specs.height, GL_RED, GL_FLOAT, pixel_buffer);
+
+	cout << pixel_buffer[0] << "\t";
+	delete[] pixel_buffer;
+
     Renderer::bind_default_framebuffer();
 }
 

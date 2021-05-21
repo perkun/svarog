@@ -77,11 +77,12 @@ class Framebuffer
 		static void create_textures(bool multisampled, unsigned int *out_id, unsigned int count);
 		static void bind_texture(bool multisampled, unsigned int id);
 
-		static void attach_color_texture(unsigned int id, int samples, GLenum format,
+		static void attach_color_texture(unsigned int id, int samples, GLenum internal_format,
+ 				GLenum attachment_type,
 				unsigned int width, unsigned int height, int index);
 
-		static void attach_depth_texture(unsigned int id, int samples, GLenum format,
-				GLenum attachment_type,
+		static void attach_depth_texture(unsigned int id, int samples, GLenum internal_format,
+				GLenum format,
 				unsigned int width, unsigned int height);
 
 // 		Framebuffer(unsigned int w, unsigned int h, char f);
@@ -107,10 +108,10 @@ class Framebuffer
 			return depth_attachment;
 		}
 
-		//     virtual const FramebufferSpec &GetSpecification() const
-		//     {
-		//         return specification;
-		//     }
+		const FramebufferSpecification &get_specification() const
+		{
+		    return specification;
+		}
 		unsigned int id = 0;
 		FramebufferSpecification specification;
 
