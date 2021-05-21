@@ -307,7 +307,10 @@ void MainLayer::on_update(double time_delta)
     }
 
     if (multisampling)
+	{
         Framebuffer::blit(ms_framebuffer, framebuffer, 0, 0);
+        Framebuffer::blit(ms_framebuffer, framebuffer, 1, 1);
+	}
     Renderer::bind_default_framebuffer();
 }
 
