@@ -288,11 +288,13 @@ void MainLayer::on_update(double time_delta)
     {
         ms_framebuffer->bind();
         ms_framebuffer->clear();
+		ms_framebuffer->clear_attachment(1, -1);  // ent_id "bg" to -1
     }
     else
     {
         framebuffer->bind();
         framebuffer->clear();
+		framebuffer->clear_attachment(1, -1);  // ent_id "bg" to -1
     }
 
     if (mode == Mode::EDITOR)
@@ -311,9 +313,6 @@ void MainLayer::on_update(double time_delta)
         Framebuffer::blit(ms_framebuffer, framebuffer, 0, 0);
         Framebuffer::blit(ms_framebuffer, framebuffer, 1, 1);
 	}
-
-
-
 
 	// mouse position
 	auto[mx, my] = ImGui::GetMousePos();

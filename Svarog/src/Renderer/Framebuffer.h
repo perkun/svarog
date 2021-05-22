@@ -95,19 +95,14 @@ class Framebuffer
 		void bind_depth_texture(unsigned int slot);
 		void bind_color_texture(unsigned int slot);
 		void clear();
+		void clear_attachment(int slot, int value);
 		void unbind();
+
+
 
 		void resize(unsigned int width, unsigned int height);
 
-		int read_pixel(int slot, int x, int y)
-		{
-			CORE_ASSERT(slot < color_attachments.size(), "Color attachment index to big");
-			glReadBuffer(GL_COLOR_ATTACHMENT0 + slot);
-
-			int pixel_data;
-			glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixel_data);
-			return pixel_data;
-		}
+		int read_pixel(int slot, int x, int y);
 
 		unsigned int get_color_attachment_id(int slot = 0) const
 		{

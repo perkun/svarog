@@ -245,6 +245,38 @@ void Framebuffer::clear()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+static GLenum FBTextureFormatToGL(FramebufferTextureFormat format)
+{
+	switch (format)
+	{
+		case FramebufferTextureFormat::RGBA8:       return GL_RGBA8;
+		case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
+	}
+
+	CORE_ASSERT(false, "FramebufferTextureFormat not recognized");
+	return 0;
+}
+
+
+void Framebuffer::clear_attachment(int slot, int value)
+{
+	CORE_ASSERT(slot < color_attachments.size(), "Color attachment index to big");
+	FramebufferTextureSpecification &spec = color_attachment_specs[slot];
+
+	glClearTexImage(color_attachments[slot], 0,
+			FBTextureFormatToGL(spec.texture_format), GL_INT, &value);
+}
+
+int Framebuffer::read_pixel(int slot, int x, int y)
+{
+	CORE_ASSERT(slot < color_attachments.size(), "Color attachment index to big");
+	glReadBuffer(GL_COLOR_ATTACHMENT0 + slot);
+
+	int pixel_data;
+	glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixel_data);
+	return pixel_data;
+}
+
 void Framebuffer::unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -275,6 +307,7 @@ void Framebuffer::bind_depth_texture(unsigned int slot)
 
 void Framebuffer::bind_color_texture(unsigned int slot)
 {
+	CORE_ASSERT(slot < color_attachments.size(), "Color attachment index to big");
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(texture_target(specification.samples > 1), color_attachments[slot]);
 }
