@@ -1,5 +1,6 @@
 #version 330 core
 layout(location = 0) out vec4 color;
+layout(location = 1) out int color2;
 
 in vec3 normal_eye;
 in vec2 v_tex_coord;
@@ -8,7 +9,10 @@ in vec3 light_position_eye;
 in vec3 vertex_position_eye;
 in vec4 vertex_position_light;
 
+
 uniform int u_has_texture;
+
+uniform int u_entity_id;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_depth_map;
@@ -50,5 +54,6 @@ void main()
 	{
  		color = vec4(d, d, d, 1.0);
 	}
+	color2 = u_entity_id;
 }
 

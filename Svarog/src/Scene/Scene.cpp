@@ -97,6 +97,7 @@ void Scene::draw(Entity &entity)
     {
 		Material &material = entity.get_component<Material>();
 		material.uniforms_mat4["u_model_matrix"] = tr.world;
+		material.uniforms_int["u_entity_id"] = entity.get_uuid();
 
 		if (entity.has_component<TextureComponent>())
 			entity.get_component<TextureComponent>().texture->bind();

@@ -73,6 +73,7 @@ private:
 	bool show_grid = true;
 
 	vec2 viewport_panel_size;
+	vec2 vieport_bounds[2];
 
 	Args args;
 
@@ -84,7 +85,7 @@ private:
 	int guizmo_type = -1;
 	Framebuffer *ms_framebuffer, *framebuffer;
 
-	bool multisampling = false;
+	bool multisampling = true;
 
 	SceneHierarchyPanel scene_hierarchy_panel;
 	ObservatoryPanel observatory_panel;

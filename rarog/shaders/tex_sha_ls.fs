@@ -11,6 +11,8 @@ in vec4 vertex_position_light;
 
 uniform int u_has_texture;
 
+uniform int u_entity_id;
+
 uniform sampler2D u_texture;
 uniform sampler2D u_depth_map;
 
@@ -59,6 +61,6 @@ void main()
 	{
  		color = vec4(flux, flux, flux, 1.0);
 	}
-	color2 = 42;
+	color2 = u_entity_id;
 }
 

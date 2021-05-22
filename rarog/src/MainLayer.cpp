@@ -313,15 +313,27 @@ void MainLayer::on_update(double time_delta)
 	}
 
 
-	const FramebufferSpecification &specs = framebuffer->get_specification();
-	int *pixel_buffer = new int[specs.width * specs.height];
-	framebuffer->bind();
-	glReadBuffer(GL_COLOR_ATTACHMENT0 + 1);
-	glReadPixels(0, 0, specs.width, specs.height, GL_RED_INTEGER, GL_INT, pixel_buffer);
-// 	glReadPixels(0, 0, specs.width, specs.height, GL_RED, GL_FLOAT, pixel_buffer);
 
-	cout << pixel_buffer[0] << "\t";
-	delete[] pixel_buffer;
+
+	// mouse position
+	auto[mx, my] = ImGui::GetMousePos();
+	mx -= vieport_bounds[0].x;
+	my -= vieport_bounds[0].y;
+
+	vec2 vieport_size = vieport_bounds[1] - vieport_bounds[0];
+	my = vieport_size.y - my; // to bottom-left corner (OpenGL ref.frame)
+
+	int mouse_x = (int)mx;
+	int mouse_y = (int)my;
+
+	if (mouse_x >=0 && mouse_y >= 0 &&
+	    mouse_x < (int)vieport_size.x && mouse_y < (int)vieport_size.y)
+	{
+		framebuffer->bind();
+		int pixel_data = framebuffer->read_pixel(1, mouse_x, mouse_y);
+		TRACE("Pixel data {}", pixel_data);
+	}
+
 
     Renderer::bind_default_framebuffer();
 }
@@ -550,9 +562,21 @@ void MainLayer::scene_window()
         Renderer::bind_default_framebuffer();
     }
 
+	auto vieport_offset = ImGui::GetCursorPos(); // includes a bar
+
     long int tex_id = framebuffer->get_color_attachment_id(0);
     ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
                  ImVec2(1, 0));
+
+	auto window_size = ImGui::GetWindowSize();
+	ImVec2 min_bound = ImGui::GetWindowPos();
+	min_bound.x += vieport_offset.x;
+	min_bound.y += vieport_offset.y;
+
+	ImVec2 max_bound = {min_bound.x + window_size.x, min_bound.y + window_size.y };
+	vieport_bounds[0] = {min_bound.x, min_bound.y};
+	vieport_bounds[1] = {max_bound.x, max_bound.y};
+
 
 
     // Gizmos
