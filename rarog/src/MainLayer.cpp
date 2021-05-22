@@ -561,20 +561,19 @@ void MainLayer::scene_window()
         Renderer::bind_default_framebuffer();
     }
 
-	auto vieport_offset = ImGui::GetCursorPos(); // includes a bar
+	auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+	auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+	auto viewportOffset = ImGui::GetWindowPos();
+	vieport_bounds[0] =
+		{ viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+	vieport_bounds[1] =
+		{ viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+
+
 
     long int tex_id = framebuffer->get_color_attachment_id(0);
     ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
                  ImVec2(1, 0));
-
-	auto window_size = ImGui::GetWindowSize();
-	ImVec2 min_bound = ImGui::GetWindowPos();
-	min_bound.x += vieport_offset.x;
-	min_bound.y += vieport_offset.y;
-
-	ImVec2 max_bound = {min_bound.x + window_size.x, min_bound.y + window_size.y };
-	vieport_bounds[0] = {min_bound.x, min_bound.y};
-	vieport_bounds[1] = {max_bound.x, max_bound.y};
 
 
 
