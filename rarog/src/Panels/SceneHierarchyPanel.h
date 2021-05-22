@@ -17,6 +17,8 @@ public:
 
 	void on_imgui_render();
 	static void add_asteroid_from_file(Entity&, string);
+	Entity get_selected_entity() { return selected_entity; }
+	void set_selected_entity(Entity entity);
 
 private:
 	void draw_entity_node(Entity&);
@@ -32,7 +34,7 @@ private:
 	char buff[256];
 	char u_name[50];
 
-	Entity entity_to_delete;
+	Entity entity_to_delete, selected_entity;
 
 	long int id = 123141232;
 };

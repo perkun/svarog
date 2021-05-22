@@ -189,6 +189,9 @@ void MainLayer::on_event(Event &e)
     dispatcher.dispatch<KeyReleasedEvent>(
         bind(&MainLayer::on_key_released_event, this, placeholders::_1));
 
+    dispatcher.dispatch<MouseButtonPressedEvent>(
+        bind(&MainLayer::on_mouse_button_pressed_event, this, placeholders::_1));
+
     scene.controllers_events(e);
 
     if (mode == Mode::EDITOR)
@@ -218,6 +221,39 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
         if (key_code == GLFW_KEY_Q)
             toggle_mode();
 }
+
+
+void MainLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent& event)
+{
+	if (event.get_button_code() == GLFW_MOUSE_BUTTON_LEFT && !ImGuizmo::IsOver())
+	{
+		// mouse position
+		auto[mx, my] = ImGui::GetMousePos();
+		mx -= vieport_bounds[0].x;
+		my -= vieport_bounds[0].y;
+
+		vec2 vieport_size = vieport_bounds[1] - vieport_bounds[0];
+		my = vieport_size.y - my; // to bottom-left corner (OpenGL ref.frame)
+
+		int mouse_x = (int)mx;
+		int mouse_y = (int)my;
+
+		if (mouse_x >=0 && mouse_y >= 0 &&
+				mouse_x < (int)vieport_size.x && mouse_y < (int)vieport_size.y)
+		{
+			framebuffer->bind();
+			int pixel_data = framebuffer->read_pixel(1, mouse_x, mouse_y);
+			if (pixel_data == -1)
+				hovered_entity = Entity();
+			else
+				hovered_entity = Entity((entt::entity)pixel_data, scene.get_registry());
+		}
+
+		scene_hierarchy_panel.set_selected_entity(hovered_entity);
+	}
+
+}
+
 
 void MainLayer::on_window_resize_event(WindowResizeEvent &event)
 {
@@ -314,24 +350,6 @@ void MainLayer::on_update(double time_delta)
         Framebuffer::blit(ms_framebuffer, framebuffer, 1, 1);
 	}
 
-	// mouse position
-	auto[mx, my] = ImGui::GetMousePos();
-	mx -= vieport_bounds[0].x;
-	my -= vieport_bounds[0].y;
-
-	vec2 vieport_size = vieport_bounds[1] - vieport_bounds[0];
-	my = vieport_size.y - my; // to bottom-left corner (OpenGL ref.frame)
-
-	int mouse_x = (int)mx;
-	int mouse_y = (int)my;
-
-	if (mouse_x >=0 && mouse_y >= 0 &&
-	    mouse_x < (int)vieport_size.x && mouse_y < (int)vieport_size.y)
-	{
-		framebuffer->bind();
-		int pixel_data = framebuffer->read_pixel(1, mouse_x, mouse_y);
-		TRACE("Pixel data {}", pixel_data);
-	}
 
 
     Renderer::bind_default_framebuffer();
@@ -578,7 +596,7 @@ void MainLayer::scene_window()
 
 
     // Gizmos
-    Entity selected_entity = scene.selected_entity; // TODO: created selection
+    Entity selected_entity = scene_hierarchy_panel.get_selected_entity();
     if (selected_entity && selected_entity.get_parent() && guizmo_type != -1)
     {
         ImGuizmo::SetOrthographic(false);

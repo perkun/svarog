@@ -50,12 +50,14 @@ public:
 
 	void controllers_events(Event&);
 
+	entt::registry *get_registry() { return &registry; }
+
 	char flags = 0;
 
 	Material scene_material;
 	Entity root_entity;
 
-	Entity observer, selected_entity, light;
+	Entity observer, light;
 	Entity target;
 
 	// global variable :( to modify the behaviour of draw func

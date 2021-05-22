@@ -64,7 +64,7 @@ void SceneHierarchyPanel::on_imgui_render()
     // deselect when clicked elsewhere
     if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
     {
-        scene->selected_entity = Entity();
+        selected_entity = Entity();
     }
 
 
@@ -72,9 +72,9 @@ void SceneHierarchyPanel::on_imgui_render()
 
 
     ImGui::Begin("Properties");
-    if (scene->selected_entity && scene->selected_entity.get_parent())
+    if (selected_entity && selected_entity.get_parent())
     {
-        draw_selected_properties(scene->selected_entity);
+        draw_selected_properties(selected_entity);
     }
     ImGui::End();
 
@@ -82,8 +82,8 @@ void SceneHierarchyPanel::on_imgui_render()
     // deleting
     if (entity_to_delete)
     {
-        if (scene->selected_entity == entity_to_delete)
-            scene->selected_entity = Entity();
+        if (selected_entity == entity_to_delete)
+            selected_entity = Entity();
 
         if (scene->target == entity_to_delete)
             scene->target = Entity();
@@ -99,13 +99,18 @@ void SceneHierarchyPanel::on_imgui_render()
     }
 }
 
+void SceneHierarchyPanel::set_selected_entity(Entity entity)
+{
+	selected_entity = entity;
+}
+
 
 void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 {
     string &tag = entity.get_component<TagComponent>().tag;
 
     ImGuiTreeNodeFlags flags =
-        ((scene->selected_entity == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
+        ((selected_entity == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
         ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
         ((entity == scene->root_entity) ? ImGuiTreeNodeFlags_DefaultOpen : 0);
 
@@ -135,7 +140,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
 
     if (ImGui::IsItemClicked())
     {
-        scene->selected_entity = entity;
+        selected_entity = entity;
     }
 
     // left click popup

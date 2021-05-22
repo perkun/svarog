@@ -430,7 +430,7 @@ bool SceneSerializer::deserialize(const string filepath)
 			scene->registry.clear();
 
 			scene->observer = Entity();
-			scene->selected_entity = Entity();
+// 			scene->selected_entity = Entity();
 			scene->light = Entity();
 			scene->target = Entity();
 
