@@ -16,10 +16,13 @@
 #include "SceneSerializer.h"
 #include <glm/gtc/type_ptr.hpp>
 
+unsigned int Scene::num_scenes = 0;
+
 MainLayer::MainLayer(Args args)
 {
     this->args = args;
     TRACE("MainLayer constructed");
+
 }
 
 MainLayer::~MainLayer()
@@ -243,10 +246,13 @@ void MainLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent& event)
 		{
 			framebuffer->bind();
 			int pixel_data = framebuffer->read_pixel(1, mouse_x, mouse_y);
-			if (pixel_data == -1)
+
+			if (pixel_data == -1 || Scene::scene_id(pixel_data) != scene.id)
 				hovered_entity = Entity();
 			else
+			{
 				hovered_entity = Entity((entt::entity)pixel_data, scene.get_registry());
+			}
 		}
 
 		scene_hierarchy_panel.set_selected_entity(hovered_entity);
