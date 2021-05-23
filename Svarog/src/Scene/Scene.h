@@ -50,6 +50,10 @@ public:
 
 	void controllers_events(Event&);
 
+	unsigned int id;
+	static unsigned int num_scenes;
+	static int scene_id(int entity_framebuffer_id);
+
 	entt::registry *get_registry() { return &registry; }
 
 	char flags = 0;
@@ -65,6 +69,7 @@ public:
 
 private:
 	entt::registry registry;
+	static const unsigned int id_factor = 1000000;
 };
 
 

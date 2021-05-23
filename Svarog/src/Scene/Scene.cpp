@@ -6,7 +6,9 @@
 Scene::Scene()
 {
 	root_entity = create_entity("root");
-// 	observer = create_entity("Observer");
+
+	id = num_scenes;
+	num_scenes++;
 }
 
 
@@ -38,6 +40,12 @@ Entity Scene::get_entity_by_uuid(unsigned int uuid)
 	}
 	return Entity();
 }
+
+int Scene::scene_id(int entity_framebuffer_id)
+{
+	return (int)((float)entity_framebuffer_id / id_factor);
+}
+
 
 void Scene::controllers_events(Event &event)
 {
@@ -97,7 +105,8 @@ void Scene::draw(Entity &entity)
     {
 		Material &material = entity.get_component<Material>();
 		material.uniforms_mat4["u_model_matrix"] = tr.world;
-		material.uniforms_int["u_entity_id"] = entity.get_uuid();
+		material.uniforms_int["u_entity_id"] =
+			entity.get_uuid() + (id * id_factor);
 
 		if (entity.has_component<TextureComponent>())
 			entity.get_component<TextureComponent>().texture->bind();
