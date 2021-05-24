@@ -35,6 +35,7 @@ void MainLayer::create_default_scene()
 {
     vec3 init_model_pos(0., 1., 0.);
     Entity model = scene.create_entity("Model");
+
     if (args["model"])
         SceneHierarchyPanel::add_asteroid_from_file(
             model, args.get_value<string>("model"));
@@ -180,6 +181,8 @@ void MainLayer::on_attach()
     observatory_panel =
         ObservatoryPanel(this);
     observe_panel = ObservePanel(this);
+
+
 }
 
 void MainLayer::on_event(Event &e)
@@ -194,6 +197,9 @@ void MainLayer::on_event(Event &e)
 
     dispatcher.dispatch<MouseButtonPressedEvent>(
         bind(&MainLayer::on_mouse_button_pressed_event, this, placeholders::_1));
+
+    dispatcher.dispatch<MouseMovedEvent>(
+        bind(&MainLayer::on_mouse_moved_event, this, placeholders::_1));
 
     scene.controllers_events(e);
 
@@ -228,36 +234,87 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 
 void MainLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent& event)
 {
-	if (event.get_button_code() == GLFW_MOUSE_BUTTON_LEFT && !ImGuizmo::IsOver())
-	{
-		// mouse position
-		auto[mx, my] = ImGui::GetMousePos();
-		mx -= vieport_bounds[0].x;
-		my -= vieport_bounds[0].y;
 
-		vec2 vieport_size = vieport_bounds[1] - vieport_bounds[0];
-		my = vieport_size.y - my; // to bottom-left corner (OpenGL ref.frame)
 
-		int mouse_x = (int)mx;
-		int mouse_y = (int)my;
 
-		if (mouse_x >=0 && mouse_y >= 0 &&
-				mouse_x < (int)vieport_size.x && mouse_y < (int)vieport_size.y)
-		{
-			framebuffer->bind();
-			int pixel_data = framebuffer->read_pixel(1, mouse_x, mouse_y);
+    if (event.get_button_code() == GLFW_MOUSE_BUTTON_LEFT &&
+        !ImGuizmo::IsOver())
+    {
+        // mouse position
+        auto [mx, my] = ImGui::GetMousePos();
+        mx -= vieport_bounds[0].x;
+        my -= vieport_bounds[0].y;
 
-			if (pixel_data == -1 || Scene::scene_id(pixel_data) != scene.id)
-				hovered_entity = Entity();
-			else
-			{
-				hovered_entity = Entity((entt::entity)pixel_data, scene.get_registry());
-			}
-		}
+        vec2 vieport_size = vieport_bounds[1] - vieport_bounds[0];
+        my = vieport_size.y - my; // to bottom-left corner (OpenGL ref.frame)
 
-		scene_hierarchy_panel.set_selected_entity(hovered_entity);
-	}
+        int mouse_x = (int)mx;
+        int mouse_y = (int)my;
 
+        if (mouse_x >= 0 && mouse_y >= 0 && mouse_x < (int)vieport_size.x &&
+            mouse_y < (int)vieport_size.y)
+        {
+            if (highlight_entity)
+            {
+                highlight_entity.destroy();
+                highlight_entity = Entity();
+            }
+
+            framebuffer->bind();
+            int pixel_data = framebuffer->read_pixel(1, mouse_x, mouse_y);
+
+            if (pixel_data == -1 || Scene::scene_id(pixel_data) != scene.id)
+            {
+                hovered_entity = Entity();
+            }
+            else
+            {
+                hovered_entity =
+                    Entity((entt::entity)pixel_data, scene.get_registry());
+
+                highlight_entity = highlight_scene.create_entity("highlight");
+                MeshComponent &hov_mesh =
+                    hovered_entity.get_component<MeshComponent>();
+                hov_mesh.vao->blend = true;
+                highlight_entity.add_component<MeshComponent>(hov_mesh.vao)
+                    .vao->blend = true;
+                Material &m =
+                    highlight_entity.add_component<Material>("flat_shader");
+                m.uniforms_vec4["u_color"] = vec4(0.8, 0.44, 0.15, 0.5);
+
+                Transform &hovt = hovered_entity.get_component<Transform>();
+                Transform &hglt = highlight_entity.get_component<Transform>();
+
+                hglt.position = hovt.position;
+                hglt.rotation = hovt.rotation;
+                float border = 0.001;
+                hglt.scale = vec3(border/hov_mesh.r_max) +hovt.scale;
+
+                highlight_scene.root_entity.add_child(highlight_entity);
+            }
+        }
+
+        scene_hierarchy_panel.set_selected_entity(hovered_entity);
+    }
+
+}
+
+void MainLayer::on_mouse_moved_event(MouseMovedEvent &event)
+{
+
+    if (hovered_entity)
+    {
+        Transform &hlgt = highlight_entity.get_component<Transform>();
+        Transform &hovt = hovered_entity.get_component<Transform>();
+        //
+        hlgt.position = hovt.position;
+        hlgt.rotation = hovt.rotation;
+
+		MeshComponent &hov_mesh = hovered_entity.get_component<MeshComponent>();
+
+        float border = 0.001;
+        hlgt.scale = vec3(border / hov_mesh.r_max) + hovt.scale;
+    }
 }
 
 
@@ -344,6 +401,7 @@ void MainLayer::on_update(double time_delta)
         editor_camera.on_update(time_delta);
         scene.on_update_editor(time_delta, editor_camera);
         ui_scene.on_update_editor(time_delta, editor_camera);
+		highlight_scene.on_update_editor(time_delta, editor_camera);
     }
     else if (mode == Mode::RUNTIME)
     {
@@ -355,8 +413,6 @@ void MainLayer::on_update(double time_delta)
         Framebuffer::blit(ms_framebuffer, framebuffer, 0, 0);
         Framebuffer::blit(ms_framebuffer, framebuffer, 1, 1);
 	}
-
-
 
     Renderer::bind_default_framebuffer();
 }

@@ -41,6 +41,7 @@ public:
 	virtual void on_event(Event&) override;
 	void on_key_released_event(KeyReleasedEvent&);
 	void on_mouse_button_pressed_event(MouseButtonPressedEvent&);
+	void on_mouse_moved_event(MouseMovedEvent &event);
 	void on_window_resize_event(WindowResizeEvent&);
 
 private:
@@ -79,9 +80,9 @@ private:
 	Args args;
 
 	EditorCamera editor_camera;
-	Scene scene, ui_scene;
+	Scene scene, ui_scene, highlight_scene;
 
-	Entity grid, hovered_entity;
+	Entity grid, hovered_entity, highlight_entity;
 	Mode mode = Mode::EDITOR;
 	int guizmo_type = -1;
 	Framebuffer *ms_framebuffer, *framebuffer;
