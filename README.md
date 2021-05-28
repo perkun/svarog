@@ -1,14 +1,20 @@
 # Svarog
 
-Svarog is a Application Engine.
+## TODO:
+
+* [ ] ogarnąć observera, target i światła w Scene i Sherderach. Wywalić ze Sceny  #a8382eab
+	  może, bo tylko MainLayer tego używa
+* [ ] wykresy z https://github.com/epezent/implot  #058d6ed1
+
+
+
+Svarog is an Application Engine.
 
 The name "Svarog" comes from the slavic god of fire and god of the sun and
 blacksmithing, equated with Hephaistos and Helios in Russian chronicles.
 
-## TODO:
 
-* scene w EventLayer musi być pointerem?
-* ogarnąć observera i światła w Scene i Sherderach
+
 
 
 
@@ -17,35 +23,35 @@ blacksmithing, equated with Hephaistos and Helios in Russian chronicles.
 In Slavic mythology, the Raróg (Russian: Рарог) is a fire demon, often depicted
 as a fiery falcon.
 
-## TODO:
 
 
-### Features:
 
-* branie opcji z lini komend (nazwa pliku z modelem, tekstura, pozycje, ...)
-* GUI:
-	* pozycje planetoidy,
-	* kąty
-	* pozycja obserwatora
-* wczytywanie modelu (File->Open)
-* wczytywanie tekstury
-* wczytywanie pliku z pozycjami
-* ustawianie obiektów w scenie ręcznie: rzut "z góry", przeciąganie obiektów
-* przełączanie shaderów
-* shading goły ("naukowy") i "filmowy" (wyglądający cool)
-* zapisywanie zrzutu sceny do .png
-* zapisywanie/wczytywanie sceny
-* generowanie i wyświetlanie krzywej zmian jasności w danej konfiguracji
-* operacje na modelu
-	* Perlin noise
-	* fraktale
-	* catmull-clark
-	* laplacian smoothing
-	* normalizacja
-	* liczenie wspł. tekstóry
-* formaty plików
-	* OBJ
-	* SHP
-	* chmara punktów
-* Marching Cubes na chmurze punktów
+### Desired Features:
+
+- [X] branie opcji z lini komend (nazwa pliku z modelem, tekstura, pozycje, ...)
+- [X] GUI:
+    - pozycje planetoidy,
+    - kąty
+    - pozycja obserwatora
+- [X] wczytywanie modelu (File->Open)
+- [X] wczytywanie tekstury
+- [X] wczytywanie pliku z pozycjami
+- [X] ustawianie obiektów w scenie ręcznie: rzut "z góry", przeciąganie obiektów
+- [ ] przełączanie shaderów
+- [ ] shading goły ("naukowy") i "filmowy" (wyglądający cool)
+- [X] zapisywanie zrzutu sceny do .png
+- [X] zapisywanie/wczytywanie sceny
+- [X] generowanie i wyświetlanie krzywej zmian jasności w danej konfiguracji
+- [ ] operacje na modelu
+    - [ ] Perlin noise
+    - [ ] fraktale
+    - [ ] catmull-clark
+    - [ ] laplacian smoothing
+    - [ ] normalizacja
+    - [ ] liczenie wspł. tekstóry
+- [o] formaty plików
+    - [X] OBJ
+    - [X] SHP
+    - [ ] chmara punktów
+- [ ] Marching Cubes na chmurze punktów
 
