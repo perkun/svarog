@@ -2,9 +2,9 @@
 
 ## TODO:
 
-* [ ] ogarnąć observera, target i światła w Scene i Sherderach. Wywalić ze Sceny  #e237bda9
+- [ ] ogarnąć observera, target i światła w Scene i Sherderach. Wywalić ze Sceny
 	może, bo tylko MainLayer tego używa
-* [ ] wykresy z https://github.com/epezent/implot  #058d6ed1
+- [ ] wykresy z https://github.com/epezent/implot
 
 
 
