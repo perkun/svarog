@@ -71,8 +71,8 @@ project "rarog"
 		-- defines...
 		optimize "On"
 
-project "viewer"
-	location "./viewer"
+project "meshview"
+	location "./meshview"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
@@ -91,7 +91,6 @@ project "viewer"
 	includedirs
 	{
  		"%{prj.name}/src",
- 		"%{prj.name}/src/Panels",
  		"Svarog/src",
  		"Svarog/src/Layer",
  		"Svarog/src/Event",

@@ -300,6 +300,7 @@ void IndexedModelObj::load(string filename, NormalIndexing mode)
         }
     }
 
+
     fseek(f, 0, SEEK_SET); // na poczatek pliku
 
     vector<vec3> tmp_pos;
@@ -332,7 +333,7 @@ void IndexedModelObj::load(string filename, NormalIndexing mode)
                 int num_matched =
                     sscanf(line, "%*s %f %f %f", &tmpvf.x, &tmpvf.y, &tmpvf.z);
 
-                tmp_pos.push_back(tmpvf);
+                tmp_pos.emplace_back(tmpvf);
 
                 if (num_matched != 3)
 
@@ -346,7 +347,7 @@ void IndexedModelObj::load(string filename, NormalIndexing mode)
                 int num_matched =
                     sscanf(line, "%*s %f %f %f", &tmpvf.x, &tmpvf.y, &tmpvf.z);
 
-                tmp_nor.push_back(tmpvf);
+                tmp_nor.emplace_back(tmpvf);
 
                 if (num_matched != 3)
 
@@ -360,7 +361,7 @@ void IndexedModelObj::load(string filename, NormalIndexing mode)
                 int num_matched =
                     sscanf(line, "%*s %f %f", &tmpv2f.x, &tmpv2f.y);
 
-                tmp_tex.push_back(tmpv2f);
+                tmp_tex.emplace_back(tmpv2f);
 
                 if (num_matched != 2)
 
@@ -374,26 +375,26 @@ void IndexedModelObj::load(string filename, NormalIndexing mode)
         {
             if (sscanf(line, "%*s %d %d %d", &f1, &f2, &f3) == 3)
             {
-                pos_idxs.push_back(vec3(f1 - 1, f2 - 1, f3 - 1));
+                pos_idxs.emplace_back(vec3(f1 - 1, f2 - 1, f3 - 1));
             }
             else if (sscanf(line, "%*s %d/%d %d/%d %d/%d", &f1, &t1, &f2, &t2,
                             &f3, &t3) == 6)
             {
-                pos_idxs.push_back(ivec3(f1 - 1, f2 - 1, f3 - 1));
-                tex_idxs.push_back(ivec3(t1 - 1, t2 - 1, t3 - 1));
+                pos_idxs.emplace_back(ivec3(f1 - 1, f2 - 1, f3 - 1));
+                tex_idxs.emplace_back(ivec3(t1 - 1, t2 - 1, t3 - 1));
             }
             else if (sscanf(line, "%*s %d/%d/%d %d/%d/%d %d/%d/%d", &f1, &t1,
                             &n1, &f2, &t2, &n2, &f3, &t3, &n3) == 9)
             {
-                pos_idxs.push_back(vec3(f1 - 1, f2 - 1, f3 - 1));
-                tex_idxs.push_back(ivec3(t1 - 1, t2 - 1, t3 - 1));
-                nor_idxs.push_back(ivec3(n1 - 1, n2 - 1, n3 - 1));
+                pos_idxs.emplace_back(vec3(f1 - 1, f2 - 1, f3 - 1));
+                tex_idxs.emplace_back(ivec3(t1 - 1, t2 - 1, t3 - 1));
+                nor_idxs.emplace_back(ivec3(n1 - 1, n2 - 1, n3 - 1));
             }
             else if (sscanf(line, "%*s %d//%d %d//%d %d//%d", &f1, &n1, &f2,
                             &n2, &f3, &n3) == 6)
             {
-                pos_idxs.push_back(vec3(f1 - 1, f2 - 1, f3 - 1));
-                nor_idxs.push_back(ivec3(n1 - 1, n2 - 1, n3 - 1));
+                pos_idxs.emplace_back(vec3(f1 - 1, f2 - 1, f3 - 1));
+                nor_idxs.emplace_back(ivec3(n1 - 1, n2 - 1, n3 - 1));
             }
             else
                 cout << "problem reading indices" << endl;
@@ -429,15 +430,15 @@ void IndexedModelFile::produce_arrays_per_face(
         for (int j = 0; j < 3; j++)
         {
             if (i < pos_idxs.size())
-                pos.push_back(tmp_pos[pos_idxs[i][j]]);
+                pos.emplace_back(tmp_pos[pos_idxs[i][j]]);
 
             if (i < tex_idxs.size())
-                tex.push_back(tmp_tex[tex_idxs[i][j]]);
+                tex.emplace_back(tmp_tex[tex_idxs[i][j]]);
 
             if (i < nor_idxs.size())
-                nor.push_back(tmp_nor[nor_idxs[i][j]]);
+                nor.emplace_back(tmp_nor[nor_idxs[i][j]]);
         }
-        tmp_pos_idxs.push_back(uvec3(face_id, face_id + 1, face_id + 2));
+        tmp_pos_idxs.emplace_back(uvec3(face_id, face_id + 1, face_id + 2));
         face_id += 3;
     }
 
@@ -451,7 +452,7 @@ void IndexedModelFile::produce_arrays_per_face(
     // calculate normals if there were none
     if (nor_idxs.size() == 0)
         calculate_per_face_normals();
-    if (nor_idxs.size() == 0)
+    if (tex_idxs.size() == 0)
         calculate_texture_coords();
 }
 
@@ -481,7 +482,7 @@ void IndexedModelFile::produce_arrays_per_vertex(
     // calculate normals if there were none
     if (nor_idxs.size() == 0)
         calculate_per_vertex_normals();
-    if (nor_idxs.size() == 0)
+    if (tex_idxs.size() == 0)
         calculate_texture_coords();
 }
 
