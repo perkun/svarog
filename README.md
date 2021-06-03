@@ -5,6 +5,7 @@
 - [ ] ogarnąć observera, target i światła w Scene i Sherderach. Wywalić ze Sceny
 	może, bo tylko MainLayer tego używa
 - [ ] wykresy z https://github.com/epezent/implot
+- [ ] texture wrapping poprawić w shaderach
 
 
 

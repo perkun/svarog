@@ -20,13 +20,28 @@ public:
 
 private:
 	void on_key_released_event(KeyReleasedEvent &event);
+	void on_key_pressed_event(KeyPressedEvent &event);
 	void on_mouse_moved_event(MouseMovedEvent &event);
 
+	void info_overlay();
+	void help_overlay();
+
+	void print_screen();
 
 	Args args;
 	Scene scene;
 
+	Entity axes;
+
 	Framebuffer *ms_framebuffer, *framebuffer;
+
+	bool overlay_open = true;
+	bool display_axes = false;
+	bool display_help = false;
+
+	vector<shared_ptr<Shader> > shader_ptrs;
+
+	char overlay_text[5000];
 
 	vec3 init_model_pos;
 	vec2 viewport_panel_size;

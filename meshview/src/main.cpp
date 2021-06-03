@@ -23,15 +23,22 @@ int main(int argc, char *argv[])
 
 	parser.add_positional("model", "path to OBJ/SHP model", 1);
 
+	parser.add_option('t', "texture", "texture file", false, "");
+
 	parser.add_vec_option("model-pos", "xyz of the model", 3, false);
 	parser.add_vec_option("observer-pos", "xyz of the observer", 3, false);
 
 	Args args = parser.parse_args(argc, argv);
 
 
-	Application::init(WIN_W, WIN_H, "Application", false);
+	Application::init(WIN_W, WIN_H, "meshview", false);
 	Application::get_window()->set_cursor_normal();
 
+	auto &io = ImGui::GetIO();
+	io.IniFilename = NULL;
+// 	io.ConfigFlags &= ~ImGuiConfigFlags_DockingEnable;
+// 	io.ConfigFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+	io.ConfigDockingAlwaysTabBar = false;
 
 	// load shaders
 	#include "../shaders/basic.vs.include"

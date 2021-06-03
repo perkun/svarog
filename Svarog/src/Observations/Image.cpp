@@ -125,7 +125,7 @@ void Image::save_png(string filename)
 //         channels = 1;
 
     // TODO: match data type to the specs.type !!
-    float *data = new float[width * height * channels];
+//     float *data = new float[width * height * channels];
 
 
 //     texture->bind();
