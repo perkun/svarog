@@ -50,7 +50,10 @@ protected:
         auto cam = dynamic_pointer_cast<OrthograficCamera>(
             get_component<CameraComponent>().camera);
 
-        cam->size_x -= e.get_offset().y / 5;
+		cam->size_x -= e.get_offset().y / 5;
+		if (cam->size_x < 0.1)
+			cam->size_x = 0.1;
+
     }
 
     void on_cursor_moved_event(MouseMovedEvent &e)

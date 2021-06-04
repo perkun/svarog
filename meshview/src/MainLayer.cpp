@@ -10,11 +10,8 @@
 // #include "AsteroidController.h"
 #include "Renderer.h"
 #include "Utils/FileDialog.h"
-#include "Utils/File.h"
 // #include "ObservatoryPanel.h"
 #include "Utils/ObjHeader.h"
-#include "Utils/Time.h"
-#include "SceneSerializer.h"
 #include "Image.h"
 #include <glm/gtc/type_ptr.hpp>
 
@@ -383,6 +380,11 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 void MainLayer::on_mouse_moved_event(MouseMovedEvent &event)
 {
     vec2 cursor_shift = event.get_cursor_pos() - last_cursor_pos;
+
+	// TODO
+	// * fix those damn rotations!!
+	// * move this to the ModelController NativeScript
+
 
     if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_1))
     {
