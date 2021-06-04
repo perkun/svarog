@@ -36,12 +36,20 @@ void ImGuiLayer::on_attach()
         18.0f; // Use if you want to make the icon monospaced
     static const ImWchar icon_ranges[] = {0xe000, 0xfd47, 0};
 
-    io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Inconsolata-Bold.ttf",
-                                 18.0f);
-    io.FontDefault = io.Fonts->AddFontFromFileTTF(
-//         "/usr/share/fonts/TTF/InconsolataGo Nerd Font Complete Mono.ttf", 18.0f,
-        "/home/perkun/projects/svarog/Svarog/assets/fonts/InconsolataGo Nerd Font Complete.ttf", 18.0f,
-        	&config, icon_ranges);
+
+#ifdef SV_CONFIG_FONT_PATH
+    char bold_font_path[] = SV_CONFIG_FONT_PATH "/Inconsolata-Bold.ttf";
+    char main_font_path[] =
+        SV_CONFIG_FONT_PATH "/InconsolataGo Nerd Font Complete.ttf";
+#else
+    char bold_font_path[] = "/usr/share/fonts/TTF/Inconsolata-Bold.ttf";
+    char main_font_path[] =
+        "/usr/share/fonts/TTF/InconsolataGo Nerd Font Complete.ttf";
+#endif
+
+    io.Fonts->AddFontFromFileTTF(bold_font_path, 18.0f);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF(main_font_path, 18.0f,
+                                                  &config, icon_ranges);
 
 
 
@@ -49,8 +57,8 @@ void ImGuiLayer::on_attach()
     //     io.Fonts->AddFontFromFileTTF("/usr/share/fonts/nerd-fonts-complete/TTF/InconsolataGo
     //     Nerd Font Complete.ttf", 18.0f); io.FontDefault =
     //     io.Fonts->AddFontFromFileTTF(
-    // 		"/usr/share/fonts/nerd-fonts-complete/TTF/InconsolataGo Nerd Font
-    // Complete.ttf", 18.0f);
+    // 		"/usr/share/fonts/nerd-fonts-complete/TTF/InconsolataGo Nerd
+    // Font Complete.ttf", 18.0f);
 
     //         "../data/DroidSans.ttf", 18.0f);
 
