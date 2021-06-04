@@ -5,17 +5,17 @@
 
 float IndexedModel::get_r_max() const
 {
-	float max_len = -1;
-	for (int i = 0; i < vertices.size(); i += 3)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			float len = length(vec3(vertices[i], vertices[i+1], vertices[i+2]));
-			if (len > max_len)
-				max_len = len;
-		}
-	}
-	return max_len;
+
+    float max_len = -1;
+    for (int i = 0; i < vertices.size(); i += layout.stride)
+    {
+        float len =
+            sqrt(vertices[i] * vertices[i] + vertices[i + 1] * vertices[i + 1] +
+                 vertices[i + 2] * vertices[i + 2]);
+        if (len > max_len)
+            max_len = len;
+    }
+    return max_len;
 }
 
 IndexedLine::IndexedLine(vec3 start, vec3 stop, vec4 color)
