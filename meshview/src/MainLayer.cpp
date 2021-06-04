@@ -44,7 +44,7 @@ MainLayer::MainLayer(Args args)
                         "        P - save print screen \n"
                         "        B - toggle background color \n";
 
-	header_overlay = Overlay(0, 0, "header_overlay");
+	header_overlay = Overlay(0, 0, "header overlay");
 	info_overlay = Overlay(2, 0.7, "info overlay");
 }
 
