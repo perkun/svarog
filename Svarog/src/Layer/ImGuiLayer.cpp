@@ -33,13 +33,14 @@ void ImGuiLayer::on_attach()
     ImFontConfig config;
     config.MergeMode = true;
     config.GlyphMinAdvanceX =
-        13.0f; // Use if you want to make the icon monospaced
+        18.0f; // Use if you want to make the icon monospaced
     static const ImWchar icon_ranges[] = {0xe000, 0xfd47, 0};
 
     io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Inconsolata-Bold.ttf",
                                  18.0f);
     io.FontDefault = io.Fonts->AddFontFromFileTTF(
-        "/usr/share/fonts/TTF/InconsolataGo Nerd Font Complete.ttf", 18.0f,
+//         "/usr/share/fonts/TTF/InconsolataGo Nerd Font Complete Mono.ttf", 18.0f,
+        "/home/perkun/projects/svarog/Svarog/assets/fonts/InconsolataGo Nerd Font Complete.ttf", 18.0f,
         	&config, icon_ranges);
 
 
