@@ -3,6 +3,7 @@
 #include "Components.h"
 #include "Framebuffer.h"
 #include "CameraController.h"
+#include "ModelController.h"
 #include "Batch.h"
 // #include "ImGuizmo.h"
 #include "Math.h"
@@ -113,6 +114,8 @@ void MainLayer::on_attach()
     mt.scale = vec3(1.0 / mmc.r_max);
     TRACE("r_max: {}", mmc.r_max);
 
+	model.add_component<NativeScriptComponent>().bind<ModelController>();
+
 
     ObjHeader &header = model.get_component<MeshComponent>().header;
     if (header.loaded)
@@ -140,6 +143,21 @@ void MainLayer::on_attach()
     }
 
 
+    Entity runtime_observer = scene.create_entity("Observer");
+    CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
+        make_shared<OrthograficCamera>(cam_size_x, 1.0, 0.1, 10.));
+    runtime_observer.add_component<NativeScriptComponent>()
+        .bind<CameraController>();
+
+    rocp.camera->position = vec3(0., -5, 0.);
+    rocp.camera->update_target(init_model_pos);
+
+    Transform &rot = runtime_observer.get_component<Transform>();
+    rot.position = rocp.camera->position;
+    rot.speed = 8.;
+
+
+
     axes = scene.create_entity("xyz axes");
     axes.add_component<Material>("line_shader");
     Batch axes_batch;
@@ -162,18 +180,6 @@ void MainLayer::on_attach()
     display_axes = false;
 
 
-    Entity runtime_observer = scene.create_entity("Observer");
-    CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
-        make_shared<OrthograficCamera>(cam_size_x, 1.0, 0.1, 10.));
-    runtime_observer.add_component<NativeScriptComponent>()
-        .bind<CameraController>();
-
-    rocp.camera->position = vec3(0., -5, 0.);
-    rocp.camera->update_target(init_model_pos);
-
-    Transform &rot = runtime_observer.get_component<Transform>();
-    rot.position = rocp.camera->position;
-    rot.speed = 8.;
 
     scene.root_entity.add_child(model);
 
@@ -278,8 +284,8 @@ void MainLayer::on_event(Event &e)
 	dispatcher.dispatch<KeyPressedEvent>(
 			bind(&MainLayer::on_key_pressed_event, this, placeholders::_1));
 
-	dispatcher.dispatch<MouseMovedEvent>(
-			bind(&MainLayer::on_mouse_moved_event, this, placeholders::_1));
+// 	dispatcher.dispatch<MouseMovedEvent>(
+// 			bind(&MainLayer::on_mouse_moved_event, this, placeholders::_1));
 
 	scene.controllers_events(e);
 }
@@ -290,48 +296,20 @@ void MainLayer::on_key_pressed_event(KeyPressedEvent &event)
     const int key_code = event.get_key_code();
 
     if (key_code == GLFW_KEY_Z)
-    {
         if (Input::is_key_pressed(GLFW_KEY_LEFT_SHIFT))
-		{
-            scene.target.get_component<Transform>().rotation =
-                vec3(-M_PI / 2, 0, 0);
 			info_overlay.reset_timeout("-Z axis view");
-		}
         else
-		{
-            scene.target.get_component<Transform>().rotation =
-                vec3(M_PI / 2, 0, 0);
 			info_overlay.reset_timeout(" Z axis view");
-		}
-    }
     else if (key_code == GLFW_KEY_X)
-    {
         if (Input::is_key_pressed(GLFW_KEY_LEFT_SHIFT))
-        {
-            scene.target.get_component<Transform>().rotation =
-                vec3(0, 0, M_PI / 2);
 			info_overlay.reset_timeout("-X axis view");
-        }
         else
-        {
-            scene.target.get_component<Transform>().rotation =
-                vec3(0, 0, -M_PI / 2);
             info_overlay.reset_timeout(" X axis view");
-        }
-    }
     else if (key_code == GLFW_KEY_Y)
-    {
         if (Input::is_key_pressed(GLFW_KEY_LEFT_SHIFT))
-        {
-            scene.target.get_component<Transform>().rotation = vec3(0, 0, 0);
             info_overlay.reset_timeout("-Y axis view");
-        }
         else
-        {
-            scene.target.get_component<Transform>().rotation = vec3(0, 0, M_PI);
             info_overlay.reset_timeout(" Y axis view");
-        }
-    }
 
     else if (key_code == GLFW_KEY_I)
         display_header_info = !display_header_info;
@@ -351,12 +329,6 @@ void MainLayer::on_key_pressed_event(KeyPressedEvent &event)
     }
     else if (key_code == GLFW_KEY_H)
         display_help = true;
-    else if (key_code == GLFW_KEY_S)
-    {
-
-        // 		scene.target.get_component<Material>().shader =
-        // shader_ptrs[1];
-    }
     else if (key_code == GLFW_KEY_P)
         print_screen();
     else if (key_code == GLFW_KEY_B)
@@ -379,44 +351,6 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
 
 void MainLayer::on_mouse_moved_event(MouseMovedEvent &event)
 {
-    vec2 cursor_shift = event.get_cursor_pos() - last_cursor_pos;
-
-	// TODO
-	// * fix those damn rotations!!
-	// * move this to the ModelController NativeScript
-
-
-    if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_1))
-    {
-        // 		cout << cursor_shift.x << endl;
-        Transform &t = scene.target.get_component<Transform>();
-        //         t.rotation.z += cursor_shift.x / 400;
-        //
-        // //         mat4 mrot = rotate(cursor_shift.x / 400, vec3(0.,
-        // 0., 1.));
-        //         vec3 nx = vec3(glm::inverse(t.get_local_tansform()) * vec4(1,
-        //         0, 0, 0));
-        // //
-        // // 		mrot = glm::inverse(t.get_local_tansform()) * mrot;
-        //         mat4 mrot = rotate(cursor_shift.y / 400, nx);
-        //
-        //         vec3 trans, rot, scale;
-        //         Math::decompose_transform(mrot, trans, rot, scale);
-        //         //
-        //         t.rotation += rot;
-
-
-        mat4 mrot1 = rotate(cursor_shift.x / 400, vec3(0, 0, 1));
-        mat4 mrot2 =
-            rotate(cursor_shift.y / 400,
-                   vec3(inverse(t.get_local_tansform()) * vec4(1, 0, 0, 0)));
-
-        vec3 trans, rot, scale;
-        Math::decompose_transform(mrot2 * mrot1, trans, rot, scale);
-        t.rotation += rot;
-    }
-
-    last_cursor_pos = event.get_cursor_pos();
 }
 
 void MainLayer::print_screen() {
