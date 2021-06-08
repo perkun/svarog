@@ -39,8 +39,11 @@ MainLayer::MainLayer(Args args)
                         "SHIFT + Y - show model from from -y axis\n"
                         "        Z - show model from from z axis\n"
                         "SHIFT + Z - show model from from -z axis\n\n"
-                        "        P - save print screen \n"
-                        "        B - toggle background color \n";
+                        "        P - save print screen \n\n"
+                        "MOUSE:\n"
+                        " LEFT BTN - rotate \n"
+                        "RIGHT BTN - move \n"
+                        "   SCROLL - zoom in/out \n";
 
 	header_overlay = Overlay(0, 0, "header overlay");
 	info_overlay = Overlay(2, 0.7, "info overlay");
