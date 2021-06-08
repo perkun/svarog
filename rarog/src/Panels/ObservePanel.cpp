@@ -56,7 +56,7 @@ void ObservePanel::on_imgui_render()
 		ImGui::SameLine();
 		ImGui::Text("FOV:");
 		ImGui::SameLine();
-		ImGui::DragFloat("##camera fov", &(cam->size_x), 0.02, 0.1, 100.);
+		ImGui::DragFloat("##camera fov", &(cam->fov), 0.02, 0.1, 100.);
 	}
 
 	ImGui::SameLine();

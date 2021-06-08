@@ -502,7 +502,7 @@ void SceneHierarchyPanel::draw_selected_properties(Entity &entity)
             {
                 auto cam = dynamic_pointer_cast<OrthograficCamera>(cc.camera);
                 ImGui::PushItemWidth(150.);
-                ImGui::DragFloat("size_x", &cam->size_x);
+                ImGui::DragFloat("fov", &cam->fov);
             }
 
 

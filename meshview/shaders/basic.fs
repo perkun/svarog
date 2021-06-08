@@ -9,6 +9,28 @@ uniform sampler2D u_texture;
 
 void main()
 {
+
+//  // Lambert's cosine law
+//  float lambertian = max(dot(normal_world, vec3(0,0,1)), 0.0);
+//  float specular = 0.0;
+//  if(lambertian > 0.0) {
+//    vec3 R = reflect(-L, N);      // Reflected light vector
+//    vec3 V = normalize(-vertPos); // Vector to viewer
+//    // Compute the specular term
+//    float specAngle = max(dot(R, V), 0.0);
+//    specular = pow(specAngle, shininessVal);
+//  }
+//
+//  float Ka = 0.33;
+//  float Kd = 0.46;
+//  float Ks = 0.19;
+//
+//  float d = Ka * ambientColor +
+//            Kd * lambertian * diffuseColor +
+//            Ks * specular * specularColor;
+
+
+
 	float d = dot( normal_world, vec3(0, 0, 1) );
 	d = max(d, 0);
 

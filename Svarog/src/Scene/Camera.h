@@ -19,6 +19,7 @@ public:
 	vec3 position, front, up, right;
 	float speed = 10., rotation_speed = 0.0003;
 	float view_box_z_near, view_box_z_far;
+	float fov;
 
 protected:
 	void calculate_view();
@@ -35,7 +36,6 @@ public:
 
 	virtual mat4 get_perspective() override;
 
-	float fov;
 protected:
 };
 
@@ -48,7 +48,6 @@ public:
 
 	virtual mat4 get_perspective() override;
 
-	float size_x;
 protected:
 	float view_box_top, view_box_bottom, view_box_left, view_box_right;
 };

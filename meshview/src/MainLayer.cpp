@@ -90,7 +90,7 @@ void MainLayer::on_attach()
         model.add_component<MeshComponent>(
             args.get_positional<string>("model"));
     else
-        model.add_component<MeshComponent>(ModelType::ICO_SPHERE);
+        model.add_component<MeshComponent>(ModelType::CUBE);
 
     Material &m = model.add_component<Material>();
     m.uniforms_int["u_has_texture"] = 0;
@@ -249,7 +249,7 @@ void MainLayer::on_imgui_render()
             scene.observer.get_component<CameraComponent>().camera);
         float aspect = viewport_panel_size.x / viewport_panel_size.y;
         if (aspect > 1.) // wide screen
-            cam->size_x = cam_size_x * aspect;
+            cam->fov = cam_size_x * aspect;
 
         scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
         ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);

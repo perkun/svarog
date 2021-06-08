@@ -78,7 +78,7 @@ OrthograficCamera::OrthograficCamera(float size_x, float aspect,
     this->view_box_z_near = view_box_zNear;
     this->view_box_z_far = view_box_zFar;
 	this->aspect = aspect;
-	this->size_x = size_x;
+	this->fov = size_x;
 
 	view_box_left = -size_x / 2.0;
 	view_box_right = size_x / 2.0;
@@ -92,11 +92,11 @@ OrthograficCamera::OrthograficCamera(float size_x, float aspect,
 
 mat4 OrthograficCamera::get_perspective()
 {
-	view_box_left = -size_x / 2.0;
-	view_box_right = size_x / 2.0;
+	view_box_left = -fov / 2.0;
+	view_box_right = fov / 2.0;
 
-	view_box_top = size_x / 2.0 / aspect;
-	view_box_bottom = -size_x / 2.0 / aspect;
+	view_box_top = fov / 2.0 / aspect;
+	view_box_bottom = -fov / 2.0 / aspect;
 
     return glm::ortho(view_box_left, view_box_right, view_box_bottom,
                              view_box_top, view_box_z_near, view_box_z_far);

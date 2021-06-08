@@ -28,7 +28,7 @@ public:
     vec2 last_cursor_pos;
 
     mat4 accumulator;
-    float mouse_sensitivity = 1. / 400;
+    float mouse_sensitivity = 1. / 225;
 
 protected:
     vec2 cursor_pos;
@@ -107,14 +107,17 @@ protected:
 
         if (Input::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_1))
         {
+			float sf = 1920. * 0.47 / Application::get_window()->width;
+
             mat4 mrotz = glm::rotate(
-                mat4(1.), mouse_sensitivity * cursor_shift.x, vec3(0, 0, 1));
+                mat4(1.),  mouse_sensitivity * cursor_shift.x * sf, vec3(0, 0, 1));
             mat4 mrotx = glm::rotate(
-                mat4(1.), mouse_sensitivity * cursor_shift.y, vec3(1, 0, 0));
+                mat4(1.), mouse_sensitivity * cursor_shift.y * sf, vec3(1, 0, 0));
 
             accumulator = mrotx * mrotz * accumulator;
             update_rotation();
         }
+
 
         last_cursor_pos = event.get_cursor_pos();
     }
