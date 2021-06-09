@@ -266,9 +266,10 @@ void MainLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent& event)
                 hovered_entity =
                     Entity((entt::entity)pixel_data, scene.get_registry());
             }
+
+			scene_hierarchy_panel.set_selected_entity(hovered_entity);
         }
 
-        scene_hierarchy_panel.set_selected_entity(hovered_entity);
     }
 
 }

@@ -143,7 +143,7 @@ void SceneHierarchyPanel::draw_entity_node(Entity &entity)
         selected_entity = entity;
     }
 
-    // left click popup
+    // right click popup
     if (ImGui::BeginPopupContextItem())
     {
         ImGui::Checkbox("Render", &entity.get_component<SceneStatus>().render);
