@@ -80,9 +80,9 @@ private:
 	Args args;
 
 	EditorCamera editor_camera;
-	Scene scene, ui_scene, highlight_scene;
+	Scene scene, ui_scene;
 
-	Entity grid, hovered_entity, highlight_entity;
+	Entity grid, hovered_entity;
 	Mode mode = Mode::EDITOR;
 	int guizmo_type = -1;
 	Framebuffer *ms_framebuffer, *framebuffer;

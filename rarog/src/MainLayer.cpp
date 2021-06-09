@@ -254,12 +254,6 @@ void MainLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent& event)
         if (mouse_x >= 0 && mouse_y >= 0 && mouse_x < (int)vieport_size.x &&
             mouse_y < (int)vieport_size.y)
         {
-            if (highlight_entity)
-            {
-                highlight_entity.destroy();
-                highlight_entity = Entity();
-            }
-
             framebuffer->bind();
             int pixel_data = framebuffer->read_pixel(1, mouse_x, mouse_y);
 
@@ -271,26 +265,6 @@ void MainLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent& event)
             {
                 hovered_entity =
                     Entity((entt::entity)pixel_data, scene.get_registry());
-
-                highlight_entity = highlight_scene.create_entity("highlight");
-                MeshComponent &hov_mesh =
-                    hovered_entity.get_component<MeshComponent>();
-                hov_mesh.vao->blend = true;
-                highlight_entity.add_component<MeshComponent>(hov_mesh.vao)
-                    .vao->blend = true;
-                Material &m =
-                    highlight_entity.add_component<Material>("flat_shader");
-                m.uniforms_vec4["u_color"] = vec4(0.8, 0.44, 0.15, 0.5);
-
-                Transform &hovt = hovered_entity.get_component<Transform>();
-                Transform &hglt = highlight_entity.get_component<Transform>();
-
-                hglt.position = hovt.position;
-                hglt.rotation = hovt.rotation;
-                float border = 0.001;
-                hglt.scale = vec3(border/hov_mesh.r_max) +hovt.scale;
-
-                highlight_scene.root_entity.add_child(highlight_entity);
             }
         }
 
@@ -302,19 +276,6 @@ void MainLayer::on_mouse_button_pressed_event(MouseButtonPressedEvent& event)
 void MainLayer::on_mouse_moved_event(MouseMovedEvent &event)
 {
 
-    if (hovered_entity)
-    {
-        Transform &hlgt = highlight_entity.get_component<Transform>();
-        Transform &hovt = hovered_entity.get_component<Transform>();
-        //
-        hlgt.position = hovt.position;
-        hlgt.rotation = hovt.rotation;
-
-		MeshComponent &hov_mesh = hovered_entity.get_component<MeshComponent>();
-
-        float border = 0.001;
-        hlgt.scale = vec3(border / hov_mesh.r_max) + hovt.scale;
-    }
 }
 
 
@@ -401,7 +362,6 @@ void MainLayer::on_update(double time_delta)
         editor_camera.on_update(time_delta);
         scene.on_update_editor(time_delta, editor_camera);
         ui_scene.on_update_editor(time_delta, editor_camera);
-		highlight_scene.on_update_editor(time_delta, editor_camera);
     }
     else if (mode == Mode::RUNTIME)
     {
