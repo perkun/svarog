@@ -445,253 +445,227 @@ void MainLayer::set_runtime_mode()
     scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
 }
 
-void MainLayer::menu_bar()
-{
-    ImGuiIO &io = ImGui::GetIO();
-    auto bold_font = io.Fonts->Fonts[0];
+void MainLayer::menu_bar() {
+  ImGuiIO &io = ImGui::GetIO();
+  auto bold_font = io.Fonts->Fonts[0];
 
-    ImGui::PushFont(bold_font);
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
-            if (ImGui::MenuItem("Save scene"))
-            {
-                SceneSerializer scene_serializer(&scene);
-                string filename = FileDialog::save_file("*.scene");
-                scene_serializer.serialize(filename);
-            }
+  ImGui::PushFont(bold_font);
+  if (ImGui::BeginMainMenuBar()) {
+    if (ImGui::BeginMenu("File")) {
+      if (ImGui::MenuItem("Save scene")) {
+        SceneSerializer scene_serializer(&scene);
+        string filename = FileDialog::save_file("*.scene");
+        scene_serializer.serialize(filename);
+      }
 
-            if (ImGui::MenuItem("Load scene"))
-            {
-                SceneSerializer scene_serializer(&scene);
-                string filename = FileDialog::open_file("*.scene");
-                scene_serializer.deserialize(filename);
-                cout << "loading scene" << endl;
-            }
+      if (ImGui::MenuItem("Load scene")) {
+        SceneSerializer scene_serializer(&scene);
+        string filename = FileDialog::open_file("*.scene");
+        scene_serializer.deserialize(filename);
+        cout << "loading scene" << endl;
+      }
 
-            ImGui::Separator();
+      ImGui::Separator();
 
-            if (ImGui::MenuItem("Quit", "Q"))
-                Application::stop();
+      if (ImGui::MenuItem("Quit", "Q"))
+        Application::stop();
 
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("View"))
-        {
-            ImGui::MenuItem("ImGui Demo", NULL, &show_imgui_demo);
-            ImGui::MenuItem("Scene Options", NULL, &show_scene_options);
-
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Options"))
-        {
-            if (ImGui::BeginMenu("BG Color"))
-            {
-                float color[3];
-                vec4 app_color = Application::get_bg_color();
-                color[0] = app_color.r;
-                color[1] = app_color.g;
-                color[2] = app_color.b;
-
-                ImGui::ColorPicker3("BG Color", color);
-
-                app_color.r = color[0];
-                app_color.g = color[1];
-                app_color.b = color[2];
-
-                Application::set_bg_color(app_color);
-
-                ImVec4 default_bg(41 / 256., 46 / 256., 48 / 256., 1.0);
-                ImGui::Text("Set default color");
-                if (ImGui::ColorButton("Default color", default_bg,
-                                       ImGuiColorEditFlags_NoPicker |
-                                           ImGuiColorEditFlags_AlphaPreviewHalf,
-                                       ImVec2(60, 40)))
-                {
-                    app_color.r = default_bg.x;
-                    app_color.g = default_bg.y;
-                    app_color.b = default_bg.z;
-                    Application::set_bg_color(app_color);
-                }
-
-                ImGui::EndMenu();
-            }
-
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Observations"))
-        {
-            if (ImGui::MenuItem("New Storage"))
-            {
-                obs_pack.add_new_storage("untitled");
-            }
-
-            if (ImGui::MenuItem("Import Storage"))
-            {
-                string fn = FileDialog::open_file("*.storage");
-                load_obs_storage(fn);
-            }
-
-            if (ImGui::MenuItem("Import LC file"))
-            {
-                load_damit_lc(FileDialog::open_file("*.txt"));
-            }
-
-
-            if (ImGui::MenuItem("Save Storage"))
-            {
-                string filename = FileDialog::save_file("*.storage");
-                if (filename != "")
-                {
-                    obs_pack.save_current(filename);
-                }
-            }
-
-            if (ImGui::MenuItem("Save Storage and Export"))
-            {
-                string filename = FileDialog::save_file("*.storage");
-                if (filename != "")
-                {
-                    obs_pack.save_current(filename, true);
-                }
-            }
-
-            ImGui::Separator();
-            if (ImGui::MenuItem("Delete Observations", NULL, false, true))
-            {
-                obs_pack.delete_current_observations();
-            }
-
-            if (ImGui::MenuItem("Delete Storage", NULL, false, true))
-            {
-                obs_pack.delete_current();
-            }
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMainMenuBar();
+      ImGui::EndMenu();
     }
-    ImGui::PopFont();
+
+    if (ImGui::BeginMenu("View")) {
+      ImGui::MenuItem("ImGui Demo", NULL, &show_imgui_demo);
+      ImGui::MenuItem("Scene Options", NULL, &show_scene_options);
+
+      ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Options")) {
+      if (ImGui::BeginMenu("BG Color")) {
+        float color[3];
+        vec4 app_color = Application::get_bg_color();
+        color[0] = app_color.r;
+        color[1] = app_color.g;
+        color[2] = app_color.b;
+
+        ImGui::ColorPicker3("BG Color", color);
+
+        app_color.r = color[0];
+        app_color.g = color[1];
+        app_color.b = color[2];
+
+        Application::set_bg_color(app_color);
+
+        ImVec4 default_bg(41 / 256., 46 / 256., 48 / 256., 1.0);
+        ImGui::Text("Set default color");
+        if (ImGui::ColorButton("Default color", default_bg,
+                               ImGuiColorEditFlags_NoPicker |
+                                   ImGuiColorEditFlags_AlphaPreviewHalf,
+                               ImVec2(60, 40))) {
+          app_color.r = default_bg.x;
+          app_color.g = default_bg.y;
+          app_color.b = default_bg.z;
+          Application::set_bg_color(app_color);
+        }
+
+        ImGui::EndMenu();
+      }
+
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Observations")) {
+      if (ImGui::MenuItem("New Storage")) {
+        obs_pack.add_new_storage("untitled");
+      }
+
+      if (ImGui::MenuItem("Import Storage")) {
+        string fn = FileDialog::open_file("*.storage");
+        load_obs_storage(fn);
+      }
+
+      if (ImGui::MenuItem("Import LC file")) {
+        load_damit_lc(FileDialog::open_file("*.txt"));
+      }
+
+      if (ImGui::MenuItem("Save Storage")) {
+        string filename = FileDialog::save_file("*.storage");
+        if (filename != "") {
+          obs_pack.save_current(filename);
+        }
+      }
+
+      if (ImGui::MenuItem("Save Storage and Export")) {
+        string filename = FileDialog::save_file("*.storage");
+        if (filename != "") {
+          obs_pack.save_current(filename, true);
+        }
+      }
+
+      ImGui::Separator();
+      if (ImGui::MenuItem("Delete Observations", NULL, false, true)) {
+        obs_pack.delete_current_observations();
+      }
+
+      if (ImGui::MenuItem("Delete Storage", NULL, false, true)) {
+        obs_pack.delete_current();
+      }
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMainMenuBar();
+  }
+  ImGui::PopFont();
 }
 
-void MainLayer::scene_window()
-{
-    //     ImGui::Begin("depth map");
-    //     long int shadow_tex_id = light.get_component<FramebufferComponent>()
-    //                                  .framebuffer->get_depth_attachment_id();
-    //     ImGui::Image((void *)shadow_tex_id, ImVec2(300, 300), ImVec2(0, 1),
-    //                  ImVec2(1, 0));
-    //     ImGui::End();
+void MainLayer::scene_window() {
+  //     ImGui::Begin("depth map");
+  //     long int shadow_tex_id = light.get_component<FramebufferComponent>()
+  //                                  .framebuffer->get_depth_attachment_id();
+  //     ImGui::Image((void *)shadow_tex_id, ImVec2(300, 300), ImVec2(0, 1),
+  //                  ImVec2(1, 0));
+  //     ImGui::End();
 
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
-    ImGui::Begin("Scene");
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0., 0.));
+  ImGui::Begin("Scene");
 
-    ImVec2 vps = ImGui::GetContentRegionAvail();
-    if (vps.x != viewport_panel_size.x || vps.y != viewport_panel_size.y)
-    {
-        viewport_panel_size.x = vps.x;
-        viewport_panel_size.y = vps.y;
+  ImVec2 vps = ImGui::GetContentRegionAvail();
+  if (vps.x != viewport_panel_size.x || vps.y != viewport_panel_size.y) {
+    viewport_panel_size.x = vps.x;
+    viewport_panel_size.y = vps.y;
 
-        scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
-        editor_camera.on_resize(viewport_panel_size.x, viewport_panel_size.y);
-        ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
-        framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
-        Renderer::bind_default_framebuffer();
+    scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
+    editor_camera.on_resize(viewport_panel_size.x, viewport_panel_size.y);
+    ms_framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+    framebuffer->resize(viewport_panel_size.x, viewport_panel_size.y);
+    Renderer::bind_default_framebuffer();
+  }
+
+  auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+  auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+  auto viewportOffset = ImGui::GetWindowPos();
+  vieport_bounds[0] = {viewportMinRegion.x + viewportOffset.x,
+                       viewportMinRegion.y + viewportOffset.y};
+  vieport_bounds[1] = {viewportMaxRegion.x + viewportOffset.x,
+                       viewportMaxRegion.y + viewportOffset.y};
+
+  long int tex_id = framebuffer->get_color_attachment_id(0);
+  ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
+               ImVec2(1, 0));
+
+  // Gizmos
+  Entity selected_entity = scene_hierarchy_panel.get_selected_entity();
+  if (selected_entity && selected_entity.get_parent() && guizmo_type != -1) {
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist();
+    float windowWidth = (float)ImGui::GetWindowWidth();
+    float windowHeight = (float)ImGui::GetWindowHeight();
+    ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y,
+                      windowWidth, windowHeight);
+
+    // Editor camera
+    const glm::mat4 &camera_projection = editor_camera.get_perspective();
+    glm::mat4 camera_view = editor_camera.get_view();
+
+    // Entity transform
+    Transform &tc = selected_entity.get_component<Transform>();
+    glm::mat4 transform = tc.get_world_tansform();
+
+    // Snapping
+    bool snap = Input::is_key_pressed(GLFW_KEY_LEFT_CONTROL);
+    float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+    // Snap to 45 degrees for rotation
+    if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
+      snapValue = 45.0f;
+
+    float snapValues[3] = {snapValue, snapValue, snapValue};
+
+    int manipulation_ref_frame = ImGuizmo::WORLD;
+    if (guizmo_type == ImGuizmo::OPERATION::SCALE)
+      manipulation_ref_frame = ImGuizmo::LOCAL;
+    //         if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
+    //             manipulation_ref_frame = ImGuizmo::LOCAL;
+
+    mat4 delta_matrix;
+    ImGuizmo::Manipulate(
+        glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
+        (ImGuizmo::OPERATION)guizmo_type,
+        (ImGuizmo::MODE)manipulation_ref_frame, glm::value_ptr(transform),
+        glm::value_ptr(delta_matrix), snap ? snapValues : nullptr);
+
+    if (ImGuizmo::IsUsing()) {
+      Entity &parent = selected_entity.get_parent();
+      // 			if (!parent)  // no parent, root
+      Transform &ptc = parent.get_component<Transform>();
+
+      glm::vec3 translation, rotation, scale;
+      glm::vec3 delta_translation, delta_rotation, delta_scale;
+
+      Math::decompose_transform(delta_matrix, delta_translation, delta_rotation,
+                                delta_scale);
+
+      Math::decompose_transform(transform, translation, rotation, scale);
+
+      if (guizmo_type == ImGuizmo::OPERATION::TRANSLATE) {
+        vec4 pos = vec4(tc.position, 1.0);
+        pos += glm::inverse(ptc.get_world_tansform()) *
+               vec4(delta_translation, 0.0);
+        tc.position = vec3(pos);
+      } else if (guizmo_type == ImGuizmo::OPERATION::ROTATE) {
+//         	vec4 rot = vec4(tc.rotation, 0.0);
+//         	rot += glm::inverse(ptc.get_world_tansform()) *
+//         	       vec4(delta_rotation, 0.0);
+//         	tc.rotation = vec3(rot);
+
+        mat4 m = delta_matrix * tc.get_local_tansform();
+        Math::decompose_transform(m, translation, rotation, scale);
+        tc.rotation = rotation;
+      } else if (guizmo_type == ImGuizmo::OPERATION::SCALE)
+        tc.scale = scale;
     }
+  }
 
-	auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
-	auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-	auto viewportOffset = ImGui::GetWindowPos();
-	vieport_bounds[0] =
-		{ viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
-	vieport_bounds[1] =
-		{ viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-
-
-
-    long int tex_id = framebuffer->get_color_attachment_id(0);
-    ImGui::Image((void *)tex_id, ImVec2(vps.x, vps.y), ImVec2(0, 1),
-                 ImVec2(1, 0));
-
-
-
-    // Gizmos
-    Entity selected_entity = scene_hierarchy_panel.get_selected_entity();
-    if (selected_entity && selected_entity.get_parent() && guizmo_type != -1)
-    {
-        ImGuizmo::SetOrthographic(false);
-        ImGuizmo::SetDrawlist();
-        float windowWidth = (float)ImGui::GetWindowWidth();
-        float windowHeight = (float)ImGui::GetWindowHeight();
-        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y,
-                          windowWidth, windowHeight);
-
-        // Editor camera
-        const glm::mat4 &camera_projection = editor_camera.get_perspective();
-        glm::mat4 camera_view = editor_camera.get_view();
-
-        // Entity transform
-        Transform &tc = selected_entity.get_component<Transform>();
-        glm::mat4 transform = tc.get_world_tansform();
-
-        // Snapping
-        bool snap = Input::is_key_pressed(GLFW_KEY_LEFT_CONTROL);
-        float snapValue = 0.5f; // Snap to 0.5m for translation/scale
-        // Snap to 45 degrees for rotation
-        if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
-            snapValue = 45.0f;
-
-        float snapValues[3] = {snapValue, snapValue, snapValue};
-
-        int manipulation_ref_frame = ImGuizmo::WORLD;
-        if (guizmo_type == ImGuizmo::OPERATION::SCALE)
-            manipulation_ref_frame = ImGuizmo::LOCAL;
-
-        mat4 delta_matrix;
-        ImGuizmo::Manipulate(
-            glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-            (ImGuizmo::OPERATION)guizmo_type,
-            (ImGuizmo::MODE)manipulation_ref_frame, glm::value_ptr(transform),
-            glm::value_ptr(delta_matrix), snap ? snapValues : nullptr);
-
-        if (ImGuizmo::IsUsing())
-        {
-            Entity &parent = selected_entity.get_parent();
-            // 			if (!parent)  // no parent, root
-            Transform &ptc = parent.get_component<Transform>();
-
-            glm::vec3 translation, rotation, scale;
-            glm::vec3 delta_translation, delta_rotation, delta_scale;
-
-            Math::decompose_transform(delta_matrix, delta_translation,
-                                      delta_rotation, delta_scale);
-
-            Math::decompose_transform(transform, translation, rotation, scale);
-
-            if (guizmo_type == ImGuizmo::OPERATION::TRANSLATE)
-            {
-                vec4 pos = vec4(tc.position, 1.0);
-                pos += glm::inverse(ptc.get_world_tansform()) *
-                       vec4(delta_translation, 0.0);
-                tc.position = vec3(pos);
-            }
-            else if (guizmo_type == ImGuizmo::OPERATION::ROTATE)
-            {
-                vec4 rot = vec4(tc.rotation, 0.0);
-                rot += glm::inverse(ptc.get_world_tansform()) *
-                       vec4(delta_rotation, 0.0);
-                tc.rotation = vec3(rot);
-            }
-            else if (guizmo_type == ImGuizmo::OPERATION::SCALE)
-                tc.scale = scale;
-        }
-    }
-
-    ImGui::End();
-    ImGui::PopStyleVar();
+  ImGui::End();
+  ImGui::PopStyleVar();
 }
 
 void MainLayer::scene_options_panel()
