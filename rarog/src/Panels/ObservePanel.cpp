@@ -32,14 +32,13 @@ ObservePanel::~ObservePanel()
 
 void ObservePanel::on_imgui_render()
 {
-    vector<Entity> ents = get_scene_root_children();
+    vector<Entity> ents = get_scene_entities();
 
-	shared_ptr<OrthograficCamera> cam = NULL;
+	shared_ptr<Camera> cam = NULL;
 	if (layer->scene.observer)
 		if (layer->scene.observer.has_component<CameraComponent>())
 		{
-			cam = dynamic_pointer_cast<OrthograficCamera>(
-					layer->scene.observer.get_component<CameraComponent>().camera);
+			cam = layer->scene.observer.get_component<CameraComponent>().camera;
 		}
 
     ImGui::Begin("Observe");
@@ -140,9 +139,12 @@ void ObservePanel::target_selection_panel(vector<Entity> &ents)
                 selected_target_idx = n;
                 layer->scene.target = ents[n];
 				if (layer->scene.observer.has_component<CameraComponent>())
+				{
+					Transform &t = ents[n].get_component<Transform>();
 					layer->scene.observer.get_component<CameraComponent>()
 						.camera->update_target(
-								ents[n].get_component<Transform>().position);
+							vec3(t.get_world_tansform() * vec4(t.position, 1.0)));
+				}
             }
             // Set the initial focus when opening the combo (scrolling +
             // keyboard navigation focus)

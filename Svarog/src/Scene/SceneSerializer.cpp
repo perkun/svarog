@@ -244,6 +244,7 @@ void serialize_entity(YAML::Emitter &out, Entity entity)
 		out << YAML::EndMap;  // Uniforms
 		out << YAML::EndMap;  // Material
 	}
+	// TODO Native script component
 
     out << YAML::EndMap; // Entity
 }

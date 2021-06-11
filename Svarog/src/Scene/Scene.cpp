@@ -147,7 +147,15 @@ void Scene::on_update_runtime(double time_delta)
     {
         Renderer::set_dir_light(light.get_component<CameraComponent>().camera);
     }
+
     draw_depth_first(root_entity);
+
+	// update target
+	Transform &tt = target.get_component<Transform>();
+	glm::vec3 translation, rotation, scale;
+	Math::decompose_transform(tt.get_world_tansform(), translation, rotation, scale);
+	observer.get_component<CameraComponent>().camera->update_target( translation);
+
     Renderer::end_scene();
 }
 

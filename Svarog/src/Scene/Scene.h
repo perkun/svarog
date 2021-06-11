@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "Material.h"
 #include "EditorCamera.h"
+#include "Math.h"
 
 using namespace std;
 
