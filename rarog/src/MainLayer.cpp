@@ -301,6 +301,8 @@ void MainLayer::on_update(double time_delta)
     // 	}
     // 	fps /= history_len;
 
+	scene.update_scripts(time_delta);
+
     ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
     if (shadow_map && scene.light) // render to shadowmap

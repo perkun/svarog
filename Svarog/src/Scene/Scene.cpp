@@ -126,8 +126,7 @@ void Scene::draw_depth_first(Entity &entity)
 		draw_depth_first(child);
 }
 
-
-void Scene::on_update_runtime(double time_delta)
+void Scene::update_scripts(double time_delta)
 {
     registry.view<NativeScriptComponent>().each([=](auto entity, auto &nsc) {
         if (!nsc.instance)
@@ -138,7 +137,11 @@ void Scene::on_update_runtime(double time_delta)
         }
         nsc.instance->on_update(time_delta);
     });
+}
 
+
+void Scene::on_update_runtime(double time_delta)
+{
     CORE_ASSERT(observer.has_component<CameraComponent>(),
                 "Observer does not have a CameraComponent");
 

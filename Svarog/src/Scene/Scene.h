@@ -45,6 +45,7 @@ public:
 	void draw_depth_first(Entity&);
 
 	void on_resize(float, float);
+	void update_scripts(double);
 	void on_update_runtime(double);
 	void on_update_shadow();
 	void on_update_editor(double, EditorCamera&);
