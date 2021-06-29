@@ -35,8 +35,6 @@ void MainLayer::on_attach()
     Renderer::set_line_width(5);
     auto window = Application::get_window();
 
-    vector<double> mp = args.get_vec_values<double>("model-pos");
-    init_model_pos = vec3(mp[0], mp[1], mp[2]);
 
     FramebufferSpecification ms_fb_specs;
     ms_fb_specs.attachments = {FramebufferTextureFormat::RGBA32F,
@@ -112,7 +110,8 @@ void MainLayer::on_attach()
 		oc.set_rot_phase_at_jd(args.get_value<double>("jd"));
 
 
-    // 	set rot_phase at jd
+    vector<double> mp = args.get_vec_values<double>("model-pos");
+    init_model_pos = vec3(mp[0], mp[1], mp[2]) * 100.f;
 
     Transform &mt = model.get_component<Transform>();
     mt.position = init_model_pos;
@@ -128,12 +127,18 @@ void MainLayer::on_attach()
     model.add_component<NativeScriptComponent>().bind<AsteroidController>();
 
 
-    Entity runtime_observer = scene.create_entity("Observer");
-    CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
-        make_shared<OrthograficCamera>(cam_size_x, 1.0, 0.1, 10.));
 
     vector<double> cp = args.get_vec_values<double>("observer-pos");
-    rocp.camera->position = vec3(cp[0], cp[1], cp[2]);
+	vec3 init_cam_pos = vec3(cp[0], cp[1], cp[2]) * 100.f;
+
+	float distance_model_obs = glm::length(init_cam_pos - init_model_pos);
+
+    Entity runtime_observer = scene.create_entity("Observer");
+    CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
+        make_shared<OrthograficCamera>(cam_size_x, 1.0, distance_model_obs - 2, distance_model_obs + 2));
+
+
+    rocp.camera->position = init_cam_pos;
     rocp.camera->update_target(init_model_pos);
 
     Transform &rot = runtime_observer.get_component<Transform>();
@@ -151,9 +156,11 @@ void MainLayer::on_attach()
     light.add_component<FramebufferComponent>(
         make_shared<Framebuffer>(light_fb_specs));
 
+	float distance_model_light = glm::length(init_model_pos);
     light.add_component<CameraComponent>(
-        make_shared<OrthograficCamera>(3., 1., 0.01, 10.));
+        make_shared<OrthograficCamera>(2.5, 1., distance_model_light -2, distance_model_light + 2));
     light.get_component<Transform>().scale = vec3(0.1);
+	light.get_component<SceneStatus>().render = false;
 
 
     scene.root_entity.add_child(model);
@@ -166,9 +173,6 @@ void MainLayer::on_attach()
 
     lightcurves = new LightcurveSeries;
 
-	// TODO
-	// * rozproszenie pozycji razy X
-	// * ustawienie viewing frusutrm
 
     TRACE("making lc, {}", lc_num_points);
     make_lightcurve(lightcurves, lc_num_points);

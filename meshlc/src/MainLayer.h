@@ -44,9 +44,8 @@ private:
     vec3 init_model_pos;
     vec2 viewport_panel_size;
 
-    vec2 last_cursor_pos;
 
-	int lc_num_points = 360;
+	int lc_num_points = 90;
 	LightcurveSeries *lightcurves;
 
     // defaults:

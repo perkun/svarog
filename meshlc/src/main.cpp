@@ -7,8 +7,8 @@
 using namespace std;
 
 
-#define WIN_W 800
-#define WIN_H 600
+#define WIN_W 256
+#define WIN_H 256
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     parser.add_option("jd0", "julian day of gamma", false, "");
     parser.add_option("period", "rotation periond in hours", false, "");
     parser.add_option('n', "num-points", "specify number of lightcurve points",
-                      false, "360");
+                      false, "90");
 	parser.add_option('o', "out", "output filename", false, "lc.dat");
 
     Args args = parser.parse_args(argc, argv);
