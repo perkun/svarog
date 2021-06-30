@@ -118,7 +118,6 @@ protected:
             update_rotation();
         }
 
-
         last_cursor_pos = event.get_cursor_pos();
     }
 

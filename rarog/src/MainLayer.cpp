@@ -301,8 +301,8 @@ void MainLayer::on_update(double time_delta)
     // 	}
     // 	fps /= history_len;
 
-	if (mode == Mode::RUNTIME)
-		scene.update_scripts(time_delta);
+    if (mode == Mode::RUNTIME)
+        scene.update_scripts(time_delta);
 
     ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
@@ -352,13 +352,13 @@ void MainLayer::on_update(double time_delta)
     {
         ms_framebuffer->bind();
         ms_framebuffer->clear();
-		ms_framebuffer->clear_attachment(1, -1);  // ent_id "bg" to -1
+        ms_framebuffer->clear_attachment(1, -1); // ent_id "bg" to -1
     }
     else
     {
         framebuffer->bind();
         framebuffer->clear();
-		framebuffer->clear_attachment(1, -1);  // ent_id "bg" to -1
+        framebuffer->clear_attachment(1, -1); // ent_id "bg" to -1
     }
 
     if (mode == Mode::EDITOR)
@@ -369,14 +369,22 @@ void MainLayer::on_update(double time_delta)
     }
     else if (mode == Mode::RUNTIME)
     {
+
+        // update target
+        Transform &tt = scene.target.get_component<Transform>();
+        glm::vec3 translation, rotation, scale;
+        Math::decompose_transform(tt.get_world_tansform(), translation,
+                                  rotation, scale);
+        scene.observer.get_component<CameraComponent>().camera->update_target(
+            translation);
         scene.on_update_runtime(time_delta);
     }
 
     if (multisampling)
-	{
+    {
         Framebuffer::blit(ms_framebuffer, framebuffer, 0, 0);
         Framebuffer::blit(ms_framebuffer, framebuffer, 1, 1);
-	}
+    }
 
     Renderer::bind_default_framebuffer();
 }

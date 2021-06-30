@@ -204,6 +204,7 @@ void MainLayer::on_update(double ts)
     ms_framebuffer->clear();
     ms_framebuffer->clear_attachment(1, -1); // ent_id "bg" to -1
 
+	scene.update_scripts(ts);
     scene.on_update_runtime(ts);
 
     Framebuffer::blit(ms_framebuffer, framebuffer, 0, 0);
@@ -213,6 +214,7 @@ void MainLayer::on_update(double ts)
 
 	if (info_overlay.timeout > 0.)
 		info_overlay.timeout -= ts;
+
 }
 
 
