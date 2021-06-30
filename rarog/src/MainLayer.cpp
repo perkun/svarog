@@ -301,7 +301,8 @@ void MainLayer::on_update(double time_delta)
     // 	}
     // 	fps /= history_len;
 
-	scene.update_scripts(time_delta);
+	if (mode == Mode::RUNTIME)
+		scene.update_scripts(time_delta);
 
     ASSERT(mode < Mode::NUM_MODES, "Wrong Mode");
 
@@ -447,9 +448,11 @@ void MainLayer::set_runtime_mode()
     scene.on_resize(viewport_panel_size.x, viewport_panel_size.y);
 }
 
-void MainLayer::menu_bar() {
+void MainLayer::menu_bar()
+{
   ImGuiIO &io = ImGui::GetIO();
-  auto bold_font = io.Fonts->Fonts[0];
+  auto bold_font = io.Fonts->Fonts[1];
+
 
   ImGui::PushFont(bold_font);
   if (ImGui::BeginMainMenuBar()) {

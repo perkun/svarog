@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
     parser.add_vec_option("model-pos", "xyz of the model", 3, true);
     parser.add_vec_option("observer-pos", "xyz of the observer", 3, true);
 
-    parser.add_flag("header", "load angles from obj header");
+    parser.add_flag("header", "load model parameters from obj header");
 
     parser.add_vec_option("spin", "specify lambda, beta, gamma", 3, false);
     parser.add_option("jd", "julian day of observation", false, "");
-    parser.add_option("jd0", "julian day of gamma", false, "");
+    parser.add_option("jd0", "julian day of gamma_0", false, "");
     parser.add_option("period", "rotation periond in hours", false, "");
     parser.add_option('n', "num-points", "specify number of lightcurve points",
                       false, "90");

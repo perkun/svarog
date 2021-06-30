@@ -302,13 +302,14 @@ project "Svarog"
 		symbols "On"
 		defines "SV_DEBUG"
 		defines "SPDLOG_COMPILED_LIB"
--- 		defines "SV_CONFIG_FONT_PATH=\"/home/perkun/projects/svarog/Svarog/assets/fonts\""
+		defines "SV_CONFIG_FONT_PATH=\"/home/perkun/projects/svarog/Svarog/assets/fonts\""
 
 	filter "configurations:Release"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
 		defines "SPDLOG_COMPILED_LIB"
+		defines "SV_CONFIG_FONT_PATH=\"/home/perkun/projects/svarog/Svarog/assets/fonts\""
 
 	filter "configurations:Dist"
 		-- defines...

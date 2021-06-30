@@ -42,14 +42,22 @@ void ImGuiLayer::on_attach()
     char main_font_path[] =
         SV_CONFIG_FONT_PATH "/InconsolataGo Nerd Font Complete.ttf";
 #else
-    char bold_font_path[] = "/usr/share/fonts/TTF/Inconsolata-Bold.ttf";
-    char main_font_path[] =
-        "/usr/share/fonts/TTF/InconsolataGo Nerd Font Complete.ttf";
+    char bold_font_path[] = "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf";
+    char main_font_path[] = "/usr/share/fonts/TTF/DejaVuSans.ttf";
+
+//     char bold_font_path[] = "/usr/share/fonts/TTF/Inconsolata-Bold.ttf";
+//     char main_font_path[] = "/usr/share/fonts/TTF/InconsolataGo Nerd Font Complete.ttf";
 #endif
 
-    io.Fonts->AddFontFromFileTTF(bold_font_path, 18.0f);
-    io.FontDefault = io.Fonts->AddFontFromFileTTF(main_font_path, 18.0f,
+    io.Fonts->AddFontFromFileTTF(main_font_path, 18.0f);
+    io.Fonts->AddFontFromFileTTF(main_font_path, 18.0f,
                                                   &config, icon_ranges);
+    io.Fonts->AddFontFromFileTTF(bold_font_path, 18.0f);
+
+//     io.FontDefault = io.Fonts->AddFontFromFileTTF(main_font_path, 18.0f,
+//                                                   &config, icon_ranges);
+
+// 	io.Fonts->Build();
 
 
 
