@@ -37,6 +37,9 @@ int main(int argc, char *argv[])
     parser.add_option('n', "num-points", "specify number of lightcurve points",
                       false, "90");
 	parser.add_option('o', "out", "output filename", false, "lc.dat");
+	parser.add_option("LSL", "Lambert to Lommel-Seeliger ratio", false, "0.1");
+
+	parser.add_flag("debug", "debug mode");
 
     Args args = parser.parse_args(argc, argv);
 
@@ -49,14 +52,14 @@ int main(int argc, char *argv[])
         }
 
 
-    Application::init(WIN_W, WIN_H, "meshview", false, false);
+    Application::init(WIN_W, WIN_H, "meshview", false, args["debug"]);
     Application::get_window()->set_cursor_normal();
 
-    auto &io = ImGui::GetIO();
-    // 	io.IniFilename = NULL;
-    // 	io.ConfigFlags &= ~ImGuiConfigFlags_DockingEnable;
-    // 	io.ConfigFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
-    io.ConfigDockingAlwaysTabBar = false;
+//     auto &io = ImGui::GetIO();
+//     // 	io.IniFilename = NULL;
+//      	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+//     // 	io.ConfigFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+//     //io.ConfigDockingAlwaysTabBar = false;
 
 // load shaders
 #include "../shaders/basic.vs.include"

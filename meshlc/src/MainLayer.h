@@ -30,9 +30,8 @@ private:
     Args args;
     Scene scene;
 
-    Entity axes;
-
     Framebuffer *ms_framebuffer, *framebuffer;
+
 
     bool display_header_info = true;
     bool display_axes = false;
@@ -43,6 +42,8 @@ private:
 
     vec3 init_model_pos;
     vec2 viewport_panel_size;
+
+	float position_mult = 100.f;
 
 
 	int lc_num_points = 90;

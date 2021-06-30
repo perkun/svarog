@@ -12,6 +12,7 @@
 // #include "ObservatoryPanel.h"
 #include "Utils/ObjHeader.h"
 #include "Image.h"
+#include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 
 
@@ -56,8 +57,8 @@ void MainLayer::on_attach()
 
     framebuffer = new Framebuffer(fb_specs);
 
-	if (args["num-points"])
-		lc_num_points = args.get_value<int>("num-points");
+    if (args["num-points"])
+        lc_num_points = args.get_value<int>("num-points");
 
 
     Entity model = scene.create_entity("Model");
@@ -69,6 +70,8 @@ void MainLayer::on_attach()
 
     Material &m = model.add_component<Material>("tex_sha_ls");
     m.uniforms_int["u_has_texture"] = 0;
+
+	m.uniforms_float["LSL"] = args.get_value<float>("LSL");
 
     if (args["texture"])
     {
@@ -90,28 +93,28 @@ void MainLayer::on_attach()
         // default lambda = 0; beta = 90
         model.add_component<OrbitalComponent>();
 
-	OrbitalComponent &oc = model.get_component<OrbitalComponent>();
+    OrbitalComponent &oc = model.get_component<OrbitalComponent>();
 
     if (args["spin"])
     {
         vector<double> spin = args.get_vec_values<double>("spin");
 
-		oc.lambda = spin[0] * M_PI / 180.;
-		oc.beta = spin[1] * M_PI / 180.;
-		oc.gamma = spin[2] * M_PI / 180.;
+        oc.lambda = spin[0] * M_PI / 180.;
+        oc.beta = spin[1] * M_PI / 180.;
+        oc.gamma = spin[2] * M_PI / 180.;
     }
 
 
-	if (args["jd0"])
-		oc.jd_0 = args.get_value<double>("jd0");
-	if (args["period"])
-		oc.rot_period = args.get_value<double>("period");
-	if (args["jd"])
-		oc.set_rot_phase_at_jd(args.get_value<double>("jd"));
+    if (args["jd0"])
+        oc.jd_0 = args.get_value<double>("jd0");
+    if (args["period"])
+        oc.rot_period = args.get_value<double>("period");
+    if (args["jd"])
+        oc.set_rot_phase_at_jd(args.get_value<double>("jd"));
 
 
     vector<double> mp = args.get_vec_values<double>("model-pos");
-    init_model_pos = vec3(mp[0], mp[1], mp[2]) * 100.f;
+    init_model_pos = vec3(mp[0], mp[1], mp[2]) * position_mult;
 
     Transform &mt = model.get_component<Transform>();
     mt.position = init_model_pos;
@@ -127,21 +130,22 @@ void MainLayer::on_attach()
     model.add_component<NativeScriptComponent>().bind<AsteroidController>();
 
 
-
     vector<double> cp = args.get_vec_values<double>("observer-pos");
-	vec3 init_cam_pos = vec3(cp[0], cp[1], cp[2]) * 100.f;
+    vec3 init_cam_pos = vec3(cp[0], cp[1], cp[2]) * position_mult;
 
-	float distance_model_obs = glm::length(init_cam_pos - init_model_pos);
+    float distance_model_obs = glm::length(init_cam_pos - init_model_pos);
+
 
     Entity runtime_observer = scene.create_entity("Observer");
     CameraComponent &rocp = runtime_observer.add_component<CameraComponent>(
-        make_shared<OrthograficCamera>(cam_size_x, 1.0, distance_model_obs - 2, distance_model_obs + 2));
-
+        make_shared<OrthograficCamera>(cam_size_x, 1.0, distance_model_obs - 2,
+                                       distance_model_obs + 2));
 
     rocp.camera->position = init_cam_pos;
     rocp.camera->update_target(init_model_pos);
 
     Transform &rot = runtime_observer.get_component<Transform>();
+    rot.position = init_cam_pos;
 
 
     Entity light = scene.create_entity("Light");
@@ -156,11 +160,13 @@ void MainLayer::on_attach()
     light.add_component<FramebufferComponent>(
         make_shared<Framebuffer>(light_fb_specs));
 
-	float distance_model_light = glm::length(init_model_pos);
-    light.add_component<CameraComponent>(
-        make_shared<OrthograficCamera>(2.5, 1., distance_model_light -2, distance_model_light + 2));
+    light.get_component<Transform>().position = vec3(0.);
+
+    float distance_model_light = glm::length(init_model_pos);
+    light.add_component<CameraComponent>(make_shared<OrthograficCamera>(
+        2.5, 1., distance_model_light - 2, distance_model_light + 2));
     light.get_component<Transform>().scale = vec3(0.1);
-	light.get_component<SceneStatus>().render = false;
+    light.get_component<SceneStatus>().render = false;
 
 
     scene.root_entity.add_child(model);
@@ -173,15 +179,20 @@ void MainLayer::on_attach()
 
     lightcurves = new LightcurveSeries;
 
+	// TODO wywalić?
+	on_update(0.);
 
-    TRACE("making lc, {}", lc_num_points);
-    make_lightcurve(lightcurves, lc_num_points);
-    Lightcurve *lc = (Lightcurve *)lightcurves->get_current_obs();
-	TRACE("size: {}", lc->size());
-    TRACE("saving lc");
-    lc->save_mag(args.get_value<string>("out"));
+    if (!args["debug"])
+    {
+        TRACE("making lc, {}", lc_num_points);
+        make_lightcurve(lightcurves, lc_num_points);
+        Lightcurve *lc = (Lightcurve *)lightcurves->get_current_obs();
+        TRACE("size: {}", lc->size());
+        TRACE("saving lc");
+        lc->save_mag(args.get_value<string>("out"));
 
-    Application::stop();
+        Application::stop();
+    }
 }
 
 
@@ -245,6 +256,7 @@ void MainLayer::on_update(double ts)
 
 void MainLayer::on_imgui_render()
 {
+    ImGui::DockSpaceOverViewport();
     ImGui::Begin("Scene");
 
     ImVec2 vps = ImGui::GetContentRegionAvail();
@@ -294,6 +306,27 @@ void MainLayer::on_key_released_event(KeyReleasedEvent &event)
         Lightcurve *lc = (Lightcurve *)lightcurves->get_current_obs();
         TRACE("saving lc");
         lc->save_mag("lc.dat");
+    }
+    else if (key_code == GLFW_KEY_S)
+    {
+        if (Input::is_key_pressed(GLFW_KEY_LEFT_SHIFT))
+            scene.target.get_component<OrbitalComponent>().rotation_speed = 1.;
+        else
+            scene.target.get_component<OrbitalComponent>().rotation_speed = 0.;
+    }
+    else if (key_code == GLFW_KEY_SPACE)
+    {
+        OrbitalComponent &oc = scene.target.get_component<OrbitalComponent>();
+		oc.rotation_phase += 10.*M_PI/180.;
+    	Transform &mt = scene.target.get_component<Transform>();
+    	mt.rotation = oc.xyz_from_lbg();
+    }
+    else if (key_code == GLFW_KEY_0)
+    {
+        OrbitalComponent &oc = scene.target.get_component<OrbitalComponent>();
+		oc.rotation_phase = 0;
+    	Transform &mt = scene.target.get_component<Transform>();
+    	mt.rotation = oc.xyz_from_lbg();
     }
 }
 

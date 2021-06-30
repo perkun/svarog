@@ -13,13 +13,15 @@ uniform int u_has_texture;
 
 uniform int u_entity_id;
 
+uniform float LSL;
+
 uniform sampler2D u_texture;
 uniform sampler2D u_depth_map;
 
 
 float evaluate_shadow(vec4 vertex_position_light)
 {
-	float epsilon = 0.001;
+	float epsilon = 0.01;
 
 	float shadow = texture(u_depth_map, vertex_position_light.xy).r;
 	if (shadow + epsilon < vertex_position_light.z)						// jeżeli shadow jest dalej niż vertex_pos
@@ -46,7 +48,6 @@ void main()
 	float mi = dot(normal_eye, vec3(0., 0., 1.));
 	mi = max(mi, 0);
 
-	float LSL = 0.1;
 	float flux = (1.0 - LSL) * mi_0 / (mi_0 + mi);
 	flux += LSL*mi_0;
 	flux *= shadow_factor;
