@@ -60,3 +60,54 @@ as a fiery falcon.
 # Installation
 
 ## Requariments
+
+Install those packages in your system using system package manager:
+
+* premake
+* glm
+* glfw-x11
+* glew
+* cfitsio
+* yaml-cpp
+
+also, install this library:
+[https://github.com/perkun/cppargs.git](https://github.com/perkun/cppargs.git)
+
+and this one:
+[https://github.com/gabime/spdlog.git](https://github.com/gabime/spdlog.git)
+
+Note: after compiling as described in spdlog's README, do `make install` (as
+root)
+
+## Compilation
+
+Download source
+
+```bash
+git clone https://github.com/perkun/svarog.git
+cd svarog
+git submodule update --init
+```
+
+Edit the two lines near the end of  `premake5.lua`:
+
+```
+		defines "SV_CONFIG_FONT_PATH=\"/home/perkun/projects/svarog/Svarog/assets/fonts\""
+```
+
+the path should begin with the path to the directory where svarog project was
+cloned
+
+Then, compile
+
+```bash
+premake5 gmake
+make
+```
+
+If you get errors from `stb_image` library, add `#define STBI_NO_JPEG` ate the
+beginning of `Svarog/vendor/stb_image/stb_image.cpp` file. If that does not
+help, contact me.
+
+
+
