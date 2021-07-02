@@ -56,3 +56,7 @@ as a fiery falcon.
     - [ ] chmara punktów
 - [ ] Marching Cubes na chmurze punktów
 
+
+# Installation
+
+## Requariments
