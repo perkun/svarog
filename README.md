@@ -69,15 +69,17 @@ Install those packages in your system using system package manager:
 * glew
 * cfitsio
 * yaml-cpp
+* vim (required for `xxd` utility)
 
-also, install this library:
+Also, install this library:
 [https://github.com/perkun/cppargs.git](https://github.com/perkun/cppargs.git)
 
-and this one:
+And this one:
 [https://github.com/gabime/spdlog.git](https://github.com/gabime/spdlog.git)
 
-Note: after compiling as described in spdlog's README, do `make install` (as
-root)
+Note: after compiling (as described in spdlog's README), do `make install` (as
+root). You have to install it from source this way, because system package does
+not work for this project somehow.
 
 ## Compilation
 
@@ -95,19 +97,46 @@ Edit the two lines near the end of  `premake5.lua`:
 		defines "SV_CONFIG_FONT_PATH=\"/home/perkun/projects/svarog/Svarog/assets/fonts\""
 ```
 
-the path should begin with the path to the directory where svarog project was
-cloned
+the path should begin with the path to the directory where svarog project has
+been cloned
 
-Then, compile
+
+
+** Uncomment stuf in premake5.lua, so the below happens automatically **
+
+Then you need to compliple shaders for each program. To do it for `rarog`, do:
+
+```bash
+cd rarog/shaders/
+./to-hex-include
+cd ../../
+```
+
+Do the same for `meshview` and `meshlc`
+
+
+
+Then, compile the code:
 
 ```bash
 premake5 gmake
 make
 ```
 
-If you get errors from `stb_image` library, add `#define STBI_NO_JPEG` ate the
+If you get errors from `stb_image` library, add `#define STBI_ONLY_PNG`
 beginning of `Svarog/vendor/stb_image/stb_image.cpp` file. If that does not
 help, contact me.
+
+
+To compile Release version, and install it:
+
+```bash
+make config=release
+cp bin/Release/{rarog,meshview,meshlc}/ /usr/bin
+```
+
+TODO imgui.ini files in `/home/$USER/.config/...`
+
 
 
 
