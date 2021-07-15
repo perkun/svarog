@@ -27,11 +27,11 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <yaml-cpp/yaml.h>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "Log.h"
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"

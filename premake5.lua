@@ -65,6 +65,7 @@ project "rarog"
  		"Svarog/vendor/stb_image",
  		"Svarog/vendor/entt",
  		"Svarog/vendor/ImGuizmo",
+ 		"Svarog/vendor/spdlog/include/spdlog",
  		"Svarog/vendor/cppargs",
 		"Svarog/assets/fonts"
 	}
@@ -133,6 +134,7 @@ project "meshview"
  		"Svarog/vendor/stb_image",
  		"Svarog/vendor/entt",
  		"Svarog/vendor/ImGuizmo",
+ 		"Svarog/vendor/spdlog/include/spdlog",
  		"Svarog/vendor/cppargs",
 		"Svarog/assets/fonts"
 	}
@@ -192,6 +194,7 @@ project "meshlc"
  		"Svarog/vendor/stb_image",
  		"Svarog/vendor/entt",
  		"Svarog/vendor/ImGuizmo",
+ 		"Svarog/vendor/spdlog/include/spdlog",
  		"Svarog/vendor/cppargs",
 		"Svarog/assets/fonts"
 	}
@@ -314,6 +317,7 @@ project "Svarog"
 		"%{prj.name}/vendor/imgui/**.cpp",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp",
+ 		"%{prj.name}/vendor/spdlog/include/spdlog/**.h",
 		"%{prj.name}/vendor/cppargs/**.h",
 		"%{prj.name}/vendor/cppargs/**.cpp",
 		--"src/**.h",
@@ -335,6 +339,7 @@ project "Svarog"
  		"%{prj.name}/vendor/spdlog",
  		"%{prj.name}/vendor/entt",
  		"%{prj.name}/vendor/ImGuizmo",
+ 		"%{prj.name}/vendor/spdlog/include/spdlog",
  		"%{prj.name}/vendor/cppargs",
 	}
 
