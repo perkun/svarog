@@ -1,3 +1,22 @@
+newoption {
+	trigger = "fonts-path",
+	description = "Specify path to the fonts folder",
+	value = "PATH"
+}
+
+newoption {
+	trigger = "rarog-ini",
+	value = "PATH",
+	description = "path to Rarogs ini file"
+}
+
+newoption {
+	trigger = "meshlc-ini",
+	value = "PATH",
+	description = "path to meshlc ini file"
+}
+
+
 workspace "Svarog"
 	architecture "x64"
 
@@ -56,17 +75,27 @@ project "rarog"
 	links { "glfw", "GLEW", "GL", "cfitsio",
 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
 
+-- 	local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
+
 	filter "configurations:Debug"
 		-- defines...
 		symbols "On"
 		defines "SV_DEBUG"
 		defines "SPDLOG_COMPILED_LIB"
+		if _OPTIONS["rarog-ini"] then
+			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
+			defines { ini_file }
+		end
 
 	filter "configurations:Release"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
 		defines "SPDLOG_COMPILED_LIB"
+		if _OPTIONS["rarog-ini"] then
+			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
+			defines { ini_file }
+		end
 
 	filter "configurations:Dist"
 		-- defines...
@@ -170,6 +199,7 @@ project "meshlc"
 
  	prebuildcommands { "cd shaders; ./to-hex-include" }
 
+
 	links { "glfw", "GLEW", "GL", "cfitsio",
 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
 
@@ -178,12 +208,20 @@ project "meshlc"
 		symbols "On"
 		defines "SV_DEBUG"
 		defines "SPDLOG_COMPILED_LIB"
+		if _OPTIONS["meshlc-ini"] then
+			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["meshlc-ini"] .. "\""
+			defines { ini_file }
+		end
 
 	filter "configurations:Release"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
 		defines "SPDLOG_COMPILED_LIB"
+		if _OPTIONS["meshlc-ini"] then
+			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["meshlc-ini"] .. "\""
+			defines { ini_file }
+		end
 
 	filter "configurations:Dist"
 		-- defines...
@@ -301,21 +339,30 @@ project "Svarog"
 	}
 
 
+
 	links { "glfw", "GLEW", "GL", "cfitsio", "yaml-cpp", "pthread", "spdlog" }
+
+	if not _OPTIONS["fonts-path"] then
+		_OPTIONS["fonts-path"] = _WORKING_DIR .. "/Svarog/assets/fonts"
+	end
+	local fonts_path = _OPTIONS["fonts-path"]
+	local fonts_def = "SV_CONFIG_FONT_PATH=\"" .. fonts_path .. "\""
+
+	printf("%s\n", fonts_def)
 
 	filter "configurations:Debug"
 		-- defines...
 		symbols "On"
 		defines "SV_DEBUG"
 		defines "SPDLOG_COMPILED_LIB"
-		defines "SV_CONFIG_FONT_PATH=\"/home/perkun/projects/svarog/Svarog/assets/fonts\""
+		defines { fonts_def }
 
 	filter "configurations:Release"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
 		defines "SPDLOG_COMPILED_LIB"
-		defines "SV_CONFIG_FONT_PATH=\"/home/perkun/projects/svarog/Svarog/assets/fonts\""
+		defines { fonts_def }
 
 	filter "configurations:Dist"
 		-- defines...

@@ -55,6 +55,13 @@ int main(int argc, char *argv[])
     Application::init(WIN_W, WIN_H, "meshview", false, args["debug"]);
     Application::get_window()->set_cursor_normal();
 
+	auto &io = ImGui::GetIO();
+#ifdef SV_CONFIG_INI_FILE
+	io.IniFilename = SV_CONFIG_INI_FILE;
+#endif
+
+	TRACE("ini file: {}", io.IniFilename);
+
 //     auto &io = ImGui::GetIO();
 //     // 	io.IniFilename = NULL;
 //      	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;

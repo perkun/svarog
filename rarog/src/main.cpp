@@ -34,6 +34,10 @@ int main(int argc, char *argv[])
 	Application::init(WIN_W, WIN_H, "Application", false);
 	Application::get_window()->set_cursor_normal();
 
+#ifdef SV_CONFIG_INI_FILE
+	auto &io = ImGui::GetIO();
+	io.IniFilename = SV_CONFIG_INI_FILE;
+#endif
 
 	// load shaders
 	#include "../shaders/basic.vs.include"

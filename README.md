@@ -1,10 +1,12 @@
 # Svarog
 
-Svarog is an Application Engine.
+Svarog is an Application Engine written in C++ and OpenGL. It enables creating
+3D applications.
+
+The Svarogs' code is based on the [Hazel engine](https://github.com/TheCherno/Hazel).
 
 The name "Svarog" comes from the slavic god of fire and god of the sun and
 blacksmithing, equated with Hephaistos and Helios in Russian chronicles.
-
 
 
 # Applications
@@ -55,6 +57,7 @@ Install those packages in your system using system package manager:
 * cfitsio
 * yaml-cpp
 * vim (required for `xxd` utility)
+* zenity
 
 Also, install this library:
 [https://github.com/gabime/spdlog.git](https://github.com/gabime/spdlog.git)
@@ -63,9 +66,7 @@ Note: after compiling spdlog (as described in spdlog's README), do `make
 install` (as root). You have to install it from source this way, because system
 package does not work for this project somehow.
 
-## Compilation
-
-Download source
+## Download source
 
 ```bash
 git clone https://github.com/perkun/svarog.git
@@ -73,37 +74,51 @@ cd svarog
 git submodule update --init
 ```
 
-Edit the two lines near the end of  `premake5.lua`:
+## Installing in the system
 
+Run
 ```
-		defines "SV_CONFIG_FONT_PATH=\"/home/perkun/projects/svarog/Svarog/assets/fonts\""
+chmod +x install
+./install
 ```
 
-the path should begin with the path to the directory where svarog project has
-been cloned
+Do not run as root. It will prompt for password at the end to copy executabes to
+`/usr/local/bin`. The script creates `/home/$USER/.config/svarog` folder and
+copies there default `.ini` files and fonts there.
 
+## Compiling in local folder
 
+You can compile the code without installing it. The executables will be located
+in `bin/CONFIG/PROGRAM`, where config is `Debug` or `Release`, and `PROGRAM` is
+either `rarog`, `meshlc` or `meshview`.
 
-Then, compile the code:
+To compile the code, run
 
 ```bash
 premake5 gmake
+```
+and then, either
+```
 make
 ```
+for the `Debug` version, or
+```
+make config=release
+```
+for the optimized release version.
+
+The panels in `rarog` program will be a mess. You can copy
+```
+data/rarog_imgui.ini bin/CONFIG/rarog/imgui.ini
+```
+
+to have a default panel layout.
+
 
 If you get errors from `stb_image` library, add `#define STBI_ONLY_PNG`
 beginning of `Svarog/vendor/stb_image/stb_image.cpp` file. If that does not
 help, contact me.
 
-
-To compile Release version, and install it:
-
-```bash
-make config=release
-cp bin/Release/{rarog,meshview,meshlc}/ /usr/bin
-```
-
-TODO imgui.ini files in `/home/$USER/.config/...`
 
 
 

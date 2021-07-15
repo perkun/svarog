@@ -37,6 +37,7 @@ void ImGuiLayer::on_attach()
     static const ImWchar icon_ranges[] = {0xe000, 0xfd47, 0};
 
 
+
 #ifdef SV_CONFIG_FONT_PATH
     char bold_font_path[] = SV_CONFIG_FONT_PATH "/Inconsolata-Bold.ttf";
     char main_font_path[] =

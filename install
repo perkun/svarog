@@ -1,0 +1,33 @@
+#!/bin/bash
+# created by perkun on 15/07/2021
+
+# make config folder
+CONFDIR=/home/$USER/.config/svarog
+if [[ -d $CONFDIR ]]; then
+    echo "$CONFDIR already exists. Using existing configuration."
+else
+	mkdir /home/$USER/.config/svarog
+	mkdir /home/$USER/.config/svarog/rarog
+	mkdir /home/$USER/.config/svarog/meshlc
+
+	cp -r Svarog/assets/fonts $CONFDIR/
+	cp data/rarog_imgui.ini ${CONFDIR}/rarog/imgui.ini
+	cp data/meshlc_imgui.ini ${CONFDIR}/meshlc/imgui.ini
+fi
+exit
+
+
+# specify premake5 options
+MESHLC_INI="--meshlc-ini=/home/$USER/.config/svarog/meshlc/imgui.ini"
+RAROG_INI="--rarog-ini=/home/$USER/.config/svarog/rarog/imgui.ini"
+FONTS_DIR="--fonts-path=/home/$USER/.config/svarog/fonts"
+
+# generate files
+premake5 gmake $MESHLC_INI $RAROG_INI $FONTS_DIR
+make clean config=release
+make config=release
+
+# copy executables
+sudo cp bin/Release/rarog/rarog /usr/local/bin/
+sudo cp bin/Release/meshlc/meshlc /usr/local/bin/
+sudo cp bin/Release/meshview/meshview /usr/local/bin/
