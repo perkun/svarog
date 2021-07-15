@@ -109,12 +109,12 @@ for the optimized release version.
 
 The panels in `rarog` program will be a mess. You can copy
 ```
-data/rarog_imgui.ini bin/CONFIG/rarog/imgui.ini
+cp data/rarog_imgui.ini bin/CONFIG/rarog/imgui.ini
 ```
 to have a default panel layout.
 
 
-If you get errors from `stb_image` library, add `#define STBI_ONLY_PNG`
+If you get errors from `stb_image` library, add `#define STBI_ONLY_PNG` at the
 beginning of `Svarog/vendor/stb_image/stb_image.cpp` file. If that does not
 help, contact me.
 
