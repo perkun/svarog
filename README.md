@@ -23,8 +23,8 @@ synthetic lightcurves, AO and radar images.
 * loading / saving scenes
 * loading asteroid models
 * generating lightcurves
-* makeing Adaptive Optics images
-* makeing radar images
+* making Adaptive Optics images
+* making radar images
 * arranging models in hierarchy
 * moving, rotating, scaling models
 * textures
@@ -39,14 +39,14 @@ help.
 
 ## meshlc
 
-Program for generating lightcurves from .obj nad .shp models. As for now, it
+Program for generating lightcurves from .obj and .shp models. As for now, it
 uses Lambert + Lommel-Seeliger scattering law (with an adjustable parameter).
 
 
 
 # Installation
 
-## Requariments
+## Requirements
 
 Install those packages in your system using system package manager:
 
@@ -82,14 +82,14 @@ chmod +x install
 ./install
 ```
 
-Do not run as root. It will prompt for password at the end to copy executabes to
-`/usr/local/bin`. The script creates `/home/$USER/.config/svarog` folder and
-copies there default `.ini` files and fonts there.
+Do not run as root. It will prompt for password at the end to copy executables
+to `/usr/local/bin`. The script creates `/home/$USER/.config/svarog` folder and
+copies default `.ini` files and fonts there.
 
 ## Compiling in local folder
 
 You can compile the code without installing it. The executables will be located
-in `bin/CONFIG/PROGRAM`, where config is `Debug` or `Release`, and `PROGRAM` is
+in `bin/CONFIG/PROGRAM`, where `CONFIG` is `Debug` or `Release`, and `PROGRAM` is
 either `rarog`, `meshlc` or `meshview`.
 
 To compile the code, run
@@ -111,7 +111,6 @@ The panels in `rarog` program will be a mess. You can copy
 ```
 data/rarog_imgui.ini bin/CONFIG/rarog/imgui.ini
 ```
-
 to have a default panel layout.
 
 
