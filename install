@@ -14,7 +14,6 @@ else
 	cp data/rarog_imgui.ini ${CONFDIR}/rarog/imgui.ini
 	cp data/meshlc_imgui.ini ${CONFDIR}/meshlc/imgui.ini
 fi
-exit
 
 
 # specify premake5 options
