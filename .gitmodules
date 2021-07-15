@@ -1,3 +1,6 @@
 [submodule "Svarog/vendor/ImGuizmo"]
 	path = Svarog/vendor/ImGuizmo
 	url = https://github.com/TheCherno/ImGuizmo.git
+[submodule "Svarog/vendor/cppargs"]
+	path = Svarog/vendor/cppargs
+	url = https://github.com/perkun/cppargs.git

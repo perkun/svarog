@@ -46,13 +46,14 @@ project "rarog"
  		"Svarog/vendor/stb_image",
  		"Svarog/vendor/entt",
  		"Svarog/vendor/ImGuizmo",
+ 		"Svarog/vendor/cppargs",
 		"Svarog/assets/fonts"
 	}
 
 
--- 	prebuildcommands { "cd shaders; ./to-hex-include" }
+ 	prebuildcommands { "cd shaders; ./to-hex-include" }
 
-	links { "glfw", "GLEW", "GL", "cppargs", "cfitsio",
+	links { "glfw", "GLEW", "GL", "cfitsio",
 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
 
 	filter "configurations:Debug"
@@ -103,13 +104,14 @@ project "meshview"
  		"Svarog/vendor/stb_image",
  		"Svarog/vendor/entt",
  		"Svarog/vendor/ImGuizmo",
+ 		"Svarog/vendor/cppargs",
 		"Svarog/assets/fonts"
 	}
 
 
--- 	prebuildcommands { "cd shaders; ./to-hex-include" }
+ 	prebuildcommands { "cd shaders; ./to-hex-include" }
 
-	links { "glfw", "GLEW", "GL", "cppargs", "cfitsio",
+	links { "glfw", "GLEW", "GL",  "cfitsio",
 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
 
 	filter "configurations:Debug"
@@ -161,13 +163,14 @@ project "meshlc"
  		"Svarog/vendor/stb_image",
  		"Svarog/vendor/entt",
  		"Svarog/vendor/ImGuizmo",
+ 		"Svarog/vendor/cppargs",
 		"Svarog/assets/fonts"
 	}
 
 
--- 	prebuildcommands { "cd shaders; ./to-hex-include" }
+ 	prebuildcommands { "cd shaders; ./to-hex-include" }
 
-	links { "glfw", "GLEW", "GL", "cppargs", "cfitsio",
+	links { "glfw", "GLEW", "GL", "cfitsio",
 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
 
 	filter "configurations:Debug"
@@ -227,7 +230,7 @@ project "meshlc"
 --
 -- -- 	prebuildcommands { "cd shaders; ./to-hex-include" }
 --
--- 	links { "glfw", "GLEW", "GL", "cppargs", "cfitsio",
+-- 	links { "glfw", "GLEW", "GL", "cfitsio",
 -- 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
 --
 -- 	filter "configurations:Debug"
@@ -273,6 +276,8 @@ project "Svarog"
 		"%{prj.name}/vendor/imgui/**.cpp",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp",
+		"%{prj.name}/vendor/cppargs/**.h",
+		"%{prj.name}/vendor/cppargs/**.cpp",
 		--"src/**.h",
 		--"src/**.cpp"
 	}
@@ -292,6 +297,7 @@ project "Svarog"
  		"%{prj.name}/vendor/spdlog",
  		"%{prj.name}/vendor/entt",
  		"%{prj.name}/vendor/ImGuizmo",
+ 		"%{prj.name}/vendor/cppargs",
 	}
 
 
