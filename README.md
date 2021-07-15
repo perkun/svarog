@@ -59,13 +59,6 @@ Install those packages in your system using system package manager:
 * vim (required for `xxd` utility)
 * zenity
 
-Also, install this library:
-[https://github.com/gabime/spdlog.git](https://github.com/gabime/spdlog.git)
-
-Note: after compiling spdlog (as described in spdlog's README), do `make
-install` (as root). You have to install it from source this way, because system
-package does not work for this project somehow.
-
 ## Download source
 
 ```bash
