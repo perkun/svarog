@@ -1,6 +1,15 @@
 #!/bin/bash
 # created by perkun on 15/07/2021
 
+CFG_NO_CLEAN="false"
+
+for opt in "$@"; do
+	if [ $opt == '--no-clean' ]; then
+		CFG_NO_CLEAN="true"
+	fi
+done
+
+
 # make config folder
 CONFDIR=/home/$USER/.config/svarog
 if [[ -d $CONFDIR ]]; then
@@ -23,7 +32,11 @@ FONTS_DIR="--fonts-path=/home/$USER/.config/svarog/fonts"
 
 # generate files
 premake5 gmake $MESHLC_INI $RAROG_INI $FONTS_DIR
-make clean config=release
+
+if [ $CFG_NO_CLEAN == "true" ]; then
+	make clean config=release
+fi
+
 make config=release
 
 # copy executables
