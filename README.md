@@ -18,6 +18,8 @@ Svarog engine is used to create these applications:
 Solar System scene editor. Add asteroid models, move them around, observe
 synthetic lightcurves, AO and radar images.
 
+![screen](svarog.png)
+
 ### Features:
 
 * loading / saving scenes
