@@ -16,5 +16,6 @@ include "Svarog"
 include "rarog"
 include "meshlc"
 include "meshview"
+include "zadanie_testowe"
 
 

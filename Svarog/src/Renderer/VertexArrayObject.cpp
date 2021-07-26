@@ -105,7 +105,7 @@ DynamicVertexArrayObject::~DynamicVertexArrayObject()
 
 void DynamicVertexArrayObject::update_buffer(const IndexedModel &idx_mod)
 {
-	if (idx_mod.vertices.size() < 3)
+	if (idx_mod.vertices.size() < 1)
 		return;
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);

@@ -1,12 +1,5 @@
-newoption {
-	trigger = "rarog-ini",
-	value = "PATH",
-	description = "path to Rarogs ini file"
-}
-
-
-project "rarog"
-	location "./rarog"
+project "zadanie_testowe"
+	location "./zadanie_testowe"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
@@ -14,13 +7,10 @@ project "rarog"
 	buildoptions { "-pthread"}
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/build/" .. outputdir  .. "/%{prj.name}")
-
 	files
 	{
 		"src/**.h",
 		"src/**.cpp"
-		--"%{prj.name}/**.h",
-		--"%{prj.name}/**.cpp"
 	}
 
 -- 	pchheader "svpch.h"
@@ -29,7 +19,6 @@ project "rarog"
 	includedirs
 	{
  		"src",
- 		"src/Panels",
  		"%{wks.location}/Svarog/src",
  		"%{wks.location}/Svarog/src/Layer",
  		"%{wks.location}/Svarog/src/Event",
@@ -48,34 +37,25 @@ project "rarog"
 	}
 
 
---  	prebuildcommands { "cd %{wks.location}/rarog/shaders; ./to-hex-include" }
+ 	prebuildcommands { "cd %{wks.location}/meshview/shaders; ./to-hex-include" }
 
-	links { "glfw", "GLEW", "GL", "cfitsio",
+	links { "glfw", "GLEW", "GL",  "cfitsio",
 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
-
--- 	local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
 
 	filter "configurations:Debug"
 		-- defines...
 		symbols "On"
 		defines "SV_DEBUG"
 		defines "SPDLOG_COMPILED_LIB"
-		if _OPTIONS["rarog-ini"] then
-			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
-			defines { ini_file }
-		end
 
 	filter "configurations:Release"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
 		defines "SPDLOG_COMPILED_LIB"
-		if _OPTIONS["rarog-ini"] then
-			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
-			defines { ini_file }
-		end
 
 	filter "configurations:Dist"
 		-- defines...
 		optimize "On"
+
 

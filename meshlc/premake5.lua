@@ -44,7 +44,7 @@ project "meshlc"
 	}
 
 
- 	prebuildcommands { "cd %{wks.location}/meshlc/shaders; ./to-hex-include" }
+--  	prebuildcommands { "cd %{wks.location}/meshlc/shaders; ./to-hex-include" }
 
 
 	links { "glfw", "GLEW", "GL", "cfitsio",

@@ -37,7 +37,7 @@ project "meshview"
 	}
 
 
- 	prebuildcommands { "cd %{wks.location}/meshview/shaders; ./to-hex-include" }
+--  	prebuildcommands { "cd %{wks.location}/meshview/shaders; ./to-hex-include" }
 
 	links { "glfw", "GLEW", "GL",  "cfitsio",
 			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
