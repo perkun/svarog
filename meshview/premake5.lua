@@ -32,7 +32,7 @@ project "meshview"
  		"%{wks.location}/Svarog/vendor/entt",
  		"%{wks.location}/Svarog/vendor/ImGuizmo",
  		"%{wks.location}/Svarog/vendor/spdlog/include/spdlog",
- 		"%{wks.location}/Svarog/vendor/cppargs",
+ 		"%{wks.location}/Svarog/vendor/cppargs/src",
 		"%{wks.location}/Svarog/assets/fonts"
 	}
 
