@@ -9,6 +9,13 @@ uniform mat4 u_perspective_matrix;
 
 out vec3 normal_world;
 out vec2 v_tex_coord;
+out float u1, u2;
+
+
+float frac(float x)
+{
+	return x - floor(x);
+}
 
 void main()
 {
@@ -16,6 +23,9 @@ void main()
 	normal_world = normalize(normal_world);
 
 	v_tex_coord = tex_coord;
+
+	u1 = frac(tex_coord.x);
+	u2 = frac(tex_coord.x + 0.5) - 0.5;
 
 	gl_Position = u_perspective_matrix * u_view_matrix * u_model_matrix * position;
 }
