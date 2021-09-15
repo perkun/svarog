@@ -1,7 +1,6 @@
 #ifndef MAINLAYER_H_
 #define MAINLAYER_H_
 
-#include <cppargs/Parser.h>
 #include "Layer.h"
 #include "Scene.h"
 #include "Utils/FileDialog.h"
@@ -11,6 +10,7 @@
 #include "ObservatoryPanel.h"
 #include "ObservePanel.h"
 #include "TimePanel.h"
+#include "Parser.h"
 // #include "Svarog.h"
 
 
