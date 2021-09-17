@@ -26,7 +26,7 @@ private:
     void on_key_pressed_event(KeyPressedEvent &event);
     void on_mouse_moved_event(MouseMovedEvent &event);
 
-    void print_screen();
+    void print_screen(std::string filename);
 
     Overlay header_overlay, help_overlay, info_overlay;
 

@@ -303,12 +303,12 @@ void MainLayer::on_key_pressed_event(KeyPressedEvent &event)
 
     if (key_code == GLFW_KEY_Z)
         if (Input::is_key_pressed(GLFW_KEY_LEFT_SHIFT))
-			info_overlay.reset_timeout("-Z axis view");
+            info_overlay.reset_timeout("-Z axis view");
         else
-			info_overlay.reset_timeout(" Z axis view");
+            info_overlay.reset_timeout(" Z axis view");
     else if (key_code == GLFW_KEY_X)
         if (Input::is_key_pressed(GLFW_KEY_LEFT_SHIFT))
-			info_overlay.reset_timeout("-X axis view");
+            info_overlay.reset_timeout("-X axis view");
         else
             info_overlay.reset_timeout(" X axis view");
     else if (key_code == GLFW_KEY_Y)
@@ -336,7 +336,11 @@ void MainLayer::on_key_pressed_event(KeyPressedEvent &event)
     else if (key_code == GLFW_KEY_H)
         display_help = true;
     else if (key_code == GLFW_KEY_P)
-        print_screen();
+    {
+        string filename = FileDialog::save_file("*png");
+        if (!filename.empty())
+            print_screen(filename);
+    }
     else if (key_code == GLFW_KEY_B)
     {
         currnet_bg_color++;
@@ -359,11 +363,7 @@ void MainLayer::on_mouse_moved_event(MouseMovedEvent &event)
 {
 }
 
-void MainLayer::print_screen() {
-
-  string filename = FileDialog::save_file("*png");
-  if (filename.empty())
-    return;
+void MainLayer::print_screen(string filename) {
 
   float *pixel_buffer_r =
       new float[(int)(viewport_panel_size.x * viewport_panel_size.y)];
