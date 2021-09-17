@@ -49,7 +49,7 @@ public:
 
     void set_negative_y_axis_view()
     {
-        accumulator = glm::rotate(mat4(1.), (float)(-M_PI / 2.), z_axis);
+        accumulator = glm::rotate(mat4(1.), 0.f, z_axis);
 		update_rotation();
     }
 

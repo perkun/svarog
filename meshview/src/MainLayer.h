@@ -26,6 +26,7 @@ private:
     void on_key_pressed_event(KeyPressedEvent &event);
     void on_mouse_moved_event(MouseMovedEvent &event);
 
+	void make_projection_and_exit();
     void print_screen(std::string filename);
 
     Overlay header_overlay, help_overlay, info_overlay;
@@ -33,7 +34,7 @@ private:
     Args args;
     Scene scene;
 
-    Entity axes;
+    Entity axes, model;
 
     Framebuffer *ms_framebuffer, *framebuffer;
 

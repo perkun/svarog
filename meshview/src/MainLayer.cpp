@@ -62,6 +62,9 @@ void MainLayer::on_attach()
     auto window = Application::get_window();
     init_model_pos = vec3(0., 0., 0.);
 
+	viewport_panel_size.x = window->width;
+	viewport_panel_size.y = window->height;
+
     // TODO couple more useful shaders
     shader_ptrs.push_back(Application::shaders["basic_shader"]);
     shader_ptrs.push_back(Application::shaders["tex_sha_ls"]);
@@ -87,7 +90,7 @@ void MainLayer::on_attach()
     framebuffer = new Framebuffer(fb_specs);
 
 
-    Entity model = scene.create_entity("Model");
+    model = scene.create_entity("Model");
 
 
     if (args["model"])
@@ -189,6 +192,10 @@ void MainLayer::on_attach()
 
     scene.observer = runtime_observer;
     scene.target = model;
+
+
+    if (args["projection"])
+		make_projection_and_exit();
 }
 
 
@@ -205,7 +212,7 @@ void MainLayer::on_update(double ts)
     ms_framebuffer->clear();
     ms_framebuffer->clear_attachment(1, -1); // ent_id "bg" to -1
 
-	scene.update_scripts(ts);
+    scene.update_scripts(ts);
     scene.on_update_runtime(ts);
 
     Framebuffer::blit(ms_framebuffer, framebuffer, 0, 0);
@@ -213,8 +220,8 @@ void MainLayer::on_update(double ts)
 
     Renderer::bind_default_framebuffer();
 
-	if (info_overlay.timeout > 0.)
-		info_overlay.timeout -= ts;
+    if (info_overlay.timeout > 0.)
+        info_overlay.timeout -= ts;
 
 }
 
@@ -391,3 +398,48 @@ void MainLayer::print_screen(string filename) {
 }
 
 
+
+
+void MainLayer::make_projection_and_exit()
+{
+    scene.update_scripts(0.0); // to initialze scripts
+    ModelController *model_controller_script = dynamic_cast<ModelController *>(
+        model.get_component<NativeScriptComponent>().instance);
+
+    model.add_child(axes);
+
+
+	// axes symbols
+
+    string view = args.get_value<string>("projection");
+    if (view == "x")
+        model_controller_script->set_x_axis_view();
+    else if (view == "y")
+        model_controller_script->set_y_axis_view();
+    else if (view == "z")
+        model_controller_script->set_z_axis_view();
+    else if (view == "nx")
+        model_controller_script->set_negative_x_axis_view();
+    else if (view == "ny")
+        model_controller_script->set_negative_y_axis_view();
+    else if (view == "nz")
+        model_controller_script->set_negative_z_axis_view();
+    else
+	{
+        cout << "wrong projection name" << endl;
+		return;
+	}
+
+	Application::set_bg_color(vec4(1.0, 1.0, 1.0, 1.0));
+
+
+	on_update(0.0);
+
+	if (args["projection"])
+	{
+		string view = args.get_value<string>("projection");
+		print_screen(args.get_value<string>("prefix") + "_" + view + ".png");
+        Application::stop();
+	}
+
+}
