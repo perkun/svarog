@@ -1,11 +1,11 @@
 #!/bin/bash
 # created by perkun on 15/07/2021
 
-CFG_NO_CLEAN="false"
+CFG_CLEAN="false"
 
 for opt in "$@"; do
-	if [ $opt == '--no-clean' ]; then
-		CFG_NO_CLEAN="true"
+	if [ $opt == '--clean' ]; then
+		CFG_CLEAN="true"
 	fi
 done
 
@@ -33,7 +33,7 @@ FONTS_DIR="--fonts-path=/home/$USER/.config/svarog/fonts"
 # generate files
 premake5 gmake $MESHLC_INI $RAROG_INI $FONTS_DIR
 
-if [ $CFG_NO_CLEAN == "true" ]; then
+if [ $CFG_CLEAN == "true" ]; then
 	make clean config=release
 fi
 
