@@ -7,7 +7,7 @@ newoption {
 
 
 project "meshlc"
-	location "./meshlc"
+	location "./"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"

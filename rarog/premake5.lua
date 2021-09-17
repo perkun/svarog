@@ -6,7 +6,7 @@ newoption {
 
 
 project "rarog"
-	location "./rarog"
+	location "./"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"

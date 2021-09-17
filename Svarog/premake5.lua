@@ -5,7 +5,7 @@ newoption {
 }
 
 project "Svarog"
-	location "./Svarog"
+	location "./"
 	--kind "ConsoleApp"
 	kind "StaticLib"
 

@@ -1,5 +1,5 @@
 project "meshview"
-	location "./meshview"
+	location "./"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
