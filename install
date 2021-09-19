@@ -1,11 +1,11 @@
 #!/bin/bash
 # created by perkun on 15/07/2021
 
-CFG_CLEAN="false"
+CFG_CLEAN="true"
 
 for opt in "$@"; do
-	if [ $opt == '--clean' ]; then
-		CFG_CLEAN="true"
+	if [ $opt == '--no-clean' ]; then
+		CFG_CLEAN="false"
 	fi
 done
 
