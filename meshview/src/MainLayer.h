@@ -51,7 +51,7 @@ private:
     vec2 last_cursor_pos;
 
     // defaults:
-    float cam_size_x = 2.05;
+    float cam_size_x = 2.1;
     vector<vec4> bg_colors;
     int currnet_bg_color = 0;
 };

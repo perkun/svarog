@@ -7,10 +7,6 @@
 using namespace std;
 
 
-#define WIN_W 600
-#define WIN_H 600
-
-
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////   MAIN   ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,9 +25,14 @@ int main(int argc, char *argv[])
     parser.add_option("prefix",
                       "projection filename prefix; default: projection", false,
                       "projection");
+	parser.add_option('W', "width", "window width", false, "600");
+	parser.add_option('H', "height", "window height", false, "600");
 
 
     Args args = parser.parse_args(argc, argv);
+
+	int WIN_W = args.get_value<int>("width");
+	int WIN_H = args.get_value<int>("height");
 
 
     if (args["projection"])
