@@ -42,8 +42,8 @@ project "rarog"
  		"%{wks.location}/Svarog/vendor/stb_image",
  		"%{wks.location}/Svarog/vendor/entt",
  		"%{wks.location}/Svarog/vendor/ImGuizmo",
- 		"%{wks.location}/Svarog/vendor/spdlog/include/spdlog",
- 		"%{wks.location}/Svarog/vendor/cppargs/src",
+ 		"%{wks.location}/Svarog/vendor/spdlog/include/",
+ 		"%{wks.location}/Svarog/vendor/cppargs/src/",
 		"%{wks.location}/Svarog/assets/fonts"
 	}
 
@@ -51,7 +51,7 @@ project "rarog"
  	prebuildcommands { "cd %{wks.location}/rarog/shaders; ./to-hex-include" }
 
 	links { "glfw", "GLEW", "GL", "cfitsio",
-			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
+			"yaml-cpp", "pthread", "Svarog"  }
 
 -- 	local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
 
@@ -59,7 +59,7 @@ project "rarog"
 		-- defines...
 		symbols "On"
 		defines "SV_DEBUG"
-		defines "SPDLOG_COMPILED_LIB"
+		--defines "SPDLOG_COMPILED_LIB"
 		if _OPTIONS["rarog-ini"] then
 			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
 			defines { ini_file }
@@ -69,7 +69,7 @@ project "rarog"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
-		defines "SPDLOG_COMPILED_LIB"
+		--defines "SPDLOG_COMPILED_LIB"
 		if _OPTIONS["rarog-ini"] then
 			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["rarog-ini"] .. "\""
 			defines { ini_file }

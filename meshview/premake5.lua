@@ -31,7 +31,7 @@ project "meshview"
  		"%{wks.location}/Svarog/vendor/stb_image",
  		"%{wks.location}/Svarog/vendor/entt",
  		"%{wks.location}/Svarog/vendor/ImGuizmo",
- 		"%{wks.location}/Svarog/vendor/spdlog/include/spdlog",
+ 		"%{wks.location}/Svarog/vendor/spdlog/include",
  		"%{wks.location}/Svarog/vendor/cppargs/src",
 		"%{wks.location}/Svarog/assets/fonts"
 	}
@@ -40,19 +40,17 @@ project "meshview"
  	prebuildcommands { "cd %{wks.location}/meshview/shaders; ./to-hex-include" }
 
 	links { "glfw", "GLEW", "GL",  "cfitsio",
-			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
+			"yaml-cpp",  "pthread", "Svarog"  }
 
 	filter "configurations:Debug"
 		-- defines...
 		symbols "On"
 		defines "SV_DEBUG"
-		defines "SPDLOG_COMPILED_LIB"
 
 	filter "configurations:Release"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
-		defines "SPDLOG_COMPILED_LIB"
 
 	filter "configurations:Dist"
 		-- defines...

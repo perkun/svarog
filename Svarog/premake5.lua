@@ -32,6 +32,8 @@ project "Svarog"
 		"vendor/ImGuizmo/ImGuizmo.cpp",
 		"vendor/cppargs/**.h",
 		"vendor/cppargs/**.cpp",
+        "vendor/spdlog/include/spdlog/*.h",
+        "vendor/spdlog/scr/*.cpp",
 		--"src/**.h",
 		--"src/**.cpp"
 	}
@@ -48,15 +50,15 @@ project "Svarog"
  		"vendor/imgui",
  		"vendor/imgui/backends",
  		"vendor/stb_image",
- 		"vendor/spdlog",
+ 		"vendor/spdlog/include",
  		"vendor/entt",
  		"vendor/ImGuizmo",
- 		"vendor/cppargs",
+ 		"vendor/cppargs/src",
 	}
 
 
 
-	links { "glfw", "GLEW", "GL", "cfitsio", "yaml-cpp", "pthread", "spdlog" }
+	links { "glfw", "GLEW", "GL", "cfitsio", "yaml-cpp", "pthread" }
 
 	if not _OPTIONS["fonts-path"] then
 		_OPTIONS["fonts-path"] = _WORKING_DIR .. "/Svarog/assets/fonts"
@@ -70,17 +72,17 @@ project "Svarog"
 		-- defines...
 		symbols "On"
 		defines "SV_DEBUG"
-		defines "SPDLOG_COMPILED_LIB"
+		--defines "SPDLOG_COMPILED_LIB"
 		defines { fonts_def }
 
 	filter "configurations:Release"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
-		defines "SPDLOG_COMPILED_LIB"
+		--defines "SPDLOG_COMPILED_LIB"
 		defines { fonts_def }
 
 	filter "configurations:Dist"
 		-- defines...
 		optimize "On"
-		defines "SPDLOG_COMPILED_LIB"
+		--defines "SPDLOG_COMPILED_LIB"

@@ -30,7 +30,7 @@ class MainLayer : public Layer
 	friend class ObservatoryPanel;
 	friend class ObservePanel;
 public:
-    MainLayer(Args args);
+    MainLayer(cppargs::Args args);
 	~MainLayer();
 
 	virtual void on_attach() override;
@@ -77,7 +77,7 @@ private:
 	vec2 viewport_panel_size;
 	vec2 vieport_bounds[2];
 
-	Args args;
+    cppargs::Args args;
 
 	EditorCamera editor_camera;
 	Scene scene, ui_scene;

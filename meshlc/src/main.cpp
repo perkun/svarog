@@ -18,10 +18,10 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-    Parser parser;
+    cppargs::Parser parser;
 
 
-    parser.add_positional("model", "path to OBJ/SHP model", 1);
+    parser.add_positional("model", "path to OBJ/SHP model");
 
     parser.add_option('t', "texture", "texture file", false, "");
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
 	parser.add_flag("debug", "debug mode");
 
-    Args args = parser.parse_args(argc, argv);
+    cppargs::Args args = parser.parse_args(argc, argv);
 
 
     if (args["jd"] && !args["header"])

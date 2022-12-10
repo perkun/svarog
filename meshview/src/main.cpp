@@ -14,10 +14,10 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-    Parser parser;
+    cppargs::Parser parser;
 
 
-    parser.add_positional("model", "path to OBJ/SHP model", 1);
+    parser.add_positional("model", "path to OBJ/SHP model");
     parser.add_option('t', "texture", "texture file", false, "");
 
     parser.add_option('p', "projection",
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	parser.add_option('H', "height", "window height", false, "600");
 
 
-    Args args = parser.parse_args(argc, argv);
+    cppargs::Args args = parser.parse_args(argc, argv);
 
 	int WIN_W = args.get_value<int>("width");
 	int WIN_H = args.get_value<int>("height");

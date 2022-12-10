@@ -13,7 +13,7 @@
 class MainLayer : public Layer
 {
 public:
-    MainLayer(Args args);
+    MainLayer(cppargs::Args args);
     ~MainLayer();
 
     virtual void on_attach() override;
@@ -27,7 +27,7 @@ private:
 
     void print_screen();
 
-    Args args;
+    cppargs::Args args;
     Scene scene;
 
     Framebuffer *ms_framebuffer, *framebuffer;

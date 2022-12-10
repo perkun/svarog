@@ -19,7 +19,7 @@
 
 unsigned int Scene::num_scenes = 0;
 
-MainLayer::MainLayer(Args args)
+MainLayer::MainLayer(cppargs::Args args)
 {
     this->args = args;
     TRACE("MainLayer constructed");

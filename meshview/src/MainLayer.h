@@ -12,7 +12,7 @@
 class MainLayer : public Layer
 {
 public:
-    MainLayer(Args args);
+    MainLayer(cppargs::Args args);
     ~MainLayer();
 
     virtual void on_attach() override;
@@ -31,7 +31,7 @@ private:
 
     Overlay header_overlay, help_overlay, info_overlay;
 
-    Args args;
+    cppargs::Args args;
     Scene scene;
 
     Entity axes, model;

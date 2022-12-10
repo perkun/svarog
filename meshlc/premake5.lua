@@ -38,7 +38,7 @@ project "meshlc"
  		"%{wks.location}/Svarog/vendor/stb_image",
  		"%{wks.location}/Svarog/vendor/entt",
  		"%{wks.location}/Svarog/vendor/ImGuizmo",
- 		"%{wks.location}/Svarog/vendor/spdlog/include/spdlog",
+ 		"%{wks.location}/Svarog/vendor/spdlog/include",
  		"%{wks.location}/Svarog/vendor/cppargs/src",
 		"%{wks.location}/Svarog/assets/fonts"
 	}
@@ -48,13 +48,12 @@ project "meshlc"
 
 
 	links { "glfw", "GLEW", "GL", "cfitsio",
-			"yaml-cpp",  "spdlog", "fmt",  "pthread", "Svarog"  }
+			"yaml-cpp", "pthread", "Svarog"}
 
 	filter "configurations:Debug"
 		-- defines...
 		symbols "On"
 		defines "SV_DEBUG"
-		defines "SPDLOG_COMPILED_LIB"
 		if _OPTIONS["meshlc-ini"] then
 			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["meshlc-ini"] .. "\""
 			defines { ini_file }
@@ -64,7 +63,6 @@ project "meshlc"
 		-- defines...
 		optimize "On"
 		defines "SV_RELEASE"
-		defines "SPDLOG_COMPILED_LIB"
 		if _OPTIONS["meshlc-ini"] then
 			local ini_file = "SV_CONFIG_INI_FILE=\"" .. _OPTIONS["meshlc-ini"] .. "\""
 			defines { ini_file }

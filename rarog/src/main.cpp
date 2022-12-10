@@ -18,7 +18,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-	Parser parser;
+    cppargs::Parser parser;
 
 	parser.add_flag('e', "empty", "Empty scene");
 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	parser.add_vec_option("model-pos", "xyz of the model", 3, false);
 	parser.add_vec_option("observer-pos", "xyz of the observer", 3, false);
 
-	Args args = parser.parse_args(argc, argv);
+    cppargs::Args args = parser.parse_args(argc, argv);
 
 
 	Application::init(WIN_W, WIN_H, "Application", false);
